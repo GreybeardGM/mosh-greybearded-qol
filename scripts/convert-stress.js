@@ -49,7 +49,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     conversionPoints = Math.min(roll.total, conversionPoints);
   }
 
-  if (convertsionPoints <= 0) return { result: "nochange" };
+  if (conversionPoints <= 0) return { result: "nochange" };
 
   const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
