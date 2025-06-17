@@ -11,12 +11,7 @@ export async function showStressConversionDialog(actor, points) {
           icon: "<i class=\"fas fa-check\"></i>",
           label: "Confirm",
           callback: async (html) => {
-            await actor.update({
-              "system.saves.sanity.value": actor.system.saves.sanity.value + values.sanity,
-              "system.saves.fear.value": actor.system.saves.fear.value + values.fear,
-              "system.saves.body.value": actor.system.saves.body.value + values.body
-            });
-            resolve(true);
+            resolve(values);
           }
         },
         cancel: {
