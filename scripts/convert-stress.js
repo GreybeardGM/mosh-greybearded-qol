@@ -14,6 +14,9 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
   // Optional: Sanity Save
   if (options.useSanitySave) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
+    
+    console.log(sanityCheck);
+    
     await ChatMessage.create({
       user: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor }),
