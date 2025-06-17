@@ -14,12 +14,6 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
   // Optional: Sanity Save
   if (options.useSanitySave) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
-    await ChatMessage.create({
-      user: game.user.id,
-      speaker: ChatMessage.getSpeaker({ actor }),
-      content: sanityCheck.rollHtml + sanityCheck.outcomeHtml
-    });
-    
     await new Promise(resolve => setTimeout(resolve, 20));
     
     // Fix: Nutze parsedRollResult
@@ -28,7 +22,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     const critical = sanityResult?.critical === true;
 
     if (!success && critical) {
-      ui.notifications.warn("PANIC CHECK TRIGGERED (not yet implemented)");
+      actor.rollTable('panicCheck', null, null, null, null, null, null);
     }
 
     if (!success) {
