@@ -20,8 +20,8 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
       content: sanityCheck.rollHtml + sanityCheck.outcomeHtml
     });
 
-    // Wait for async resolution of result flags
-    await foundry.utils.wait(10); // Small delay to allow flags to resolve if needed
+    // Defer evaluation slightly to ensure async flags resolve
+    await new Promise(resolve => setTimeout(resolve, 20));
 
     const success = sanityCheck?.success === true;
     const critical = sanityCheck?.critical === true;
