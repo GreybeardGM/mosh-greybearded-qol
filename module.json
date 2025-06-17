@@ -1,17 +1,17 @@
 {
   "id": "mosh-greybearded-qol",
   "title": "MoSh Greybearded QoL",
-  "description": "All sort of QoL improovements",
-  "version": "0.01",
+  "description": "All sorts of quality-of-life improvements for Mothership.",
+  "version": "0.0.1",
   "author": "GreybeardGM",
   "type": "module",
   "system": "mosh",
   "compatibility": {
     "minimum": "12",
-    "verified": "12"
+    "verified": "12.999"
   },
-  "styles": [],
   "esmodules": ["scripts/main.js"],
+  "styles": [],
   "url": "https://github.com/GreybeardGM/mosh-greybearded-qol",
   "manifest": "https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json",
   "download": "https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/heads/main.zip"
