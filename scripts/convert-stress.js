@@ -1,3 +1,5 @@
+import { showStressConversionDialog } from "./ui/stress-distribution.js";
+
 export async function convertStress(actor, formula = "1d5", options = { useSanitySave: false, resetToMin: false }) {
   const stress = actor.system.other.stress;
   const currentStress = stress?.value ?? 0;
