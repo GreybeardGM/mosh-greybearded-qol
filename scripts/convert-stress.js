@@ -27,14 +27,26 @@ export async function convertStress(actor, {
   // Roll for conversion
   const roll = await new Roll(rollFormula).roll({ async: true });
   const converted = Math.min(roll.total, stressAvailable);
+  // Output roll to Chat
+  await roll.toMessage({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    flavor: "Stress Conversion Roll"
+  });
+
 
   // Stress update (we apply it after dialog so we can cancel)
   const newStress = resetToMin ? min : stress - converted;
 
   // Distribute converted points to saves
   if (converted > 0 && showDialog) {
-    const result = await showStressConversionDialog(actor, converted);
-    if (!result) return; // user canceled or invalid
+    const distribution = await showStressConversionDialog(actor, converted);
+    if (!distribution) return; // Abgebrochen
+    
+    await actor.update({
+      "system.saves.sanity.value": actor.system.saves.sanity.value + distribution.sanity,
+      "system.saves.fear.value": actor.system.saves.fear.value + distribution.fear,
+      "system.saves.body.value": actor.system.saves.body.value + distribution.body,
+    });
   }
 
   await actor.update({ "system.other.stress.value": newStress });
