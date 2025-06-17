@@ -17,12 +17,7 @@ export async function showStressConversionDialog(actor, points) {
           icon: "<i class=\"fas fa-check\"></i>",
           label: "Confirm",
           callback: async (html) => {
-            await actor.update({
-              "system.stats.sanity.value": values.sanity,
-              "system.stats.fear.value": values.fear,
-              "system.stats.body.value": values.body
-            });
-            resolve(values); // neue absolute Werte zurückgeben
+            resolve(values); // absolute Werte zurückgeben
           }
         },
         cancel: {
