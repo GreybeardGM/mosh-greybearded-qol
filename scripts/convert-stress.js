@@ -14,15 +14,16 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
   // Optional: Sanity Save
   if (options.useSanitySave) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
+
+    // Wait for evaluation
     await new Promise(resolve => setTimeout(resolve, 20));
-    
-    // Fix: Nutze parsedRollResult
-    const sanityResult = Array.isArray(sanityCheck) ? sanityCheck[0].parsedRollResult : null;
-    const success = sanityResult?.success === true;
-    const critical = sanityResult?.critical === true;
+
+    const result = Array.isArray(sanityCheck) ? sanityCheck[0]?.parsedRollResult : sanityCheck;
+    const success = result?.success === true;
+    const critical = result?.critical === true;
 
     if (!success && critical) {
-      actor.rollTable('panicCheck', null, null, null, null, null, null);
+      await actor.rollTable("panicCheck", null, null, null, null, null, null);
     }
 
     if (!success) {
