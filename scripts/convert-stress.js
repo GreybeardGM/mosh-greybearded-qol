@@ -49,9 +49,14 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
     rollResult = roll;
     conversionPoints = Math.min(roll.total, conversionPoints);
+  } 
+  else {
+    if (options.relieveStress) {
+      const targetStress = minStress + 1;
+      await actor.update({"system.other.stress.value": targetStress});
+    }
+    return { result: "nochange" };
   }
-
-  if (conversionPoints <= 0) return { result: "nochange" };
 
   const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
