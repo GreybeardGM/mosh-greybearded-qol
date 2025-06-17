@@ -8,7 +8,6 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
 
   let conversionPoints = 0;
   let rollResult = null;
-  let conversionAllowed = true;
 
   // Optional: Sanity Save
   if (options.useSanitySave) {
@@ -21,17 +20,10 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
 
     if (sanityCheck.criticalFailure) {
       ui.notifications.warn("PANIC CHECK TRIGGERED (not yet implemented)");
-      if (options.resetToMin) {
-        await actor.update({ "system.other.stress.value": minStress });
-      }
       return { result: "panic" };
     }
 
     if (!sanityCheck.success) {
-      conversionAllowed = false;
-      if (options.resetToMin) {
-        await actor.update({ "system.other.stress.value": minStress });
-      }
       return { result: "fail" };
     }
 
@@ -52,12 +44,13 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     conversionPoints = roll.total;
   }
 
-  // Reduce stress
-  const newStress = Math.max(minStress, currentStress - conversionPoints);
-  await actor.update({ "system.other.stress.value": options.resetToMin ? minStress : newStress });
+  const targetStress = options.resetToMin ? minStress : Math.max(minStress, currentStress - conversionPoints);
+  const converted = currentStress - targetStress;
+  await actor.update({ "system.other.stress.value": targetStress });
 
-  // Let player distribute points
-  const finalSaves = await showStressConversionDialog(actor, currentStress - newStress);
+  if (converted <= 0) return { result: "nochange" };
+
+  const finalSaves = await showStressConversionDialog(actor, converted);
   if (!finalSaves) return { result: "canceled" };
 
   await actor.update({
@@ -69,8 +62,8 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
   return {
     result: "success",
     stressBefore: currentStress,
-    stressAfter: options.resetToMin ? minStress : newStress,
-    converted: currentStress - newStress,
+    stressAfter: targetStress,
+    converted,
     newSaves: finalSaves,
     roll: rollResult
   };
