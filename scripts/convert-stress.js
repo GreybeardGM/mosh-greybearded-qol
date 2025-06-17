@@ -40,12 +40,11 @@ export async function convertStress(actor, {
   // Distribute converted points to saves
   if (converted > 0 && showDialog) {
     const distribution = await showStressConversionDialog(actor, converted);
-    if (!distribution) return; // Abgebrochen
-    
+    if (!distribution) return; // Abgebrochen   
     await actor.update({
-      "system.saves.sanity.value": actor.system.saves.sanity.value + distribution.sanity,
-      "system.saves.fear.value": actor.system.saves.fear.value + distribution.fear,
-      "system.saves.body.value": actor.system.saves.body.value + distribution.body,
+      "system.stats.sanity.value": actor.system.stats.sanity.value + distribution.sanity,
+      "system.stats.fear.value": actor.system.stats.fear.value + distribution.fear,
+      "system.stats.body.value": actor.system.stats.body.value + distribution.body,
     });
   }
 
