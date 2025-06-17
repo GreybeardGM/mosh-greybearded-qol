@@ -1,7 +1,15 @@
 /* Base wrapper to scope all styles to the module */
 .greybeardqol {
+  --color-text: #ccc;
+  --color-border: #666;
+  --color-bg: #1a1a1a;
+  --color-bg-hover: #2a1a1a;
+  --color-highlight: #ff5500;
+  --color-counter: #ffcc66;
+  --color-remaining: #66ff99;
+
   font-family: var(--font-primary);
-  color: #ccc;
+  color: var(--color-text);
 }
 
 /* Grid for three attributes */
@@ -14,19 +22,19 @@
 
 /* Cards */
 .greybeardqol .attribute-card {
-  background: #1a1a1a;
-  border: 2px solid #666;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 1em;
   text-align: center;
-  transition: border 0.2s ease, background 0.2s ease;
+  transition: border 0.2s ease, background-color 0.2s ease;
   cursor: pointer;
   user-select: none;
 }
 
 .greybeardqol .attribute-card:hover {
-  border-color: #ff5500;
-  background-color: rgba(255, 85, 0, 0.1); /* Nur zusätzliche Tönung */
+  border-color: var(--color-highlight);
+  background-color: var(--color-bg-hover);
 }
 
 /* Icon Image */
@@ -48,7 +56,7 @@
 .greybeardqol .stress-counter {
   font-size: 1.4em;
   font-weight: bold;
-  color: #ffcc66;
+  color: var(--color-counter);
 }
 
 /* Remaining points info */
@@ -60,5 +68,5 @@
 } 
 
 .greybeardqol .remaining-points span {
-  color: #66ff99;
-} 
+  color: var(--color-remaining);
+}
