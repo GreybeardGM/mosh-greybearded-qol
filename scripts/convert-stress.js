@@ -15,19 +15,13 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
   if (options.useSanitySave) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
     
-    console.log(sanityCheck);
-    
     await ChatMessage.create({
       user: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor }),
       content: sanityCheck.rollHtml + sanityCheck.outcomeHtml
     });
 
-    // Defer evaluation slightly to ensure async flags resolve
-    await new Promise(resolve => setTimeout(resolve, 20));
-
-    const success = sanityCheck?.success === true;
-    const critical = sanityCheck?.critical === true;
+    const { success = false, critical = false } = Array.isArray(sanityCheck) ? sanityCheck[0] : {};
 
     if (!success && critical) {
       ui.notifications.warn("PANIC CHECK TRIGGERED (not yet implemented)");
