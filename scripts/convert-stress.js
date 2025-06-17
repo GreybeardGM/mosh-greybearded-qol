@@ -12,7 +12,7 @@ import { showStressConversionDialog } from "./ui/stress-distribution.js";
 export async function convertStress(actor, {
   rollFormula = "1d5",
   requireSanitySave = false, // Placeholder
-  resetToMin = false,
+  resetToMin = true,
   showDialog = true
 } = {}) {
   if (!actor || !actor.system?.other?.stress) {
