@@ -7,6 +7,8 @@
  * @param {boolean} [options.resetToMin=false] - If true, sets stress to minimum after conversion.
  * @param {boolean} [options.showDialog=true] - Whether to show the point distribution dialog.
  */
+import { showStressConversionDialog } from "./ui/stress-distribution.js";
+
 export async function convertStress(actor, {
   rollFormula = "1d5",
   requireSanitySave = false, // Placeholder
