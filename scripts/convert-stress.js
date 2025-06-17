@@ -36,7 +36,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
       const match = formula.match(/(\d+)d(\d+)/);
       if (match) {
         const [_, count, die] = match;
-        formula = `$(parseInt(count) * parseInt(die))`;
+        formula = `${parseInt(count) * parseInt(die)}`;
       }
     }
   }
@@ -46,7 +46,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     const roll = await new Roll(formula).roll({ async: true });
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
     rollResult = roll;
-    conversionPoints = Math.Min(roll.total, conversionPoints);
+    conversionPoints = Math.min(roll.total, conversionPoints);
   }
 
   if (convertsionPoints <= 0) return { result: "nochange" };
@@ -66,7 +66,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     result: "success",
     stressBefore: currentStress,
     stressAfter: targetStress,
-    converted,
+    converted: conversionPoints,
     newSaves: finalSaves,
     roll: rollResult
   };
