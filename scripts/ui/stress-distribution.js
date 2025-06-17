@@ -1,6 +1,12 @@
 export async function showStressConversionDialog(actor, points) {
   return new Promise(async (resolve) => {
-    const values = { sanity: 0, fear: 0, body: 0 };
+    // Hole aktuelle Werte aus dem Sheet
+    const base = {
+      sanity: actor.system.stats.sanity.value ?? 0,
+      fear: actor.system.stats.fear.value ?? 0,
+      body: actor.system.stats.body.value ?? 0,
+    };
+    const values = structuredClone(base);
 
     const html = await renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", {});
     const dlg = new Dialog({
@@ -11,23 +17,29 @@ export async function showStressConversionDialog(actor, points) {
           icon: "<i class=\"fas fa-check\"></i>",
           label: "Confirm",
           callback: async (html) => {
-            resolve(values);
+            await actor.update({
+              "system.stats.sanity.value": values.sanity,
+              "system.stats.fear.value": values.fear,
+              "system.stats.body.value": values.body
+            });
+            resolve(values); // neue absolute Werte zurückgeben
           }
         },
         cancel: {
           icon: "<i class=\"fas fa-times\"></i>",
           label: "Cancel",
-          callback: () => resolve(false)
+          callback: () => resolve(null)
         }
       },
       default: "confirm",
-      close: () => resolve(false),
+      close: () => resolve(null),
       render: (html) => {
         const updateUI = () => {
           html.find("#counter-sanity").text(values.sanity);
           html.find("#counter-fear").text(values.fear);
           html.find("#counter-body").text(values.body);
-          const assigned = values.sanity + values.fear + values.body;
+
+          const assigned = values.sanity + values.fear + values.body - base.sanity - base.fear - base.body;
           html.find("#remaining").text(points - assigned);
 
           const confirmBtn = html.closest(".app.window-app.dialog").find("button[name='confirm']");
@@ -36,9 +48,8 @@ export async function showStressConversionDialog(actor, points) {
 
         html.find(".attribute-card").on("click", function () {
           const attr = $(this).data("attr");
-          const current = values[attr];
-          if ((values.sanity + values.fear + values.body) < points) {
-            values[attr] = current + 1;
+          if ((values.sanity + values.fear + values.body - base.sanity - base.fear - base.body) < points && values[attr] < 90) {
+            values[attr] += 1;
             updateUI();
           }
         });
@@ -46,7 +57,7 @@ export async function showStressConversionDialog(actor, points) {
         html.find(".attribute-card").on("contextmenu", function (event) {
           event.preventDefault();
           const attr = $(this).data("attr");
-          if (values[attr] > 0) {
+          if (values[attr] > base[attr]) {
             values[attr] -= 1;
             updateUI();
           }
