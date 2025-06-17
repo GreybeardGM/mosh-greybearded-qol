@@ -4,4 +4,6 @@ Hooks.once("ready", () => {
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
+  
+  console.log("✅ MoSh Greybearded QoL loaded");
 });
