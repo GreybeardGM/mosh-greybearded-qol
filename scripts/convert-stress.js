@@ -1,14 +1,14 @@
 import { showStressConversionDialog } from "./ui/stress-distribution.js";
 
-export async function convertStress(actor, formula = "1d5", options = { useSanitySave: false, resetToMin: false }) {
+export async function convertStress(actor, formula = "1d5", options = { useSanitySave: true, relieveStress: true }) {
   const stress = actor.system.other.stress;
   const currentStress = stress?.value ?? 0;
-  const minStress = stress?.min ?? 1;
+  const minStress = stress?.min ?? 2;
 
   // No stress to convert
   if (currentStress <= minStress) return { result: "none" };
 
-  let conversionPoints = 0;
+  let conversionPoints = currentStress - minStress;
   let rollResult = null;
 
   // Optional: Sanity Save
@@ -20,42 +20,43 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
       content: sanityCheck.rollHtml + sanityCheck.outcomeHtml
     });
 
-    if (sanityCheck.criticalFailure) {
+    // interpret success/critical
+    const success = sanityCheck.success;
+    const critical = sanityCheck.critical === true;
+
+    if (!success && critical) {
       ui.notifications.warn("PANIC CHECK TRIGGERED (not yet implemented)");
-      return { result: "panic" };
     }
 
-    if (!sanityCheck.success) {
-      return { result: "fail" };
+    if (!success) {
+      conversionPoints = 0;
     }
 
-    if (sanityCheck.criticalSuccess) {
+    if (success && critical) {
       const match = formula.match(/(\d+)d(\d+)/);
       if (match) {
         const [_, count, die] = match;
-        conversionPoints = parseInt(count) * parseInt(die);
+        formula = `$(parseInt(count) * parseInt(die))`;
       }
     }
   }
 
-  // Roll for conversion if not auto-success
-  if (conversionPoints === 0) {
+  // Roll for conversion
+  if (conversionPoints > 0) {
     const roll = await new Roll(formula).roll({ async: true });
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
     rollResult = roll;
-    conversionPoints = roll.total;
+    conversionPoints = Math.Min(roll.total, conversionPoints);
   }
 
-  const targetStress = options.resetToMin ? minStress : Math.max(minStress, currentStress - conversionPoints);
-  const converted = currentStress - targetStress;
-  await actor.update({ "system.other.stress.value": targetStress });
+  if (convertsionPoints <= 0) return { result: "nochange" };
 
-  if (converted <= 0) return { result: "nochange" };
-
-  const finalSaves = await showStressConversionDialog(actor, converted);
+  const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
 
+  const targetStress = options.relieveStress ? minStress : Math.max(minStress, currentStress - conversionPoints);
   await actor.update({
+    "system.other.stress.value": targetStress,
     "system.stats.sanity.value": finalSaves.sanity,
     "system.stats.fear.value": finalSaves.fear,
     "system.stats.body.value": finalSaves.body
