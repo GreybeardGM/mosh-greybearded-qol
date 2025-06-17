@@ -1,31 +1,64 @@
-.stress-dialog {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1em;
-  text-align: center;
+/* Base wrapper to scope all styles to the module */
+.greybeardqol {
+  font-family: var(--font-primary);
+  color: #ccc;
 }
-.stress-attribute {
+
+/* Grid for three attributes */
+.greybeardqol .attribute-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1em;
+  margin-top: 1em;
+}
+
+/* Cards */
+.greybeardqol .attribute-card {
+  background: #1a1a1a;
   border: 2px solid #666;
   border-radius: 8px;
   padding: 1em;
-  background: #1a1a1a;
+  text-align: center;
+  transition: border 0.2s ease, background 0.2s ease;
   cursor: pointer;
-  transition: border 0.2s;
   user-select: none;
 }
-.stress-attribute:hover {
+
+.greybeardqol .attribute-card:hover {
   border-color: #ff5500;
+  background: rgba(255, 85, 0, 0.1);
 }
-.stress-attribute h3 {
-  margin: 0.5em 0;
+
+/* Icon Image */
+.greybeardqol .attribute-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
 }
-.stress-counter {
+
+/* Attribute label */
+.greybeardqol .attribute-card h3 {
+  margin: 0.5em 0 0.25em;
   font-size: 1.2em;
-  font-weight: bold;
-  color: #ccc;
 }
-.remaining-points {
+
+/* Counter for stress points */
+.greybeardqol .stress-counter {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #ffcc66;
+}
+
+/* Remaining points info */
+.greybeardqol .remaining-points {
   text-align: center;
   margin-top: 1em;
+  font-size: 1.1em;
   font-weight: bold;
-}
+} 
+
+.greybeardqol .remaining-points span {
+  color: #66ff99;
+} 
