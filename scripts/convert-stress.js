@@ -1,6 +1,10 @@
 import { showStressConversionDialog } from "./ui/stress-distribution.js";
 
-export async function convertStress(actor, formula = "1d5", options = { useSanitySave: true, relieveStress: true }) {
+export async function convertStress(actor, formula, options = {}) {
+  formula = formula ?? game.settings.get("mosh-greybearded-qol", "convertStress.formula");
+  const useSanitySave = options.useSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.useSanitySave");
+  const relieveStress = options.relieveStress ?? game.settings.get("mosh-greybearded-qol", "convertStress.relieveStress");
+  
   const stress = actor.system.other.stress;
   const currentStress = stress?.value ?? 0;
   const minStress = stress?.min ?? 2;
