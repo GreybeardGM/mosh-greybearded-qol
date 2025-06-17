@@ -1,5 +1,5 @@
 export async function convertStress(actor, formula = "1d5", options = { useSanitySave: false, resetToMin: false }) {
-  const stress = actor.system.stats.stress;
+  const stress = actor.system.other.stress;
   const currentStress = stress?.value ?? 0;
   const minStress = stress?.min ?? 1;
 
@@ -22,7 +22,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     if (sanityCheck.criticalFailure) {
       ui.notifications.warn("PANIC CHECK TRIGGERED (not yet implemented)");
       if (options.resetToMin) {
-        await actor.update({ "system.stats.stress.value": minStress });
+        await actor.update({ "system.other.stress.value": minStress });
       }
       return { result: "panic" };
     }
@@ -30,7 +30,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
     if (!sanityCheck.success) {
       conversionAllowed = false;
       if (options.resetToMin) {
-        await actor.update({ "system.stats.stress.value": minStress });
+        await actor.update({ "system.other.stress.value": minStress });
       }
       return { result: "fail" };
     }
@@ -54,7 +54,7 @@ export async function convertStress(actor, formula = "1d5", options = { useSanit
 
   // Reduce stress
   const newStress = Math.max(minStress, currentStress - conversionPoints);
-  await actor.update({ "system.stats.stress.value": options.resetToMin ? minStress : newStress });
+  await actor.update({ "system.other.stress.value": options.resetToMin ? minStress : newStress });
 
   // Let player distribute points
   const finalSaves = await showStressConversionDialog(actor, currentStress - newStress);
