@@ -42,9 +42,9 @@ export async function convertStress(actor, {
     const distribution = await showStressConversionDialog(actor, converted);
     if (!distribution) return; // Abgebrochen   
     await actor.update({
-      "system.stats.sanity.value": actor.system.stats.sanity.value + distribution.sanity,
-      "system.stats.fear.value": actor.system.stats.fear.value + distribution.fear,
-      "system.stats.body.value": actor.system.stats.body.value + distribution.body,
+      "system.stats.sanity.value": distribution.sanity,
+      "system.stats.fear.value": distribution.fear,
+      "system.stats.body.value": distribution.body,
     });
   }
 
