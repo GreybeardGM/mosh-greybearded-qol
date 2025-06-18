@@ -11,7 +11,6 @@ Hooks.once("ready", () => {
 
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");
-  console.log("✅ convertStress function:", convertStress);
 });
 
 // Settings
