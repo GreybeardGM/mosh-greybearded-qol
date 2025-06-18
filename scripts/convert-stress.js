@@ -45,7 +45,8 @@ export async function convertStress(actor, formula, options = {}) {
 
   // Roll for conversion
   if (conversionPoints > 0) {
-    const roll = await new Roll(formula).roll({ async: true });
+    const roll = new Roll(formula);
+    await roll.evaluate({ async: true });
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
     rollResult = roll;
     conversionPoints = Math.min(roll.total, conversionPoints);
