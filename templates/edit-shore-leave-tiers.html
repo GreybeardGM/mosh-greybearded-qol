@@ -43,6 +43,8 @@
     {{#each tiers as |tier i|}}
     <fieldset>
       <legend>{{tier.label}} ({{tier.tier}})</legend>
+      <input type="hidden" name="tiers.{{i}}.tier" value="{{tier.tier}}">
+      <input type="hidden" name="tiers.{{i}}.label" value="{{tier.label}}">
 
       <div class="form-group">
         <label>Stress Conversion</label>
