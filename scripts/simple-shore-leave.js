@@ -21,7 +21,7 @@ export async function simpleShoreLeave(actor) {
   const content = await renderTemplate("modules/mosh-greybearded-qol/templates/simple-shore-leave.html", {
     tiers
   });
-  
+
   return new Promise(resolve => {
     new Dialog({
       title: "Select Shore Leave Tier",
@@ -33,7 +33,7 @@ export async function simpleShoreLeave(actor) {
             const selected = html.find("input[name='shore-tier']:checked").val();
             const entry = tiers.find(t => t.tier === selected);
             if (!entry) return ui.notifications.error("Invalid tier selected.");
-  
+
             const result = await convertStress(actor, entry.stressFormula);
             resolve(result);
           }
@@ -43,28 +43,33 @@ export async function simpleShoreLeave(actor) {
           callback: () => resolve(null)
         }
       },
-      render: html => {
-        // Preiswürfel-Handler
+      render: async html => {
+        // Highlight selected tier card
+        html.find("input[name='shore-tier']").on("change", function () {
+          html.find(".card").removeClass("highlighted");
+          const selected = html.find("input[name='shore-tier']:checked").closest(".card");
+          selected.addClass("highlighted");
+        });
+
+        // Roll Price
         html.find(".roll-price").on("click", async ev => {
           const tier = ev.currentTarget.dataset.tier;
           const entry = tiers.find(t => t.tier === tier);
           if (!entry) return;
-      
+
           const roll = new Roll(entry.priceFormula);
           await roll.evaluate({ async: true });
           await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `Price for ${entry.label}` });
         });
-      
-        // Setze feste Breite per jQuery
+
+        // Set dialog width manually for layout stability
         html.closest('.app').css({
           width: '900px',
           maxWidth: '95vw',
           margin: '0 auto'
         });
-      }
+      },
       default: "confirm"
-    }, {
-      width: 900
     }).render(true);
   });
 }
