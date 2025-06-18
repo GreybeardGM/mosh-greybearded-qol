@@ -1,12 +1,24 @@
-import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
-import { toRollFormula } from "./utils/to-roll-formula.js";
-import { convertStress } from "./convert-stress.js";
+import { toRollFormula } from "../utils/to-roll-formula.js";
+import { convertStress } from "../scripts/convert-stress.js";
 
 export async function simpleShoreLeave(actor) {
   if (!actor) return ui.notifications.warn("No actor provided.");
 
+  // Load config from settings
+  const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+  const tiers = config.map(tier => {
+    return {
+      tier: tier.tier,
+      label: tier.label,
+      icon: tier.icon ?? null,
+      stressFormula: toRollFormula(tier.baseStressConversion),
+      priceFormula: toRollFormula(tier.basePrice),
+      raw: tier // Keep raw for later use in convertStress or roll
+    };
+  });
+
   const content = await renderTemplate("modules/mosh-greybearded-qol/templates/simple-shore-leave.html", {
-    tiers: SHORE_LEAVE_TIERS
+    tiers
   });
 
   return new Promise(resolve => {
@@ -18,11 +30,10 @@ export async function simpleShoreLeave(actor) {
           label: "Convert Stress",
           callback: async (html) => {
             const selected = html.find("input[name='shore-tier']:checked").val();
-            const tier = SHORE_LEAVE_TIERS.find(t => t.tier === selected);
-            if (!tier) return ui.notifications.error("Invalid tier selected.");
+            const entry = tiers.find(t => t.tier === selected);
+            if (!entry) return ui.notifications.error("Invalid tier selected.");
 
-            const formula = toRollFormula(tier.baseStressConversion);
-            const result = await convertStress(actor, formula);
+            const result = await convertStress(actor, entry.stressFormula);
             resolve(result);
           }
         },
@@ -34,11 +45,11 @@ export async function simpleShoreLeave(actor) {
       render: html => {
         html.find(".roll-price").on("click", ev => {
           const tier = ev.currentTarget.dataset.tier;
-          const config = SHORE_LEAVE_TIERS.find(t => t.tier === tier)?.basePrice;
-          if (!config) return;
-          const priceFormula = toRollFormula(config);
-          const roll = new Roll(priceFormula);
-          roll.roll({ async: true }).then(r => r.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `Price for ${tier}-Class Shore Leave` }));
+          const entry = tiers.find(t => t.tier === tier);
+          if (!entry) return;
+
+          const roll = new Roll(entry.priceFormula);
+          roll.roll({ async: true }).then(r => r.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `Price for ${entry.label}` }));
         });
       },
       default: "confirm"
