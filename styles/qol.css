@@ -12,33 +12,36 @@
   color: var(--color-text);
 }
 
-/* Grid for three attributes */
-.greybeardqol .attribute-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1em;
-  margin-top: 1em;
+/* Grey-out or Highlight */
+.greybeardqol .disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  filter: grayscale(100%);
 }
 
-/* Cards */
-.greybeardqol .attribute-card {
+.greybeardqol .highlighted {
+  border-color: var(--color-highlight);
+  box-shadow: 0 0 8px var(--color-highlight);
+}
+
+/* Generic card */
+.greybeardqol .card {
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 1em;
   text-align: center;
   transition: border 0.2s ease, background-color 0.2s ease;
-  cursor: pointer;
   user-select: none;
+  cursor: pointer;
 }
 
-.greybeardqol .attribute-card:hover {
+.greybeardqol .card:hover {
   border-color: var(--color-highlight);
   background-color: var(--color-bg-hover);
 }
 
-/* Icon Image */
-.greybeardqol .attribute-card img {
+.greybeardqol .card img {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: contain;
@@ -46,17 +49,29 @@
   margin-bottom: 0.5em;
 }
 
-/* Attribute label */
-.greybeardqol .attribute-card h3 {
+.greybeardqol .card h3 {
   margin: 0.5em 0 0.25em;
   font-size: 1.2em;
 }
 
-/* Counter for stress points */
-.greybeardqol .stress-counter {
-  font-size: 1.4em;
-  font-weight: bold;
-  color: var(--color-counter);
+/* Pill layout */
+.greybeardqol .pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.5em 1em;
+  margin: 0.25em 0;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: border 0.2s ease, background-color 0.2s ease;
+}
+
+.greybeardqol .pill:hover {
+  border-color: var(--color-highlight);
+  background-color: var(--color-bg-hover);
 }
 
 /* Remaining points info */
@@ -69,4 +84,19 @@
 
 .greybeardqol .remaining-points span {
   color: var(--color-remaining);
+}
+
+/* Grid for three attributes */
+.greybeardqol .3-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1em;
+  margin-top: 1em;
+}
+
+/* Counter for stress points */
+.greybeardqol .stress-counter {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: var(--color-counter);
 }
