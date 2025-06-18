@@ -1,0 +1,22 @@
+<form class="greybeardqol">
+  <div class="five-col-grid">
+    {{#each tiers as |tier|}}
+      <label class="card" style="display: block;">
+        <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
+        {{#if tier.icon}}
+          {{#if (tier.icon.startsWith "fa-")}}
+            <i class="fas {{tier.icon}}" style="font-size: 2em; margin-bottom: 0.5em;"></i>
+          {{else}}
+            <img src="{{tier.icon}}" alt="{{tier.label}} icon" style="width: 2em; height: 2em; margin-bottom: 0.5em;">
+          {{/if}}
+        {{/if}}
+        <h3>{{tier.label}}</h3>
+        <div class="pill">Stress: {{tier.baseStressConversion.dice}}d{{tier.baseStressConversion.faces}}</div>
+        <div class="pill">
+          <i class="fa-solid fa-coins"></i>
+          <button type="button" class="roll-price" data-tier="{{tier.tier}}">Roll Price</button>
+        </div>
+      </label>
+    {{/each}}
+  </div>
+</form>
