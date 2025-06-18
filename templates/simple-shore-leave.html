@@ -13,9 +13,9 @@
         <h3>{{tier.label}}</h3>
         <p>Stress conversion: {{tier.stressFormula}}</p>
         <p>Price: {{tier.priceFormula}}</p>
-        <div class="pill">
+        <div class="pill roll-price" data-tier="{{tier.tier}}">
           <i class="fa-solid fa-coins"></i>
-          <button type="button" class="roll-price" data-tier="{{tier.tier}}">Roll Price</button>
+          <span>Roll Price</span>
         </div>
       </label>
     {{/each}}
