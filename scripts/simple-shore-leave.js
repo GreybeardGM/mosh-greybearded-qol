@@ -50,8 +50,6 @@ export async function simpleShoreLeave(actor) {
           const selected = html.find("input[name='shore-tier']:checked").closest(".card");
           selected.addClass("highlighted");
         });
-
-        // Roll Price
         html.find(".roll-price").on("click", async ev => {
           const tier = ev.currentTarget.dataset.tier;
           const entry = tiers.find(t => t.tier === tier);
