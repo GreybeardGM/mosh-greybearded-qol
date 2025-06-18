@@ -16,7 +16,7 @@ export async function convertStress(actor, formula, options = {}) {
   let rollResult = null;
 
   // Optional: Sanity Save
-  if (options.useSanitySave) {
+  if (useSanitySave) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
 
     // Wait for evaluation
