@@ -44,7 +44,7 @@ export async function simpleShoreLeave(actor) {
         }
       },
       render: html => {
-        html.find(".roll-price").on("click", ev => {
+        html.find(".roll-price").on("click", async ev => {
           const tier = ev.currentTarget.dataset.tier;
           const entry = tiers.find(t => t.tier === tier);
           if (!entry) return;
