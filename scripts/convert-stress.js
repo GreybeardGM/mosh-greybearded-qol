@@ -1,81 +1,72 @@
-import { showStressConversionDialog } from "./ui/stress-distribution.js";
+import { toRollFormula } from "./utils/to-roll-formula.js";
+import { convertStress } from "./convert-stress.js";
 
-export async function convertStress(actor, formula, options = {}) {
-  formula = formula ?? game.settings.get("mosh-greybearded-qol", "convertStress.formula");
-  const useSanitySave = options.useSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.useSanitySave");
-  const relieveStress = options.relieveStress ?? game.settings.get("mosh-greybearded-qol", "convertStress.relieveStress");
-  
-  const stress = actor.system.other.stress;
-  const currentStress = stress?.value ?? 0;
-  const minStress = stress?.min ?? 2;
+export async function simpleShoreLeave(actor) {
+  if (!actor) return ui.notifications.warn("No actor provided.");
 
-  // No stress to convert
-  if (currentStress <= minStress) return { result: "none" };
-
-  let conversionPoints = currentStress - minStress;
-  let rollResult = null;
-
-  // Optional: Sanity Save
-  if (useSanitySave) {
-    const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
-
-    // Wait for evaluation
-    await new Promise(resolve => setTimeout(resolve, 20));
-
-    const result = Array.isArray(sanityCheck) ? sanityCheck[0]?.parsedRollResult : sanityCheck;
-    const success = result?.success === true;
-    const critical = result?.critical === true;
-
-    if (!success && critical) {
-      await actor.rollTable("panicCheck", null, null, null, null, null, null);
-    }
-
-    if (!success) {
-      conversionPoints = 0;
-    }
-
-    if (success && critical) {
-      const match = formula.match(/(\d+)d(\d+)/);
-      if (match) {
-        const [_, count, die] = match;
-        formula = `${parseInt(count) * parseInt(die)}`;
-      }
-    }
-  }
-
-  // Roll for conversion
-  if (conversionPoints > 0) {
-    const roll = new Roll(formula);
-    await roll.evaluate({ async: true });
-    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
-    rollResult = roll;
-    conversionPoints = Math.min(roll.total, conversionPoints);
-  } 
-  else {
-    if (options.relieveStress) {
-      const targetStress = minStress + 1;
-      await actor.update({"system.other.stress.value": targetStress});
-    }
-    return { result: "nochange" };
-  }
-
-  const finalSaves = await showStressConversionDialog(actor, conversionPoints);
-  if (!finalSaves) return { result: "canceled" };
-
-  const targetStress = options.relieveStress ? minStress : Math.max(minStress, currentStress - conversionPoints);
-  await actor.update({
-    "system.other.stress.value": targetStress,
-    "system.stats.sanity.value": finalSaves.sanity,
-    "system.stats.fear.value": finalSaves.fear,
-    "system.stats.body.value": finalSaves.body
+  // Load config from settings
+  const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+  const configArray = Object.values(config); // wandelt {0: {...}, 1: {...}} in Array um
+  const tiers = configArray.map(tier => {
+    return {
+      tier: tier.tier,
+      label: tier.label,
+      icon: tier.icon ?? null,
+      stressFormula: toRollFormula(tier.baseStressConversion),
+      priceFormula: toRollFormula(tier.basePrice),
+      raw: tier // Keep raw for later use in convertStress or roll
+    };
   });
 
-  return {
-    result: "success",
-    stressBefore: currentStress,
-    stressAfter: targetStress,
-    converted: conversionPoints,
-    newSaves: finalSaves,
-    roll: rollResult
-  };
+  const content = await renderTemplate("modules/mosh-greybearded-qol/templates/simple-shore-leave.html", {
+    tiers
+  });
+
+  return new Promise(resolve => {
+    new Dialog({
+      title: "Select Shore Leave Tier",
+      content,
+      buttons: {
+        confirm: {
+          label: "Convert Stress",
+          callback: async (html) => {
+            const selected = html.find("input[name='shore-tier']:checked").val();
+            const entry = tiers.find(t => t.tier === selected);
+            if (!entry) return ui.notifications.error("Invalid tier selected.");
+
+            const result = await convertStress(actor, entry.stressFormula);
+            resolve(result);
+          }
+        },
+        cancel: {
+          label: "Cancel",
+          callback: () => resolve(null)
+        }
+      },
+      render: async html => {
+        // Highlight selected tier card
+        html.find("input[name='shore-tier']").on("change", function () {
+          html.find(".card").removeClass("highlighted");
+          const selected = html.find("input[name='shore-tier']:checked").closest(".card");
+          selected.addClass("highlighted");
+        });
+        html.find(".roll-price").on("click", async ev => {
+          const tier = ev.currentTarget.dataset.tier;
+          const entry = tiers.find(t => t.tier === tier);
+          if (!entry) return;
+
+          const roll = await (new Roll(entry.priceFormula)).evaluate({ async: true });
+          await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `Price for ${entry.label}` });
+        });
+
+        // Set dialog width manually for layout stability
+        html.closest('.app').css({
+          width: '900px',
+          maxWidth: '95vw',
+          margin: '0 auto'
+        });
+      },
+      default: "confirm"
+    }).render(true);
+  });
 }
