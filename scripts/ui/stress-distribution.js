@@ -41,7 +41,7 @@ export async function showStressConversionDialog(actor, points) {
           confirmBtn.prop("disabled", assigned !== points);
         };
 
-        html.find(".attribute-card").on("click", function () {
+        html.find(".card").on("click", function () {
           const attr = $(this).data("attr");
           if ((values.sanity + values.fear + values.body - base.sanity - base.fear - base.body) < points && values[attr] < 90) {
             values[attr] += 1;
@@ -49,7 +49,7 @@ export async function showStressConversionDialog(actor, points) {
           }
         });
 
-        html.find(".attribute-card").on("contextmenu", function (event) {
+        html.find(".card").on("contextmenu", function (event) {
           event.preventDefault();
           const attr = $(this).data("attr");
           if (values[attr] > base[attr]) {
