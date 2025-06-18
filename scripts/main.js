@@ -1,11 +1,13 @@
 import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
+import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 
 Hooks.once("ready", () => {
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
+  game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
 
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");
