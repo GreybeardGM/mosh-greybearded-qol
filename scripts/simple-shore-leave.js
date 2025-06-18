@@ -1,5 +1,5 @@
 import { toRollFormula } from "./utils/to-roll-formula.js";
-import { convertStress } from "./scripts/convert-stress.js";
+import { convertStress } from "./convert-stress.js";
 
 export async function simpleShoreLeave(actor) {
   if (!actor) return ui.notifications.warn("No actor provided.");
