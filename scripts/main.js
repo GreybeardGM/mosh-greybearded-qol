@@ -1,4 +1,6 @@
 import { convertStress } from "./convert-stress.js";
+import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
+import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 
 Hooks.once("ready", () => {
   // Global registry for use in macros
@@ -12,6 +14,7 @@ Hooks.once("ready", () => {
 
 // Settings
 Hooks.once("init", () => {
+  // Config Stress Conversion
   game.settings.register("mosh-greybearded-qol", "convertStress.useSanitySave", {
     name: "Use Sanity Save",
     hint: "If enabled, the user must pass a sanity save before converting stress.",
@@ -37,5 +40,23 @@ Hooks.once("init", () => {
     config: true,
     default: "1d5",
     type: String
+  });
+
+  // Config Shore Leave Tiers
+  game.settings.register("mosh-greybearded-qol", "shoreLeaveTiers", {
+    name: "Shore Leave Tier Definitions",
+    scope: "world",
+    config: false,
+    type: Object,
+    default: SHORE_LEAVE_TIERS
+  });
+
+  game.settings.registerMenu("mosh-greybearded-qol", "shoreLeaveEditor", {
+    name: "Edit Shore Leave Tiers",
+    label: "Edit Shore Leave...",
+    hint: "Customize the tiers used in the simple shore leave system.",
+    icon: "fas fa-edit",
+    type: ShoreLeaveTierEditor,
+    restricted: true
   });
 });
