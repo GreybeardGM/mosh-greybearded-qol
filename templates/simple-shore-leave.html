@@ -11,7 +11,8 @@
           {{/if}}
         {{/if}}
         <h3>{{tier.label}}</h3>
-        <div class="pill">Stress: {{tier.baseStressConversion.dice}}d{{tier.baseStressConversion.faces}}</div>
+        <p>Stress conversion: {{tier.stressFormula.dice}}</p>
+        <p>Price: {{tier.priceFormula.dice}}</p>
         <div class="pill">
           <i class="fa-solid fa-coins"></i>
           <button type="button" class="roll-price" data-tier="{{tier.tier}}">Roll Price</button>
