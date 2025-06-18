@@ -108,6 +108,14 @@
   margin-top: 1em;
 }
 
+/* Grid for five attributes */
+.greybeardqol .five-col-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1em;
+  margin-top: 1em;
+}
+
 /* Counter for stress points */
 .greybeardqol .stress-counter {
   font-size: 1.4em;
