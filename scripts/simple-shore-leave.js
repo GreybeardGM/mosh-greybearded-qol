@@ -6,6 +6,7 @@ export async function simpleShoreLeave(actor) {
 
   // Load config from settings
   const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+  const configArray = Object.values(config); // wandelt {0: {...}, 1: {...}} in Array um
   const tiers = config.map(tier => {
     return {
       tier: tier.tier,
