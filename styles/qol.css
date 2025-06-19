@@ -116,7 +116,7 @@
 }
 
 /* Counter for stress points */
-.greybeardqol .stress-counter {
+.greybeardqol .counter {
   font-size: 1.4em;
   font-weight: bold;
   color: var(--color-counter);
