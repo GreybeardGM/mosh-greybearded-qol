@@ -1,4 +1,5 @@
 import { toRollFormula } from "./utils/to-roll-formula.js";
+import { toRollString } from "./utils/to-roll-string.js";
 import { convertStress } from "./convert-stress.js";
 
 export async function simpleShoreLeave(actor) {
@@ -12,8 +13,8 @@ export async function simpleShoreLeave(actor) {
       tier: tier.tier,
       label: tier.label,
       icon: tier.icon ?? null,
-      stressFormula: toRollFormula(tier.baseStressConversion),
-      priceFormula: toRollFormula(tier.basePrice),
+      stressFormula: toRollString(tier.baseStressConversion),
+      priceFormula: toRollString(tier.basePrice),
       raw: tier // Keep raw for later use in convertStress or roll
     };
   });
