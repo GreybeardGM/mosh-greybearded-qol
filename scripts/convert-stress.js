@@ -31,7 +31,7 @@ export async function convertStress(actor, formula, options = {}) {
     }
 
     if (!success) {
-      if (options.relieveStress) {
+      if (relieveStress) {
         const targetStress = minStress + 1;
         await actor.update({"system.other.stress.value": targetStress});
       }
@@ -57,7 +57,7 @@ export async function convertStress(actor, formula, options = {}) {
   const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
 
-  const targetStress = options.relieveStress ? minStress : Math.max(minStress, currentStress - conversionPoints);
+  const targetStress = relieveStress ? minStress : Math.max(minStress, currentStress - conversionPoints);
   await actor.update({
     "system.other.stress.value": targetStress,
     "system.stats.sanity.value": finalSaves.sanity,
