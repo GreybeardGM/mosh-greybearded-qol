@@ -56,7 +56,7 @@ export async function simpleShoreLeave(actor) {
           if (!entry) return;
 
           const roll = new Roll(entry.priceFormula);
-          await roll.evaluate({ async: true });
+          await roll.evaluate();
           await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `Price for ${entry.label}` });
         });
 
