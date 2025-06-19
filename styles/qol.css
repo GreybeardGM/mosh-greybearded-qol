@@ -91,11 +91,11 @@
 /* Remaining points info */
 .greybeardqol .remaining-points {
   text-align: center;
-  font-size: 1.1em;
+  font-size: 1.5em;
   font-weight: bold;
 } 
 
-.greybeardqol .remaining {
+.greybeardqol .remaining-points span {
   color: var(--color-remaining);
 }
 
