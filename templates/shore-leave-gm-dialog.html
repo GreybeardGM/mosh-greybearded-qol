@@ -1,0 +1,49 @@
+<form class="greybeardqol shoreleave-gm-config">
+  <div class="box">
+    <div style="display: flex; gap: 0.5em; align-items: center;">
+      <label for="max-activities">Max Activities: </label>
+      <button type="button" class="adjust-count" data-direction="-">-</button>
+      <input type="number" id="max-activities" name="maxActivities" min="1" value="5" />
+      <button type="button" class="adjust-count" data-direction="+">+</button>
+    </div>
+    <div class="tier-filters" style="display: flex; gap: 1em; flex-wrap: wrap;">
+      <button type="button" class="fill-random">
+        <i class="fas fa-dice"></i> Fill Random
+      </button>
+      {{#each (array "S" "A" "B" "C" "X") as |tier|}}
+        <label style="display: flex; align-items: center; gap: 0.25em;">
+          <input type="checkbox" class="tier-filter" name="filter-{{tier}}" value="{{tier}}" checked />
+          {{tier}}
+        </label>
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="shoreleave-activity-list">
+    {{#each activities as |entry index|}}
+      <div class="pill" data-index="{{index}}">
+        <span>{{entry.label}}</span>
+
+        <select name="modifier-{{index}}" class="mod-selector">
+          <option value="--">--</option>
+          <option value="-">-</option>
+          <option value="" selected>Normal</option>
+          <option value="+">+</option>
+          <option value="++">++</option>
+        </select>
+
+        <button type="button" class="remove-entry" data-index="{{index}}">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    {{else}}
+      <p style="opacity: 0.6; text-align: center;">No activities selected yet.</p>
+    {{/each}}
+  </div>
+
+  <div class="box" style="display: flex; justify-content: space-between; gap: 1em; margin-top: 1em;">
+    <button type="submit" class="confirm">
+      <i class="fas fa-check"></i> Confirm
+    </button>
+  </div>
+</form>
