@@ -11,11 +11,18 @@
           {{/if}}
         {{/if}}
         <h3>{{tier.label}}</h3>
-        <p>Stress conversion:</p>
-        <p>{{tier.stressFormula}}</p>
-        <p>Price:</p>
-        <p>{{tier.priceFormula}}</p>
-        <div class="pill roll-price" data-tier="{{tier.tier}}">
+
+        <div style="margin-top: 0.5em;">
+          <strong>Stress Conversion</strong>
+          <div>{{tier.stressFormula}}</div>
+        </div>
+
+        <div style="margin-top: 0.5em;">
+          <strong>Price Formula</strong>
+          <div>{{tier.priceFormula}}</div>
+        </div>
+
+        <div class="pill roll-price" data-tier="{{tier.tier}}" style="margin-top: 0.75em;">
           <i class="fa-solid fa-coins"></i>
           <span>Roll Price</span>
         </div>
