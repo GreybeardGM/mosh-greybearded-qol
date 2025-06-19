@@ -4,9 +4,9 @@
   --color-border: #666;
   --color-bg: #1a1a1a;
   --color-bg-hover: #2a1a1a;
-  --color-highlight: #ff5500;
-  --color-counter: #ffcc66;
-  --color-remaining: #66ff99;
+  --color-highlight: #f50;
+  --color-counter: #fc6;
+  --color-remaining: #596;
 
   font-family: var(--font-primary);
   color: var(--color-text);
@@ -95,7 +95,7 @@
   font-weight: bold;
 } 
 
-.greybeardqol .remaining-points span {
+.greybeardqol .remaining {
   color: var(--color-remaining);
 }
 
