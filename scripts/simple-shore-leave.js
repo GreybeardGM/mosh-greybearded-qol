@@ -13,8 +13,10 @@ export async function simpleShoreLeave(actor) {
       tier: tier.tier,
       label: tier.label,
       icon: tier.icon ?? null,
-      stressFormula: toRollString(tier.baseStressConversion),
-      priceFormula: toRollString(tier.basePrice),
+      stressFormula: toRollFormula(tier.baseStressConversion),
+      stressString: toRollString(tier.baseStressConversion),
+      priceFormula: toRollFormula(tier.basePrice),
+      priceString: toRollString(tier.basePrice),
       raw: tier // Keep raw for later use in convertStress or roll
     };
   });
