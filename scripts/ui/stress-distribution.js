@@ -1,6 +1,5 @@
 export async function showStressConversionDialog(actor, points) {
   return new Promise(async (resolve) => {
-    // Hole aktuelle Werte aus dem Sheet
     const base = {
       sanity: actor.system.stats.sanity.value ?? 0,
       fear: actor.system.stats.fear.value ?? 0,
@@ -17,7 +16,7 @@ export async function showStressConversionDialog(actor, points) {
           icon: "<i class=\"fas fa-check\"></i>",
           label: "Confirm",
           callback: async (html) => {
-            resolve(values); // absolute Werte zurückgeben
+            resolve(values);
           }
         },
         cancel: {
@@ -37,13 +36,14 @@ export async function showStressConversionDialog(actor, points) {
           const assigned = values.sanity + values.fear + values.body - base.sanity - base.fear - base.body;
           html.find("#remaining").text(points - assigned);
 
-          const confirmBtn = html.closest(".app.window-app.dialog").find("button[name='confirm']");
+          const confirmBtn = dlg.element.find("button[name='confirm']");
           confirmBtn.prop("disabled", assigned !== points);
         };
 
         html.find(".card").on("click", function () {
           const attr = $(this).data("attr");
-          if ((values.sanity + values.fear + values.body - base.sanity - base.fear - base.body) < points && values[attr] < 90) {
+          const assigned = values.sanity + values.fear + values.body - base.sanity - base.fear - base.body;
+          if (assigned < points && values[attr] < 90) {
             values[attr] += 1;
             updateUI();
           }
@@ -57,6 +57,9 @@ export async function showStressConversionDialog(actor, points) {
             updateUI();
           }
         });
+
+        // Ensure confirm button is disabled at start
+        dlg.element.find("button[name='confirm']").prop("disabled", true);
 
         updateUI();
       }
