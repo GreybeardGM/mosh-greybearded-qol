@@ -5,7 +5,7 @@ export const SHORE_LEAVE_TIERS = [
     baseStressConversion: {
       dice: 2,
       faces: 10,
-      keep: "h",
+      keep: "+",
       bonus: 0,
       multiplier: 1
     },
