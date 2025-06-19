@@ -4,11 +4,7 @@
       <label class="card" style="display: block;">
         <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
         {{#if tier.icon}}
-          {{#if (tier.icon.startsWith "fa-")}}
-            <i class="fas {{tier.icon}}" style="font-size: 2em; margin-bottom: 0.5em;"></i>
-          {{else}}
-            <img src="{{tier.icon}}" alt="{{tier.label}} icon" style="width: 2em; height: 2em; margin-bottom: 0.5em;">
-          {{/if}}
+            <i class="fas {{tier.icon}}"></i>
         {{/if}}
         <h3>{{tier.label}}</h3>
 
