@@ -20,7 +20,7 @@ export async function convertStress(actor, formula, options = {}) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
 
     // Wait for evaluation
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const result = Array.isArray(sanityCheck) ? sanityCheck[0]?.parsedRollResult : sanityCheck;
     const success = result?.success === true;
@@ -31,7 +31,11 @@ export async function convertStress(actor, formula, options = {}) {
     }
 
     if (!success) {
-      conversionPoints = 0;
+      if (options.relieveStress) {
+        const targetStress = minStress + 1;
+        await actor.update({"system.other.stress.value": targetStress});
+      }
+      return { result: "nochange" };
     }
 
     if (success && critical) {
@@ -44,20 +48,11 @@ export async function convertStress(actor, formula, options = {}) {
   }
 
   // Roll for conversion
-  if (conversionPoints > 0) {
-    const roll = new Roll(formula);
-    await roll.evaluate();
-    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
-    rollResult = roll;
-    conversionPoints = Math.min(roll.total, conversionPoints);
-  } 
-  else {
-    if (options.relieveStress) {
-      const targetStress = minStress + 1;
-      await actor.update({"system.other.stress.value": targetStress});
-    }
-    return { result: "nochange" };
-  }
+  const roll = new Roll(formula);
+  await roll.evaluate();
+  await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
+  rollResult = roll;
+  conversionPoints = Math.min(roll.total, conversionPoints);
 
   const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
