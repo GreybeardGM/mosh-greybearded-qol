@@ -1,3 +1,4 @@
+import { defineStashSheet } from "./stash-sheet-class.js";
 import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
@@ -8,6 +9,16 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
   game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
+
+  // Register Stash Sheet
+  const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
+  const StashSheet = defineStashSheet(BaseSheet);
+
+  Actors.registerSheet("dwextrasheets", StashSheet, {
+    types: ["character"],
+    label: "Stash Sheet",
+    makeDefault: false // oder true, um direkt zu testen
+  });
 
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");
