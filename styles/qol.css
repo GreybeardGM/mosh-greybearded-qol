@@ -20,7 +20,7 @@
 }
 
 .greybeardqol .highlighted {
-  border-color: var(--color-highlight);
+  border-color: var(--color-highlight) !important;
   box-shadow: 0 0 8px var(--color-highlight);
 }
 
