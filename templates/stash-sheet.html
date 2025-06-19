@@ -1,0 +1,239 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  <header class="char-header header-grid">
+
+    <div class="header-fields header-grid">
+      {{!-- The grid classes are defined in scss/global/_grid.scss. To use,
+            use both the "grid" and "grid-Ncol" class where "N" can be any number
+            from 1 to 12 and will create that number of columns.  --}}
+      {{!-- The grid classes are defined in scss/global/_grid.scss. To use,
+          use both the "grid" and "grid-Ncol" class where "N" can be any number
+          from 1 to 12 and will create that number of columns.  --}}
+
+      <div class="header">
+        <img class="profile" src="{{img}}" data-edit="img" title="{{name}}" height="150"
+          width="150" />
+
+        <div class="headergrid">
+          <!-- NAME -->
+          <div class="headernamegrid">
+            <div class="headerinputtext">{{ localize 'Mosh.Name' }}</div>
+            <div class="headerinputfield charname"><input name="name" class="noborder" type="text"
+                value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" /></div>
+          </div>
+          <div class="">
+            <div class="headerinputtext">{{ localize 'Mosh.Credits' }}</div>
+            <div class="headerinputfield charname"><input name="system.credits.value" class="noborder" type="text"
+              value="{{system.credits.value}}" placeholder="" /></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </header>
+ 
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="mosh sheet-tabs tabs" data-group="primary">
+    <a class="tab-select" data-tab="weapons">{{ localize 'Mosh.Weapons' }}</a>
+    <a class="tab-select" data-tab="armor">{{ localize 'Mosh.Armor' }}</a>
+    <a class="tab-select" data-tab="items">{{ localize 'Mosh.Items' }}</a>
+    <a class="tab-select" data-tab="notes">{{ localize 'Mosh.Notes' }}</a>
+
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Notes Tab --}}
+    <div class="tab biography" data-group="primary" data-tab="notes">
+      {{editor enriched.notes target="system.notes" button=true editable=true}}
+    </div>
+
+    {{!-- Items Tab --}}
+    <div class="tab items" data-group="primary" data-tab="items">
+      <!-- ITEMS -->
+      <ol class="items-list">
+        <li class="item flexrow item-header">
+          <div class="item-image"></div>
+          <div class="skill-stat" style="flex-grow: 1.5;">{{ localize 'Mosh.ItemName' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.Quantity' }}</div>
+          {{#if system.settings.hideWeight}}
+          {{else}}
+          <div class="skill-stat">{{ localize 'Mosh.Weight' }}</div>
+          {{/if}}
+          <div class="skill-stat">{{ localize 'Mosh.Value' }}</div>
+          <div class="item-controls">
+            <a class="item-control item-create" title="{{ localize 'Mosh.CreateItem' }}" data-type="item"><i class="fas fa-plus"></i> Add</a>
+          </div>
+        </li>
+        {{#if system.settings.hideWeight}}
+          {{#each gear as |item id|}}
+          <li class="item flexrow dropitem" data-item-id="{{item._id}}">
+            <div class="item-image"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24" /></div>
+            <h4 class="skill-name list-roll description-roll" style="flex-grow: 1.5;">{{item.name}}</h4>
+            <div class="skill-stat list-roll item-quantity">{{item.system.quantity}}</div>
+            <div class="skill-stat">{{item.system.cost}}</div>
+            <div class="item-controls">
+              <a class="item-control item-edit" title="{{ localize 'Mosh.EditItem' }}"><i class="fas fa-edit"></i></a>
+              <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteItem'}}"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        {{else}}
+          {{#each gear as |item id|}}
+          <li class="item flexrow dropitem" data-item-id="{{item._id}}">
+            <div class="item-image"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24" /></div>
+            <h4 class="skill-name list-roll description-roll" style="flex-grow: 1.54;">{{item.name}}</h4>
+            <div class="skill-stat list-roll item-quantity">{{item.system.quantity}}</div>
+            <div class="skill-stat">{{item.system.weight}}</div>
+            <div class="skill-stat">{{item.system.cost}}</div>
+            <div class="item-controls">
+              <a class="item-control item-edit" title="{{ localize 'Mosh.EditItem' }}"><i class="fas fa-edit"></i></a>
+              <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteItem' }}"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        {{/if}}
+      </ol>
+      {{#unless system.settings.hideWeight}}
+      <div class="item flex-group-left item-header">
+        <div class="skill-stat" style="flex-grow: 1.5;">{{ localize 'Mosh.CarryingCapacity' }}: {{system.weight.capacity}}</div>
+        <div class="skill-stat">{{ localize 'Mosh.CurrentWeight' }}: {{system.weight.current}}</div>
+      </div>
+      {{/unless}}
+
+    </div>
+
+    {{!-- Weapons Tab --}}
+    <div class="tab items" data-group="primary" data-tab="weapons">
+      <!-- WEAPONS -->
+      <ol class="items-list">
+        <li class="item flexrow item-header">
+          <div class="item-image"></div>
+          <div class="skill-stat" style="flex-grow: 2;">{{ localize 'Mosh.WeaponName' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.Damage' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.Ammo' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.Shots' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.Range' }}</div>
+          <div class="item-controls">
+            <a class="item-control weapon-create" title="{{ localize 'Mosh.CreateWeapon' }}" data-type="weapon"><i class="fas fa-plus"></i> {{ localize 'Mosh.Add' }}</a>
+          </div>
+        </li>
+
+        {{#each weapons as |weapon id|}}
+        <li class="item flexrow dropitem" data-item-id="{{weapon._id}}">
+          <!-- <div class="item-image"><img src="{{skill.img}}" title="{{skill.name}}" width="24" height="24"/></div> -->
+          <div class="item-image"><img src="{{weapon.img}}" title="{{weapon.name}}" width="24" height="24" /></div>
+          <div class="skill-name" style="flex-grow: 2.05;">{{weapon.name}}</div>
+          {{#if weapon.system.antiArmor}}
+          <div class="skill-stat">{{weapon.system.damage}} ({{ localize 'Mosh.AntyArmorAcronym' }})</div>
+          {{else}}
+          <div class="skill-stat">{{weapon.system.damage}}</div>
+          {{/if}}
+          {{#if weapon.system.useAmmo}}
+          <div class="skill-stat weapon-ammo list-roll">{{weapon.system.ammo}}</div>
+          {{else}}
+          <div class="skill-stat">{{ localize 'Mosh.NA' }}</div>
+          {{/if}}
+          {{#if weapon.system.useAmmo}}
+            {{#if (compare 'int' weapon.system.curShots '===' weapon.system.shots)}}
+            <div class="skill-stat">
+              <a class="weapon-shots list-roll" title="{{ localize 'Mosh.EditWeapon' }}">{{weapon.system.curShots}}/{{weapon.system.shots}}</a>
+            </div>
+            {{else}}
+            <div class="skill-stat">
+              <a class="weapon-shots list-roll">{{weapon.system.curShots}}/{{weapon.system.shots}}</a>
+              <a class="weapon-reload list-roll"><i class="fas fa-sync"></i></a>
+            </div>
+            {{/if}}
+          {{else}}
+          <div class="skill-stat">{{ localize 'Mosh.NA' }}</div>
+          {{/if}}
+          {{#if weapon.system.ranges.value}}
+          <div class="skill-stat">{{weapon.system.ranges.value}}</div>
+          {{else}}
+          <div class="skill-stat">{{ localize 'Mosh.NA' }}</div>
+          {{/if}}
+          <div class="item-controls">
+            <a class="item-control weapon-edit" title="{{ localize 'Mosh.EditWeapon' }}"><i class="fas fa-edit"></i></a>
+            <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteWeapon' }}"><i class="fas fa-trash"></i></a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+    </div>
+    
+    {{!-- Armor Tab --}}
+    <div class="tab items" data-group="primary" data-tab="armor">
+      {{#if system.settings.firstEdition}}
+      <!-- ARMOR -->
+      <ol class="items-list" role="table">
+        <li class="item flexrow item-header" role="rowgroup">
+          <div class="item-image" role="cell"></div>
+          <div class="skill-stat" style="flex-grow: 2.5;" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.AP' }}</div>
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.DR' }}</div>
+		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Speed' }}</div>
+		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Oxygen' }}</div>
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.Equipped' }}</div>
+          <div class="item-controls" role="cell">
+            <a class="item-control item-create" title="{{ localize 'Mosh.CreateArmor' }}" data-type="armor"><i class="fas fa-plus"></i> {{ localize 'Mosh.Add' }}</a>
+          </div>
+        </li>
+        {{#each armors as |armor id|}}
+        <li class="item flexrow dropitem" data-item-id="{{armor._id}}" role="rowgroup">
+          <div class="item-image" role="cell"><img src="{{armor.img}}" title="{{armor.name}}" width="24" height="24" /></div>
+          <h4 class="skill-name list-roll description-roll" style="flex-grow: 2.55;" role="cell">{{armor.name}}</h4>
+          <div class="skill-stat" role="cell">{{armor.system.armorPoints}}</div>
+          <div class="skill-stat" role="cell">{{armor.system.damageReduction}}</div>
+          <div class="skill-stat">{{armor.system.speed}}</div>
+          {{#if armor.system.oxygenMax}}
+          <div class="skill-stat armor-oxy list-roll" role="cell">{{armor.system.oxygenCurrent}}/{{armor.system.oxygenMax}}</div>
+          {{else}}
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.NA' }}</div>
+          {{/if}}
+          <div class="item-controls" role="cell">
+            <a class="item-control item-edit" title="{{ localize 'Mosh.EditArmor' }}"><i class="fas fa-edit"></i></a>
+            <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteArmor' }}"><i class="fas fa-trash"></i></a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+      {{else}}
+      <!-- ARMOR -->
+      <ol class="items-list" role="table">
+        <li class="item flexrow item-header" role="rowgroup">
+          <div class="item-image" role="cell"></div>
+          <div class="skill-stat" style="flex-grow: 2.5;" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.SaveBonus' }}</div>
+		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Speed' }}</div>
+		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Oxygen' }}</div>
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.Equipped' }}</div>
+          <div class="item-controls" role="cell">
+            <a class="item-control item-create" title="{{ localize 'Mosh.CreateArmor' }}" data-type="armor"><i class="fas fa-plus"></i> {{ localize 'Mosh.Add' }}</a>
+          </div>
+        </li>
+        {{#each armors as |armor id|}}
+        <li class="item flexrow dropitem" data-item-id="{{armor._id}}" role="rowgroup">
+          <div class="item-image" role="cell"><img src="{{armor.img}}" title="{{armor.name}}" width="24" height="24" /></div>
+          <h4 class="skill-name list-roll description-roll" style="flex-grow: 2.55;" role="cell">{{armor.name}}</h4>
+          <div class="skill-stat" role="cell">{{armor.system.armorPoints}}</div>
+          <div class="skill-stat">{{armor.system.speed}}</div>
+          {{#if armor.system.oxygenMax}}
+          <div class="skill-stat armor-oxy list-roll" role="cell">{{armor.system.oxygenCurrent}}/{{armor.system.oxygenMax}}</div>
+          {{else}}
+          <div class="skill-stat" role="cell">{{ localize 'Mosh.NA' }}</div>
+          {{/if}}
+          <div class="item-controls" role="cell">
+            <a class="item-control item-edit" title="{{ localize 'Mosh.EditArmor' }}"><i class="fas fa-edit"></i></a>
+            <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteArmor' }}"><i class="fas fa-trash"></i></a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+      {{/if}}
+    </div>
+  </section>
+</form>
