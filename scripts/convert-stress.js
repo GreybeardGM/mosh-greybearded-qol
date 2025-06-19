@@ -20,7 +20,7 @@ export async function convertStress(actor, formula, options = {}) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
 
     // Wait for evaluation
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 20));
 
     const result = Array.isArray(sanityCheck) ? sanityCheck[0]?.parsedRollResult : sanityCheck;
     const success = result?.success === true;
