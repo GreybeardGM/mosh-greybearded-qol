@@ -1,36 +1,26 @@
 import { SHORE_LEAVE_ACTIVITIES } from "./config/default-shore-leave-activities.js";
 
-// Ensure setting exists before use
-Hooks.once("init", () => {
-  if (!game.settings.settings.has("mosh-greybearded-qol.shoreLeaveCurrentOffer")) {
-    game.settings.register("mosh-greybearded-qol", "shoreLeaveCurrentOffer", {
-      name: "Current Shore Leave Activities",
-      scope: "world",
-      config: false,
-      type: Array,
-      default: []
-    });
-  }
-});
-
 export class ShoreLeaveGMDialog {
   constructor() {
-    this.activities = game.settings.get("mosh-greybearded-qol", "shoreLeaveCurrentOffer") ?? [];
+    this.activities = foundry.utils.deepClone(game.settings.get("mosh-greybearded-qol", "shoreLeaveCurrentOffer")) ?? [];
     this.maxActivities = Math.max(this.activities.length, 5);
   }
 
   async render() {
     const content = await this._renderTemplate();
-    new Dialog({
+    const dlg = new Dialog({
       title: "Configure Shore Leave Offer",
       content,
       buttons: {},
-      close: () => {},
+      resizable: true,
       render: (html) => {
-        html.closest(".app.window-app.dialog").css({ width: "720px", maxWidth: "95vw", margin: "0 auto" });
+        const dlgEl = html.closest(".app.window-app.dialog");
+        dlgEl.css({ width: "1000px", height: "auto", maxHeight: "90vh", maxWidth: "95vw", margin: "0 auto" });
+        dlgEl.find(".window-content").css("overflow-y", "auto");
         this.activateListeners(html);
       }
-    }).render(true);
+    });
+    dlg.render(true);
   }
 
   async _renderTemplate() {
@@ -41,13 +31,9 @@ export class ShoreLeaveGMDialog {
   }
 
   activateListeners(html) {
-    const listContainer = html.find(".shoreleave-activity-list");
     const maxInput = html.find("#max-activities");
-
-    // Set initial value
     maxInput.val(this.maxActivities);
 
-    // Update maxActivities input change
     maxInput.on("change", ev => {
       const val = parseInt(ev.target.value);
       this.maxActivities = Math.max(1, val);
@@ -61,14 +47,16 @@ export class ShoreLeaveGMDialog {
     });
 
     html.on("click", ".remove-entry", (ev) => {
-      const index = parseInt(ev.currentTarget.dataset.index);
-      this.activities.splice(index, 1);
-      this._refreshList(html);
+      const index = parseInt(ev.currentTarget.closest(".pill").dataset.index);
+      if (!isNaN(index)) {
+        this.activities.splice(index, 1);
+        this._refreshList(html);
+      }
     });
 
     html.find(".fill-random").on("click", () => {
-      const tiers = html.find(".tier-filter:checked").map((_, el) => el.value).get();
-      const pool = SHORE_LEAVE_ACTIVITIES[0].activities.filter(act => tiers.includes(act.tier));
+      const selectedTiers = html.find(".tier-filter:checked").map((_, el) => el.value).get();
+      const pool = SHORE_LEAVE_ACTIVITIES[0].activities.filter(act => selectedTiers.includes(act.tier));
       const usedIds = new Set(this.activities.map(a => a.id));
       const candidates = pool.filter(a => !usedIds.has(a.id));
 
@@ -84,10 +72,11 @@ export class ShoreLeaveGMDialog {
     html.find("form").on("submit", async (ev) => {
       ev.preventDefault();
 
-      // Capture modifiers
       html.find(".mod-selector").each((_, el) => {
         const index = parseInt(el.name.split("-")[1]);
-        this.activities[index].modifier = el.value;
+        if (!isNaN(index) && this.activities[index]) {
+          this.activities[index].modifier = el.value;
+        }
       });
 
       await game.settings.set("mosh-greybearded-qol", "shoreLeaveCurrentOffer", this.activities);
@@ -97,7 +86,13 @@ export class ShoreLeaveGMDialog {
 
   async _refreshList(html) {
     const content = await this._renderTemplate();
-    html.html(content);
-    this.activateListeners(html);
+    const container = html.find("form.greybeardqol.shoreleave-gm-config");
+    if (container.length) {
+      container.html($(content).html());
+      this.activateListeners(container);
+    } else {
+      html.html(content);
+      this.activateListeners(html);
+    }
   }
 }
