@@ -1,5 +1,18 @@
 import { SHORE_LEAVE_ACTIVITIES } from "./config/default-shore-leave-activities.js";
 
+// Ensure setting exists before use
+Hooks.once("init", () => {
+  if (!game.settings.settings.has("mosh-greybearded-qol.shoreLeaveCurrentOffer")) {
+    game.settings.register("mosh-greybearded-qol", "shoreLeaveCurrentOffer", {
+      name: "Current Shore Leave Activities",
+      scope: "world",
+      config: false,
+      type: Array,
+      default: []
+    });
+  }
+});
+
 export class ShoreLeaveGMDialog {
   constructor() {
     this.activities = game.settings.get("mosh-greybearded-qol", "shoreLeaveCurrentOffer") ?? [];
@@ -7,22 +20,32 @@ export class ShoreLeaveGMDialog {
   }
 
   async render() {
-    const content = await renderTemplate("modules/mosh-greybearded-qol/templates/shore-leave-gm-dialog.html", {
-      activities: this.activities
-    });
-
+    const content = await this._renderTemplate();
     new Dialog({
       title: "Configure Shore Leave Offer",
       content,
       buttons: {},
       close: () => {},
-      render: (html) => this.activateListeners(html)
-    }, { width: 640, height: "auto" }).render(true);
+      render: (html) => {
+        html.closest(".app.window-app.dialog").css({ width: "720px", maxWidth: "95vw", margin: "0 auto" });
+        this.activateListeners(html);
+      }
+    }).render(true);
+  }
+
+  async _renderTemplate() {
+    return renderTemplate("modules/mosh-greybearded-qol/templates/shore-leave-gm-dialog.html", {
+      activities: this.activities,
+      maxActivities: this.maxActivities
+    });
   }
 
   activateListeners(html) {
     const listContainer = html.find(".shoreleave-activity-list");
     const maxInput = html.find("#max-activities");
+
+    // Set initial value
+    maxInput.val(this.maxActivities);
 
     // Update maxActivities input change
     maxInput.on("change", ev => {
@@ -73,9 +96,7 @@ export class ShoreLeaveGMDialog {
   }
 
   async _refreshList(html) {
-    const content = await renderTemplate("modules/mosh-greybearded-qol/templates/shore-leave-gm-dialog.html", {
-      activities: this.activities
-    });
+    const content = await this._renderTemplate();
     html.html(content);
     this.activateListeners(html);
   }
