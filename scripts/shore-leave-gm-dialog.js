@@ -1,4 +1,4 @@
-import { SHORE_LEAVE_ACTIVITIES } from "../config/default-shore-leave-activities.js";
+import { SHORE_LEAVE_ACTIVITIES } from "./config/default-shore-leave-activities.js";
 
 // Ensure setting exists before use
 if (!game.settings.settings.has("mosh-greybearded-qol.shoreLeaveCurrentOffer")) {
