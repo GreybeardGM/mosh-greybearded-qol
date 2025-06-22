@@ -1,5 +1,5 @@
 <form class="greybeardqol shoreleave-gm-config">
-  <div class="box">
+  <div">
     <div style="display: flex; gap: 0.5em; align-items: center;">
       <label for="max-activities">Max Activities: </label>
       <button type="button" class="adjust-count" data-direction="-">-</button>
@@ -22,8 +22,10 @@
   <div class="shoreleave-activity-list">
     {{#each activities as |entry index|}}
       <div class="pill" data-index="{{index}}">
+        <span>{{entry.tier}}</span>
+        <span> | </span>
         <span>{{entry.label}}</span>
-
+        
         <select name="modifier-{{index}}" class="mod-selector">
           <option value="--">--</option>
           <option value="-">-</option>
@@ -41,7 +43,7 @@
     {{/each}}
   </div>
 
-  <div class="box" style="display: flex; justify-content: space-between; gap: 1em; margin-top: 1em;">
+  <div style="display: flex; justify-content: space-between; gap: 1em; margin-top: 1em;">
     <button type="submit" class="confirm">
       <i class="fas fa-check"></i> Confirm
     </button>
