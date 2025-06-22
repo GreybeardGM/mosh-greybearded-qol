@@ -1,12 +1,12 @@
 <form class="greybeardqol shoreleave-gm-config">
-  <div">
+  <div>
     <div style="display: flex; gap: 0.5em; align-items: center;">
       <label for="max-activities">Max Activities: </label>
       <button type="button" class="adjust-count" data-direction="-">-</button>
       <input type="number" id="max-activities" name="maxActivities" min="1" value="5" />
       <button type="button" class="adjust-count" data-direction="+">+</button>
     </div>
-    <div class="tier-filters" style="display: flex; gap: 1em; flex-wrap: wrap;">
+    <div class="tier-filters" style="display: flex; gap: 1em; flex-wrap: wrap; margin-top: 1em;">
       <button type="button" class="fill-random">
         <i class="fas fa-dice"></i> Fill Random
       </button>
@@ -25,7 +25,7 @@
         <span>{{entry.tier}}</span>
         <span> | </span>
         <span>{{entry.label}}</span>
-        
+
         <select name="modifier-{{index}}" class="mod-selector">
           <option value="--">--</option>
           <option value="-">-</option>
