@@ -3,7 +3,7 @@ import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
-import { ShoreLeaveGMDialog } from "./scripts/shore-leave-gm-dialog.js";
+import { ShoreLeaveGMDialog } from "./shore-leave-gm-dialog.js";
 
 Hooks.once("ready", () => {
   // Global registry for use in macros
