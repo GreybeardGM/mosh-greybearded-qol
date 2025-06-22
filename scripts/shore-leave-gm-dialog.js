@@ -49,7 +49,7 @@ export class ShoreLeaveGMDialog {
       while (this.activities.length < this.maxActivities && candidates.length > 0) {
         const idx = Math.floor(Math.random() * candidates.length);
         const selected = candidates.splice(idx, 1)[0];
-        this.activities.push({ id: selected.id, label: selected.label, modifier: "" });
+        this.activities.push({ id: selected.id, label: selected.label, tier: selected.tier, modifier: "" });
       }
 
       this._refreshList(html);
