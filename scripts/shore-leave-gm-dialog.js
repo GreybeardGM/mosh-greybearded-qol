@@ -1,4 +1,4 @@
-import { SHORE_LEAVE_ACTIVITIES } from "../config/default-shore-leave-activities.js";
+import { SHORE_LEAVE_ACTIVITIES } from "./config/default-shore-leave-activities.js";
 
 export class ShoreLeaveGMDialog {
   constructor() {
