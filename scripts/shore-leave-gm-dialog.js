@@ -2,8 +2,8 @@ import { SHORE_LEAVE_ACTIVITIES } from "./config/default-shore-leave-activities.
 
 export class ShoreLeaveGMDialog {
   constructor() {
-    this.maxActivities = 5;
-    this.activities = [];
+    this.activities = game.settings.get("mosh-greybearded-qol", "shoreLeaveCurrentOffer") ?? [];
+    this.maxActivities = Math.max(this.activities.length, 5);
   }
 
   async render() {
@@ -17,29 +17,32 @@ export class ShoreLeaveGMDialog {
       buttons: {},
       close: () => {},
       render: (html) => this.activateListeners(html)
-    }, { width: 600 }).render(true);
+    }, { width: 640, height: "auto" }).render(true);
   }
 
   activateListeners(html) {
     const listContainer = html.find(".shoreleave-activity-list");
+    const maxInput = html.find("#max-activities");
 
-    // Adjust activity count
-    html.find(".adjust-count").on("click", (ev) => {
-      const direction = ev.currentTarget.dataset.direction;
-      const input = html.find("#max-activities")[0];
-      this.maxActivities = Math.max(1, parseInt(input.value) + (direction === "+" ? 1 : -1));
-      input.value = this.maxActivities;
-      this._refreshList(html);
+    // Update maxActivities input change
+    maxInput.on("change", ev => {
+      const val = parseInt(ev.target.value);
+      this.maxActivities = Math.max(1, val);
+      maxInput.val(this.maxActivities);
     });
 
-    // Remove entry
-    html.find(".shoreleave-activity-list").on("click", ".remove-entry", (ev) => {
+    html.find(".adjust-count").on("click", (ev) => {
+      const direction = ev.currentTarget.dataset.direction;
+      this.maxActivities = Math.max(1, this.maxActivities + (direction === "+" ? 1 : -1));
+      maxInput.val(this.maxActivities);
+    });
+
+    html.on("click", ".remove-entry", (ev) => {
       const index = parseInt(ev.currentTarget.dataset.index);
       this.activities.splice(index, 1);
       this._refreshList(html);
     });
 
-    // Fill random
     html.find(".fill-random").on("click", () => {
       const tiers = html.find(".tier-filter:checked").map((_, el) => el.value).get();
       const pool = SHORE_LEAVE_ACTIVITIES[0].activities.filter(act => tiers.includes(act.tier));
@@ -49,17 +52,21 @@ export class ShoreLeaveGMDialog {
       while (this.activities.length < this.maxActivities && candidates.length > 0) {
         const idx = Math.floor(Math.random() * candidates.length);
         const selected = candidates.splice(idx, 1)[0];
-        this.activities.push({ id: selected.id, label: selected.label, tier: selected.tier, modifier: "" });
+        this.activities.push({ id: selected.id, tier: selected.tier, label: selected.label, modifier: "" });
       }
 
       this._refreshList(html);
     });
 
-    // Confirm submit
     html.find("form").on("submit", async (ev) => {
       ev.preventDefault();
 
-      // Save into world settings
+      // Capture modifiers
+      html.find(".mod-selector").each((_, el) => {
+        const index = parseInt(el.name.split("-")[1]);
+        this.activities[index].modifier = el.value;
+      });
+
       await game.settings.set("mosh-greybearded-qol", "shoreLeaveCurrentOffer", this.activities);
       ui.notifications.info("Shore leave offer updated.");
     });
