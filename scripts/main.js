@@ -79,4 +79,14 @@ Hooks.once("init", () => {
     type: ShoreLeaveTierEditor,
     restricted: true
   });
+
+  // Advanced Shore Leave Offer
+  game.settings.register("mosh-greybearded-qol", "shoreLeaveCurrentOffer", {
+    name: "Current Shore Leave Activities",
+    scope: "world",
+    config: false,
+    type: Array,
+    default: []
+  });
+
 });
