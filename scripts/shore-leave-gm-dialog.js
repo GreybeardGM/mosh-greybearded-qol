@@ -1,4 +1,15 @@
-import { SHORE_LEAVE_ACTIVITIES } from "./config/default-shore-leave-activities.js";
+import { SHORE_LEAVE_ACTIVITIES } from "../config/default-shore-leave-activities.js";
+
+// Ensure setting exists before use
+if (!game.settings.settings.has("mosh-greybearded-qol.shoreLeaveCurrentOffer")) {
+  game.settings.register("mosh-greybearded-qol", "shoreLeaveCurrentOffer", {
+    name: "Current Shore Leave Activities",
+    scope: "world",
+    config: false,
+    type: Array,
+    default: []
+  });
+}
 
 export class ShoreLeaveGMDialog {
   constructor() {
