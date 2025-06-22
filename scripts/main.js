@@ -28,6 +28,12 @@ Hooks.once("ready", () => {
 
 // Settings
 Hooks.once("init", () => {
+  // Register handlebars helper
+  Handlebars.registerHelper("array", (...args) => {
+    // Remove last item which is Handlebars options object
+    return args.slice(0, -1);
+  });
+  
   // Config Stress Conversion
   game.settings.register("mosh-greybearded-qol", "convertStress.useSanitySave", {
     name: "Use Sanity Save",
