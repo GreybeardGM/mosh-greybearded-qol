@@ -189,7 +189,56 @@ export const SHORE_LEAVE_ACTIVITIES = [
         "label": "Gravity Nap Pod",
         "description": "Perfectly calibrated gravitational massage while you sleep and forget your job exists.",
         "icon": "fa-bed"
-      }
+      },
+      {
+        id: "blacklotus-syndrome",
+        tier: "X",
+        label: "Black Lotus Syndrome Trial",
+        description: "Participate in a neuropharmaceutical trial. You dream vividly, wake up different, and gain strange clarity.",
+        icon: "fa-vial"
+      },
+      {
+        id: "ghostcasino",
+        tier: "X",
+        label: "Ghost Casino",
+        description: "Bet your past, memories, or identity. Win big or forget you ever walked in.",
+        icon: "fa-dice"
+      },
+      {
+        id: "liminal-net-dive",
+        tier: "X",
+        label: "Liminal Net Dive",
+        description: "A raw, unsupervised neural link to the Dreaming Web. Reality may fracture. Results are enlightening or catastrophic.",
+        icon: "fa-network-wired"
+      },
+      {
+        id: "voidwhisper-seance",
+        tier: "X",
+        label: "Voidwhisper Séance",
+        description: "Listen to the cosmic background noise through a psychoacoustic amplifier. You might hear something calling.",
+        icon: "fa-headphones"
+      },
+      {
+        id: "paradox-machine",
+        tier: "X",
+        label: "Paradox Machine",
+        description: "Step into a chamber that shows your other lives. Sometimes you come out confident. Sometimes… broken.",
+        icon: "fa-infinity"
+      },
+      {
+        id: "edge-of-sense",
+        tier: "X",
+        label: "Edge of Sense",
+        description: "A neuro-spiritual rebirth ceremony with no safety protocols. Return with vision—or fractured perception.",
+        icon: "fa-eye"
+      },
+      {
+        id: "soulauction",
+        tier: "X",
+        label: "Soul Auction",
+        description: "You bid against the desperate and the damned. What you win may not be yours to own.",
+        icon: "fa-gavel"
+      }  
     ]
   }
 ];
