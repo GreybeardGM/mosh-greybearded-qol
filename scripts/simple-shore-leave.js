@@ -72,7 +72,7 @@ export async function simpleShoreLeave(actor, randomFlavor = false) {
             const icon = entry.flavor.icon ? `<i class="fas ${entry.flavor.icon}" style="margin-right: 0.5em;"></i>` : "";
             content = `
               <div style="font-weight: bold; font-size: 1.6em; margin-bottom: 0.5em;">${icon}${entry.flavor.label}</div>
-              <div style="font-style: italic; font-size: 1.2em;">${entry.flavor.description}</div>
+              <div style="font-style: italic; font-size: 1.2em;">${entry.label}</div>
               <hr>
               <div style="font-size: 1.2em; margin-bottom: 0.5em;">${entry.flavor.description}</div>
             `;
