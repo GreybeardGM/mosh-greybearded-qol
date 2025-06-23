@@ -5,9 +5,9 @@
         <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
 
         {{#if tier.flavor.icon}}
-          <i class="fas {{tier.flavor.icon}}"></i>
+          <i class="fas {{tier.flavor.icon}} icon"></i>
         {{else if tier.icon}}
-          <i class="fas {{tier.icon}}"></i>
+          <i class="fas {{tier.icon}} icon"></i>
         {{/if}}
 
         <h3>{{tier.label}}</h3>
@@ -35,7 +35,7 @@
         </div>
 
         <div class="pill roll-price" data-tier="{{tier.tier}}" style="margin-top: 1em;">
-          <i class="fa-solid fa-coins"></i>
+          <i class="fas fa-coins"></i>
           <span>Roll Price</span>
         </div>
 
