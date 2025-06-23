@@ -66,7 +66,21 @@ export async function simpleShoreLeave(actor, randomFlavor = false) {
 
           const roll = new Roll(entry.priceFormula);
           await roll.evaluate();
-          await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `Price for ${entry.label}` });
+          // Flavorful chat output
+          let content = "";
+          if (randomFlavor && entry.flavor) {
+            const icon = entry.flavor.icon ? `<i class="fas ${entry.flavor.icon}" style="margin-right: 0.5em;"></i>` : "";
+            content = `
+              <div style="margin-bottom: 0.5em;">
+                <strong style="font-size: 1.1em;">${icon}${entry.flavor.label}</strong>
+              </div>
+              <div style="font-size: 0.9em; margin-bottom: 0.5em;">${entry.flavor.description}</div>
+            `;
+          } else {
+            content = `Price for ${entry.label}`;
+          }
+                 
+          await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: content});
         });
 
         // Reroll flavor button
