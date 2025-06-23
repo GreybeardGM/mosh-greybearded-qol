@@ -3,10 +3,22 @@
     {{#each tiers as |tier|}}
       <label class="card" style="display: block;">
         <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
-        {{#if tier.icon}}
-            <i class="fas {{tier.icon}}"></i>
+
+        {{#if tier.flavor.icon}}
+          <i class="fas {{tier.flavor.icon}}"></i>
+        {{else if tier.icon}}
+          <i class="fas {{tier.icon}}"></i>
         {{/if}}
+
         <h3>{{tier.label}}</h3>
+
+        {{#if tier.flavor.label}}
+          <div style="font-weight: bold; margin-top: 0.25em;">{{tier.flavor.label}}</div>
+        {{/if}}
+
+        {{#if tier.flavor.description}}
+          <div style="font-size: 0.9em; opacity: 0.8; margin-top: 0.25em;">{{tier.flavor.description}}</div>
+        {{/if}}
 
         <div style="margin: 2em 0;">
           <strong>Stress Conversion</strong>
