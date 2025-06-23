@@ -73,11 +73,26 @@ export async function simpleShoreLeave(actor, randomFlavor = false) {
         html.find(".reroll-flavor").on("click", ev => {
           const card = $(ev.currentTarget).closest(".card");
           const tierKey = card.find("input[name='shore-tier']").val();
-          const index = tiers.findIndex(t => t.tier === tierKey);
-          if (index >= 0) {
-            const flavored = flavorizeShoreLeave(tiers[index].raw);
-            Object.assign(tiers[index], flavored);
-            simpleShoreLeave(actor, true); // Re-render
+          const entry = tiers.find(t => t.tier === tierKey);
+          if (!entry) return;
+        
+          // Apply new flavor
+          flavorizeShoreLeave(entry);
+        
+          // Update DOM
+          const iconElement = card.find(".icon");
+          if (entry.flavor?.icon) {
+            iconElement.attr("class", `fas ${entry.flavor.icon} icon`);
+          }
+        
+          const labelContainer = card.find(".flavor-label");
+          if (entry.flavor?.label) {
+            labelContainer.text(entry.flavor.label);
+          }
+        
+          let descContainer = card.find(".flavor-description");
+          if (entry.flavor?.description) {
+            descContainer.text(entry.flavor.description);
           }
         });
 
