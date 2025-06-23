@@ -49,7 +49,7 @@
   margin-bottom: 0.5em;
 }
 
-.greybeardqol .card i.fas {
+.greybeardqol .card .icon {
   width: 100%;
   aspect-ratio: 1 / 1;
   display: inline-flex;
