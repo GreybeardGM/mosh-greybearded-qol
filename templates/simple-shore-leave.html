@@ -13,8 +13,8 @@
         <h3>{{tier.label}}</h3>
 
         {{#if tier.flavor.label}}
-          <div class="flavor-label" style="margin-top: 1em; min-height: 2.4em; display: flex; align-items: center; justify-content: center; text-align: center;">
-            <strong>{{tier.flavor.label}}</strong>
+          <div class="flavor-label" style="font-weight: bold; margin-top: 1em; min-height: 2.4em; display: flex; align-items: center; justify-content: center; text-align: center;">
+            {{tier.flavor.label}}
           </div>
         {{/if}}
         
@@ -23,13 +23,19 @@
             {{tier.flavor.description}}
           </div>
         {{/if}}
+        {{#if tier.flavor.label}}
+          <div class="pill reroll-flavor">
+            <i class="fas fa-dice"></i>
+            <span>Reroll Flavor</span>
+          </div>
+        {{/if}}
         
-        <div style="margin: 2em 0;">
+        <div style="margin: 1.5em 0;">
           <strong>Stress Conversion</strong>
           <div style="margin: 0.5em 0;">{{tier.stressString}}</div>
         </div>
 
-        <div style="margin: 2em 0;">
+        <div style="margin: 1.5em 0;">
           <strong>Price</strong>
           <div style="margin: 0.5em 0;">{{tier.priceString}}</div>
         </div>
@@ -39,10 +45,6 @@
           <span>Roll Price</span>
         </div>
 
-        <div class="pill reroll-flavor" style="margin-top: 0.5em;">
-          <i class="fas fa-dice"></i>
-          <span>Reroll Flavor</span>
-        </div>
       </label>
     {{/each}}
   </div>
