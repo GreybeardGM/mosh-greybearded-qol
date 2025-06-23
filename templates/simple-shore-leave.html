@@ -13,11 +13,15 @@
         <h3>{{tier.label}}</h3>
 
         {{#if tier.flavor.label}}
-          <div style="font-weight: bold; margin-top: 0.25em;">{{tier.flavor.label}}</div>
+          <div style="margin-top: 1em; min-height: 2.4em; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <strong>{{tier.flavor.label}}</strong>
+          </div>
         {{/if}}
 
         {{#if tier.flavor.description}}
-          <div style="font-size: 0.9em; opacity: 0.8; margin-top: 0.25em;">{{tier.flavor.description}}</div>
+          <div style="min-height: 6.5em; margin: 0.5em 0; font-size: 0.85em; opacity: 0.8;">
+            {{tier.flavor.description}}
+          </div>
         {{/if}}
 
         <div style="margin: 2em 0;">
@@ -33,6 +37,11 @@
         <div class="pill roll-price" data-tier="{{tier.tier}}" style="margin-top: 1em;">
           <i class="fa-solid fa-coins"></i>
           <span>Roll Price</span>
+        </div>
+
+        <div class="pill reroll-flavor" style="margin-top: 0.5em;">
+          <i class="fas fa-dice"></i>
+          <span>Reroll Flavor</span>
         </div>
       </label>
     {{/each}}
