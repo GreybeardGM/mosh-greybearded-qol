@@ -14,13 +14,13 @@
 
         {{#if tier.flavor.label}}
           <div style="margin-top: 1em; min-height: 2.4em; display: flex; align-items: center; justify-content: center; text-align: center;">
-            <strong>{{tier.flavor.label}}</strong>
+            <strong class="flavor-label">{{tier.flavor.label}}</strong>
           </div>
         {{/if}}
 
         {{#if tier.flavor.description}}
           <div style="min-height: 6.5em; margin: 0.5em 0; font-size: 0.85em; opacity: 0.8;">
-            {{tier.flavor.description}}
+            <label class="flavor-description">{{tier.flavor.description}}</label>
           </div>
         {{/if}}
 
