@@ -20,12 +20,8 @@ export async function simpleShoreLeave(actor, randomFlavor = false) {
       priceString: toRollString(tier.basePrice),
       raw: tier
     };
-
     // Add random flavor overlay if enabled
-    if (randomFlavor) {
-      base = flavorizeShoreLeave(base);
-    }
-
+    if (randomFlavor) flavorizeShoreLeave(base);
     return base;
   });
 
