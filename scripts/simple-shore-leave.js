@@ -87,15 +87,6 @@ export async function simpleShoreLeave(actor, randomFlavor) {
           }
                  
           await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: content});
-
-          Hooks.on("renderChatMessage", (message, html, data) => {
-            html.find(".shoreleave-convert").on("click", async function () {
-              const formula = $(this).data("formula");
-              const actor = game.user.character;
-              if (!actor) return ui.notifications.warn("No default character assigned.");
-              await game.moshGreybeardQol.convertStress(actor, formula);
-            });
-          });          
         });
 
         // Reroll flavor button
