@@ -2,6 +2,7 @@ import { toRollFormula } from "./utils/to-roll-formula.js";
 import { toRollString } from "./utils/to-roll-string.js";
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./utils/flavorize-shore-leave.js";
+import { chatOutput } from "./utils/chat-output.js";
 
 export async function simpleShoreLeave(actor, randomFlavor) {
   if (!actor) return ui.notifications.warn("No actor provided.");
@@ -67,26 +68,23 @@ export async function simpleShoreLeave(actor, randomFlavor) {
 
           const roll = new Roll(entry.priceFormula);
           await roll.evaluate();
-          // Flavorful chat output
-          let content = "";
-          if (randomFlavor && entry.flavor) {
-            const icon = entry.flavor.icon ? `<i class="fas ${entry.flavor.icon}" style="margin-right: 0.5em;"></i>` : "";
-            content = `
-              <div style="font-weight: bold; font-size: 1.6em; margin-bottom: 0.5em;">${icon}${entry.flavor.label}</div>
-              <div style="font-style: italic; font-size: 1.2em;">${entry.label}</div>
-              <hr>
-              <div style="font-size: 1.2em; margin-bottom: 0.5em;">${entry.flavor.description}</div>
-              <hr>
-              <div style="font-size: 1.2em; margin-bottom: 0.5em;">Converts <strong>${entry.stressString}</strong> stress.</div>
-              <div style="font-size: 1.2em; margin-bottom: 0.5em;">
-                <button class="shoreleave-convert" data-formula="${entry.stressFormula}">Participate now!</button>
-              </div>
-            `;
-          } else {
-            content = `Price for ${entry.label}`;
-          }
-                 
-          await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: content});
+
+          await chatOutput({
+            actor,
+            title: entry.label,
+            subtitle: entry.flavor?.label || "",
+            content: entry.flavor?.description || "",
+            icon: entry.flavor?.icon || entry.icon,
+            roll,
+            buttons: [
+              {
+                label: "Participate Now",
+                icon: "fa-dice",
+                action: "convertStress",
+                args: ["game.user.character", entry.stressFormula]
+              }
+            ]
+          });
         });
 
         // Reroll flavor button
