@@ -1,4 +1,5 @@
 import { showStressConversionDialog } from "./ui/stress-distribution.js";
+import { chatOutput } from "./utils/chat-output.js";
 
 export async function convertStress(actor, formula, options = {}) {
   // Fallback Actor
