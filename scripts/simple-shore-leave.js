@@ -76,12 +76,26 @@ export async function simpleShoreLeave(actor, randomFlavor) {
               <div style="font-style: italic; font-size: 1.2em;">${entry.label}</div>
               <hr>
               <div style="font-size: 1.2em; margin-bottom: 0.5em;">${entry.flavor.description}</div>
+              <hr>
+              <div style="font-size: 1.2em; margin-bottom: 0.5em;">Converts <strong>${entry.stressString}</strong> stress.</div>
+              <div style="font-size: 1.2em; margin-bottom: 0.5em;">
+                <button class="shoreleave-convert" data-formula="${entry.stressFormula}">Participate now!</button>
+              </div>
             `;
           } else {
             content = `Price for ${entry.label}`;
           }
                  
           await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: content});
+
+          Hooks.on("renderChatMessage", (message, html, data) => {
+            html.find(".shoreleave-convert").on("click", async function () {
+              const formula = $(this).data("formula");
+              const actor = game.user.character;
+              if (!actor) return ui.notifications.warn("No default character assigned.");
+              await game.moshGreybeardQol.convertStress(actor, formula);
+            });
+          });          
         });
 
         // Reroll flavor button
