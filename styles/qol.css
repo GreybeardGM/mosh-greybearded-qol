@@ -98,6 +98,70 @@
   background-color: var(--color-bg-hover);
 }
 
+/* Pill list layout */
+.greybeardqol .pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 0.5em;
+}
+
+/* Chat card wrapper */
+.greybeardqol .chat-card {
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 8px;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+/* Header row: icon + text */
+.greybeardqol .chat-card .header {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+/* Icon (FontAwesome or image) */
+.greybeardqol .chat-card .icon-wrapper {
+  width: 3em;
+  height: 3em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2em;
+  object-fit: contain;
+}
+
+/* Text beside icon */
+.greybeardqol .chat-card .header-text {
+  flex-grow: 1;
+}
+
+/* Title */
+.greybeardqol .chat-card .title {
+  font-size: 1.3em;
+  font-weight: bold;
+  line-height: 1.2em;
+}
+
+/* Subtitle */
+.greybeardqol .chat-card .subtitle {
+  font-size: 1em;
+  font-style: italic;
+  color: var(--color-highlight);
+}
+
+/* Chat body text */
+.greybeardqol .chat-card .chat-body {
+  font-size: 1em;
+  line-height: 1.4em;
+}
+
 /* Remaining points info */
 .greybeardqol .remaining-points {
   text-align: center;
