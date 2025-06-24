@@ -81,7 +81,7 @@ export async function simpleShoreLeave(actor, randomFlavor) {
                 label: "Participate Now",
                 icon: "fa-dice",
                 action: "convertStress",
-                args: ["game.user.character", entry.stressFormula]
+                args: [entry.stressFormula]
               }
             ]
           });
