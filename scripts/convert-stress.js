@@ -61,7 +61,7 @@ export async function convertStress(actor, formula, options = {}) {
     actor,
     title: "Stress converted",
     subtitle: actor.name,
-    content: `Stress converted: <div class="counter">${conversionPoints}</div>`,
+    content: `Stress converted: <label class="counter">${conversionPoints}</label>`,
     image: actor.img,
     roll
   });
