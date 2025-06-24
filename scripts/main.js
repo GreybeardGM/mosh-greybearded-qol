@@ -3,15 +3,13 @@ import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
-import { ShoreLeaveGMDialog } from "./shore-leave-gm-dialog.js";
 
 Hooks.once("ready", () => {
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
   game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
-  game.moshGreybeardQol.ShoreLeaveGMDialog = ShoreLeaveGMDialog;
-
+  
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
   const StashSheet = defineStashSheet(BaseSheet);
@@ -28,12 +26,7 @@ Hooks.once("ready", () => {
 
 // Settings
 Hooks.once("init", () => {
-  // Register handlebars helper
-  Handlebars.registerHelper("array", (...args) => {
-    // Remove last item which is Handlebars options object
-    return args.slice(0, -1);
-  });
-  
+
   // Config Stress Conversion
   game.settings.register("mosh-greybearded-qol", "convertStress.useSanitySave", {
     name: "Use Sanity Save",
@@ -62,6 +55,16 @@ Hooks.once("init", () => {
     type: String
   });
 
+  // Config simple shore leave
+  game.settings.register("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor", {
+    name: "Flovored shore leave activities",
+    hint: "Enhance simple shore leave with random, flavored activities.",
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean
+  });
+  
   // Config Shore Leave Tiers
   game.settings.register("mosh-greybearded-qol", "shoreLeaveTiers", {
     name: "Shore Leave Tier Definitions",
@@ -78,15 +81,6 @@ Hooks.once("init", () => {
     icon: "fas fa-edit",
     type: ShoreLeaveTierEditor,
     restricted: true
-  });
-
-  // Advanced Shore Leave Offer
-  game.settings.register("mosh-greybearded-qol", "shoreLeaveCurrentOffer", {
-    name: "Current Shore Leave Activities",
-    scope: "world",
-    config: false,
-    type: Array,
-    default: []
   });
 
 });
