@@ -157,28 +157,28 @@
   color: var(--color-remaining);
 }
 
-/* Grid for three cards */
-.greybeardqol .three-col-grid {
+/* Grids for cards */
+.greybeardqol .three-col-grid,
+.greybeardqol .four-col-grid,
+.greybeardqol .five-col-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 1em;
   margin-bottom: 1em;
+}
+
+/* Grid for three cards */
+.greybeardqol .three-col-grid {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 /* Grid for four cards */
 .greybeardqol .four-col-grid {
-  display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1em;
-  margin-bottom: 1em;
 }
 
 /* Grid for five cards */
 .greybeardqol .five-col-grid {
-  display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1em;
-  margin-bottom: 1em;
 }
 
 /* Counter for stress points */
