@@ -21,10 +21,20 @@ export async function chatOutput({
     title = title.slice(1);
   }
 
-  // Normalize buttons
+  // Normalize and build chat-action buttons
   if (Array.isArray(buttons)) {
     buttons.forEach(btn => {
       if (!btn.icon) btn.icon = "fa-dice";
+  
+      const action = btn.action || "";
+      const args = btn.args || [];
+      const argsString = JSON.stringify(args).replace(/"/g, "&quot;");
+  
+      btn.buttonHtml = `
+        <button class="chat-action" data-action="${action}" data-args="${argsString}">
+          <i class="fas ${btn.icon}"></i> ${btn.label}
+        </button>
+      `;
     });
   }
 
