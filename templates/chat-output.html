@@ -1,35 +1,37 @@
-<div class="greybeardqol chat-card">
-  <!-- Header -->
-  <div class="header">
-    <!-- Icon or Image -->
-    <div class="icon-wrapper">
-      {{#if image}}
-        <img class="icon" src="{{image}}" alt="Chat image"/>
-      {{else if icon}}
-        <i class="icon fas {{icon}}"></i>
-      {{/if}}
+<div class="greybeardqol">
+  <div class="chat-card">
+    <!-- Header -->
+    <div class="header">
+      <!-- Icon or Image -->
+      <div class="icon-wrapper">
+        {{#if image}}
+          <img class="icon" src="{{image}}" alt="Chat image"/>
+        {{else if icon}}
+          <i class="icon fas {{icon}}"></i>
+        {{/if}}
+      </div>
+  
+      <!-- Title and Subtitle -->
+      <div class="header-text">
+        <div class="title">{{title}}</div>
+        {{#if subtitle}}
+          <div class="subtitle">{{subtitle}}</div>
+        {{/if}}
+      </div>
     </div>
-
-    <!-- Title and Subtitle -->
-    <div class="header-text">
-      <div class="title">{{title}}</div>
-      {{#if subtitle}}
-        <div class="subtitle">{{subtitle}}</div>
-      {{/if}}
+  
+    <!-- Content -->
+    <div class="chat-body">
+      {{{content}}}
     </div>
+  
+    <!-- Buttons -->
+    {{#if buttons.length}}
+      <div class="pill-list">
+        {{#each buttons}}
+          {{{this.buttonHtml}}}
+        {{/each}}
+      </div>
+    {{/if}}
   </div>
-
-  <!-- Content -->
-  <div class="chat-body">
-    {{{content}}}
-  </div>
-
-  <!-- Buttons -->
-  {{#if buttons.length}}
-    <div class="pill-list">
-      {{#each buttons}}
-        {{{this.buttonHtml}}}
-      {{/each}}
-    </div>
-  {{/if}}
 </div>
