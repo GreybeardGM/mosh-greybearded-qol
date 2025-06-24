@@ -94,3 +94,32 @@ Hooks.on("renderChatMessage", (message, html, data) => {
     await game.moshGreybeardQol.convertStress(actor, formula);
   });
 });
+
+// Chat actions
+Hooks.on("renderChatMessage", (message, html, data) => {
+  html.find(".greybeardqol .chat-action").each(function () {
+    const button = this;
+    button.addEventListener("click", async () => {
+      const action = button.dataset.action;
+      const args = button.dataset.args ? JSON.parse(button.dataset.args) : [];
+
+      if (!action) return;
+
+      const actor = game.user.character;
+      if (!actor) return ui.notifications.warn("No character assigned.");
+
+      switch (action) {
+        case "convertStress":
+          await game.moshGreybeardQol.convertStress(actor, ...args);
+          break;
+        case "simpleShoreLeave":
+          await game.moshGreybeardQol.simpleShoreLeave(actor, ...args);
+          break;
+        // Add more cases as needed
+        default:
+          ui.notifications.warn(`Unknown action: ${action}`);
+      }
+    });
+  });
+});
+
