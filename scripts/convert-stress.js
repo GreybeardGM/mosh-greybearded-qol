@@ -59,7 +59,8 @@ export async function convertStress(actor, formula, options = {}) {
   conversionPoints = Math.min(roll.total, conversionPoints);
   await chatOutput({
     actor,
-    title: `Stress converted: <label class="counter">${conversionPoints}</label>`,
+    title: "Stress Conversion",
+    content: `Converted Stress: <label class="counter">${conversionPoints}</label>`,
     subtitle: actor.name,
     image: actor.img,
     roll
