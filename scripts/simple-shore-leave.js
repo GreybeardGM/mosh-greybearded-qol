@@ -72,7 +72,7 @@ export async function simpleShoreLeave(actor, randomFlavor) {
           await chatOutput({
             actor,
             title: entry.label,
-            subtitle: entry.flavor?.label || "",
+            subtitle: entry.flavor?.label || "Shore Leave",
             content: entry.flavor?.description || "",
             icon: entry.flavor?.icon || entry.icon,
             roll,
