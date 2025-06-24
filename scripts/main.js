@@ -4,6 +4,7 @@ import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 
+// Register all the stuff
 Hooks.once("ready", () => {
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
@@ -85,16 +86,6 @@ Hooks.once("init", () => {
 
 });
 
-// Chat button: Participate on shore leave
-Hooks.on("renderChatMessage", (message, html, data) => {
-  html.find(".shoreleave-convert").on("click", async function () {
-    const formula = $(this).data("formula");
-    const actor = game.user.character;
-    if (!actor) return ui.notifications.warn("No default character assigned.");
-    await game.moshGreybeardQol.convertStress(actor, formula);
-  });
-});
-
 // Chat actions
 Hooks.on("renderChatMessage", (message, html, data) => {
   html.find(".greybeardqol .chat-action").each(function () {
@@ -122,4 +113,3 @@ Hooks.on("renderChatMessage", (message, html, data) => {
     });
   });
 });
-
