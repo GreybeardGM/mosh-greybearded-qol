@@ -54,9 +54,16 @@ export async function convertStress(actor, formula, options = {}) {
   // Roll for conversion
   const roll = new Roll(formula);
   await roll.evaluate();
-  await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: "Stress Conversion Roll" });
   rollResult = roll;
   conversionPoints = Math.min(roll.total, conversionPoints);
+  await chatOutput({
+    actor,
+    title: "Stress converted",
+    subtitle: actor.name,
+    content: `Stress converted: <div class="counter">${conversionPoints}</div>`,
+    image: actor.img,
+    roll
+  });
 
   const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
