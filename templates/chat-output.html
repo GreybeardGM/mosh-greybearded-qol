@@ -3,13 +3,11 @@
     <!-- Header -->
     <div class="header">
       <!-- Icon or Image -->
-      <div class="icon-wrapper">
-        {{#if image}}
-          <img class="icon" src="{{image}}" alt="Chat image"/>
-        {{else if icon}}
-          <i class="icon fas {{icon}}"></i>
-        {{/if}}
-      </div>
+      {{#if image}}
+        <img class="icon" src="{{image}}" alt="Chat image"/>
+      {{else if icon}}
+        <i class="icon fas {{icon}}"></i>
+      {{/if}}
   
       <!-- Title and Subtitle -->
       <div class="header-text">
