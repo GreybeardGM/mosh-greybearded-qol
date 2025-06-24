@@ -31,9 +31,9 @@ export async function chatOutput({
       const argsString = JSON.stringify(args).replace(/"/g, "&quot;");
   
       btn.buttonHtml = `
-        <button class="chat-action" data-action="${action}" data-args="${argsString}">
+        <div class="pill chat-action" data-action="${action}" data-args="${argsString}">
           <i class="fas ${btn.icon}"></i> ${btn.label}
-        </button>
+        </div>
       `;
     });
   }
