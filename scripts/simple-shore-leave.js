@@ -3,8 +3,9 @@ import { toRollString } from "./utils/to-roll-string.js";
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./utils/flavorize-shore-leave.js";
 
-export async function simpleShoreLeave(actor, randomFlavor = false) {
+export async function simpleShoreLeave(actor, randomFlavor) {
   if (!actor) return ui.notifications.warn("No actor provided.");
+  randomFlavor = randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor");
 
   // Load config from settings
   const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
