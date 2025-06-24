@@ -1,16 +1,17 @@
-<div class="greybeardqol chat-card" style="display: flex; flex-direction: column; gap: 0.5em;">
-
+<div class="greybeardqol chat-card">
   <!-- Header -->
   <div class="header">
     <!-- Icon or Image -->
-    {{#if image}}
-      <img class="icon" src="{{image}}" alt="Chat image"/>
-    {{else if icon}}
-      <i class="icon fas {{icon}}"></i>
-    {{/if}}
+    <div class="icon-wrapper">
+      {{#if image}}
+        <img class="icon" src="{{image}}" alt="Chat image"/>
+      {{else if icon}}
+        <i class="icon fas {{icon}}"></i>
+      {{/if}}
+    </div>
 
     <!-- Title and Subtitle -->
-    <div>
+    <div class="header-text">
       <div class="title">{{title}}</div>
       {{#if subtitle}}
         <div class="subtitle">{{subtitle}}</div>
@@ -31,5 +32,4 @@
       {{/each}}
     </div>
   {{/if}}
-
 </div>
