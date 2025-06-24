@@ -100,9 +100,6 @@
 
 /* Pill list layout */
 .greybeardqol .pill-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
   margin-top: 0.5em;
 }
 
