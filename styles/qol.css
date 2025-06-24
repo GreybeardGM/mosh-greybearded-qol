@@ -24,6 +24,15 @@
   box-shadow: 0 0 8px var(--color-highlight);
 }
 
+/* Icon/Image resizing */
+.greybeardqol .icon {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+}
+
 /* Generic card */
 .greybeardqol .card {
   background-color: var(--color-bg);
@@ -41,27 +50,15 @@
   background-color: var(--color-bg-hover);
 }
 
-.greybeardqol .card img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-  border: 0;
-  margin-bottom: 0.5em;
+.greybeardqol .card h3 {
+  margin: 0.5em 0 0.25em;
+  font-size: 1.2em;
 }
 
 .greybeardqol .card .icon {
   width: 100%;
-  aspect-ratio: 1 / 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   font-size: 5em;
-  margin-bottom: 0.2em;
-}
-
-.greybeardqol .card h3 {
-  margin: 0.5em 0 0.25em;
-  font-size: 1.2em;
+  margin-bottom: 0.5em;
 }
 
 /* Box layout */
@@ -103,7 +100,7 @@
   margin-top: 0.5em;
 }
 
-/* Chat card wrapper */
+/* Chat card */
 .greybeardqol .chat-card {
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
@@ -115,45 +112,34 @@
   gap: 0.75em;
 }
 
-/* Header row: icon + text */
 .greybeardqol .chat-card .header {
   display: flex;
   align-items: center;
   gap: 1em;
 }
 
-/* Icon (FontAwesome or image) */
-.greybeardqol .chat-card .icon-wrapper {
+.greybeardqol .chat-card .icon {
   width: 3em;
-  height: 3em;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 2.2em;
-  object-fit: contain;
 }
 
-/* Text beside icon */
 .greybeardqol .chat-card .header-text {
   flex-grow: 1;
 }
 
-/* Title */
 .greybeardqol .chat-card .title {
   font-size: 1.3em;
   font-weight: bold;
   line-height: 1.2em;
 }
 
-/* Subtitle */
 .greybeardqol .chat-card .subtitle {
   font-size: 1em;
   font-style: italic;
   color: var(--color-highlight);
 }
 
-/* Chat body text */
 .greybeardqol .chat-card .chat-body {
   font-size: 1em;
   line-height: 1.4em;
