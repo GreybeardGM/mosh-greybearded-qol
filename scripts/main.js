@@ -84,3 +84,13 @@ Hooks.once("init", () => {
   });
 
 });
+
+// Chat button: Participate on shore leave
+Hooks.on("renderChatMessage", (message, html, data) => {
+  html.find(".shoreleave-convert").on("click", async function () {
+    const formula = $(this).data("formula");
+    const actor = game.user.character;
+    if (!actor) return ui.notifications.warn("No default character assigned.");
+    await game.moshGreybeardQol.convertStress(actor, formula);
+  });
+});
