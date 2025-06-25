@@ -24,7 +24,7 @@ Hooks.once("ready", () => {
   // Set Theme Color
   const root = document.querySelector(".greybeardqol");
   if (root) {
-    const color = game.settings.get("greybeardqol", "themeColor");
+    const color = game.settings.get("mosh-greybearded-qol", "themeColor");
     root.style.setProperty("--color-highlight", color);
   }
   
@@ -33,9 +33,9 @@ Hooks.once("ready", () => {
 });
 
 // Settings
+Hooks.once("init", () => {
   // Theme Color
-  Hooks.once("init", () => {
-    game.settings.register("greybeardqol", "themeColor", {
+  game.settings.register("mosh-greybearded-qol", "themeColor", {
     name: "Theme Color",
     scope: "world",
     config: true,
