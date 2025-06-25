@@ -47,6 +47,15 @@ Hooks.once("init", () => {
     type: Boolean
   });
 
+  game.settings.register("mosh-greybearded-qol", "convertStress.minStressConversion", {
+    name: "Convert Minimum Stress",
+    hint: "If enabled, stess conversion is capped at 0 instead of miminum stress.",
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean
+  });
+
   game.settings.register("mosh-greybearded-qol", "convertStress.formula", {
     name: "Stress Conversion Formula",
     hint: "The default dice formula used to convert stress (e.g., '1d5').",
