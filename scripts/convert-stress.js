@@ -7,8 +7,8 @@ export async function convertStress(actor, formula, options = {}) {
   if (!actor) return ui.notifications.warn("No actor available for stress conversion.");
 
   formula = formula ?? game.settings.get("mosh-greybearded-qol", "convertStress.formula");
-  const useSanitySave = options.useSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.useSanitySave");
-  const relieveStress = options.relieveStress ?? game.settings.get("mosh-greybearded-qol", "convertStress.relieveStress");
+  const noSanitySave = options.noSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.noSanitySave");
+  const noStressRelieve = options.noStressRelieve ?? game.settings.get("mosh-greybearded-qol", "convertStress.noStressRelieve");
   const minStressConversion = options.minStressConversion ?? game.settings.get("mosh-greybearded-qol", "convertStress.minStressConversion");
   
   const stress = actor.system.other.stress;
@@ -23,7 +23,7 @@ export async function convertStress(actor, formula, options = {}) {
   let rollResult = null;
 
   // Optional: Sanity Save
-  if (useSanitySave) {
+  if (!noSanitySave) {
     const sanityCheck = await actor.rollCheck(null, "low", "sanity", null, null, null);
 
     // Wait for evaluation
@@ -38,7 +38,7 @@ export async function convertStress(actor, formula, options = {}) {
     }
 
     if (!success) {
-      if (relieveStress) {
+      if (!noStressRelieve) {
         const targetStress = minStress + 1;
         await actor.update({"system.other.stress.value": targetStress});
       }
@@ -71,7 +71,7 @@ export async function convertStress(actor, formula, options = {}) {
   const finalSaves = await showStressConversionDialog(actor, conversionPoints);
   if (!finalSaves) return { result: "canceled" };
 
-  const targetStress = relieveStress ? minStress : Math.max(minStress, currentStress - conversionPoints);
+  const targetStress = noStressRelieve ? Math.max(minStress, currentStress - conversionPoints) : minStress;
   await actor.update({
     "system.other.stress.value": targetStress,
     "system.stats.sanity.value": finalSaves.sanity,
