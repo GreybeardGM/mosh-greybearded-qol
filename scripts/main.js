@@ -5,6 +5,9 @@ import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 
+// Needs to be here to check for
+let StashSheet;
+
 // Register all the stuff
 Hooks.once("ready", () => {
   // Global registry for use in macros
@@ -15,7 +18,7 @@ Hooks.once("ready", () => {
 
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
-  const StashSheet = defineStashSheet(BaseSheet);
+  StashSheet = defineStashSheet(BaseSheet);
 
   Actors.registerSheet("dwextrasheets", StashSheet, {
     types: ["character"],
