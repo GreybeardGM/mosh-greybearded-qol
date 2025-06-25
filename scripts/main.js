@@ -188,36 +188,25 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 });
 
 // Remove Default Character Creator
-let sheetClassName = null;
-
-// Finde die Klasse, sobald Foundry komplett bereit ist
 Hooks.once("ready", () => {
   const actor = game.actors.find(a => a.type === "character");
-  if (!actor) {
-    console.warn("MoSh QoL: Kein Charakter gefunden – Sheet-Klasse kann nicht gepatcht werden.");
-    return;
-  }
+  if (!actor) return console.warn("MoSh QoL: Kein Charakter gefunden.");
 
   const sheetClass = actor.sheet.constructor;
-  sheetClassName = sheetClass.name;
 
   if (!sheetClass.prototype._getHeaderButtons) {
-    console.warn(`MoSh QoL: ${sheetClassName} hat keine _getHeaderButtons-Methode.`);
+    console.warn(`MoSh QoL: ${sheetClass.name} hat keine _getHeaderButtons-Methode.`);
     return;
   }
 
-  // libWrapper kann jetzt sicher verwendet werden
-  libWrapper.register(
-    "mosh-greybearded-qol",
-    `${sheetClassName}.prototype._getHeaderButtons`,
-    function (wrapped) {
-      const buttons = wrapped.call(this);
-      return buttons.filter(
-        (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
-      );
-    },
-    "WRAPPER"
-  );
+  const original = sheetClass.prototype._getHeaderButtons;
 
-  console.log(`[MoSh QoL] Entfernt Konfig-Button von ${sheetClassName}.`);
+  sheetClass.prototype._getHeaderButtons = function (...args) {
+    const buttons = original.call(this, ...args);
+    return buttons.filter(
+      (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
+    );
+  };
+
+  console.log(`[MoSh QoL] _getHeaderButtons von ${sheetClass.name} gepatcht (ohne libWrapper).`);
 });
