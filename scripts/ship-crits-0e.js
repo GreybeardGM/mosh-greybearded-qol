@@ -43,7 +43,7 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
       {
         label: "Escalate Crit",
         icon: "fa-arrow-up-right-dots",
-        action: "triggerCrit",
+        action: "triggerShipCrit",
         args: [next.min, actor?.uuid]
       }
     ] : []
