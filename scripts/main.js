@@ -21,6 +21,13 @@ Hooks.once("ready", () => {
     makeDefault: false // oder true, um direkt zu testen
   });
 
+  // Set Theme Color
+  const root = document.querySelector(".greybeardqol");
+  if (root) {
+    const color = game.settings.get("greybeardqol", "themeColor");
+    root.style.setProperty("--color-highlight", color);
+  }
+  
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");
 });
