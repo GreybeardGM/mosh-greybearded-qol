@@ -26,7 +26,15 @@ Hooks.once("ready", () => {
 });
 
 // Settings
-Hooks.once("init", () => {
+  // Theme Color
+  Hooks.once("init", () => {
+    game.settings.register("greybeardqol", "themeColor", {
+    name: "Theme Color",
+    scope: "world",
+    config: true,
+    type: String,
+    default: "#f50"
+  });
 
   // Config Stress Conversion
   game.settings.register("mosh-greybearded-qol", "convertStress.noSanitySave", {
