@@ -188,13 +188,12 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 });
 
 // Remove Default Character Creator
-Hooks.once("setup", () => {
+Hooks.once("libWrapper.Ready", () => {
   libWrapper.register(
     "mosh-greybearded-qol",
-    "game.system.model.Actor.character.prototype._getHeaderButtons",
+    "MothershipActorSheet.prototype._getHeaderButtons",
     function (wrapped) {
       const buttons = wrapped.call(this);
-
       return buttons.filter(
         (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
       );
