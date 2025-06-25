@@ -16,7 +16,7 @@ export async function convertStress(actor, formula, options = {}) {
   const minStress = stress?.min ?? 2;
 
   // No stress to convert
-  if (currentStress <= minStress) return { result: "none" };
+  if ((!minStressConversion && currentStress <= minStress) || (minStressConversion && currentStress <= 0)) return { result: "none" };
 
   let conversionPoints = currentStress;
   if (!minStressConversion) conversionPoints -= minStress;
