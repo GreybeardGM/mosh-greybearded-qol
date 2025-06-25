@@ -3,8 +3,9 @@
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;
-  --color-bg-hover: #211;
   --color-highlight: #f50;
+  --color-bg-hover: #222; /* fallback */
+  --color-bg-hover: color-mix(in srgb, var(--color-highlight) 20%, var(--color-bg)); /* preferred */
   --color-counter: #fc6;
   --color-remaining: #596;
 
