@@ -29,21 +29,21 @@ Hooks.once("ready", () => {
 Hooks.once("init", () => {
 
   // Config Stress Conversion
-  game.settings.register("mosh-greybearded-qol", "convertStress.useSanitySave", {
-    name: "Use Sanity Save",
-    hint: "If enabled, the user must pass a sanity save before converting stress.",
+  game.settings.register("mosh-greybearded-qol", "convertStress.noSanitySave", {
+    name: "No Sanity Save",
+    hint: "If enabled, stress will be converted without a sanity save.",
     scope: "world",
     config: true,
-    default: true,
+    default: false,
     type: Boolean
   });
 
-  game.settings.register("mosh-greybearded-qol", "convertStress.relieveStress", {
-    name: "Reset Stress to Minimum",
-    hint: "If enabled, stress is always reduced to the actor's minimum after conversion.",
+  game.settings.register("mosh-greybearded-qol", "convertStress.noStressRelieve", {
+    name: "No Stress Relieve",
+    hint: "If enabled, stress will not be reset to minimum after stress conversion.",
     scope: "world",
     config: true,
-    default: true,
+    default: false,
     type: Boolean
   });
 
