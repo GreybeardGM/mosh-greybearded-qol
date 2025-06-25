@@ -189,18 +189,23 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 
 // Remove Default Character Creator
 Hooks.once("libWrapper.Ready", () => {
-  const sheetEntry = Object.values(CONFIG.Actor.sheetClasses.character || {}).find(
-    entry => entry.cls?.name === "MothershipActorSheet"
-  );
+  const actor = game.actors.find(a => a.type === "character");
+  if (!actor) {
+    console.warn("MoSh QoL: Kein Charakter gefunden – Sheet-Klasse kann nicht gepatcht werden.");
+    return;
+  }
 
-  if (!sheetEntry) {
-    console.warn("MoSh Greybearded QoL: MothershipActorSheet not found in CONFIG.");
+  const sheetClass = actor.sheet.constructor;
+  const sheetName = sheetClass.name;
+
+  if (!sheetClass.prototype._getHeaderButtons) {
+    console.warn(`MoSh QoL: ${sheetName} hat keine _getHeaderButtons-Methode.`);
     return;
   }
 
   libWrapper.register(
     "mosh-greybearded-qol",
-    `${sheetEntry.cls.name}.prototype._getHeaderButtons`,
+    `${sheetName}.prototype._getHeaderButtons`,
     function (wrapped) {
       const buttons = wrapped.call(this);
       return buttons.filter(
@@ -209,4 +214,6 @@ Hooks.once("libWrapper.Ready", () => {
     },
     "WRAPPER"
   );
+
+  console.log(`[MoSh QoL] Button-Entfernung auf ${sheetName} aktiviert.`);
 });
