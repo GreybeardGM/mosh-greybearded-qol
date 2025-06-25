@@ -3,6 +3,7 @@ import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
+import { startCharacterCreatio } from "./character-creator/character-creator.js";
 
 // Register all the stuff
 Hooks.once("ready", () => {
@@ -22,11 +23,8 @@ Hooks.once("ready", () => {
   });
 
   // Set Theme Color
-  const root = document.querySelector(".greybeardqol");
-  if (root) {
-    const color = game.settings.get("mosh-greybearded-qol", "themeColor");
-    root.style.setProperty("--color-highlight", color);
-  }
+  game.moshGreybeardTools = game.moshGreybeardTools || {};
+  game.moshGreybeardTools.startCharacterCreation = startCharacterCreation;
   
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");
