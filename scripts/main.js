@@ -117,7 +117,7 @@ Hooks.on("renderChatMessage", (message, html, data) => {
           await game.moshGreybeardQol.simpleShoreLeave(actor, ...args);
           break;
         case "triggerShipCrit":
-          await game.moshGreybeardQol.triggerShipCrit(actor, ...args);
+          await game.moshGreybeardQol.triggerShipCrit(...args);
           break;
         // Add more cases as needed
         default:
