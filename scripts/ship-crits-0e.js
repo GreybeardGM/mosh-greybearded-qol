@@ -16,9 +16,9 @@ function findEscalation(current) {
 }
 
 /**
- * Main entry point
- */
-export async function triggerShipCrit(setCrit = null) {
+* Main entry point
+*/
+export async function triggerShipCrit(setCrit = null, actorUUID = null) {
   let crit, roll = null;
 
   if (typeof setCrit === "number") {
@@ -28,21 +28,23 @@ export async function triggerShipCrit(setCrit = null) {
     crit = findCrit(roll.total);
   }
 
-  if (!crit) return ui.notifications.warn(`Kein Treffer für Wurf: ${setCrit ?? roll?.total}`);
+  if (!crit) return ui.notifications.warn(`Kein Treffer für: ${setCrit ?? roll?.total}`);
   const next = findEscalation(crit);
+  const actor = actorUUID ? await fromUuid(actorUUID) : null;
 
   await chatOutput({
     title: crit.title,
-    subtitle: "Ship: Critical Hit",
+    subtitle: actor ? `${actor.name} critically hit` : "Ship critically hit",
     content: crit.content || "",
     icon: crit.icon,
+    image: actor?.img,
     roll,
     buttons: next ? [
       {
         label: "Escalate Crit",
         icon: "fa-arrow-up-right-dots",
-        action: "triggerShipCrit",
-        args: [next.min] // Pass next.min to resolve properly in next trigger
+        action: "triggerCrit",
+        args: [next.min, actor?.uuid]
       }
     ] : []
   });
