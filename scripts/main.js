@@ -186,3 +186,19 @@ Hooks.on("renderActorSheet", (sheet, html) => {
     titleElem.insertAdjacentElement("afterend", button);
   }
 });
+
+// Remove Default Character Creator
+Hooks.once("setup", () => {
+  libWrapper.register(
+    "mosh-greybearded-qol",
+    "game.system.model.Actor.character.prototype._getHeaderButtons",
+    function (wrapped) {
+      const buttons = wrapped.call(this);
+
+      return buttons.filter(
+        (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
+      );
+    },
+    "WRAPPER"
+  );
+});
