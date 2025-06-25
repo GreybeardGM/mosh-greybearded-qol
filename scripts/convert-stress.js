@@ -9,6 +9,7 @@ export async function convertStress(actor, formula, options = {}) {
   formula = formula ?? game.settings.get("mosh-greybearded-qol", "convertStress.formula");
   const useSanitySave = options.useSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.useSanitySave");
   const relieveStress = options.relieveStress ?? game.settings.get("mosh-greybearded-qol", "convertStress.relieveStress");
+  const minStressConversion = options.minStressConversion ?? game.settings.get("mosh-greybearded-qol", "convertStress.minStressConversion");
   
   const stress = actor.system.other.stress;
   const currentStress = stress?.value ?? 0;
@@ -17,7 +18,8 @@ export async function convertStress(actor, formula, options = {}) {
   // No stress to convert
   if (currentStress <= minStress) return { result: "none" };
 
-  let conversionPoints = currentStress - minStress;
+  let conversionPoints = currentStress;
+  if (!minStressConversion) conversionPoints -= minStress;
   let rollResult = null;
 
   // Optional: Sanity Save
