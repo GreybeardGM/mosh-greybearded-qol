@@ -5,7 +5,7 @@
   --color-bg: #111;
   --color-highlight: #f50;
   --color-bg-hover: #222; /* fallback */
-  --color-bg-hover: color-mix(in srgb, var(--color-highlight) 20%, var(--color-bg)); /* preferred */
+  --color-bg-hover: color-mix(in srgb, var(--color-highlight) 10%, var(--color-bg)); /* preferred */
   --color-counter: #fc6;
   --color-remaining: #596;
 
