@@ -1,5 +1,5 @@
 import { SHIP_CRITS } from "./config/default-ship-crits-0e.js";
-import { chatOutput } from "./helpers/chat-output.js";
+import { chatOutput } from "./utils/chat-output.js";
 
 /**
  * Find the matching crit entry for a given roll
