@@ -42,9 +42,3 @@ export async function startCharacterCreation(actor) {
   console.log("\u{1F4DA} TODO: Choose skills...");
   console.log("\u{1F4B0} TODO: Roll loadout & credits...");
 }
-
-// Optionally expose to global for testing
-Hooks.once("ready", () => {
-  game.moshGreybeardTools = game.moshGreybeardTools || {};
-  game.moshGreybeardTools.startCharacterCreation = startCharacterCreation;
-});
