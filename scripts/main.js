@@ -128,19 +128,17 @@ Hooks.on("renderChatMessage", (message, html, data) => {
 });
 
 // Ship Crit Button
-Hooks.on("renderActorSheet", (sheet, html, data) => {
+Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
   if (actor?.type !== "ship") return;
 
-  const app = html.closest(".app")[0];
-  const titleElem = app.querySelector(".window-header .window-title");
-  if (!titleElem || app.querySelector(".ship-crit")) return;
+  const titleElem = html[0]?.querySelector(".window-header .window-title");
+  if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
 
   const button = document.createElement("a");
   button.classList.add("header-button", "ship-crit");
   button.innerHTML = `<i class="fas fa-explosion"></i> Crit`;
 
-  // Style
   Object.assign(button.style, {
     cursor: "pointer",
     padding: "0 6px",
@@ -153,6 +151,5 @@ Hooks.on("renderActorSheet", (sheet, html, data) => {
     game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
   });
 
-  // Füge den Button direkt nach dem Titel ein
   titleElem.insertAdjacentElement("afterend", button);
 });
