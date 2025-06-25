@@ -3,7 +3,7 @@ import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
-import { startCharacterCreatio } from "./character-creator/character-creator.js";
+import { triggerShipCrit } from "./ship-crits-0e.js";
 
 // Register all the stuff
 Hooks.once("ready", () => {
@@ -11,7 +11,8 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
   game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
-  
+  game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
+
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
   const StashSheet = defineStashSheet(BaseSheet);
@@ -21,11 +22,7 @@ Hooks.once("ready", () => {
     label: "Stash Sheet",
     makeDefault: false // oder true, um direkt zu testen
   });
-
-  // Set Theme Color
-  game.moshGreybeardTools = game.moshGreybeardTools || {};
-  game.moshGreybeardTools.startCharacterCreation = startCharacterCreation;
-  
+ 
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");
 });
@@ -118,6 +115,9 @@ Hooks.on("renderChatMessage", (message, html, data) => {
           break;
         case "simpleShoreLeave":
           await game.moshGreybeardQol.simpleShoreLeave(actor, ...args);
+          break;
+        case "triggerShipCrit":
+          await game.moshGreybeardQol.triggerShipCrit(actor, ...args);
           break;
         // Add more cases as needed
         default:
