@@ -130,7 +130,11 @@ Hooks.on("renderChatMessage", (message, html, data) => {
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
-
+  // Cancel if not Owner
+  if (!actor.testUserPermission(game.user, "OWNER")) return;
+  // Cancel if Stash
+  if (sheet instanceof StashSheet) return;
+  
   if (actor?.type === "ship") {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
     if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
