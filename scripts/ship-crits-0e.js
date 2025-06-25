@@ -15,39 +15,33 @@ function findEscalation(current) {
 }
 
 /**
- * Post a crit entry to chat with optional escalation button
- */
-function postCrit(entry, fullList) {
-  const next = findEscalation(entry);
-  const buttons = next ? {
-    escalate: {
-      label: "Eskalieren",
-      callback: () => postCrit(next, fullList)
-    }
-  } : {};
-
-  ChatMessage.create({
-    speaker: ChatMessage.getSpeaker(),
-    content: `
-      <div class="ship-crit" style="padding: 0.5em 0.75em; border-left: 4px solid #ff5500; background: #1a1a1a; color: #ccc;">
-        <h3 style="margin: 0 0 0.25em; font-size: 1.1em;">
-          <i class="fa-solid ${entry.icon}" style="margin-right: 0.5em;"></i>
-          ${entry.title}
-        </h3>
-        <div style="line-height: 1.4;">${entry.content}</div>
-      </div>
-    `,
-    buttons
-  });
-}
-
-/**
  * Main entry point
  */
-export async function triggerShipCrit() {
-  const roll = await new Roll("1d100").roll({ async: true });
-  await roll.toMessage({ flavor: "Ship Critical Hit Roll" });
-  const crit = findCrit(roll.total);
+export async function triggerShipCrit(setCrit) {
+  if (!setCrit) {
+    const roll = await new Roll("1d100-1").roll({ async: true });
+    const crit = findCrit(roll.total);
+  }
+  else {
+    const crit = findCrit(setCrit);
+  }
+  
   if (!crit) return ui.notifications.warn(`Kein Treffer für Wurf: ${roll.total}`);
-  postCrit(crit, SHIP_CRITS);
+  const next = findEscalation(entry);
+
+  await chatOutput({
+    title: crit.title,
+    subtitle: "Ship: Critical Hit",
+    content: crit.content || "",
+    icon: crit.icon,
+    roll,
+    buttons: [
+      {
+        label: "Escalate Crit",
+        icon: "fa-arrow-up-right-dots",
+        action: "triggerCrit",
+        args: [next]
+      }
+    ]
+  });
 }
