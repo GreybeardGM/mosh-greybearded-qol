@@ -1,4 +1,5 @@
 import { SHIP_CRITS } from "./config/default-ship-crits-0e.js";
+import { chatOutput } from "./helpers/chat-output.js";
 
 /**
  * Find the matching crit entry for a given roll
@@ -17,17 +18,18 @@ function findEscalation(current) {
 /**
  * Main entry point
  */
-export async function triggerShipCrit(setCrit) {
-  if (!setCrit) {
-    const roll = await new Roll("1d100-1").roll({ async: true });
-    const crit = findCrit(roll.total);
+export async function triggerShipCrit(setCrit = null) {
+  let crit, roll = null;
+
+  if (typeof setCrit === "number") {
+    crit = findCrit(setCrit);
+  } else {
+    roll = await new Roll("1d100-1").roll({ async: true });
+    crit = findCrit(roll.total);
   }
-  else {
-    const crit = findCrit(setCrit);
-  }
-  
-  if (!crit) return ui.notifications.warn(`Kein Treffer für Wurf: ${roll.total}`);
-  const next = findEscalation(entry);
+
+  if (!crit) return ui.notifications.warn(`Kein Treffer für Wurf: ${setCrit ?? roll?.total}`);
+  const next = findEscalation(crit);
 
   await chatOutput({
     title: crit.title,
@@ -35,13 +37,13 @@ export async function triggerShipCrit(setCrit) {
     content: crit.content || "",
     icon: crit.icon,
     roll,
-    buttons: [
+    buttons: next ? [
       {
         label: "Escalate Crit",
         icon: "fa-arrow-up-right-dots",
         action: "triggerCrit",
-        args: [next]
+        args: [next.min] // Pass next.min to resolve properly in next trigger
       }
-    ]
+    ] : []
   });
 }
