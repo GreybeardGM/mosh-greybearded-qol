@@ -189,9 +189,18 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 
 // Remove Default Character Creator
 Hooks.once("libWrapper.Ready", () => {
+  const sheetEntry = Object.values(CONFIG.Actor.sheetClasses.character || {}).find(
+    entry => entry.cls?.name === "MothershipActorSheet"
+  );
+
+  if (!sheetEntry) {
+    console.warn("MoSh Greybearded QoL: MothershipActorSheet not found in CONFIG.");
+    return;
+  }
+
   libWrapper.register(
     "mosh-greybearded-qol",
-    "MothershipActorSheet.prototype._getHeaderButtons",
+    `${sheetEntry.cls.name}.prototype._getHeaderButtons`,
     function (wrapped) {
       const buttons = wrapped.call(this);
       return buttons.filter(
