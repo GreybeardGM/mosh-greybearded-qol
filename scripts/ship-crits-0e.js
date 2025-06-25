@@ -41,7 +41,7 @@ export async function triggerShipCrit(setCrit = null) {
       {
         label: "Escalate Crit",
         icon: "fa-arrow-up-right-dots",
-        action: "triggerCrit",
+        action: "triggerShipCrit",
         args: [next.min] // Pass next.min to resolve properly in next trigger
       }
     ] : []
