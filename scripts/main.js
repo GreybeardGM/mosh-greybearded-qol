@@ -131,7 +131,9 @@ Hooks.on("renderChatMessage", (message, html, data) => {
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
   // Cancel if not Owner
-  if (!actor.testUserPermission(game.user, "OWNER")) return;
+  const isGM = game.user.isGM;
+  const isOwner = actor.testUserPermission(game.user, "OWNER");
+  if (!(isGM || isOwner)) return;
   // Cancel if Stash
   if (sheet instanceof StashSheet) return;
   
