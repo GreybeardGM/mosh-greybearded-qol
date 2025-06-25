@@ -126,3 +126,24 @@ Hooks.on("renderChatMessage", (message, html, data) => {
     });
   });
 });
+
+// Ship Crit Button
+Hooks.on("renderActorSheet", (sheet, html, data) => {
+  const actor = sheet.actor;
+  if (actor?.type !== "ship") return;
+
+  const buttons = sheet._element[0]?.querySelector(".window-header .window-title")?.parentElement;
+  if (!buttons || buttons.querySelector(".ship-crit")) return;
+
+  const button = document.createElement("a");
+  button.classList.add("header-button", "ship-crit");
+  button.innerHTML = `<i class="fas fa-explosion"></i> Crit`;
+  button.style.cursor = "pointer";
+  button.style.padding = "0 6px";
+
+  button.addEventListener("click", () => {
+    game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+  });
+
+  buttons.appendChild(button);
+});
