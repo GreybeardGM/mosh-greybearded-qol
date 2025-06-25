@@ -127,29 +127,53 @@ Hooks.on("renderChatMessage", (message, html, data) => {
   });
 });
 
-// Ship Crit Button
+// Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
-  if (actor?.type !== "ship") return;
 
-  const titleElem = html[0]?.querySelector(".window-header .window-title");
-  if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
+  if (actor?.type === "ship") {
+    const titleElem = html[0]?.querySelector(".window-header .window-title");
+    if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
 
-  const button = document.createElement("a");
-  button.classList.add("header-button", "ship-crit");
-  button.innerHTML = `<i class="fas fa-explosion"></i> Crit`;
+    const button = document.createElement("a");
+    button.classList.add("header-button", "ship-crit");
+    button.innerHTML = `<i class="fas fa-explosion"></i> Crit`;
 
-  Object.assign(button.style, {
-    cursor: "pointer",
-    padding: "0 6px",
-    color: "#f50",
-    fontWeight: "bold",
-    textShadow: "0 0 2px rgba(255,85,0,0.5)"
-  });
+    Object.assign(button.style, {
+      cursor: "pointer",
+      padding: "0 6px",
+      color: "#f50",
+      fontWeight: "bold",
+      textShadow: "0 0 2px rgba(255,85,0,0.5)"
+    });
 
-  button.addEventListener("click", () => {
-    game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
-  });
+    button.addEventListener("click", () => {
+      game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+    });
 
-  titleElem.insertAdjacentElement("afterend", button);
+    titleElem.insertAdjacentElement("afterend", button);
+  }
+
+  if (actor?.type === "character") {
+    const titleElem = html[0]?.querySelector(".window-header .window-title");
+    if (!titleElem || titleElem.parentElement.querySelector(".simple-shoreleave")) return;
+
+    const button = document.createElement("a");
+    button.classList.add("header-button", "simple-shoreleave");
+    button.innerHTML = `<i class="fas fa-umbrella-beach"></i> Shore Leave`;
+
+    Object.assign(button.style, {
+      cursor: "pointer",
+      padding: "0 6px",
+      color: "#3cf",
+      fontWeight: "bold",
+      textShadow: "0 0 2px rgba(0,255,255,0.5)"
+    });
+
+    button.addEventListener("click", () => {
+      game.moshGreybeardQol.simpleShoreLeave(actor);
+    });
+
+    titleElem.insertAdjacentElement("afterend", button);
+  }
 });
