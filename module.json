@@ -5,7 +5,6 @@
   "version": "0.4.5",
   "author": "GreybeardGM",
   "type": "module",
-  "system": "mosh",
   "compatibility": {
     "minimum": "12",
     "verified": "12.999"
@@ -24,15 +23,5 @@
         "verified": "5.27"
       }
     }],
-    "requires": [
-      {
-        "id": "lib-wrapper",
-        "type": "module",
-        "manifest": "https://raw.githubusercontent.com/ruipin/fvtt-lib-wrapper/master/module.json",
-        "compatibility": {
-          "verified": "1.13.3.0"
-        }
-      }
-    ]
   }
 }
