@@ -6,7 +6,7 @@
   "author": "GreybeardGM",
   "type": "module",
   "compatibility": {
-    "minimum": "12",
+    "minimum": "12.0",
     "verified": "12.999"
   },
   "esmodules": ["scripts/main.js"],
@@ -20,7 +20,7 @@
       "type": "system",
       "manifest": "https://raw.githubusercontent.com/Futil/foundry-mothership/master/system.json",
       "compatibility": {
-        "verified": "5.27"
+        "verified": "0.5.27"
       }
     }]
   }
