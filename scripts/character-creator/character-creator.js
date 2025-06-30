@@ -1,7 +1,7 @@
 import { selectClass } from "./select-class.js";
 import { selectAttribute } from "./select-attribute.js";
 import { selectSkills } from "./select-skills.js";
-import { checkReady, setReady, checkCompleted, reset } from "./progress.js";
+import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
@@ -64,4 +64,9 @@ export async function startCharacterCreation(actor) {
   console.log("\u{1F49C} TODO: Choose attributes...");
   console.log("\u{1F4DA} TODO: Choose skills...");
   console.log("\u{1F4B0} TODO: Roll loadout & credits...");
+
+  // ✅ Final Step: Mark character creation as completed
+  await setCompleted(actor, true);
+  ui.notifications.info(`${actor.name} has completed character creation.`);
+
 }
