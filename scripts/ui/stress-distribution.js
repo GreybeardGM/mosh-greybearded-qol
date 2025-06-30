@@ -1,3 +1,5 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
+
 export async function showStressConversionDialog(actor, points) {
   return new Promise(async (resolve) => {
     const base = {
@@ -7,7 +9,8 @@ export async function showStressConversionDialog(actor, points) {
     };
     const values = structuredClone(base);
 
-    const html = await renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", {});
+    const themeColor = getThemeColor();
+    const html = await renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", {themeColor});
     const dlg = new Dialog({
       title: "Distribute Stress Conversion",
       content: html,
