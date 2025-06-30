@@ -92,7 +92,7 @@ export async function startCharacterCreation(actor) {
     };
 
     const content = `
-      <div style="display: flex; gap: 32px;">
+      <div style="display: flex; gap: 32px; line-height: 1.5;">
         ${formatBlock("Attributes", rolledAttributes)}
         ${formatBlock("Saves", rolledSaves)}
       </div>
