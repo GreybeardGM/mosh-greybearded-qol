@@ -1,6 +1,3 @@
-import { selectClass } from "./select-class.js";
-import { selectAttribute } from "./select-attribute.js";
-import { selectSkills } from "./select-skills.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 
 export async function startCharacterCreation(actor) {
