@@ -1,3 +1,36 @@
+/* THEME VARIANTS */
+.greybeardqol.theme-orange {
+  --color-highlight: #ff5500;
+}
+
+.greybeardqol.theme-red {
+  --color-highlight: #ff3344;
+}
+
+.greybeardqol.theme-gold {
+  --color-highlight: #ffcc33;
+}
+
+.greybeardqol.theme-teal {
+  --color-highlight: #33cccc;
+}
+
+.greybeardqol.theme-green {
+  --color-highlight: #66ff66;
+}
+
+.greybeardqol.theme-pink {
+  --color-highlight: #ff66cc;
+}
+
+.greybeardqol.theme-white {
+  --color-highlight: #eeeeee;
+}
+
+.greybeardqol.theme-purple {
+  --color-highlight: #bb66ff;
+}
+
 /* Base wrapper to scope all styles to the module */
 .greybeardqol {
   --color-text: #ccc;
