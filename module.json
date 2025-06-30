@@ -2,7 +2,7 @@
   "id": "mosh-greybearded-qol",
   "title": "MoSh Greybearded QoL",
   "description": "All sorts of quality-of-life improvements for Mothership.",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "author": "GreybeardGM",
   "type": "module",
   "compatibility": {
