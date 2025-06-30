@@ -4,6 +4,7 @@ import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
+import { startCharacterCreation } from "./character-creator/character-creator.js";
 
 // Needs to be here to check for
 let StashSheet;
@@ -15,6 +16,7 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol.convertStress = convertStress;
   game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
   game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
+  game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
 
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
