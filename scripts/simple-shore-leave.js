@@ -1,3 +1,4 @@
+import { getThemeColor } from "./utils/get-theme-color.js";
 import { toRollFormula } from "./utils/to-roll-formula.js";
 import { toRollString } from "./utils/to-roll-string.js";
 import { convertStress } from "./convert-stress.js";
@@ -27,8 +28,10 @@ export async function simpleShoreLeave(actor, randomFlavor) {
     return base;
   });
 
+  const themeColor = getThemeColor();
   const content = await renderTemplate("modules/mosh-greybearded-qol/templates/simple-shore-leave.html", {
-    tiers
+    tiers,
+    themeColor
   });
 
   return new Promise(resolve => {
