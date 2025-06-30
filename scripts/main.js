@@ -45,9 +45,9 @@ Hooks.once("init", () => {
       "gold": "Gold",
       "green": "Green",
       "teal": "Teal",
-      "purple": "Purple"
+      "purple": "Purple",
       "pink": "Pink",
-      "white": "White",
+      "white": "White"
     },
     default: "orange"
   });
