@@ -81,13 +81,20 @@ export async function startCharacterCreation(actor) {
     });
 
     const formatBlock = (title, data) => {
-      return `<u><b>${title}</b></u><br>${Object.entries(data).map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v}`).join("<br>")}`;
+      return `
+        <div style="display: inline-block; vertical-align: top; min-width: 120px; margin-right: 24px;">
+          <u><b>${title}</b></u><br>
+          ${Object.entries(data).map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v}`).join("<br>")}
+        </div>
+      `;
     };
-
-    const content = [
-      formatBlock("Attributes", rolledAttributes),
-      formatBlock("Saves", rolledSaves)
-    ].join("<br><br>");
+    
+    const content = `
+      <div style="display: flex; gap: 32px;">
+        ${formatBlock("Attributes", rolledAttributes)}
+        ${formatBlock("Saves", rolledSaves)}
+      </div>
+    `;
 
     await chatOutput({
       actor,
