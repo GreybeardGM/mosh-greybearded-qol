@@ -1,3 +1,5 @@
+import { getThemeColor } from "./utils/get-theme-color.js";
+
 export async function chatOutput({
   actor,
   title = "Untitled",
@@ -39,6 +41,7 @@ export async function chatOutput({
   }
 
   // Prepare HTML via template
+  const themeColor = getThemeColor();
   const html = await renderTemplate("modules/mosh-greybearded-qol/templates/chat-output.html", {
     actor,
     title,
@@ -46,7 +49,8 @@ export async function chatOutput({
     content,
     icon,
     image,
-    buttons
+    buttons,
+    themeColor
   });
 
   // Send to chat
