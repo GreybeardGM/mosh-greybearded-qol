@@ -1,4 +1,4 @@
-import { getThemeColor } from "./utils/get-theme-color.js";
+import { getThemeColor } from "./get-theme-color.js";
 
 export async function chatOutput({
   actor,
