@@ -50,9 +50,55 @@ export async function startCharacterCreation(actor) {
     await completeStep(actor, "preparation");
   }
 
-  // ✅ Step 3: Roll stats + saves (placeholder)
-  console.log("\u{1F3B2} Rolling base stats and saves...");
-  // TO DO: Roll and apply stats and saves
+  // ✅ Step 3: Roll stats + saves
+  if (!checkStep(actor, "rolledAttributes")) {
+    console.log("🎲 Rolling base stats and saves...");
+
+    const attributes = ["strength", "speed", "intellect", "combat"];
+    const saves = ["sanity", "fear", "body"];
+
+    const rollValue = async (formula) => {
+      const roll = new Roll(formula);
+      await roll.evaluate();
+      return roll.total;
+    };
+
+    const rolledAttributes = Object.fromEntries(
+      await Promise.all(attributes.map(async attr => [attr, await rollValue("2d10 + 25")]))
+    );
+    const rolledSaves = Object.fromEntries(
+      await Promise.all(saves.map(async save => [save, await rollValue("2d10 + 10")]))
+    );
+
+    await actor.update({
+      system: {
+        stats: {
+          ...Object.fromEntries(attributes.map(attr => [attr, { value: rolledAttributes[attr] }])),
+          ...Object.fromEntries(saves.map(save => [save, { value: rolledSaves[save] }]))
+        }
+      }
+    });
+
+    const formatBlock = (title, data) => {
+      return `<u><b>${title}</b></u><br>${Object.entries(data).map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v}`).join("<br>")}`;
+    };
+
+    const content = [
+      formatBlock("Attributes", rolledAttributes),
+      formatBlock("Saves", rolledSaves)
+    ].join("<br><br>");
+
+    await chatOutput({
+      actor,
+      title: "Stats Rolled",
+      subtitle: actor.name,
+      content,
+      icon: "fa-chart-line",
+      image: actor.img
+    });
+
+    await completeStep(actor, "rolledAttributes");
+  }
 
   // ✅ Step 4: Class selection
   console.log("\u{1F393} TODO: Select Class");
