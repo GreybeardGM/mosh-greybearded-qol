@@ -84,11 +84,13 @@ export async function startCharacterCreation(actor) {
       return `
         <div style="display: inline-block; vertical-align: top; min-width: 120px; margin-right: 24px;">
           <u><b>${title}</b></u><br>
-          ${Object.entries(data).map(([k, v]) => `${k[0].toUpperCase() + k.slice(1)}: ${v}`).join("<br>")}
+          ${Object.entries(data)
+            .map(([k, v]) => `<span class="counter">${v}</span> ${k[0].toUpperCase() + k.slice(1)}`)
+            .join("<br>")}
         </div>
       `;
     };
-    
+
     const content = `
       <div style="display: flex; gap: 32px;">
         ${formatBlock("Attributes", rolledAttributes)}
