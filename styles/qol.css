@@ -222,9 +222,8 @@
 
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
-  padding: 0 0.5em;
-  min-height: 5.5em;
-  max-height: 5.5em;
+  padding: 0.7em;
+  height: 7em;
   font-family: monospace;
   line-height: 1.3em;
   text-align: left;
@@ -232,9 +231,7 @@
 }
 
 .greybeardqol .trauma-response {
-  padding: 0m 0.5em;
-  min-height: 3.6em;
-  max-height: 3.6em;
+  height: 4.6em;
   font-size: 0.9em;
   font-style: italic;
   line-height: 1.3em;
@@ -242,7 +239,6 @@
 }
 
 .greybeardqol .description {
-  padding: 0 0.5em;
   line-height: 1.3em;
 }
 
