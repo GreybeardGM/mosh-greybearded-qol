@@ -130,7 +130,9 @@ export async function selectClass(actor) {
           await actor.update({
             "system.class.value": classItem.name,
             "system.class.uuid": classItem.uuid,
-            "system.other.stressdesc.value": normalizeCaps(classItem.system.trauma_response) || ""
+            "system.other.stressdesc.value": classItem.system.trauma_response
+              ? normalizeCaps(classItem.system.trauma_response)
+              : ""
           });
 
           resolve(classItem);
