@@ -1,5 +1,6 @@
 import { chatOutput } from "../utils/chat-output.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
+import { selectClass } from "./select-class.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
