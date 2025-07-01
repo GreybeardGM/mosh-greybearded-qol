@@ -92,34 +92,13 @@ export async function selectClass(actor) {
       close: () => resolve(null),
       render: html => {
         html.closest('.app').css({ width: `${dialogWidth}px`, maxWidth: '95vw', margin: '0 auto' });
-        html.find('.class-card').on('click', async function () {
+        html.find('.card').on('click', async function () {
           const id = $(this).data('class');
           const selected = templateData.classes.find(c => c.id === id);
           if (!selected) return resolve(null);
 
           const classItem = await fromUuid(selected.uuid);
           if (!classItem) return ui.notifications.error("Failed to load class data.");
-
-          const base = classItem.system.base_adjustment || {};
-          const updates = {};
-          for (const stat of [...stats, ...saves]) {
-            const mod = base[stat] || 0;
-            if (mod) {
-              const current = getProperty(actor, `system.stats.${stat}.value`) || 0;
-              updates[`system.stats.${stat}.value`] = current + mod;
-            }
-          }
-
-          if (typeof base.max_wounds === 'number') {
-            const current = getProperty(actor, 'system.hits.max') || 0;
-            updates['system.hits.max'] = current + base.max_wounds;
-          }
-
-          updates['system.class.value'] = classItem.name;
-          updates['system.class.uuid'] = selected.uuid;
-          updates['system.other.stressdesc.value'] = classItem.system.trauma_response || "";
-
-          await actor.update(updates);
           resolve(classItem);
           dlg.close();
         });
