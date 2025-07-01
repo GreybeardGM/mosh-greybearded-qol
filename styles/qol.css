@@ -42,7 +42,9 @@
   --color-counter: #fc6;
   --color-remaining: #596;
 
-  font-family: var(--font-primary);
+  font-family: var(--font-primary, sans-serif);
+  font-size: 14px;
+  line-height: 1.4em;
   color: var(--color-text);
 }
 
