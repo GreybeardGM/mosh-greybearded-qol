@@ -175,10 +175,6 @@
   color: var(--color-highlight);
 }
 
-.greybeardqol .chat-card .chat-body {
-  line-height: 1.4em;
-}
-
 /* Remaining points info */
 .greybeardqol .remaining-points {
   text-align: center;
@@ -227,7 +223,6 @@
   padding: 0.7em;
   height: 7em;
   font-family: monospace;
-  line-height: 1.3em;
   text-align: left;
   overflow: hidden;
 }
@@ -237,11 +232,5 @@
   color: var(--color-highlight);
   font-size: 0.9em;
   font-style: italic;
-  line-height: 1.3em;
   overflow: hidden;
 }
-
-.greybeardqol .description {
-  line-height: 1.3em;
-}
-
