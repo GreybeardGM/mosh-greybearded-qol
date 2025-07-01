@@ -1,0 +1,11 @@
+<div class="greybeardqol class-grid-container">
+  {{#each classes}}
+    <div class="card" data-class="{{this.id}}">
+      <img src="{{this.img}}" alt="{{this.name}}">
+      <h3>{{this.name}}</h3>
+      <div class="attributes-container">{{{this.attributes}}}</div>
+      <p class="trauma-response">{{this.trauma}}</p>
+      <p class="description">{{this.description}}</p>
+    </div>
+  {{/each}}
+</div>
