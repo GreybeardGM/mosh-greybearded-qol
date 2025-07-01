@@ -134,6 +134,13 @@ export async function startCharacterCreation(actor) {
       ui.notifications.warn("Class selection cancelled.");
       return;
     }
+    await chatOutput({
+      title: "Class Selected",
+      subtitle: actor.name,
+      content: `${actor.name} chose a class: <label class="counter">${selectedClass.name}</label>`,
+      image: selectedClass?.img || "",
+      icon: "fa-user"
+    });
     await completeStep(actor, "selectedClass");
   }
 
