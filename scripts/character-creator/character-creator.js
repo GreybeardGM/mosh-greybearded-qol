@@ -40,7 +40,6 @@ export async function startCharacterCreation(actor) {
         other: { stressdesc: { value: "" }, stress: { value: 2, min: 2 } },
         hits: { value: 0, max: 2 },
         health: { value: "", max: "" },
-        class: { value: "", uuid: "" },
         credits: { value: "" }
       }
     });
