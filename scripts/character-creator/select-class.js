@@ -1,3 +1,5 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
+
 export async function selectClass(actor) {
   // little helpers
   const stripHtml = html => html.replace(/<[^>]*>/g, '').trim();
@@ -33,8 +35,13 @@ export async function selectClass(actor) {
   const classCount = sortedClasses.length;
   // Calculate dialog width
   const dialogWidth = Math.min((classCount <= 5 ? classCount : Math.min(Math.ceil(classCount / 2), 5)) * 276, 1600);
-
+  let gridType = "five-col-grid";
+  if (classCount = 3 || classCount = 5 || classcount = 6) gridType = "three-col-grid";
+  if (classCount = 4 || classCount = 7 || classcount = 8) gridType = "four-col-grid";
+  
   const templateData = {
+    themeColor: getThemeColr();,
+    gridType,
     classes: sortedClasses.map(cls => {
       const description = stripHtml(cls.system.description || "No description available.");
       const trauma = stripHtml(cls.system.trauma_response || "No trauma specified.");
@@ -82,7 +89,7 @@ export async function selectClass(actor) {
     })
   };
 
-  const content = await renderTemplate("modules/mosh-greybearded-qol/templates/dialogs/class-select.hbs", templateData);
+  const content = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-class.html", templateData);
 
   return new Promise(resolve => {
     const dlg = new Dialog({
