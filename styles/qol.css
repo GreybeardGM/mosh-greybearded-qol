@@ -232,6 +232,7 @@
 
 .greybeardqol .trauma-response {
   height: 4.6em;
+  color: var(--color-highlight);
   font-size: 0.9em;
   font-style: italic;
   line-height: 1.3em;
