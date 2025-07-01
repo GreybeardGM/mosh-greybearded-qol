@@ -81,15 +81,15 @@ export async function selectClass(actor) {
   
   // Calculate dialog width
   const classCount = sortedClasses.length;
-  let dialogWidth = 1370;
+  let dialogWidth = 1270;
   let gridType = "five-col-grid";
   if ([3, 6].includes(classCount)) {
     gridType = "three-col-grid";
-    dialogWidth = 830;
+    dialogWidth = 750;
   }
   else if ([4, 7, 8, 11, 12].includes(classCount)) {
     gridType = "four-col-grid";
-    dialogWidth = 1100;
+    dialogWidth = 1000;
   }
 
   //Finish Template data and render
