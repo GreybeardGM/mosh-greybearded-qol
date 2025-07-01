@@ -35,6 +35,7 @@ export async function startCharacterCreation(actor) {
   
     await actor.update({
       system: {
+        class: { value: "", uuid: "" },
         other: { stressdesc: { value: "" }, stress: { value: 2, min: 2 } },
         hits: { value: 0, max: 2 },
         health: { value: "", max: "" },
@@ -111,7 +112,29 @@ export async function startCharacterCreation(actor) {
   }
 
   // ✅ Step 4: Class selection
-  console.log("\u{1F393} TODO: Select Class");
+  let selectedClass = null;
+  if (checkStep(actor, "selectedClass")) {
+    console.log("📚 Loading previously selected class...");
+    const classUUID = actor.system.class.uuid;
+    if (classUUID) {
+      selectedClass = await fromUuid(classUUID);
+      if (!selectedClass) {
+        ui.notifications.warn("Class UUID invalid. Please reselect.");
+      }
+    } else {
+      ui.notifications.warn("No class UUID found. Please select a class.");
+    }
+  }
+  // If nothing was loaded -> selection dialog
+  if (!selectedClass) {
+    console.log("📚 Selecting class...");
+    selectedClass = await selectClass(actor);
+    if (!selectedClass) {
+      ui.notifications.warn("Class selection cancelled.");
+      return;
+    }
+    await completeStep(actor, "selectedClass");
+  }
 
   // Placeholder for next steps
   console.log("\u{1F49C} TODO: Choose attributes...");
