@@ -140,7 +140,6 @@
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   color: var(--color-text);
-  font-size: 1.15em;
   border-radius: 8px;
   padding: 1em;
   display: flex;
