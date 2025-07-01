@@ -107,7 +107,11 @@ export async function selectClass(actor) {
       buttons: {},
       close: () => resolve(null),
       render: html => {
+        // Override width
         html.closest('.app').css({ width: `${dialogWidth}px`, maxWidth: '95vw', margin: '0 auto' });
+        // Correct height
+        setTimeout(() => {dialogElement[0].style.height = 'auto';}, 0);
+        // Click
         html.find('.card').on('click', async function () {
           const id = $(this).data('class');
           const selected = templateData.classes.find(c => c.id === id);
