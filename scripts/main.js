@@ -211,12 +211,12 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 // Remove Default Character Creator
 Hooks.once("ready", () => {
   const actor = game.actors.find(a => a.type === "character");
-  if (!actor) return console.warn("MoSh QoL: Kein Charakter gefunden.");
+  if (!actor) return console.warn("MoSh QoL: No character found.");
 
   const sheetClass = actor.sheet.constructor;
 
   if (!sheetClass.prototype._getHeaderButtons) {
-    console.warn(`MoSh QoL: ${sheetClass.name} hat keine _getHeaderButtons-Methode.`);
+    console.warn(`MoSh QoL: ${sheetClass.name} has no _getHeaderButtons method.`);
     return;
   }
 
@@ -229,5 +229,5 @@ Hooks.once("ready", () => {
     );
   };
 
-  console.log(`[MoSh QoL] _getHeaderButtons von ${sheetClass.name} gepatcht (ohne libWrapper).`);
+  console.log(`[MoSh QoL] _getHeaderButtons removed from ${sheetClass.name}.`);
 });
