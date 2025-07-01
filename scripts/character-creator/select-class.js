@@ -11,7 +11,7 @@ export async function selectClass(actor) {
   const stats = ['strength', 'speed', 'intellect', 'combat'];
   const saves = ['sanity', 'fear', 'body'];
 
-  // Load from compendiums
+  // Load all the classes
   const compendiumPacks = [
     "fvtt_mosh_1e_psg.items_classes_1e",
     ...game.packs.filter(p => p.metadata.type === "Item" && p.metadata.label.toLowerCase().includes("class")).map(p => p.metadata.id)
@@ -30,17 +30,24 @@ export async function selectClass(actor) {
     }
   }
   for (const cls of worldClasses) classMap.set(cls.name, foundry.utils.deepClone(cls));
-
   const sortedClasses = Array.from(classMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-  const classCount = sortedClasses.length;
+
   // Calculate dialog width
-  const dialogWidth = Math.min((classCount <= 5 ? classCount : Math.min(Math.ceil(classCount / 2), 5)) * 276, 1600);
+  const classCount = sortedClasses.length;
+  let dialogWidth = 1370;
   let gridType = "five-col-grid";
-  if (classCount = 3 || classCount = 5 || classcount = 6) gridType = "three-col-grid";
-  if (classCount = 4 || classCount = 7 || classcount = 8) gridType = "four-col-grid";
+  if ([3, 6].includes(classCount)) {
+    gridType = "three-col-grid";
+    dialogWidth = 830;
+  }
+  else if ([4, 7, 8, 11, 12].includes(classCount)) {
+    gridType = "four-col-grid";
+    dialogWidth = 1100;
+  }
+
   
   const templateData = {
-    themeColor: getThemeColr();,
+    themeColor: getThemeColor();,
     gridType,
     classes: sortedClasses.map(cls => {
       const description = stripHtml(cls.system.description || "No description available.");
