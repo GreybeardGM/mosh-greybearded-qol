@@ -115,6 +115,13 @@ export async function selectClass(actor) {
 
           const classItem = await fromUuid(selected.uuid);
           if (!classItem) return ui.notifications.error("Failed to load class data.");
+
+          await actor.update({
+            "system.class.value": classItem.name,
+            "system.class.uuid": classItem.uuid,
+            "system.other.stressdesc.value": classItem.system.trauma_response || ""
+          });
+
           resolve(classItem);
           dlg.close();
         });
