@@ -53,6 +53,27 @@ Hooks.once("init", () => {
     },
     default: "orange"
   });
+
+  game.settings.register("mosh-greybearded-qol", "themeColorOverride", {
+    name: "Override Theme Color",
+    hint: "If set, this will override the default theme color for this user.",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      "": "Default (Use World Setting)",
+      "red": "Red",
+      "orange": "Orange",
+      "gold": "Gold",
+      "green": "Green",
+      "teal": "Teal",
+      "purple": "Purple",
+      "pink": "Pink",
+      "white": "White"
+    },
+    default: ""
+  });
+
   // Config Stress Conversion
   game.settings.register("mosh-greybearded-qol", "convertStress.noSanitySave", {
     name: "No Sanity Save",
