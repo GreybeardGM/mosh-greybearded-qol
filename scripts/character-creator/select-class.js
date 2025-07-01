@@ -1,5 +1,10 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 
+function normalizeCaps(text) {
+  const lowered = text.toLowerCase().trim();
+  return lowered.charAt(0).toUpperCase() + lowered.slice(1);
+}
+
 export async function selectClass(actor) {
   // little helpers
   const stripHtml = html => html.replace(/<[^>]*>/g, '').trim();
@@ -35,7 +40,7 @@ export async function selectClass(actor) {
   // Compile processed class data
   const processedClasses = sortedClasses.map(cls => {
     const description = stripHtml(cls.system.description || "No description available.");
-    const trauma = stripHtml(cls.system.trauma_response || "No trauma specified.");
+    const trauma = normalizeCaps(stripHtml(cls.system.trauma_response || "No trauma specified."));
     const base = cls.system.base_adjustment || {};
     const selected = cls.system.selected_adjustment || {};
     const attr = [];
@@ -107,10 +112,12 @@ export async function selectClass(actor) {
       buttons: {},
       close: () => resolve(null),
       render: html => {
-        // Override width
-        html.closest('.app').css({ width: `${dialogWidth}px`, maxWidth: '95vw', margin: '0 auto' });
-        // Correct height
-        setTimeout(() => {dialogElement[0].style.height = 'auto';}, 0);
+        // Dialog Resizing
+        const dialogElement = html.closest('.app');
+        dialogElement.css({ width: `${dialogWidth}px`, maxWidth: '95vw', margin: '0 auto' });
+        setTimeout(() => {
+          dialogElement[0].style.height = 'auto';
+        }, 0);
         // Click
         html.find('.card').on('click', async function () {
           const id = $(this).data('class');
@@ -123,7 +130,7 @@ export async function selectClass(actor) {
           await actor.update({
             "system.class.value": classItem.name,
             "system.class.uuid": classItem.uuid,
-            "system.other.stressdesc.value": classItem.system.trauma_response || ""
+            "system.other.stressdesc.value": normalizeCaps(classItem.system.trauma_response) || ""
           });
 
           resolve(classItem);
