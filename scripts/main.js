@@ -120,6 +120,15 @@ Hooks.once("init", () => {
     default: true,
     type: Boolean
   });
+
+  game.settings.register("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor", {
+    name: "Disable shore leave flavor",
+    hint: "Disable the randomized flavor of shore leave activities.",
+    scope: "client",
+    config: true,
+    default: false,
+    type: Boolean
+  });
   
   // Config Shore Leave Tiers
   game.settings.register("mosh-greybearded-qol", "shoreLeaveTiers", {
