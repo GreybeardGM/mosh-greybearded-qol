@@ -7,7 +7,8 @@ import { chatOutput } from "./utils/chat-output.js";
 
 export async function simpleShoreLeave(actor, randomFlavor) {
   if (!actor) return ui.notifications.warn("No actor provided.");
-  randomFlavor = randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor");
+  const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
+  randomFlavor = flavorDisabled ? false : (randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor"));
 
   // Load config from settings
   const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
