@@ -87,20 +87,20 @@ export async function selectClass(actor) {
   // Calculate dialog width
   const classCount = sortedClasses.length;
   let dialogWidth = 1270;
-  let gridType = "five-col-grid";
+  let gridColumns = 5;
   if ([3, 6].includes(classCount)) {
-    gridType = "three-col-grid";
+    gridColumns = 3;
     dialogWidth = 750;
   }
   else if ([4, 7, 8, 11, 12].includes(classCount)) {
-    gridType = "four-col-grid";
+    gridColumns = 4;
     dialogWidth = 1000;
   }
 
   //Finish Template data and render
   const templateData = {
     themeColor: getThemeColor(),
-    gridType,
+    gridColumns,
     classes: processedClasses
   };
   const content = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-class.html", templateData);
