@@ -62,10 +62,17 @@
 .greybeardqol .card.selected::after {
   content: "✓";
   position: absolute;
-  top: 8px;
-  right: 12px;
-  color: var(--color-highlight);
-  font-size: 1.5em;
+  bottom: 8px;
+  right: 10px;
+  font-size: 1em;
+  background: var(--color-highlight);
+  color: var(--color-bg);
+  border-radius: 50%;
+  width: 1.4em;
+  height: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
 }
 
