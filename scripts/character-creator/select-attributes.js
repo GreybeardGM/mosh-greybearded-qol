@@ -25,7 +25,7 @@ export async function selectAttributes(actor, attributeChoices) {
     const dialogWidth = Math.min(maxCols * 160, 1200); // 160px pro Karte, max 1200px
 
     // Vorher: Template rendern
-    const htmlContent = await renderTemplate("modules/greybearded-qol/templates/character-creator/select-attributes.html", {
+    const htmlContent = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html", {
       attributeSets,
       themeColor: getThemeColor()
     });
