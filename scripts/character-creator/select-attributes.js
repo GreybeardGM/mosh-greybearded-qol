@@ -6,7 +6,6 @@ export async function selectAttributes(actor, attributeChoices) {
     const cardWidth = 160;
    
     const attributeSets = attributeChoices.map(choice => ({
-        gridClass: getGridClass(choice.stats.length),
         modification: parseInt(choice.modification, 10) || 0,
         stats: choice.stats,
         maxWidth: `${calculateDialogWidth(choice.stats.length, cardWidth, false)}px`
