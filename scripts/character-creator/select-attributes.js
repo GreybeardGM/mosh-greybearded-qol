@@ -1,31 +1,20 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { calculateDialogWidth } from "../utils/calculate-dialog-width.js";
 
 export async function selectAttributes(actor, attributeChoices) {
 
     const cardWidth = 160;
-    
-    // Umwandeln für das Template
-    function getGridClass(length) {
-        return {
-            2: "two-col-grid",
-            3: "three-col-grid",
-            4: "four-col-grid",
-            5: "five-col-grid",
-            6: "six-col-grid",
-            7: "seven-col-grid"
-        }[length] || "auto-grid";
-    }
-    
+   
     const attributeSets = attributeChoices.map(choice => ({
         gridClass: getGridClass(choice.stats.length),
         modification: parseInt(choice.modification, 10) || 0,
         stats: choice.stats,
-        maxWidth: `${choice.stats.length * cardWidth}px`
+        maxWidth: `${calculateDialogWidth(choice.stats.length, cardWidth, false)}px`
     }));
     
     // Calculate dialog width
     const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
-    const dialogWidth = Math.min(maxCols * cardWidth, cardWidth * 7);
+    const dialogWidth = calculateDialogWidth(maxCols, cardWidth, true);
 
     // Vorher: Template rendern
     const htmlContent = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html", {
