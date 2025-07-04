@@ -2,6 +2,8 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 
 export async function selectAttributes(actor, attributeChoices) {
 
+    const cardWidth = 160;
+    
     // Umwandeln für das Template
     function getGridClass(length) {
         return {
@@ -17,12 +19,13 @@ export async function selectAttributes(actor, attributeChoices) {
     const attributeSets = attributeChoices.map(choice => ({
         gridClass: getGridClass(choice.stats.length),
         modification: parseInt(choice.modification, 10) || 0,
-        stats: choice.stats
+        stats: choice.stats,
+        maxWidth: `${choice.stats.length * cardWidth}px`
     }));
     
     // Calculate dialog width
     const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
-    const dialogWidth = Math.min(maxCols * 160, 1200); // 160px pro Karte, max 1200px
+    const dialogWidth = Math.min(maxCols * cardWidth, cardWidth * 7);
 
     // Vorher: Template rendern
     const htmlContent = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html", {
