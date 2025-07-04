@@ -41,17 +41,7 @@ Hooks.once("init", () => {
     scope: "world",
     config: true,
     type: String,
-    choices: {
-      "red": "Red",
-      "orange": "Orange",
-      "gold": "Gold",
-      "green": "Green",
-      "teal": "Teal",
-      "purple": "Purple",
-      "pink": "Pink",
-      "white": "White"
-    },
-    default: "orange"
+    default: "#f50"
   });
 
   game.settings.register("mosh-greybearded-qol", "themeColorOverride", {
@@ -60,17 +50,6 @@ Hooks.once("init", () => {
     scope: "client",
     config: true,
     type: String,
-    choices: {
-      "": "Default (Use World Setting)",
-      "red": "Red",
-      "orange": "Orange",
-      "gold": "Gold",
-      "green": "Green",
-      "teal": "Teal",
-      "purple": "Purple",
-      "pink": "Pink",
-      "white": "White"
-    },
     default: ""
   });
 
