@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { calculateDialogWidth } from "../utils/calculate-dialog-width.js";
 
 function normalizeCaps(text) {
   const lowered = text.toLowerCase().trim();
@@ -86,16 +87,14 @@ export async function selectClass(actor) {
   
   // Calculate dialog width
   const classCount = sortedClasses.length;
-  let dialogWidth = 1270;
   let gridColumns = 5;
   if ([3, 6].includes(classCount)) {
     gridColumns = 3;
-    dialogWidth = 750;
   }
   else if ([4, 7, 8, 11, 12].includes(classCount)) {
     gridColumns = 4;
-    dialogWidth = 1000;
   }
+  const dialogWidth = calculateDialogWidt(gridColumns, 250, true);
 
   //Finish Template data and render
   const templateData = {
