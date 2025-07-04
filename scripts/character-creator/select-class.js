@@ -94,7 +94,7 @@ export async function selectClass(actor) {
   else if ([4, 7, 8, 11, 12].includes(classCount)) {
     gridColumns = 4;
   }
-  const dialogWidth = calculateDialogWidt(gridColumns, 250, true);
+  const dialogWidth = calculateDialogWidth(gridColumns, 250, true);
 
   //Finish Template data and render
   const templateData = {
