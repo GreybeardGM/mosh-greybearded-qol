@@ -120,7 +120,7 @@ export async function simpleShoreLeave(actor, randomFlavor) {
 
         // Set dialog width manually for layout stability
         html.closest('.app').css({
-          width: '900px',
+          width: '923px',
           maxWidth: '95vw',
           margin: '0 auto'
         });
