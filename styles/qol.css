@@ -75,6 +75,15 @@
   margin-bottom: 0.5em;
 }
 
+/* Grids for cards */
+.greybeardqol .card-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--col-count, 3), 1fr);
+  gap: 1em;
+  margin-bottom: 1em;
+  justify-content: center;
+}
+
 /* Box layout */
 .greybeardqol .box {
   padding: 1em;
@@ -164,44 +173,6 @@
   color: var(--color-remaining);
 }
 
-/* Grids for cards */
-.greybeardqol .col-count-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--col-count, 3), 1fr);
-  gap: 1em;
-  margin-bottom: 1em;
-}
-
-/* Grids for cards */
-.greybeardqol .two-col-grid,
-.greybeardqol .three-col-grid,
-.greybeardqol .four-col-grid,
-.greybeardqol .five-col-grid,
-.greybeardqol .six-col-grid,
-.greybeardqol .seven-col-grid {
-  display: grid;
-  gap: 1em;
-  margin-bottom: 1em;
-}
-.greybeardqol .two-col-grid {
-  grid-template-columns: repeat(2, 1fr);
-}
-.greybeardqol .three-col-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-.greybeardqol .four-col-grid {
-  grid-template-columns: repeat(4, 1fr);
-}
-.greybeardqol .five-col-grid {
-  grid-template-columns: repeat(5, 1fr);
-}
-.greybeardqol .six-col-grid {
-  grid-template-columns: repeat(6, 1fr);
-}
-.greybeardqol .seven-col-grid {
-  grid-template-columns: repeat(7, 1fr);
-}
-
 /* Counter for stress points */
 .greybeardqol .counter {
   font-size: 1.4em;
@@ -224,11 +195,4 @@
   font-size: 0.9em;
   font-style: italic;
   overflow: hidden;
-}
-
-.greybeardqol .attribute-set {
-  display: grid;
-  gap: 1em;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
 }
