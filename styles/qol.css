@@ -170,26 +170,32 @@
 }
 
 /* Grids for cards */
+.greybeardqol .two-col-grid,
 .greybeardqol .three-col-grid,
 .greybeardqol .four-col-grid,
-.greybeardqol .five-col-grid {
+.greybeardqol .five-col-grid,
+.greybeardqol .six-col-grid,
+.greybeardqol .seven-col-grid {
   display: grid;
   gap: 1em;
   margin-bottom: 1em;
 }
-
-/* Grid for three cards */
+.greybeardqol .two-col-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
 .greybeardqol .three-col-grid {
   grid-template-columns: repeat(3, 1fr);
 }
-
-/* Grid for four cards */
 .greybeardqol .four-col-grid {
   grid-template-columns: repeat(4, 1fr);
 }
-
-/* Grid for five cards */
 .greybeardqol .five-col-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+.greybeardqol .six-col-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+.greybeardqol .seven-col-grid {
   grid-template-columns: repeat(5, 1fr);
 }
 
