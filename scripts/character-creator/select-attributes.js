@@ -1,34 +1,38 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 
-
 export async function selectAttributes(actor, attributeChoices) {
 
-  // Umwandeln für das Template
-  const attributeSets = attributeChoices.map(choice => {
-    const mod = parseInt(choice.modification, 10) || 0;
-    const gridClass = {
+    // Umwandeln für das Template
+    function getGridClass(length) {
+    return {
       2: "two-col-grid",
       3: "three-col-grid",
       4: "four-col-grid",
       5: "five-col-grid",
-      6: "six-col-grid"
+      6: "six-col-grid",
       7: "seven-col-grid"
-    }[choice.stats.length] || "auto-grid";
+    }[length] || "auto-grid";
+  }
 
-    return {
-      gridClass,
-      modification: mod,
-      stats: choice.stats
-    };
-  });
+  const attributeSets = attributeChoices.map(choice => ({
+    gridClass: getGridClass(choice.stats.length),
+    modification: parseInt(choice.modification, 10) || 0,
+    stats: choice.stats
+  }));
+
+
+  // Calculate dialog width
+  const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
+  const dialogWidth = Math.min(maxCols * 160, 1200); // 160px pro Karte, max 1200px
+
 
   // Renderdialog
   return new Promise((resolve, reject) => {
     const dlg = new Dialog({
       title: "Select Attributes",
-      content: await renderTemplate("modules/greybearded-qol/templates/attribute-choice.hbs", {
+      content: await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html", {
         attributeSets,
-        themeColor: getThemeColor();
+        themeColor: getThemeColor()
       }),
       buttons: {
         confirm: {
@@ -65,6 +69,13 @@ export async function selectAttributes(actor, attributeChoices) {
         }
       },
       render: (html) => {
+        // Dialog Resizing
+        const dialogElement = html.closest('.app');
+        dialogElement.css({ width: `${dialogWidth}px`, maxWidth: '95vw', margin: '0 auto' });
+        setTimeout(() => {
+          dialogElement[0].style.height = 'auto';
+        }, 0);
+
         html.on("click", ".card", function () {
           const parent = this.closest(".attribute-set");
           parent.querySelectorAll(".card").forEach(el => el.classList.remove("selected"));
