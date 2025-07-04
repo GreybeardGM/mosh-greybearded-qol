@@ -68,7 +68,7 @@ export async function showStressConversionDialog(actor, points) {
 
         updateUI();
       }
-    }, { width: 480 });
+    }, { width: 512 });
 
     dlg.render(true);
   });
