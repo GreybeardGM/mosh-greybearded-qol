@@ -1,0 +1,13 @@
+<form class="greybeardqol attribute-choice-form" style="--theme-color: {{themeColor}}">
+  {{#each attributeSets}}
+    <div class="attribute-set {{gridClass}}" data-set-index="{{@index}}" data-mod="{{modification}}">
+      {{#each stats}}
+        <div class="card" data-attr="{{this}}">
+          <img class="icon" src="systems/mosh/images/icons/ui/attributes/{{this}}.png" alt="{{this}} Icon">
+          <h3>{{capitalize this}}</h3>
+          <div class="mod">{{#if (gt ../modification 0)}}+{{/if}}{{../modification}}</div>
+        </div>
+      {{/each}}
+    </div>
+  {{/each}}
+</form>
