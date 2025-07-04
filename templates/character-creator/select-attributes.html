@@ -1,6 +1,6 @@
 <form class="greybeardqol attribute-choice-form" style="--theme-color: {{themeColor}}">
   {{#each attributeSets}}
-    <div class="attribute-set {{gridClass}}" style="max-width: {{maxWidth}};" data-set-index="{{@index}}" data-mod="{{modification}}">
+    <div class="attribute-set card-grad" style="max-width: {{maxWidth}}; --col-count: {{stats.length}};" data-set-index="{{@index}}" data-mod="{{modification}}">
       {{#each stats}}
         <div class="card" data-attr="{{this}}">
           <img class="icon" src="systems/mosh/images/icons/ui/attributes/{{this}}.png" alt="{{this}} Icon">
