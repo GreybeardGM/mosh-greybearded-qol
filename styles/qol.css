@@ -79,7 +79,7 @@
 .greybeardqol .card-grid {
   display: grid;
   grid-template-columns: repeat(var(--col-count, 3), 1fr);
-  gap: 1em;
+  gap: 8px; /* <- Matches Foundriey Dialog Border */
   margin-bottom: 1em;
   justify-content: center;
 }
