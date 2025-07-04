@@ -154,6 +154,32 @@ export async function startCharacterCreation(actor) {
     await completeStep(actor, "selectedAttributes");
   }
   
+  // ✅ Step 6: Roll Health
+  if (!checkStep(actor, "rolledHealth")) {
+    console.log("❤️ Rolling health...");
+  
+    const formula = `1d10 + 10`;
+    const roll = new Roll(formula);
+    await roll.evaluate({ async: true });
+  
+    const total = roll.total;
+    await actor.update({
+      "system.health.max": total,
+      "system.health.value": total
+    });
+  
+    await chatOutput({
+      actor,
+      title: "Health Rolled",
+      subtitle: actor.name,
+      icon: "fa-heart-pulse",
+      content: `<span class="counter">${total}</span> HP`
+    });
+  
+    await completeStep(actor, "rolledHealth");
+  }
+
+  
   // Placeholder for next steps
   console.log("\u{1F4DA} TODO: Choose skills...");
   console.log("\u{1F4B0} TODO: Roll loadout & credits...");
