@@ -147,6 +147,24 @@ export async function selectClass(actor, applyStats = true) {
               updates["system.hits.max"] = base.max_wounds;
               updates["system.hits.value"] = 0; // optional: reset current hits
             }
+            if (Array.isArray(base.skills_granted)) {
+              const grantedSkills = [];
+            
+              for (const uuid of base.skills_granted) {
+                const item = await fromUuid(uuid);
+                if (item?.type === "skill") {
+                  // Prüfen, ob der Actor diesen Skill bereits hat
+                  const alreadyOwned = actor.items.some(i => i.name === item.name && i.type === "skill");
+                  if (!alreadyOwned) {
+                    grantedSkills.push(item.toObject());
+                  }
+                }
+              }
+            
+              if (grantedSkills.length > 0) {
+                await actor.createEmbeddedDocuments("Item", grantedSkills);
+              }
+            }
           }
           
           await actor.update(updates);
