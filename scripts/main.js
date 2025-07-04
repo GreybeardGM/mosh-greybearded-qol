@@ -11,6 +11,9 @@ let StashSheet;
 
 // Register all the stuff
 Hooks.once("ready", () => {
+  
+  Handlebars.registerHelper("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
+  
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
