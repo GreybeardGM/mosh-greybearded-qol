@@ -1,6 +1,6 @@
 /* Base wrapper to scope all styles to the module */
 .greybeardqol {
-  --theme-color: #f50
+  --theme-color: #f50;
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;
