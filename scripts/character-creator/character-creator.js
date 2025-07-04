@@ -1,6 +1,7 @@
 import { chatOutput } from "../utils/chat-output.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 import { selectClass } from "./select-class.js";
+import { selectAttributes } from "./select-attributes.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
@@ -143,8 +144,17 @@ export async function startCharacterCreation(actor) {
     await completeStep(actor, "selectedClass");
   }
 
+  // ✅ Step 5: Attribute selection
+  if (!checkStep(actor, "selectedAttributes")) {
+    const choices = selectedClass.system?.selected_adjustment?.choose_stat || [];
+    if (choices.length > 0) {
+      const adjustments = await selectAttributes(actor, choices);
+      if (!adjustments) return ui.notifications.warn("Attribute seletion cancelled.");
+    }
+    await completeStep(actor, "selectedAttributes");
+  }
+  
   // Placeholder for next steps
-  console.log("\u{1F49C} TODO: Choose attributes...");
   console.log("\u{1F4DA} TODO: Choose skills...");
   console.log("\u{1F4B0} TODO: Roll loadout & credits...");
 
