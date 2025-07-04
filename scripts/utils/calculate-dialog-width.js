@@ -6,7 +6,7 @@
  * @param {number} gap - Gap in pixels between cards (default: 8)
  * @returns {number} - The calculated dialog width in pixels
  */
-function calculateDialogWidth(cardCount, cardWidth, outer = true, gap = 8) {
+export function calculateDialogWidth(cardCount, cardWidth, outer = true, gap = 8) {
   if (cardCount <= 0 || cardWidth <= 0) return 0;
   const spacing = outer ? (cardCount + 1) * gap : (cardCount - 1) * gap;
   return cardCount * cardWidth + spacing;
