@@ -47,6 +47,7 @@
   transition: border 0.2s ease, background-color 0.2s ease;
   user-select: none;
   cursor: pointer;
+  position: relative;
 }
 
 .greybeardqol .card:hover {
@@ -64,16 +65,8 @@
   position: absolute;
   bottom: 8px;
   right: 10px;
-  font-size: 1em;
-  background: var(--color-highlight);
-  color: var(--color-bg);
-  border-radius: 50%;
-  width: 1.4em;
-  height: 1.4em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+  font-size: 1.4em;
+  color: var(--color-highlight);
 }
 
 .greybeardqol .card h3 {
