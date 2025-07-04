@@ -59,9 +59,9 @@ export async function simpleShoreLeave(actor, randomFlavor) {
       render: async html => {
         // Highlight selected tier card
         html.find("input[name='shore-tier']").on("change", function () {
-          html.find(".card").removeClass("highlighted");
+          html.find(".card").removeClass("selected");
           const selected = html.find("input[name='shore-tier']:checked").closest(".card");
-          selected.addClass("highlighted");
+          selected.addClass("selected");
         });
 
         // Price roll button
