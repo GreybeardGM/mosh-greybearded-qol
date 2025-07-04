@@ -4,29 +4,28 @@ export async function selectAttributes(actor, attributeChoices) {
 
     // Umwandeln für das Template
     function getGridClass(length) {
-    return {
-      2: "two-col-grid",
-      3: "three-col-grid",
-      4: "four-col-grid",
-      5: "five-col-grid",
-      6: "six-col-grid",
-      7: "seven-col-grid"
-    }[length] || "auto-grid";
-  }
-
-  const attributeSets = attributeChoices.map(choice => ({
-    gridClass: getGridClass(choice.stats.length),
-    modification: parseInt(choice.modification, 10) || 0,
-    stats: choice.stats
-  }));
-
-
-  // Calculate dialog width
-  const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
-  const dialogWidth = Math.min(maxCols * 160, 1200); // 160px pro Karte, max 1200px
+        return {
+            2: "two-col-grid",
+            3: "three-col-grid",
+            4: "four-col-grid",
+            5: "five-col-grid",
+            6: "six-col-grid",
+            7: "seven-col-grid"
+        }[length] || "auto-grid";
+    }
+    
+    const attributeSets = attributeChoices.map(choice => ({
+        gridClass: getGridClass(choice.stats.length),
+        modification: parseInt(choice.modification, 10) || 0,
+        stats: choice.stats
+    }));
+    
+    // Calculate dialog width
+    const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
+    const dialogWidth = Math.min(maxCols * 160, 1200); // 160px pro Karte, max 1200px
 
     // Vorher: Template rendern
-    const htmlContent = await renderTemplate("modules/greybearded-qol/templates/attribute-choice.hbs", {
+    const htmlContent = await renderTemplate("modules/greybearded-qol/templates/character-creator/select-attributes.html", {
       attributeSets,
       themeColor: getThemeColor()
     });
