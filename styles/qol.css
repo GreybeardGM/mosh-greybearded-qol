@@ -80,8 +80,7 @@
   display: grid;
   grid-template-columns: repeat(var(--col-count, 3), 1fr);
   gap: 8px; /* <- Matches Foundriey Dialog Border */
-  margin-bottom: 1em;
-  justify-content: center;
+  margin: 0 auto 1em;
 }
 
 /* Box layout */
