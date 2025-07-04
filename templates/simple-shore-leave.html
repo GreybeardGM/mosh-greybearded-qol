@@ -1,5 +1,5 @@
 <form class="greybeardqol" style="--theme-color: {{themeColor}}">
-  <div class="five-col-grid">
+  <div class="card-grid" style="--col-count: {{tiers.length}};">
     {{#each tiers as |tier|}}
       <label class="card" style="display: block;">
         <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
