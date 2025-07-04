@@ -144,7 +144,7 @@ export async function selectClass(actor, applyStats = true) {
               }
             }
             if (!isNaN(base.max_wounds)) {
-              updates["system.hits.max"] = base.max_wounds;
+              updates["system.hits.max"] = (getProperty(actor.system, `hits.max`) || 2) + base.max_wounds;
               updates["system.hits.value"] = 0; // optional: reset current hits
             }
             if (Array.isArray(base.skills_granted)) {
