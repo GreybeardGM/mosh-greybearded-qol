@@ -1,44 +1,12 @@
-/* THEME VARIANTS */
-.greybeardqol.theme-orange {
-  --color-highlight: #ff5500;
-}
-
-.greybeardqol.theme-red {
-  --color-highlight: #ff3344;
-}
-
-.greybeardqol.theme-gold {
-  --color-highlight: #ffcc33;
-}
-
-.greybeardqol.theme-teal {
-  --color-highlight: #33cccc;
-}
-
-.greybeardqol.theme-green {
-  --color-highlight: #66ff66;
-}
-
-.greybeardqol.theme-pink {
-  --color-highlight: #ff66cc;
-}
-
-.greybeardqol.theme-white {
-  --color-highlight: #eeeeee;
-}
-
-.greybeardqol.theme-purple {
-  --color-highlight: #bb66ff;
-}
-
 /* Base wrapper to scope all styles to the module */
 .greybeardqol {
+  --theme-color: #f50
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;
-  --color-highlight: #f50;
+  --color-highlight: var(--theme-color);
   --color-bg-hover: #222; /* fallback */
-  --color-bg-hover: color-mix(in srgb, var(--color-highlight) 10%, var(--color-bg)); /* preferred */
+  --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg)); /* preferred */
   --color-counter: #fc6;
   --color-remaining: #596;
 
