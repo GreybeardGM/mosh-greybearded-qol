@@ -6,7 +6,7 @@ function normalizeCaps(text) {
   return lowered.charAt(0).toUpperCase() + lowered.slice(1);
 }
 
-export async function selectClass(actor) {
+export async function selectClass(actor, applyStats = true) {
   // little helpers
   const stripHtml = html => html.replace(/<[^>]*>/g, '').trim();
   const formatAttribute = (value, label) => {
@@ -126,13 +126,30 @@ export async function selectClass(actor) {
           const classItem = await fromUuid(selected.uuid);
           if (!classItem) return ui.notifications.error("Failed to load class data.");
 
-          await actor.update({
+          const updates = {
             "system.class.value": classItem.name,
             "system.class.uuid": classItem.uuid,
             "system.other.stressdesc.value": classItem.system.trauma_response
               ? normalizeCaps(classItem.system.trauma_response)
               : ""
-          });
+          };
+          
+          if (applyStats) {
+            const base = classItem.system.base_adjustment || {};
+            const allStats = ["strength", "speed", "intellect", "combat", "sanity", "fear", "body"];
+            for (const stat of allStats) {
+              const val = parseInt(base[stat], 10);
+              if (!isNaN(val) && val !== 0) {
+                updates[`system.stats.${stat}.value`] = (getProperty(actor.system, `stats.${stat}.value`) || 0) + val;
+              }
+            }
+            if (!isNaN(base.max_wounds)) {
+              updates["system.hits.max"] = base.max_wounds;
+              updates["system.hits.value"] = 0; // optional: reset current hits
+            }
+          }
+          
+          await actor.update(updates);
 
           resolve(classItem);
           dlg.close();
