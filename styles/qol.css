@@ -17,7 +17,7 @@
 }
 
 /* Grey-out or Highlight */
-.greybeardqol .disabled {
+.greybeardqol .locked {
   opacity: 0.4;
   pointer-events: none;
   filter: grayscale(100%);
@@ -117,8 +117,8 @@
 }
 
 .greybeardqol .pill img {
-  width: 3em;
-  height: 3em;
+  width: 2em;
+  height: 2em;
   object-fit: contain;
   margin-right: 0.5em;
 }
@@ -206,6 +206,6 @@
 .greybeardqol .skill-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4em;
+  gap: 20%;
   margin-top: 1em;
 }
