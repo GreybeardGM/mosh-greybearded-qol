@@ -43,7 +43,7 @@
   content: "🔒";
 }
 
-.greybeardqol .skill-card.locked:not(.selected) {
+.greybeardqol .locked:not(.selected) {
   opacity: 0.4;
   filter: grayscale(100%);
 }
