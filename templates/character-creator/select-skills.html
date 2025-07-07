@@ -1,4 +1,7 @@
-<pre>{{log sortedSkills}}</pre>
+{{#each sortedSkills}}
+  <div>{{this.name}} / {{this.system.rank}}</div>
+{{/each}}
+
 
 <section class="greybeardqol skill-selection">
   <!-- Top: OR options as cards -->
