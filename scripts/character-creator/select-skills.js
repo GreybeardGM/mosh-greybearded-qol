@@ -114,7 +114,7 @@ export async function selectSkills(actor, selectedClass) {
     };
   });
 
-  const html = await renderTemplate("/templates/character-creator/select-skills.html", {
+  const html = await renderTemplate("modules/mosh-greybearded-qol/templates//character-creator/select-skills.html", {
     actor,
     selectedClass,
     sortedSkills,
