@@ -100,9 +100,13 @@ export async function selectSkills(actor, selectedClass) {
             const rank = this.dataset.rank;
             this.innerText = points[rank];
           });
-
+        
           const remaining = Object.values(points).reduce((a, b) => a + b, 0);
-          html.find(".confirm-button").toggleClass("locked", remaining > 0);
+          const hasOrOptions = orOptions.length > 0;
+          const orSelected = !hasOrOptions || html.find(".or-option.selected").length > 0;
+        
+          const allowConfirm = remaining === 0 && orSelected;
+          html.find(".confirm-button").toggleClass("locked", !allowConfirm);
         };
 
         html.find(".skill-card").on("click", function () {
