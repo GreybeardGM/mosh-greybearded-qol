@@ -110,20 +110,6 @@
   margin: 0 auto 1em;
 }
 
-/* Box layout */
-.greybeardqol .box {
-  padding: 1em;
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  margin-bottom: 1em;
-}
-
-.greybeardqol .box:hover {
-  border-color: var(--color-highlight);
-  background-color: var(--color-bg-hover);
-}
-
 /* Pill layout */
 .greybeardqol .pill {
   display: flex;
@@ -246,4 +232,8 @@
 
 .greybeardqol .skill-card span {
   margin-right: 1.3em;
+}
+
+.greybeardqol .skill-selection {
+  position: relative;
 }
