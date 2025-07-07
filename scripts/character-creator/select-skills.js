@@ -139,20 +139,17 @@ export async function selectSkills(actor, selectedClass) {
           points.expert  = basePoints.expert  + (opt?.expert  || 0);
           points.master  = basePoints.master  + (opt?.master  || 0);
 
-          html.find(".skill-card.selected").removeClass("selected");
+          html.find(".skill-card.selected:not(.default-skill)").removeClass("selected");
           updateUI();
         });
 
         html.find(".confirm-button").on("click", async function () {
-          const grantedUUIDs = (selectedClass.system.base_adjustment?.skills_granted ?? []);
-          const userSelectedUUIDs = Array.from(
+          const selectedUUIDs = Array.from(
             html[0].querySelectorAll(".skill-card.selected[data-uuid]")
           ).map(el => el.dataset.uuid);
           
-          const allSelectedUUIDs = Array.from(new Set([...userSelectedUUIDs, ...grantedUUIDs]));
-
           const selectedItems = await Promise.all(
-            allSelectedUUIDs.map(async uuid => {
+            selectedUUIDs.map(async uuid => {
               const item = await fromUuid(uuid);
               if (!item || item.type !== "skill") {
                 console.warn("Invalid or missing skill:", uuid);
