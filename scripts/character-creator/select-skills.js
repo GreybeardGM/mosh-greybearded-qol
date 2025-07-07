@@ -113,6 +113,22 @@ export async function selectSkills(actor, selectedClass) {
         }
 
         const points = structuredClone(basePoints);
+
+        function drawLines() {
+          const svg = html[0].querySelector("#skill-arrows");
+          if (!svg) return;
+        
+          svg.innerHTML = ""; // remove previous lines
+        
+          for (const skill of sortedSkills) {
+            const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
+            for (const prereqId of prereqIds) {
+              const fromEl = html[0].querySelector(`.skill-card[data-skill-id="${prereqId}"]`);
+              const toEl = html[0].querySelector(`.skill-card[data-skill-id="${skill.id}"]`);
+              if (fromEl && toEl) drawCurvedPath(fromEl, toEl, svg);
+            }
+          }
+        }
         
         const updateSkillAvailability = () => {
           const selectedSkills = new Set(
@@ -158,6 +174,7 @@ export async function selectSkills(actor, selectedClass) {
           html.find(".confirm-button").toggleClass("locked", !allowConfirm);
 
           updateSkillAvailability();
+          drawLines();
         };
 
         html.find(".skill-card").on("click", function () {
