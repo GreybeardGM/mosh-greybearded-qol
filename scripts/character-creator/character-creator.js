@@ -149,12 +149,17 @@ export async function startCharacterCreation(actor) {
   if (!checkStep(actor, "selectedAttributes")) {
     const choices = selectedClass.system?.selected_adjustment?.choose_stat || [];
     if (choices.length > 0) {
-      const adjustments = await selectAttributes(actor, choices);
-      if (!adjustments) return ui.notifications.warn("Attribute seletion cancelled.");
+      try {
+        const adjustments = await selectAttributes(actor, choices);
+        if (!adjustments) return ui.notifications.warn("Attribute selection cancelled.");
+      } catch (err) {
+        console.warn("Attribute selection aborted:", err);
+        return ui.notifications.warn("Attribute selection cancelled.");
+      }
     }
     await completeStep(actor, "selectedAttributes");
   }
-  
+
   // ✅ Step 6: Roll Health
   if (!checkStep(actor, "rolledHealth")) {
     console.log("❤️ Rolling health...");
