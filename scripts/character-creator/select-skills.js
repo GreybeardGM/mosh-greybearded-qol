@@ -104,7 +104,7 @@ export async function selectSkills(actor, selectedClass) {
               await actor.createEmbeddedDocuments("Item", validItems);
             }
 
-            resolve(validItems);
+            resolve(validItems.length > 0 ? validItems : null);
           }
         }
       },
