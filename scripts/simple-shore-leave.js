@@ -36,43 +36,38 @@ export async function simpleShoreLeave(actor, randomFlavor) {
   });
 
   return new Promise(resolve => {
-    new Dialog({
+    const dlg = new Dialog({
       title: "Select Shore Leave Tier",
       content,
-      buttons: {
-        confirm: {
-          label: "Convert Stress",
-          callback: async (html) => {
-            const selected = html.find("input[name='shore-tier']:checked").val();
-            const entry = tiers.find(t => t.tier === selected);
-            if (!entry) return ui.notifications.error("Invalid tier selected.");
-
-            const result = await convertStress(actor, entry.stressFormula);
-            resolve(result);
-          }
-        },
-        cancel: {
-          label: "Cancel",
-          callback: () => resolve(null)
-        }
-      },
+      buttons: {}, // Keine Foundry-Buttons
+      close: () => resolve(null),
       render: async html => {
-        // Highlight selected tier card
+        const app = html.closest('.app');
+        app.css({ width: '923px', maxWidth: '95vw', margin: '0 auto' });
+    
+        // Initial-Button-Zustand sperren
+        const confirmBtn = html.find("#confirm-button");
+        confirmBtn.addClass("locked");
+    
+        // Auswahlverhalten
         html.find("input[name='shore-tier']").on("change", function () {
           html.find(".card").removeClass("selected");
-          const selected = html.find("input[name='shore-tier']:checked").closest(".card");
-          selected.addClass("selected");
+          const selectedCard = html.find("input[name='shore-tier']:checked").closest(".card");
+          selectedCard.addClass("selected");
+    
+          // Button freischalten
+          confirmBtn.removeClass("locked");
         });
-
-        // Price roll button
+    
+        // Preiswurf
         html.find(".roll-price").on("click", async ev => {
           const tier = ev.currentTarget.dataset.tier;
           const entry = tiers.find(t => t.tier === tier);
           if (!entry) return;
-
+    
           const roll = new Roll(entry.priceFormula);
           await roll.evaluate();
-
+    
           await chatOutput({
             actor,
             title: entry.label,
@@ -90,42 +85,36 @@ export async function simpleShoreLeave(actor, randomFlavor) {
             ]
           });
         });
-
-        // Reroll flavor button
+    
+        // Flavor-Neu würfeln
         html.find(".reroll-flavor").on("click", ev => {
           const card = $(ev.currentTarget).closest(".card");
           const tierKey = card.find("input[name='shore-tier']").val();
           const entry = tiers.find(t => t.tier === tierKey);
           if (!entry) return;
-        
-          // Apply new flavor
+    
           flavorizeShoreLeave(entry);
-        
-          // Update DOM
-          const iconElement = card.find(".icon");
-          if (entry.flavor?.icon) {
-            iconElement.attr("class", `fas ${entry.flavor.icon} icon`);
-          }
-        
-          const labelContainer = card.find(".flavor-label");
-          if (entry.flavor?.label) {
-            labelContainer.text(entry.flavor.label);
-          }
-        
-          let descContainer = card.find(".flavor-description");
-          if (entry.flavor?.description) {
-            descContainer.text(entry.flavor.description);
-          }
+    
+          card.find(".icon").attr("class", `fas ${entry.flavor.icon} icon`);
+          card.find(".flavor-label").text(entry.flavor.label);
+          card.find(".flavor-description").text(entry.flavor.description);
         });
-
-        // Set dialog width manually for layout stability
-        html.closest('.app').css({
-          width: '923px',
-          maxWidth: '95vw',
-          margin: '0 auto'
+    
+        // Bestätigen
+        confirmBtn.on("click", async () => {
+          if (confirmBtn.hasClass("locked")) return;
+    
+          const selected = html.find("input[name='shore-tier']:checked").val();
+          const entry = tiers.find(t => t.tier === selected);
+          if (!entry) return ui.notifications.error("Invalid tier selected.");
+    
+          const result = await convertStress(actor, entry.stressFormula);
+          dlg.close();
+          resolve(result);
         });
-      },
-      default: "confirm"
-    }).render(true);
+      }
+    });
+    
+    dlg.render(true);
   });
 }
