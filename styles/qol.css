@@ -194,6 +194,7 @@
 
 .greybeardqol .remaining-points span {
   color: var(--color-remaining);
+  font-size: 1.1em;
 }
 
 /* Counter for stress points */
@@ -225,6 +226,11 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 20%;
   margin-top: 1em;
+}
+
+.greybeardqol .skill-column h3 {
+  color: var(--color-bg);
+  text-align: center;
 }
 
 .greybeardqol .skill-card span {
