@@ -136,6 +136,13 @@ export async function selectSkills(actor, selectedClass) {
               this.classList.remove("selected");
             }
           });
+
+          ["trained", "expert", "master"].forEach(rank => {
+            if (points[rank] > 0) return; // Noch Punkte übrig → alles ok
+          
+            html.find(`.skill-card[data-rank="${rank}"]:not(.selected):not(.locked):not(.default-skill)`)
+                .addClass("locked");
+          });
         };
 
         const updateUI = () => {
