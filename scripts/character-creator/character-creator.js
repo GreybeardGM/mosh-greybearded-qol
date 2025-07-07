@@ -166,7 +166,7 @@ export async function startCharacterCreation(actor) {
   
     const formula = `1d10 + 10`;
     const roll = new Roll(formula);
-    await roll.evaluate({ async: true });
+    await roll.evaluate();
   
     const total = roll.total;
     await actor.update({
