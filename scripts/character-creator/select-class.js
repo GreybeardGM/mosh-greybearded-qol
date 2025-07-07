@@ -140,11 +140,11 @@ export async function selectClass(actor, applyStats = true) {
             for (const stat of allStats) {
               const val = parseInt(base[stat], 10);
               if (!isNaN(val) && val !== 0) {
-                updates[`system.stats.${stat}.value`] = (getProperty(actor.system, `stats.${stat}.value`) || 0) + val;
+                updates[`system.stats.${stat}.value`] = (foundry.utils.getProperty(actor.system, `stats.${stat}.value`) || 0) + val;
               }
             }
             if (!isNaN(base.max_wounds)) {
-              updates["system.hits.max"] = (getProperty(actor.system, `hits.max`) || 2) + base.max_wounds;
+              updates["system.hits.max"] = (foundry.utils.getProperty(actor.system, `hits.max`) || 2) + base.max_wounds;
               updates["system.hits.value"] = 0; // optional: reset current hits
             }
           }
