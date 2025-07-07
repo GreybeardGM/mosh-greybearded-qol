@@ -141,24 +141,28 @@ export async function selectSkills(actor, selectedClass) {
         });
 
         html.find(".confirm-button").on("click", async function () {
-          const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
-console.log("UUIDs:", selectedUUIDs);
-
+          const selectedUUIDs = html.find(".skill-card.selected[data-uuid]")
+            .toArray()
+            .map(el => el.dataset.uuid);
+        
           const selectedItems = await Promise.all(
             selectedUUIDs.map(async uuid => {
               const item = await fromUuid(uuid);
-              if (!item || item.type !== "skill") return null;
+              if (!item || item.type !== "skill") {
+                console.warn("Invalid or missing skill:", uuid);
+                return null;
+              }
               const itemData = item.toObject();
               delete itemData._id;
               return itemData;
             })
           );
-
+        
           const validItems = selectedItems.filter(i => i);
           if (validItems.length > 0) {
             await actor.createEmbeddedDocuments("Item", validItems);
           }
-
+        
           resolve(validItems.length > 0 ? validItems : null);
           dlg.close();
         });
