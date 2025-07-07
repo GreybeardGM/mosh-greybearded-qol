@@ -135,7 +135,7 @@ export async function selectSkills(actor, selectedClass) {
               path.setAttribute("d", `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`);
               path.setAttribute("fill", "none");
               path.setAttribute("stroke", isHighlighted ? "var(--theme-color)" : "#333");
-              path.setAttribute("stroke-width", "2");
+              path.setAttribute("stroke-width", isHighlighted ? "4" : "2");
         
               svg.appendChild(path);
             }
