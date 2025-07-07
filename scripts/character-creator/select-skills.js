@@ -141,12 +141,15 @@ export async function selectSkills(actor, selectedClass) {
         });
 
         html.find(".confirm-button").on("click", async function () {
-          const selectedUUIDs = Array.from(
+          const grantedUUIDs = (selectedClass.system.base_adjustment?.skills_granted ?? []);
+          const userSelectedUUIDs = Array.from(
             html[0].querySelectorAll(".skill-card.selected[data-uuid]")
           ).map(el => el.dataset.uuid);
+          
+          const allSelectedUUIDs = Array.from(new Set([...userSelectedUUIDs, ...grantedUUIDs]));
 
           const selectedItems = await Promise.all(
-            selectedUUIDs.map(async uuid => {
+            allSelectedUUIDs.map(async uuid => {
               const item = await fromUuid(uuid);
               if (!item || item.type !== "skill") {
                 console.warn("Invalid or missing skill:", uuid);
