@@ -13,30 +13,33 @@
     {{/each}}
   </div>
 
-  <!-- SVG for skill dependency lines -->
-  <svg id="skill-arrows" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></svg>
-  <!-- Bottom: Skill columns -->
-  <div class="skill-columns">
-    {{#each (array 'trained' 'expert' 'master') as |rank|}}
-      <div class="skill-column">
-        <h3 class="remaining-points">{{capitalize rank}} [ <span class="point-count" data-rank="{{rank}}">0</span> ]</h3>
-        <div class="pill-list">
-          {{#each ../sortedSkills}}
-            {{#if (eq this.system.rank rank)}}
-              <div class="pill skill-card 
-                 {{#if (includes ../../granted this._id)}}default-skill selected locked{{/if}}"
-                data-rank="{{this.system.rank}}"
-                data-uuid="{{this.uuid}}"
-                data-skill-id="{{this.id}}"
-                title="{{stripHtml this.system.description}}">
-                <img src="{{this.img}}" alt="{{this.name}}" />
-                <span>{{this.name}}</span>
-              </div>
-            {{/if}}
-          {{/each}}
+  <!-- Wrapper for Skills + Lines -->
+  <div class="skill-area-wrapper">
+    <!-- SVG for skill dependency lines -->
+    <svg id="skill-arrows" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></svg>
+    <!-- Bottom: Skill columns -->
+    <div class="skill-columns">
+      {{#each (array 'trained' 'expert' 'master') as |rank|}}
+        <div class="skill-column">
+          <h3 class="remaining-points">{{capitalize rank}} [ <span class="point-count" data-rank="{{rank}}">0</span> ]</h3>
+          <div class="pill-list">
+            {{#each ../sortedSkills}}
+              {{#if (eq this.system.rank rank)}}
+                <div class="pill skill-card 
+                   {{#if (includes ../../granted this._id)}}default-skill selected locked{{/if}}"
+                  data-rank="{{this.system.rank}}"
+                  data-uuid="{{this.uuid}}"
+                  data-skill-id="{{this.id}}"
+                  title="{{stripHtml this.system.description}}">
+                  <img src="{{this.img}}" alt="{{this.name}}" />
+                  <span>{{this.name}}</span>
+                </div>
+              {{/if}}
+            {{/each}}
+          </div>
         </div>
-      </div>
-    {{/each}}
+      {{/each}}
+    </div>
   </div>
 
   <!-- Bottom: Skill columns -->
