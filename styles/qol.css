@@ -36,7 +36,7 @@
 }
 
 .greybeardqol .locked.selected {
-  opacity: 0.8;
+  opacity: 0.95;
 }
 
 .greybeardqol .locked.selected::after {
