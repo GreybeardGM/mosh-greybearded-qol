@@ -88,7 +88,6 @@ export async function selectSkills(actor, selectedClass) {
       content: html,
       buttons: {},
       close: () => {
-        console.log("Das warst wohl nicht!");
         resolve(null);
       },
       render: (html) => {
@@ -154,8 +153,8 @@ export async function selectSkills(actor, selectedClass) {
             await actor.createEmbeddedDocuments("Item", validItems);
           }
 
-          dlg.close();
           resolve(validItems.length > 0 ? validItems : null);
+          dlg.close();
         });
 
         updateUI();
