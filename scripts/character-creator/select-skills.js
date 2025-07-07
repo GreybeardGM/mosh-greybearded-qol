@@ -98,6 +98,8 @@ export async function selectSkills(actor, selectedClass) {
             html.find(".skill-card.selected").map((_, el) => el.dataset.skillId)
           );
         
+          const linesToDraw = [];
+        
           for (const skill of sortedSkills) {
             const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
         
@@ -106,12 +108,6 @@ export async function selectSkills(actor, selectedClass) {
               const toEl = html[0].querySelector(`.skill-card[data-skill-id="${skill.id}"]`);
               if (!fromEl || !toEl) continue;
         
-              const isHighlighted =
-                selected.has(skill.id) &&
-                selected.has(prereqId) &&
-                (skill.system.rank === "expert" || skill.system.rank === "master");
-        
-              const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
               const rect1 = fromEl.getBoundingClientRect();
               const rect2 = toEl.getBoundingClientRect();
               const parentRect = svg.getBoundingClientRect();
@@ -132,13 +128,34 @@ export async function selectSkills(actor, selectedClass) {
               const c2x = relX2 - deltaX;
               const c2y = relY2;
         
-              path.setAttribute("d", `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`);
-              path.setAttribute("fill", "none");
-              path.setAttribute("stroke", isHighlighted ? "var(--theme-color)" : "#333");
-              path.setAttribute("stroke-width", isHighlighted ? "4" : "2");
+              const pathData = `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`;
+              const isHighlighted =
+                selected.has(skill.id) &&
+                selected.has(prereqId) &&
+                (skill.system.rank === "expert" || skill.system.rank === "master");
         
-              svg.appendChild(path);
+              linesToDraw.push({ d: pathData, highlight: isHighlighted });
             }
+          }
+        
+          // ⬇️ Zuerst: graue Linien
+          for (const line of linesToDraw.filter(l => !l.highlight)) {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", line.d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "var(--color-border)");
+            path.setAttribute("stroke-width", "2");
+            svg.appendChild(path);
+          }
+        
+          // ⬆️ Dann: farbige oben drauf
+          for (const line of linesToDraw.filter(l => l.highlight)) {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", line.d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "var(--theme-color)");
+            path.setAttribute("stroke-width", "3");
+            svg.appendChild(path);
           }
         }
 
