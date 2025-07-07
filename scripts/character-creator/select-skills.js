@@ -1,52 +1,6 @@
-// scripts/select-skills.js
 export async function selectSkills(actor, selectedClass) {
-
-  // 📌 Local helpers (keep until template refactor)
   function getSkillSortOrder() {
-    return [
-      "Linguistics",
-      "Zoology",
-      "Botany",
-      "Geology",
-      "Industrial Equipment",
-      "Jury-Rigging",
-      "Chemistry",
-      "Computers",
-      "Zero-G",
-      "Mathematics",
-      "Art",
-      "Archaeology",
-      "Theology",
-      "Military Training",
-      "Rimwise",
-      "Athletics",
-      "Psychology",
-      "Pathology",
-      "Field Medicine",
-      "Ecology",
-      "Asteroid Mining",
-      "Mechanical Repair",
-      "Explosives",
-      "Pharmacology",
-      "Hacking",
-      "Piloting",
-      "Physics",
-      "Mysticism",
-      "Wilderness Survival",
-      "Firearms",
-      "Hand-to-Hand Combat",
-      "Sophontology",
-      "Exobiology",
-      "Surgery",
-      "Planetology",
-      "Robotics",
-      "Engineering",
-      "Cybernetics",
-      "Artificial Intelligence",
-      "Hyperspace",
-      "Xenoesotericism",
-      "Command"
-    ];
+    return ["Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging", "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology", "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine", "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking", "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat", "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics", "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"];
   }
 
   function drawCurvedPath(fromEl, toEl, svg) {
@@ -77,8 +31,6 @@ export async function selectSkills(actor, selectedClass) {
   function stripHtml(html) {
     return html.replace(/<[^>]*>/g, '').trim();
   }
-
-  // 📦 Skill loading
 
   const compendiumSkills = await game.packs.get('fvtt_mosh_1e_psg.items_skills_1e')?.getDocuments() ?? [];
   const worldSkills = game.items.filter(item => item.type === 'skill');
@@ -136,17 +88,29 @@ export async function selectSkills(actor, selectedClass) {
           label: "Confirm",
           callback: async (html) => {
             const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
-            resolve(selectedUUIDs);
+
+            const selectedItems = await Promise.all(
+              selectedUUIDs.map(async uuid => {
+                const item = await fromUuid(uuid);
+                if (!item || item.type !== "skill") return null;
+                const itemData = item.toObject();
+                delete itemData._id;
+                return itemData;
+              })
+            );
+
+            const validItems = selectedItems.filter(i => i);
+            if (validItems.length > 0) {
+              await actor.createEmbeddedDocuments("Item", validItems);
+            }
+
+            resolve(validItems);
           }
         }
       },
       close: () => resolve(null),
       render: (html) => {
-        html.closest('.app').css({
-          width: '1200px',
-          maxWidth: '95vw',
-          margin: '0 auto'
-        });
+        html.closest('.app').css({ width: '1200px', maxWidth: '95vw', margin: '0 auto' });
 
         const points = structuredClone(basePoints);
 
