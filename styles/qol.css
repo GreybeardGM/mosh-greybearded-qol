@@ -109,6 +109,7 @@
   margin: 0.25em 0;
   cursor: pointer;
   transition: border 0.2s ease, background-color 0.2s ease;
+  position: relative;
 }
 
 .greybeardqol .pill:hover {
