@@ -70,12 +70,12 @@ export async function selectAttributes(actor, attributeChoices) {
           }
 
           for (const { attr, mod } of selections) {
-            const current = getProperty(actor.system, `stats.${attr}.value`) || 0;
+            const current = foundry.utils.getProperty(actor.system, `stats.${attr}.value`) || 0;
             await actor.update({ [`system.stats.${attr}.value`]: current + mod });
           }
 
-          dlg.close();
           resolve(selections);
+          dlg.close();
         });
       }
     });
