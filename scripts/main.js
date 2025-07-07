@@ -15,9 +15,11 @@ Hooks.once("ready", () => {
   Handlebars.registerHelper("eq", (a, b) => a === b);  
   Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
   Handlebars.registerHelper("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
-  Handlebars.registerHelper("includes", (array, value) => {
-    return Array.isArray(array) && array.includes(value);
-  });  
+  Handlebars.registerHelper("includes", function (collection, value) {
+    if (Array.isArray(collection)) return collection.includes(value);
+    if (collection instanceof Set) return collection.has(value);
+    return false;
+  });
   Handlebars.registerHelper("stripHtml", (text) => {
     return typeof text === "string" ? text.replace(/<[^>]*>/g, "").trim() : "";
   });
