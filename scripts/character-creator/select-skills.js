@@ -122,29 +122,25 @@ export async function selectSkills(actor, selectedClass) {
           html.find(".skill-card").not(".default-skill").each(function () {
             const skillId = this.dataset.skillId;
             const rank = this.dataset.rank;
-            if (rank === "trained") return;
+            const selected = this.classList.contains("selected");
         
-            const skill = skillMap.get(skillId);
-            const prereqs = (skill?.system?.prerequisite_ids || []).map(p => p.split(".").pop());
-        
-            const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkills.has(id));
-        
-            if (unlocked) {
-              this.classList.remove("locked");
-            } else {
+            if (points[rank] === 0 && !selected) {
               this.classList.add("locked");
-              this.classList.remove("selected");
+            } else {
+              if (rank === "trained") {
+                this.classList.remove("locked");
+              } else {
+                const skill = skillMap.get(skillId);
+                const prereqs = (skill?.system?.prerequisite_ids || []).map(p => p.split(".").pop());
+                const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkills.has(id));
+                if (unlocked) {
+                  this.classList.remove("locked");
+                } else {
+                  this.classList.add("locked");
+                  this.classList.remove("selected");
+                }
+              }
             }
-          });
-          // ✨ Unlock alle nicht-prerequisite-gesperrten trained-Skills, falls Punkte frei
-          if (points.trained > 0) {
-            html.find(`.skill-card[data-rank="trained"].locked:not(.default-skill)`).removeClass("locked");
-          }
-
-          ["trained", "expert", "master"].forEach(rank => {
-            if (points[rank] > 0) return; // Noch Punkte übrig → alles ok
-            html.find(`.skill-card[data-rank="${rank}"]:not(.selected):not(.locked):not(.default-skill)`)
-                .addClass("locked");
           });
         };
 
