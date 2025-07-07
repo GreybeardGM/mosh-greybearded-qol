@@ -183,7 +183,9 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 7: Skill selection
   if (!checkStep(actor, "selectedSkills")) {
     const adjustments = await selectSkills(actor, selectedClass);
-    if (!adjustments) return ui.notifications.warn("Skill seletion cancelled.");
+    if (!adjustments || adjustments.length === 0) {
+      return ui.notifications.warn("Skill selection cancelled.");
+    }
     await completeStep(actor, "selectedSkills");
   }
   
