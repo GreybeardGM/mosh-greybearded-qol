@@ -35,9 +35,12 @@
   color: var(--color-highlight);
 }
 
+.greybeardqol .locked.selected {
+  opacity: 0.8;
+}
+
 .greybeardqol .locked.selected::after {
   content: "🔒";
-  border-style: dotted;
 }
 
 .greybeardqol .skill-card.locked:not(.selected) {
