@@ -110,7 +110,7 @@ export async function selectSkills(actor, selectedClass) {
         };
 
         html.find(".skill-card").on("click", function () {
-          if (this.classList.contains("default-skill")) return;
+          if (this.classList.contains("default-skill") || this.classList.contains("locked")) return;
 
           const rank = this.dataset.rank;
           if (this.classList.contains("selected")) {
