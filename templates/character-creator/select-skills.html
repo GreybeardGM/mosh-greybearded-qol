@@ -17,7 +17,7 @@
   <div class="skill-columns">
     {{#each (array 'trained' 'expert' 'master') as |rank|}}
       <div class="skill-column">
-        <h3>{{capitalize rank}} [ <span class="point-count" data-rank="{{rank}}">0</span> ]</h3>
+        <h3 class="remaining-points">{{capitalize rank}} [ <span data-rank="{{rank}}">0</span> ]</h3>
         <div class="pill-list">
           {{#each ../sortedSkills}}
             {{#if (eq this.system.rank rank)}}
