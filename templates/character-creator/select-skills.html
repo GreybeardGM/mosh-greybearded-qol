@@ -1,6 +1,6 @@
 <section class="greybeardqol skill-selection">
   <!-- Top: OR options as cards -->
-  <div class="or-option-row">
+  <div class="or-option-row card-grid" style="--col-count: {{orOptions.length}};">
     {{#each orOptions}}
       <div class="card or-option" data-option="{{this.id}}">
         <h4>{{this.name}}</h4>
@@ -27,7 +27,7 @@
                 data-uuid="{{this.uuid}}"
                 data-skill-id="{{this.id}}"
                 title="{{stripHtml this.system.description}}">
-                <img src="{{this.img}}" alt="{{this.name}}" />
+                <img src="{{this.img}}" alt="{{this.name}}" style="max-width: 3em; max-height: 3em;" />
                 <span>{{this.name}}</span>
               </div>
             {{/if}}
