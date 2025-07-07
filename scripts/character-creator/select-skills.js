@@ -8,7 +8,7 @@ export async function selectSkills(actor, selectedClass) {
   function drawCurvedPath(fromEl, toEl, svg) {
     const rect1 = fromEl.getBoundingClientRect();
     const rect2 = toEl.getBoundingClientRect();
-    const parentRect = svg.parentElement.getBoundingClientRect();
+    const parentRect = svg.closest(".skill-selection")?.getBoundingClientRect() ?? svg.parentElement.getBoundingClientRect();
     const x1 = rect1.left + rect1.width;
     const y1 = rect1.top + rect1.height / 2;
     const x2 = rect2.left;
