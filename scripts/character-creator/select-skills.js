@@ -87,7 +87,7 @@ export async function selectSkills(actor, selectedClass) {
         confirm: {
           label: "Confirm",
           callback: (html) => {
-            (async () => {
+            const doResolve = async () => {
               const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
           
               const selectedItems = await Promise.all(
@@ -106,7 +106,9 @@ export async function selectSkills(actor, selectedClass) {
               }
           
               resolve(validItems.length > 0 ? validItems : null);
-            })();
+            };
+          
+            doResolve(); // do not await here — just call it
           }
         }
       },
