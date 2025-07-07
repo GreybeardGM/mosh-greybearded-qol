@@ -83,35 +83,7 @@ export async function selectSkills(actor, selectedClass) {
     const dlg = new Dialog({
       title: `Select Skills for ${actor.name}`,
       content: html,
-      buttons: {
-        confirm: {
-          label: "Confirm",
-          callback: (html) => {
-            const doResolve = async () => {
-              const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
-          
-              const selectedItems = await Promise.all(
-                selectedUUIDs.map(async uuid => {
-                  const item = await fromUuid(uuid);
-                  if (!item || item.type !== "skill") return null;
-                  const itemData = item.toObject();
-                  delete itemData._id;
-                  return itemData;
-                })
-              );
-          
-              const validItems = selectedItems.filter(i => i);
-              if (validItems.length > 0) {
-                await actor.createEmbeddedDocuments("Item", validItems);
-              }
-          
-              resolve(validItems.length > 0 ? validItems : null);
-            };
-          
-            doResolve(); // do not await here — just call it
-          }
-        }
-      },
+      buttons: {},
       close: () => resolve(null),
       render: (html) => {
         html.closest('.app').css({ width: '1200px', maxWidth: '95vw', margin: '0 auto' });
@@ -125,7 +97,7 @@ export async function selectSkills(actor, selectedClass) {
           });
 
           const remaining = Object.values(points).reduce((a, b) => a + b, 0);
-          html.find("button:contains('Confirm')").prop("disabled", remaining > 0);
+          html.find(".confirm-button").toggleClass("locked", remaining > 0);
         };
 
         html.find(".skill-card").on("click", function () {
@@ -156,6 +128,28 @@ export async function selectSkills(actor, selectedClass) {
 
           html.find(".skill-card.selected").removeClass("selected");
           updateUI();
+        });
+
+        html.find(".confirm-button").on("click", async function () {
+          const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
+
+          const selectedItems = await Promise.all(
+            selectedUUIDs.map(async uuid => {
+              const item = await fromUuid(uuid);
+              if (!item || item.type !== "skill") return null;
+              const itemData = item.toObject();
+              delete itemData._id;
+              return itemData;
+            })
+          );
+
+          const validItems = selectedItems.filter(i => i);
+          if (validItems.length > 0) {
+            await actor.createEmbeddedDocuments("Item", validItems);
+          }
+
+          dlg.close();
+          resolve(validItems.length > 0 ? validItems : null);
         });
 
         updateUI();
