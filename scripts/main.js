@@ -12,7 +12,15 @@ let StashSheet;
 // Register all the stuff
 Hooks.once("ready", () => {
   
+  Handlebars.registerHelper("eq", (a, b) => a === b);  
+  Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
   Handlebars.registerHelper("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
+  Handlebars.registerHelper("includes", (array, value) => {
+    return Array.isArray(array) && array.includes(value);
+  });  
+  Handlebars.registerHelper("stripHtml", (text) => {
+    return typeof text === "string" ? text.replace(/<[^>]*>/g, "").trim() : "";
+  });
   
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
