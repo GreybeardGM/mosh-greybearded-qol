@@ -159,16 +159,26 @@ export async function selectSkills(actor, selectedClass) {
 
           const rank = this.dataset.rank;
           if (this.classList.contains("selected")) {
-            // ⛔ Blockiere, wenn ein ausgewählter Skill davon abhängt
             const dependents = dependencies.get(skillId) || new Set();
             for (const depId of dependents) {
-              const el = html[0].querySelector(`[data-skill-id="${depId}"]`);
-              if (el?.classList.contains("selected")) {
-                ui.notifications.warn("That skill is required by another skill you've selected.");
+              const depEl = html[0].querySelector(`[data-skill-id="${depId}"]`);
+              if (!depEl?.classList.contains("selected")) continue;
+            
+              // Prüfe, wie viele Prereqs dieser abhängige Skill noch erfüllt hat
+              const depSkill = skillMap.get(depId);
+              const depPrereqs = (depSkill.system.prerequisite_ids || []).map(p => p.split(".").pop());
+            
+              const fulfilled = depPrereqs.filter(prereqId => {
+                if (prereqId === skillId) return false; // ← wir entfernen genau dieses hier gerade
+                const el = html[0].querySelector(`[data-skill-id="${prereqId}"]`);
+                return el?.classList.contains("selected");
+              });
+            
+              if (fulfilled.length === 0) {
+                ui.notifications.warn(`${depSkill.name} needs this skill to remain selected.`);
                 return;
               }
             }
-          
             this.classList.remove("selected");
             points[rank]++;
           } else {
