@@ -8,20 +8,24 @@ export async function selectSkills(actor, selectedClass) {
   function drawCurvedPath(fromEl, toEl, svg) {
     const rect1 = fromEl.getBoundingClientRect();
     const rect2 = toEl.getBoundingClientRect();
-    const parentRect = svg.closest(".skill-selection")?.getBoundingClientRect() ?? svg.parentElement.getBoundingClientRect();
+    const parentRect = svg.getBoundingClientRect();
+  
     const x1 = rect1.left + rect1.width;
     const y1 = rect1.top + rect1.height / 2;
     const x2 = rect2.left;
     const y2 = rect2.top + rect2.height / 2;
+  
     const relX1 = x1 - parentRect.left;
     const relY1 = y1 - parentRect.top;
     const relX2 = x2 - parentRect.left;
     const relY2 = y2 - parentRect.top;
+  
     const deltaX = Math.abs(relX2 - relX1) / 2;
     const c1x = relX1 + deltaX;
     const c1y = relY1;
     const c2x = relX2 - deltaX;
     const c2y = relY2;
+  
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`);
     path.setAttribute("fill", "none");
