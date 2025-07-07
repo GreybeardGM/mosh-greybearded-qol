@@ -169,7 +169,6 @@ export async function selectSkills(actor, selectedClass) {
               const depPrereqs = (depSkill.system.prerequisite_ids || []).map(p => p.split(".").pop());
             
               const fulfilled = depPrereqs.filter(prereqId => {
-                if (prereqId === skillId) return false; // ← wir entfernen genau dieses hier gerade
                 const el = html[0].querySelector(`[data-skill-id="${prereqId}"]`);
                 return el?.classList.contains("selected");
               });
