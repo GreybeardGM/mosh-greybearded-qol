@@ -40,7 +40,7 @@ export async function showStressConversionDialog(actor, points) {
           html.find("#remaining").text(points - assigned);
 
           const confirmBtn = html.find("#confirm-button")
-          confirmBtn.prop("disabled", assigned !== points);
+          confirmBtn.prop("locked", assigned !== points);
         };
 
         html.find(".card").on("click", function () {
@@ -64,7 +64,7 @@ export async function showStressConversionDialog(actor, points) {
         // Ensure confirm button is disabled at start
         html.find('button:contains("Confirm")')
           .attr("id", "confirm-button")
-          .prop("disabled", true);
+          .prop("locked", true);
 
         updateUI();
       }
