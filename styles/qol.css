@@ -46,6 +46,25 @@
   object-fit: contain;
 }
 
+.greybeardqol .confirm-button {
+  width: 50%;
+  margin: 1.5em auto 0;
+  text-align: center;
+  justify-content: center;
+  color: var(--color-text);
+  font-weight: bold;
+  font-size: 1.2em;
+  box-shadow: 0 0 10px var(--color-highlight);
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-highlight);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.greybeardqol .confirm-button:hover:not(.locked) {
+  transform: scale(1.02);
+  box-shadow: 0 0 14px var(--color-highlight);
+}
+
 /* Generic card */
 .greybeardqol .card {
   background-color: var(--color-bg);
