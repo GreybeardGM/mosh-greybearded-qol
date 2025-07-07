@@ -21,10 +21,6 @@
         <div class="pill-list">
           {{#each ../sortedSkills}}
             {{#if (eq this.system.rank rank)}}
-{{log ../../granted}}
-{{log this._id}}
-{{#if (includes ../../granted this._id)}}MATCH{{else}}NOPE{{/if}}
-
               <div class="pill skill-card 
                  {{#if (includes ../../granted this._id)}}default-skill selected locked{{/if}}"
                 data-rank="{{this.system.rank}}"
