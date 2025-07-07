@@ -141,9 +141,10 @@ export async function selectSkills(actor, selectedClass) {
         });
 
         html.find(".confirm-button").on("click", async function () {
-          const selectedUUIDs = html.find(".skill-card[data-uuid]").filter(function () {
-            return this.classList.contains("selected");
-          });
+          const selectedUUIDs = html.find(".skill-card[data-uuid]").toArray()
+            .filter(el => el.classList.contains("selected"))
+            .map(el => el.dataset.uuid);
+
         
           const selectedItems = await Promise.all(
             selectedUUIDs.map(async uuid => {
