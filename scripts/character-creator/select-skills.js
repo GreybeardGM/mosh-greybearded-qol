@@ -136,10 +136,13 @@ export async function selectSkills(actor, selectedClass) {
               this.classList.remove("selected");
             }
           });
+          // ✨ Unlock alle nicht-prerequisite-gesperrten trained-Skills, falls Punkte frei
+          if (points.trained > 0) {
+            html.find(`.skill-card[data-rank="trained"].locked:not(.default-skill)`).removeClass("locked");
+          }
 
           ["trained", "expert", "master"].forEach(rank => {
             if (points[rank] > 0) return; // Noch Punkte übrig → alles ok
-          
             html.find(`.skill-card[data-rank="${rank}"]:not(.selected):not(.locked):not(.default-skill)`)
                 .addClass("locked");
           });
