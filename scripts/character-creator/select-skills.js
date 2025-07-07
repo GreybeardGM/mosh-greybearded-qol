@@ -142,6 +142,12 @@ export async function selectSkills(actor, selectedClass) {
       },
       close: () => resolve(null),
       render: (html) => {
+        html.closest('.app').css({
+          width: '1200px',
+          maxWidth: '95vw',
+          margin: '0 auto'
+        });
+
         const points = structuredClone(basePoints);
 
         const updateUI = () => {
