@@ -34,6 +34,18 @@ export async function selectSkills(actor, selectedClass) {
     return html.replace(/<[^>]*>/g, '').trim();
   }
 
+  function getSkillDependencies(skills) {
+    const map = new Map(); // prereqId → Set of dependentIds
+    for (const skill of skills) {
+      for (const prereq of skill.system.prerequisite_ids || []) {
+        const prereqId = prereq.split(".").pop();
+        if (!map.has(prereqId)) map.set(prereqId, new Set());
+        map.get(prereqId).add(skill.id);
+      }
+    }
+    return map;
+  }
+  
   const compendiumSkills = await game.packs.get('fvtt_mosh_1e_psg.items_skills_1e')?.getDocuments() ?? [];
   const worldSkills = game.items.filter(item => item.type === 'skill');
   const allSkills = [...worldSkills, ...compendiumSkills].map(skill => {
@@ -45,9 +57,12 @@ export async function selectSkills(actor, selectedClass) {
   for (const skill of allSkills) {
     skillMap.set(skill.id, skill);
   }
+  
+  const dependencies = getSkillDependencies(allSkills);
 
   const sortOrder = getSkillSortOrder();
   const sortedSkills = allSkills.sort((a, b) => sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name));
+
 
   const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
   const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
@@ -98,6 +113,30 @@ export async function selectSkills(actor, selectedClass) {
         }
 
         const points = structuredClone(basePoints);
+        
+        const updateSkillAvailability = () => {
+          const selectedSkills = new Set(
+            html.find(".skill-card.selected").map((_, el) => el.dataset.skillId)
+          );
+        
+          html.find(".skill-card").not(".default-skill").each(function () {
+            const skillId = this.dataset.skillId;
+            const rank = this.dataset.rank;
+            if (rank === "trained") return;
+        
+            const skill = skillMap.get(skillId);
+            const prereqs = (skill?.system?.prerequisite_ids || []).map(p => p.split(".").pop());
+        
+            const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkills.has(id));
+        
+            if (unlocked) {
+              this.classList.remove("locked");
+            } else {
+              this.classList.add("locked");
+              this.classList.remove("selected");
+            }
+          });
+        };
 
         const updateUI = () => {
           html.find(".point-count").each(function () {
@@ -111,6 +150,8 @@ export async function selectSkills(actor, selectedClass) {
         
           const allowConfirm = remaining === 0 && orSelected;
           html.find(".confirm-button").toggleClass("locked", !allowConfirm);
+
+          updateSkillAvailability();
         };
 
         html.find(".skill-card").on("click", function () {
@@ -118,6 +159,16 @@ export async function selectSkills(actor, selectedClass) {
 
           const rank = this.dataset.rank;
           if (this.classList.contains("selected")) {
+            // ⛔ Blockiere, wenn ein ausgewählter Skill davon abhängt
+            const dependents = dependencies.get(skillId) || new Set();
+            for (const depId of dependents) {
+              const el = html[0].querySelector(`[data-skill-id="${depId}"]`);
+              if (el?.classList.contains("selected")) {
+                ui.notifications.warn("That skill is required by another skill you've selected.");
+                return;
+              }
+            }
+          
             this.classList.remove("selected");
             points[rank]++;
           } else {
