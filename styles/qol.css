@@ -116,6 +116,13 @@
   background-color: var(--color-bg-hover);
 }
 
+.greybeardqol .pill img {
+  width: 3em;
+  height: 3em;
+  object-fit: contain;
+  margin-right: 0.5em;
+}
+
 /* Pill list layout */
 .greybeardqol .pill-list {
   margin-top: 0.5em;
@@ -194,4 +201,11 @@
   font-size: 0.9em;
   font-style: italic;
   overflow: hidden;
+}
+
+.greybeardqol .skill-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4em;
+  margin-top: 1em;
 }
