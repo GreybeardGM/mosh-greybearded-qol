@@ -159,27 +159,32 @@ export async function selectSkills(actor, selectedClass) {
 
           const rank = this.dataset.rank;
           if (this.classList.contains("selected")) {
+            const skillId = this.dataset.skillId;
             const dependents = dependencies.get(skillId) || new Set();
+          
             for (const depId of dependents) {
               const depEl = html[0].querySelector(`[data-skill-id="${depId}"]`);
               if (!depEl?.classList.contains("selected")) continue;
-            
-              // Prüfe, wie viele Prereqs dieser abhängige Skill noch erfüllt hat
+          
               const depSkill = skillMap.get(depId);
               const depPrereqs = (depSkill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-            
-              const fulfilled = depPrereqs.filter(prereqId => {
-                const el = html[0].querySelector(`[data-skill-id="${prereqId}"]`);
+          
+              const fulfilled = depPrereqs.filter(pid => {
+                if (pid === skillId) return false; // gerade ausgewählter Skill fällt weg
+                const el = html[0].querySelector(`[data-skill-id="${pid}"]`);
                 return el?.classList.contains("selected");
               });
-            
+          
               if (fulfilled.length === 0) {
                 ui.notifications.warn(`${depSkill.name} needs this skill to remain selected.`);
                 return;
               }
             }
+          
             this.classList.remove("selected");
             points[rank]++;
+            updateUI();
+            return;
           } else {
             if (points[rank] <= 0) return;
             this.classList.add("selected");
