@@ -21,7 +21,7 @@
         <div class="pill-list">
           {{#each ../sortedSkills}}
             {{#if (eq this.system.rank rank)}}
-{{log ../granted}}
+{{log ../../granted}}
 {{log this._id}}
               <div class="pill skill-card 
                  {{#if (includes ../granted this._id)}}default-skill selected locked{{/if}}"
