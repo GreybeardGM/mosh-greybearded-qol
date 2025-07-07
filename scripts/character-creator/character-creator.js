@@ -2,6 +2,7 @@ import { chatOutput } from "../utils/chat-output.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 import { selectClass } from "./select-class.js";
 import { selectAttributes } from "./select-attributes.js";
+import { selectSkills } from "./select-skills.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
@@ -179,9 +180,14 @@ export async function startCharacterCreation(actor) {
     await completeStep(actor, "rolledHealth");
   }
 
+  // ✅ Step 7: Skill selection
+  if (!checkStep(actor, "selectedSkills")) {
+    const adjustments = await selectSkills(actor, selectedClass);
+    if (!adjustments) return ui.notifications.warn("Skill seletion cancelled.");
+    await completeStep(actor, "selectedSkills");
+  }
   
   // Placeholder for next steps
-  console.log("\u{1F4DA} TODO: Choose skills...");
   console.log("\u{1F4B0} TODO: Roll loadout & credits...");
 
   // ✅ Final Step: Mark character creation as completed
