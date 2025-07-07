@@ -1,3 +1,5 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
+
 export async function selectSkills(actor, selectedClass) {
   function getSkillSortOrder() {
     return ["Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging", "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology", "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine", "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking", "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat", "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics", "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"];
@@ -71,6 +73,7 @@ export async function selectSkills(actor, selectedClass) {
   });
 
   const html = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-skills.html", {
+    themeColor: getThemeColor(),
     actor,
     selectedClass,
     sortedSkills,
@@ -84,7 +87,10 @@ export async function selectSkills(actor, selectedClass) {
       title: `Select Skills for ${actor.name}`,
       content: html,
       buttons: {},
-      close: () => resolve(null),
+      close: () => {
+        console.log("Das warst wohl nicht!");
+        resolve(null);
+      },
       render: (html) => {
         html.closest('.app').css({ width: '1200px', maxWidth: '95vw', margin: '0 auto' });
 
