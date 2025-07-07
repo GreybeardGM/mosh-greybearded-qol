@@ -79,9 +79,13 @@ export async function selectSkills(actor, selectedClass) {
   }
 
   // 📦 Skill loading
+
   const compendiumSkills = await game.packs.get('fvtt_mosh_1e_psg.items_skills_1e')?.getDocuments() ?? [];
   const worldSkills = game.items.filter(item => item.type === 'skill');
-  const allSkills = [...worldSkills, ...compendiumSkills];
+  const allSkills = [...worldSkills, ...compendiumSkills].map(skill => {
+    skill.system.rank = skill.system.rank?.toLowerCase();
+    return skill;
+  });
 
   const skillMap = new Map();
   for (const skill of allSkills) {
@@ -114,7 +118,7 @@ export async function selectSkills(actor, selectedClass) {
     };
   });
 
-  const html = await renderTemplate("modules/mosh-greybearded-qol/templates//character-creator/select-skills.html", {
+  const html = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-skills.html", {
     actor,
     selectedClass,
     sortedSkills,
