@@ -86,29 +86,27 @@ export async function selectSkills(actor, selectedClass) {
       buttons: {
         confirm: {
           label: "Confirm",
-          callback: async (html) => {
-            const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
-
-            const selectedItems = await Promise.all(
-              selectedUUIDs.map(async uuid => {
-                const item = await fromUuid(uuid);
-                if (!item || item.type !== "skill") return null;
-                const itemData = item.toObject();
-                delete itemData._id;
-                return itemData;
-              })
-            );
-
-            const validItems = selectedItems.filter(i => i);
-            if (validItems.length > 0) {
-              await actor.createEmbeddedDocuments("Item", validItems);
-            }
-            console.log(validItems);
-            if (Array.isArray(validItems) && validItems.length > 0) {
-              resolve(validItems);
-            } else {
-              resolve(null);
-            }
+          callback: (html) => {
+            (async () => {
+              const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
+          
+              const selectedItems = await Promise.all(
+                selectedUUIDs.map(async uuid => {
+                  const item = await fromUuid(uuid);
+                  if (!item || item.type !== "skill") return null;
+                  const itemData = item.toObject();
+                  delete itemData._id;
+                  return itemData;
+                })
+              );
+          
+              const validItems = selectedItems.filter(i => i);
+              if (validItems.length > 0) {
+                await actor.createEmbeddedDocuments("Item", validItems);
+              }
+          
+              resolve(validItems.length > 0 ? validItems : null);
+            })();
           }
         }
       },
