@@ -9,26 +9,14 @@ export async function showStressConversionDialog(actor, points) {
     };
     const values = structuredClone(base);
 
-    const themeColor = getThemeColor();
-    const html = await renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", {themeColor});
+    const html = await renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", { 
+      themeColor :getThemeColor()
+    });
+
     const dlg = new Dialog({
       title: "Distribute Stress Conversion",
       content: html,
-      buttons: {
-        confirm: {
-          icon: "<i class=\"fas fa-check\"></i>",
-          label: "Confirm",
-          callback: async (html) => {
-            resolve(values);
-          }
-        },
-        cancel: {
-          icon: "<i class=\"fas fa-times\"></i>",
-          label: "Cancel",
-          callback: () => resolve(null)
-        }
-      },
-      default: "confirm",
+      buttons: {}, // No standard buttons
       close: () => resolve(null),
       render: (html) => {
         const updateUI = () => {
@@ -39,8 +27,8 @@ export async function showStressConversionDialog(actor, points) {
           const assigned = values.sanity + values.fear + values.body - base.sanity - base.fear - base.body;
           html.find("#remaining").text(points - assigned);
 
-          const confirmBtn = html.find("#confirm-button")
-          confirmBtn.prop("locked", assigned !== points);
+          const confirmBtn = html.find("#confirm-button");
+          confirmBtn.toggleClass("locked", assigned !== points);
         };
 
         html.find(".card").on("click", function () {
@@ -61,10 +49,13 @@ export async function showStressConversionDialog(actor, points) {
           }
         });
 
-        // Ensure confirm button is disabled at start
-        html.find('button:contains("Confirm")')
-          .attr("id", "confirm-button")
-          .prop("locked", true);
+        // Confirm button handler
+        html.find("#confirm-button").on("click", function () {
+          if (!$(this).hasClass("locked")) {
+            dlg.close();
+            resolve(values);
+          }
+        });
 
         updateUI();
       }
