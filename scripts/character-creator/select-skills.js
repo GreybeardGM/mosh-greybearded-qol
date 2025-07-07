@@ -142,6 +142,7 @@ export async function selectSkills(actor, selectedClass) {
 
         html.find(".confirm-button").on("click", async function () {
           const selectedUUIDs = html.find(".skill-card.selected[data-uuid]").toArray().map(el => el.dataset.uuid);
+console.log("UUIDs:", selectedUUIDs);
 
           const selectedItems = await Promise.all(
             selectedUUIDs.map(async uuid => {
