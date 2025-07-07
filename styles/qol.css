@@ -18,9 +18,7 @@
 
 /* Grey-out or Highlight */
 .greybeardqol .locked {
-  opacity: 0.4;
   pointer-events: none;
-  filter: grayscale(50%);
 }
 
 .greybeardqol .selected {
@@ -35,6 +33,16 @@
   right: 10px;
   font-size: 1.4em;
   color: var(--color-highlight);
+}
+
+.greybeardqol .locked.selected::after {
+  content: "🔒";
+  border-style: dotted;
+}
+
+.greybeardqol .skill-card.locked:not(.selected) {
+  opacity: 0.4;
+  filter: grayscale(100%);
 }
 
 /* Icon/Image resizing */
