@@ -141,6 +141,10 @@ export async function selectSkills(actor, selectedClass) {
         });
 
         html.find(".confirm-button").on("click", async function () {
+const debug = html.find(".skill-card.default-skill.selected.locked[data-uuid]").toArray();
+console.log("GRANTED IN DOM:", debug.map(el => el.dataset.uuid));
+
+          
           const selectedUUIDs = html.find(".skill-card[data-uuid]").toArray()
             .filter(el => el.classList.contains("selected"))
             .map(el => el.dataset.uuid);
