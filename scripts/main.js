@@ -9,7 +9,7 @@ import {
   checkReady,
   checkCompleted,
   setReady,
-  setComplete,
+  setCompleted,
   reset
 } from "./character-creator/progress.js";
 
@@ -122,7 +122,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
       callback: li => {
         const actor = game.actors.get(li.data("documentId"));
         if (!actor) return;
-        setComplete(actor);
+        setCompleted(actor);
         ui.notifications.info(`Character marked completed: ${actor.name}`);
       }
     }
