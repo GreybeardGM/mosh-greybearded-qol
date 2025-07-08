@@ -58,8 +58,19 @@ function ensureContrast(color, reference = "#111", minRatio = 4.5) {
 }
 
 function hexToRgb(hex) {
-  const m = hex.trim().match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
-  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : null;
+  // Erweitert auch kurze HEX wie "#111" zu "#111111"
+  hex = hex.trim().replace(/^#/, "");
+  if (hex.length === 3) {
+    hex = hex.split("").map(c => c + c).join("");
+  }
+
+  if (hex.length !== 6) return null;
+
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  return [r, g, b];
 }
 
 function rgbToHex([r, g, b]) {
