@@ -10,10 +10,8 @@ export function getThemeColor() {
   // 3. Spielerfarbe (Pixi-Zahl) in HEX umwandeln
   const userColor = game.user?.color;
   const colorNum = Number(userColor);
-  console.log("userColor (raw):", userColor);
   if (!isNaN(colorNum)) {
     const hex = "#" + colorNum.toString(16).padStart(6, "0");
-    console.log("hex from userColor:", hex);
     if (isValidCssColor(hex)) return ensureContrast(hex, "#111");
   }
 
@@ -33,18 +31,15 @@ function ensureContrast(color, reference = "#111", minRatio = 4.5) {
   const rgb = hexToRgb(color);
   const refRgb = hexToRgb(reference);
   if (!rgb || !refRgb) {
-    console.warn("❌ Invalid color inputs", { color, reference });
     return color;
   }
 
   let ratio = contrastRatio(rgb, refRgb);
-  console.log("🔍 Initial contrast:", ratio);
 
   let factor = 0.1;
   while (ratio < minRatio && factor <= 1.0) {
     const brightened = brightenColor(rgb, factor);
     const newRatio = contrastRatio(brightened, refRgb);
-    console.log(`→ Brighten +${Math.round(factor * 100)}% = contrast ${newRatio}`);
     if (newRatio > ratio) {
       rgb.splice(0, 3, ...brightened); // mutate
       ratio = newRatio;
@@ -53,7 +48,7 @@ function ensureContrast(color, reference = "#111", minRatio = 4.5) {
   }
 
   const result = rgbToHex(rgb);
-  console.log("✅ Final color:", result);
+  console.log("🎨 [MoSh QoL] brightness adjusted:", result);
   return result;
 }
 
