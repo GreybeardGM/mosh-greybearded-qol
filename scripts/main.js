@@ -159,34 +159,6 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false
   });
-
-  // Replace Character Creator
-  if (game.settings.get("mosh-greybearded-qol", "enableCharacterCreator")) {
-    const cls = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"]?.cls;
-    if (!cls || !cls.prototype._getHeaderButtons) return;
-    
-    const original = cls.prototype._getHeaderButtons;
-    
-    cls.prototype._getHeaderButtons = function (...args) {
-      const buttons = original.call(this, ...args);
-    
-      const filtered = buttons.filter(b =>
-        !["character-creation", "create-char"].includes(b.class || "") &&
-        !(b.icon === "fas fa-user-cog" && b.label?.toLowerCase().includes("character"))
-      );
-    
-      if (this.actor?.type === "character" && game.user.isGM) {
-        filtered.push({
-          class: "character-creator",
-          label: "Create Character",
-          icon: "fas fa-user-astronaut",
-          onclick: () => game.moshGreybeardQol.startCharacterCreation(this.actor)
-        });
-      }
-    
-      return filtered;
-    };
-  }
 });
 
 // Chat actions
@@ -281,3 +253,26 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   }
 });
 
+// Remove Default Character Creator
+Hooks.once("ready", () => {
+  const actor = game.actors.find(a => a.type === "character");
+  if (!actor) return console.warn("MoSh QoL: No character found.");
+
+  const sheetClass = actor.sheet.constructor;
+
+  if (!sheetClass.prototype._getHeaderButtons) {
+    console.warn(`MoSh QoL: ${sheetClass.name} has no _getHeaderButtons method.`);
+    return;
+  }
+
+  const original = sheetClass.prototype._getHeaderButtons;
+
+  sheetClass.prototype._getHeaderButtons = function (...args) {
+    const buttons = original.call(this, ...args);
+    return buttons.filter(
+      (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
+    );
+  };
+
+  console.log(`[MoSh QoL] _getHeaderButtons removed from ${sheetClass.name}.`);
+});
