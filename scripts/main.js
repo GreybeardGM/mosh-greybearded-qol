@@ -40,6 +40,13 @@ Hooks.once("ready", () => {
     label: "Stash Sheet",
     makeDefault: false
   });
+  
+  // Debug Check
+  console.log("✅ MoSh Greybearded QoL loaded");  
+});
+
+// Settings
+Hooks.once("init", () => {
 
   // Replace Character Creator
   if (game.settings.get("mosh-greybearded-qol", "enableCharacterCreator")) {
@@ -74,12 +81,6 @@ Hooks.once("ready", () => {
     };
   }
   
-  // Debug Check
-  console.log("✅ MoSh Greybearded QoL loaded");  
-});
-
-// Settings
-Hooks.once("init", () => {
   // Theme Colors
   game.settings.register("mosh-greybearded-qol", "themeColor", {
     name: "Theme Color",
