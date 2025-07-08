@@ -257,15 +257,16 @@ export async function startCharacterCreation(actor) {
   
         const cleanText = result.text?.replace(/<br\s*\/?>/gi, " ").replace(/@UUID\[[^\]]+\]/g, "").trim();
         if (cleanText) {
-          itemsToCreate.push({
+          const item = {
             name: cleanText,
             type: "item",
             img: DEFAULT_IMAGES.Loadout,
             system: {},
             effects: [],
             flags: {}
-          });
-          allLoot.Items.push(cleanText);
+          };
+          itemsToCreate.push(item);
+          allLoot.Items.push({ name: item.name, img: item.img });
         }
       }
     }
