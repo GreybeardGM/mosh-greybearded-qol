@@ -10,6 +10,32 @@ import { checkReady, checkCompleted, setReady } from "./character-creator/progre
 // Needs to be here to check for
 let StashSheet;
 
+/**
+ * Fügt einen Button in die Actor Sheet Header-Leiste ein.
+ * @param {HTMLElement} titleElem - Der DOM-Knoten mit der Fensterüberschrift
+ * @param {string} className - Zusätzliche Klasse für den Button
+ * @param {string} iconClass - FontAwesome-Icon-Klasse (ohne "fas")
+ * @param {string} label - Der Text des Buttons
+ * @param {string} color - Die Hauptfarbe für Text und Schatten
+ * @param {Function} callback - Eventhandler bei Klick
+ */
+function insertHeaderButton(titleElem, className, iconClass, label, color, callback) {
+  const button = document.createElement("a");
+  button.classList.add("header-button", className);
+  button.innerHTML = `<i class="fas ${iconClass}"></i> ${label}`;
+
+  Object.assign(button.style, {
+    cursor: "pointer",
+    padding: "0 6px",
+    color,
+    fontWeight: "bold",
+    textShadow: `0 0 2px ${color}88`
+  });
+
+  button.addEventListener("click", callback);
+  titleElem.insertAdjacentElement("afterend", button);
+}
+
 // Register all the stuff
 Hooks.once("ready", () => {
   
@@ -210,24 +236,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   ) {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
     if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
-  
-    const button = document.createElement("a");
-    button.classList.add("header-button", "ship-crit");
-    button.innerHTML = `<i class="fas fa-explosion"></i> Crit`;
-  
-    Object.assign(button.style, {
-      cursor: "pointer",
-      padding: "0 6px",
-      color: "#f50",
-      fontWeight: "bold",
-      textShadow: "0 0 2px rgba(255,85,0,0.5)"
-    });
-  
-    button.addEventListener("click", () => {
-      game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
-    });
-  
-    titleElem.insertAdjacentElement("afterend", button);
+    insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50", () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid));
   }
 
   if (actor?.type === "character") {
@@ -243,45 +252,21 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   
     if (isCreatorEnabled && isReady) {
       // Ersetze durch Character-Reset-Button
-      const button = document.createElement("a");
-      button.classList.add("header-button", "create-character");
-      button.innerHTML = `<i class="fas fa-dice-d20"></i> Roll Character`;
-  
-      Object.assign(button.style, {
-        cursor: "pointer",
-        padding: "0 6px",
-        color: "#5f0",
-        fontWeight: "bold",
-        textShadow: "0 0 2px rgba(85,255,0,0.5)"
-      });
-  
-      button.addEventListener("click", () => {
-        game.moshGreybeardQol.startCharacterCreation(actor);
-      });
-  
-      titleElem.insertAdjacentElement("afterend", button);
+      insertHeaderButton(titleElem, "create-character", "fa-dice-d20", "Roll Character", "#5f0", () => game.moshGreybeardQol.startCharacterCreation(actor));
     } else {
       // Standard ShoreLeave-Button einfügen
-      const button = document.createElement("a");
-      button.classList.add("header-button", "simple-shoreleave");
-      button.innerHTML = `<i class="fas fa-umbrella-beach"></i> Shore Leave`;
+      insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf", () => game.moshGreybeardQol.simpleShoreLeave(actor));
+    }
+
+    if (!isCreatorEnabled) return;
   
-      Object.assign(button.style, {
-        cursor: "pointer",
-        padding: "0 6px",
-        color: "#3cf",
-        fontWeight: "bold",
-        textShadow: "0 0 2px rgba(0,255,255,0.5)"
-      });
-  
-      button.addEventListener("click", () => {
-        game.moshGreybeardQol.simpleShoreLeave(actor);
-      });
-  
-      titleElem.insertAdjacentElement("afterend", button);
+    // Button finden und verstecken
+    const oldCreatorButton = html[0].querySelector(".configure-actor");
+    if (oldCreatorButton) {
+      oldCreatorButton.style.display = "none";
+      console.log("[MoSh QoL] Configure-Button hidden");
     }
   }
-
 });
 
 // Prepare fesh characters for Character Creation
@@ -294,6 +279,7 @@ Hooks.on("createActor", async (actor, options, userId) => {
   console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
 });
 
+/*
 // Remove Default Character Creator
 Hooks.once("ready", () => {
   const actor = game.actors.find(a => a.type === "character");
@@ -317,3 +303,4 @@ Hooks.once("ready", () => {
 
   console.log(`[MoSh QoL] _getHeaderButtons removed from ${sheetClass.name}.`);
 });
+*/
