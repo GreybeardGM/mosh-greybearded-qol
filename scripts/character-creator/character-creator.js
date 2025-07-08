@@ -207,7 +207,7 @@ export async function startCharacterCreation(actor) {
     await completeStep(actor, "selectedSkills");
   }
 
-  // ✅ Step 8: Roll Loadout + Trinkets + Patches + Credits
+  // ✅ Step 8: Roll Loadout + Patches + Trinkets + Credits
   if (!checkStep(actor, "rolledLoadout")) {
     const DEFAULT_IMAGES = {
       Loadout: "modules/fvtt_mosh_1e_psg/icons/rolltables/loadouts.png",
@@ -218,16 +218,17 @@ export async function startCharacterCreation(actor) {
     const classItem = await fromUuid(actor.system.class?.uuid);
     if (!classItem) return ui.notifications.error("Could not load class item for loadout.");
   
-    const tableUUIDs = [
-      classItem.system.roll_tables?.loadout,
-      classItem.system.roll_tables?.patch,
-      classItem.system.roll_tables?.trinket
-    ].filter(Boolean);
+    // 🔍 Tabelle mit zugeordneter Kategorie (damit wir das Bild kennen!)
+    const tableInfo = [
+      { uuid: classItem.system.roll_tables?.loadout, category: "Loadout" },
+      { uuid: classItem.system.roll_tables?.patch, category: "Patches" },
+      { uuid: classItem.system.roll_tables?.trinket, category: "Trinkets" }
+    ].filter(t => !!t.uuid);
   
     const allLoot = { Weapons: [], Armor: [], Items: [] };
     const itemsToCreate = [];
   
-    for (const uuid of tableUUIDs) {
+    for (const { uuid, category } of tableInfo) {
       const table = await fromUuid(uuid);
       if (!table) continue;
       const results = (await table.roll()).results;
@@ -255,27 +256,30 @@ export async function startCharacterCreation(actor) {
           continue;
         }
   
+        // 🧱 Fallback: reiner Text (kein Item verlinkt)
         const cleanText = result.text?.replace(/<br\s*\/?>/gi, " ").replace(/@UUID\[[^\]]+\]/g, "").trim();
         if (cleanText) {
-          const item = {
+          const fallbackItem = {
             name: cleanText,
             type: "item",
-            img: DEFAULT_IMAGES.Loadout,
+            img: DEFAULT_IMAGES[category] || DEFAULT_IMAGES.Loadout,
             system: {},
             effects: [],
             flags: {}
           };
-          itemsToCreate.push(item);
-          allLoot.Items.push({ name: item.name, img: item.img });
+          itemsToCreate.push(fallbackItem);
+          allLoot.Items.push({ name: fallbackItem.name, img: fallbackItem.img });
         }
       }
     }
   
-    // Add items to actor
-    if (itemsToCreate.length > 0) await actor.createEmbeddedDocuments("Item", itemsToCreate);
+    if (itemsToCreate.length > 0) {
+      await actor.createEmbeddedDocuments("Item", itemsToCreate);
+    }
   
     // 🎲 Starting credits
-    const creditRoll = await new Roll("2d10 * 10").evaluate({ async: true });
+    const creditRoll = new Roll("2d10 * 10");
+    await creditRoll.evaluate();
     const startingCredits = creditRoll.total;
     await actor.update({ "system.credits.value": startingCredits });
   
@@ -285,7 +289,7 @@ export async function startCharacterCreation(actor) {
       if (items.length > 0) {
         lootSummary += `<u>${category}</u>`;
         lootSummary += items.map(i => `
-          <p><img src="${i.img || DEFAULT_IMAGES.Loadout}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
+          <p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
         `).join("");
       }
     }
