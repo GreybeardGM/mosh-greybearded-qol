@@ -23,9 +23,10 @@
     - e.g., no Sanity Save, no Stress Relief, etc.
 
 - 🎁 **Stash Sheet**
-  - Attach a Stash Sheet to any character
-  - Store items and credits without visual clutter
-
+  - A lightweight actor sheet type for storing items and credits
+  - Ideal for banks, lockers, or communal stashes
+  - No stats, no rolls – just storage
+ 
 - 🚀 **0e Ship Crits**
   - Add a button to trigger critical ship damage on demand
   - Escalate crits to the next level if needed
