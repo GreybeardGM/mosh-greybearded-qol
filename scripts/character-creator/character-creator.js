@@ -29,8 +29,48 @@ export async function startCharacterCreation(actor) {
     }
   }
 
-  // ✅ Step 1: WIP Check if Character is Ready
-  console.log("\u{1F4D6} Starting character creation for:", actor.name);
+  // ✅ Step 1: Check if actor is marked "ready"
+  if (!checkReady(actor)) {
+    const content = `
+      <p>No valid character creator data found for <strong>${actor.name}</strong>!</p>
+      <p>Proceeding might <strong><span style="color: #f55;">overwrite</span></strong> an existing character.</p>
+      <p>Please choose an action:</p>
+    `;
+  
+    const choice = await Dialog.wait({
+      title: "Character Creator: Warning",
+      content,
+      buttons: {
+        overwrite: {
+          label: "Overwrite",
+          icon: `<i class="fa fa-exclamation-triangle" style="color: #f50;"></i>`,
+          callback: () => "overwrite"
+        },
+        markComplete: {
+          label: "Mark Completed",
+          icon: `<i class="fa fa-check-circle" style="color: green;"></i>`,
+          callback: () => "complete"
+        },
+        cancel: {
+          label: "Cancel",
+          icon: `<i class="fa fa-times"></i>`,
+          callback: () => null
+        }
+      },
+      default: "cancel"
+    });
+  
+    if (choice === "cancel") {
+      ui.notifications.warn("Character creation cancelled.");
+      return;
+    } else if (choice === "complete") {
+      await setCompleted(actor, true);
+      ui.notifications.info(`${actor.name} has been marked as completed manually.`);
+      return;
+    } else if (choice === "overwrite") {
+      await setReady(actor, true); // mark as ready and proceed
+    }
+  }
 
   // ✅ Step 2: Clean slate – delete items
   if (!checkStep(actor, "preparation")) {
