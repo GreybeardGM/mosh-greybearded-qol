@@ -5,7 +5,14 @@ import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
-import { checkReady, checkCompleted, setReady } from "./character-creator/progress.js";
+import {
+  checkReady,
+  checkCompleted,
+  setReady,
+  setComplete,
+  reset
+} from "./character-creator/progress.js";
+
 
 // Needs to be here to check for
 let StashSheet;
@@ -70,6 +77,56 @@ Hooks.once("ready", () => {
   
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");  
+});
+
+Hooks.on("getActorDirectoryEntryContext", (html, options) => {
+  const enabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+  if (!enabled) return;
+
+  options.push(
+    {
+      name: "Reset Character Creator",
+      icon: '<i class="fas fa-undo"></i>',
+      condition: li => {
+        const actor = game.actors.get(li.data("documentId"));
+        return game.user.isGM && actor?.type === "character";
+      },
+      callback: li => {
+        const actor = game.actors.get(li.data("documentId"));
+        if (!actor) return;
+        reset(actor);
+        ui.notifications.info(`Character Creator progress reset for: ${actor.name}`);
+      }
+    },
+    {
+      name: "Mark Ready",
+      icon: '<i class="fas fa-check-circle"></i>',
+      condition: li => {
+        const actor = game.actors.get(li.data("documentId"));
+        return game.user.isGM && actor?.type === "character" && !checkCompleted(actor) && !checkReady(actor);
+      },
+      callback: li => {
+        const actor = game.actors.get(li.data("documentId"));
+        if (!actor) return;
+        setReady(actor);
+        ui.notifications.info(`Character marked ready: ${actor.name}`);
+      }
+    },
+    {
+      name: "Mark Complete",
+      icon: '<i class="fas fa-flag-checkered"></i>',
+      condition: li => {
+        const actor = game.actors.get(li.data("documentId"));
+        return game.user.isGM && actor?.type === "character" && !checkCompleted(actor);
+      },
+      callback: li => {
+        const actor = game.actors.get(li.data("documentId"));
+        if (!actor) return;
+        setComplete(actor);
+        ui.notifications.info(`Character marked completed: ${actor.name}`);
+      }
+    }
+  );
 });
 
 // Settings
