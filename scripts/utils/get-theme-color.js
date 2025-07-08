@@ -50,35 +50,33 @@ export function ensureContrast(color, reference = "#111", minRatio = 4.5) {
   return rgbToHex(rgb);
 }
 
-// Wandelt #rrggbb in [r, g, b]
 function hexToRgb(hex) {
-  const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
-  if (!m) return null;
-  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+  const m = hex.trim().match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : null;
 }
 
-// Wandelt RGB-Wert in Luminanz (gemäß WCAG)
+function rgbToHex([r, g, b]) {
+  return "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
 function luminance([r, g, b]) {
-  const norm = x => {
-    const c = x / 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  };
-  return 0.2126 * norm(r) + 0.7152 * norm(g) + 0.0722 * norm(b);
+  const c = [r, g, b].map(v => {
+    const f = v / 255;
+    return f <= 0.03928 ? f / 12.92 : Math.pow((f + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 }
 
-// Kontrastverhältnis zwischen zwei Farben (1.0 = kein Kontrast, 21 = max)
 function contrastRatio(rgb1, rgb2) {
   const L1 = luminance(rgb1);
   const L2 = luminance(rgb2);
   return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
 }
 
-// Hebt Helligkeit um Faktor (0–1)
-function brightenColor(rgb, factor) {
-  return rgb.map(c => Math.min(255, Math.round(c + (255 - c) * factor)));
-}
-
-// Wandelt [r,g,b] → "#rrggbb"
-function rgbToHex([r, g, b]) {
-  return "#" + [r, g, b].map(c => c.toString(16).padStart(2, "0")).join("");
+function brightenColor([r, g, b], factor) {
+  return [
+    Math.min(255, Math.round(r + (255 - r) * factor)),
+    Math.min(255, Math.round(g + (255 - g) * factor)),
+    Math.min(255, Math.round(b + (255 - b) * factor)),
+  ];
 }
