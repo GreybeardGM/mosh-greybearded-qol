@@ -310,7 +310,7 @@ export async function startCharacterCreation(actor) {
   
     await chatOutput({
       actor,
-      title: "Loadout & Gear",
+      title: "Loadout & Credits",
       subtitle: actor.name,
       icon: "fa-dice",
       image: DEFAULT_IMAGES.Loadout,
