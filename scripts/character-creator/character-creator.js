@@ -293,7 +293,7 @@ export async function startCharacterCreation(actor) {
         `).join("");
       }
     }
-    lootSummary += `<br><strong>Starting Credits:</strong> ${startingCredits} cr`;
+    lootSummary += `<br><strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
   
     await chatOutput({
       actor,
