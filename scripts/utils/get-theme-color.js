@@ -29,20 +29,19 @@ function isValidCssColor(color) {
   return s.color !== "";
 }
 
-function ensureContrast(color, reference = "#111", minRatio = 4.5) {
+export function ensureContrast(color, reference = "#111", minRatio = 4.5) {
   const rgb = hexToRgb(color);
   const refRgb = hexToRgb(reference);
-  if (!rgb || !refRgb) return color; // Ungültig → keine Änderung
+  if (!rgb || !refRgb) return color;
 
   let ratio = contrastRatio(rgb, refRgb);
   let factor = 0.1;
 
-  // Max 10 Aufhellungen (z. B. von #444 → #fff)
   while (ratio < minRatio && factor <= 1.0) {
     const brightened = brightenColor(rgb, factor);
     const newRatio = contrastRatio(brightened, refRgb);
     if (newRatio > ratio) {
-      rgb.splice(0, 3, ...brightened);
+      rgb.splice(0, 3, ...brightened); // overwrite original
       ratio = newRatio;
     }
     factor += 0.1;
