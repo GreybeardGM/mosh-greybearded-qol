@@ -5,6 +5,7 @@ import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
+import { checkReady, checkCompleted, setReady } from "./character-creator/progress.js";
 
 // Needs to be here to check for
 let StashSheet;
@@ -231,26 +232,66 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 
   if (actor?.type === "character") {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem || titleElem.parentElement.querySelector(".simple-shoreleave")) return;
-
-    const button = document.createElement("a");
-    button.classList.add("header-button", "simple-shoreleave");
-    button.innerHTML = `<i class="fas fa-umbrella-beach"></i> Shore Leave`;
-
-    Object.assign(button.style, {
-      cursor: "pointer",
-      padding: "0 6px",
-      color: "#3cf",
-      fontWeight: "bold",
-      textShadow: "0 0 2px rgba(0,255,255,0.5)"
-    });
-
-    button.addEventListener("click", () => {
-      game.moshGreybeardQol.simpleShoreLeave(actor);
-    });
-
-    titleElem.insertAdjacentElement("afterend", button);
+    if (!titleElem) return;
+  
+    // Entferne ShoreLeave Button, falls vorhanden
+    const existingShoreLeave = titleElem.parentElement.querySelector(".simple-shoreleave");
+    if (existingShoreLeave) existingShoreLeave.remove();
+  
+    const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+    const isReady = checkReady(actor) && !checkCompleted(actor);
+  
+    if (isCreatorEnabled && isReady) {
+      // Ersetze durch Character-Reset-Button
+      const button = document.createElement("a");
+      button.classList.add("header-button", "create-character");
+      button.innerHTML = `<i class="fas fa-dice-d20"></i> Roll Character`;
+  
+      Object.assign(button.style, {
+        cursor: "pointer",
+        padding: "0 6px",
+        color: "#5f0",
+        fontWeight: "bold",
+        textShadow: "0 0 2px rgba(85,255,0,0.5)"
+      });
+  
+      button.addEventListener("click", () => {
+        game.moshGreybeardQol.startCharacterCreation(actor);
+      });
+  
+      titleElem.insertAdjacentElement("afterend", button);
+    } else {
+      // Standard ShoreLeave-Button einfügen
+      const button = document.createElement("a");
+      button.classList.add("header-button", "simple-shoreleave");
+      button.innerHTML = `<i class="fas fa-umbrella-beach"></i> Shore Leave`;
+  
+      Object.assign(button.style, {
+        cursor: "pointer",
+        padding: "0 6px",
+        color: "#3cf",
+        fontWeight: "bold",
+        textShadow: "0 0 2px rgba(0,255,255,0.5)"
+      });
+  
+      button.addEventListener("click", () => {
+        game.moshGreybeardQol.simpleShoreLeave(actor);
+      });
+  
+      titleElem.insertAdjacentElement("afterend", button);
+    }
   }
+
+});
+
+// Prepare fesh characters for Character Creation
+Hooks.on("createActor", async (actor, options, userId) => {
+  // Nur für Charaktere
+  if (actor.type !== "character") return;
+
+  // Flag setzen
+  await setReady(actor);
+  console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
 });
 
 // Remove Default Character Creator
