@@ -47,40 +47,6 @@ Hooks.once("ready", () => {
 
 // Settings
 Hooks.once("init", () => {
-
-  // Replace Character Creator
-  if (game.settings.get("mosh-greybearded-qol", "enableCharacterCreator")) {
-    const actor = game.actors.find(a => a.type === "character");
-    if (!actor) return console.warn("MoSh QoL: No character found.");
-  
-    const sheetClass = actor.sheet.constructor;
-    if (!sheetClass.prototype._getHeaderButtons) return;
-  
-    const original = sheetClass.prototype._getHeaderButtons;
-  
-    sheetClass.prototype._getHeaderButtons = function (...args) {
-      const buttons = original.call(this, ...args);
-    
-      // Filter out known default character creator buttons
-      const filtered = buttons.filter(b =>
-        !["character-creation", "create-char"].includes(b.class || "") &&
-        !(b.icon === "fas fa-user-cog" && b.label?.toLowerCase().includes("character"))
-      );
-    
-      // Add our QoL character creator button
-      if (this.actor?.type === "character" && game.user.isGM) {
-        filtered.push({
-          class: "character-creator",
-          label: "Create Character",
-          icon: "fas fa-user-astronaut",
-          onclick: () => game.moshGreybeardQol.startCharacterCreation(this.actor)
-        });
-      }
-    
-      return filtered;
-    };
-  }
-  
   // Theme Colors
   game.settings.register("mosh-greybearded-qol", "themeColor", {
     name: "Theme Color",
@@ -193,7 +159,39 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false
   });
+
+  // Replace Character Creator
+  if (game.settings.get("mosh-greybearded-qol", "enableCharacterCreator")) {
+    const actor = game.actors.find(a => a.type === "character");
+    if (!actor) return console.warn("MoSh QoL: No character found.");
   
+    const sheetClass = actor.sheet.constructor;
+    if (!sheetClass.prototype._getHeaderButtons) return;
+  
+    const original = sheetClass.prototype._getHeaderButtons;
+  
+    sheetClass.prototype._getHeaderButtons = function (...args) {
+      const buttons = original.call(this, ...args);
+    
+      // Filter out known default character creator buttons
+      const filtered = buttons.filter(b =>
+        !["character-creation", "create-char"].includes(b.class || "") &&
+        !(b.icon === "fas fa-user-cog" && b.label?.toLowerCase().includes("character"))
+      );
+    
+      // Add our QoL character creator button
+      if (this.actor?.type === "character" && game.user.isGM) {
+        filtered.push({
+          class: "character-creator",
+          label: "Create Character",
+          icon: "fas fa-user-astronaut",
+          onclick: () => game.moshGreybeardQol.startCharacterCreation(this.actor)
+        });
+      }
+    
+      return filtered;
+    };
+  }
 });
 
 // Chat actions
