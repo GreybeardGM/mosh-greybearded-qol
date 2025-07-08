@@ -53,7 +53,7 @@ export async function startCharacterCreation(actor) {
         },
         cancel: {
           label: "Cancel",
-          icon: `<i class="fa fa-times"></i>`,
+          icon: `<i class="fa fa-times" style="color: red;"></i>`,
           callback: () => null
         }
       },
