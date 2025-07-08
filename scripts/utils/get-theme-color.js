@@ -32,22 +32,29 @@ function isValidCssColor(color) {
 function ensureContrast(color, reference = "#111", minRatio = 4.5) {
   const rgb = hexToRgb(color);
   const refRgb = hexToRgb(reference);
-  if (!rgb || !refRgb) return color;
+  if (!rgb || !refRgb) {
+    console.warn("❌ Invalid color inputs", { color, reference });
+    return color;
+  }
 
   let ratio = contrastRatio(rgb, refRgb);
-  let factor = 0.1;
+  console.log("🔍 Initial contrast:", ratio);
 
+  let factor = 0.1;
   while (ratio < minRatio && factor <= 1.0) {
     const brightened = brightenColor(rgb, factor);
     const newRatio = contrastRatio(brightened, refRgb);
+    console.log(`→ Brighten +${Math.round(factor * 100)}% = contrast ${newRatio}`);
     if (newRatio > ratio) {
-      rgb.splice(0, 3, ...brightened); // overwrite original
+      rgb.splice(0, 3, ...brightened); // mutate
       ratio = newRatio;
     }
     factor += 0.1;
   }
 
-  return rgbToHex(rgb);
+  const result = rgbToHex(rgb);
+  console.log("✅ Final color:", result);
+  return result;
 }
 
 function hexToRgb(hex) {
