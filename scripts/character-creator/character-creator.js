@@ -246,6 +246,7 @@ export async function startCharacterCreation(actor) {
           } catch (error) {
             console.warn(`Failed to load compendium item: ${itemUuid}`, error);
           }
+        } 
         else if (docId) {
           // Welt-Eintrag
           fullItem = game.items.get(docId);
