@@ -38,11 +38,44 @@ Hooks.once("ready", () => {
   Actors.registerSheet("dwextrasheets", StashSheet, {
     types: ["character"],
     label: "Stash Sheet",
-    makeDefault: false // oder true, um direkt zu testen
+    makeDefault: false
   });
- 
+
+  // Replace Character Creator
+  if (game.settings.get("mosh-greybearded-qol", "enableCharacterCreator")) {
+    const actor = game.actors.find(a => a.type === "character");
+    if (!actor) return console.warn("MoSh QoL: No character found.");
+  
+    const sheetClass = actor.sheet.constructor;
+    if (!sheetClass.prototype._getHeaderButtons) return;
+  
+    const original = sheetClass.prototype._getHeaderButtons;
+  
+    sheetClass.prototype._getHeaderButtons = function (...args) {
+      const buttons = original.call(this, ...args);
+    
+      // Filter out known default character creator buttons
+      const filtered = buttons.filter(b =>
+        !["character-creation", "create-char"].includes(b.class || "") &&
+        !(b.icon === "fas fa-user-cog" && b.label?.toLowerCase().includes("character"))
+      );
+    
+      // Add our QoL character creator button
+      if (this.actor?.type === "character" && game.user.isGM) {
+        filtered.push({
+          class: "character-creator",
+          label: "Create Character",
+          icon: "fas fa-user-astronaut",
+          onclick: () => game.moshGreybeardQol.startCharacterCreation(this.actor)
+        });
+      }
+    
+      return filtered;
+    };
+  }
+  
   // Debug Check
-  console.log("✅ MoSh Greybearded QoL loaded");
+  console.log("✅ MoSh Greybearded QoL loaded");  
 });
 
 // Settings
@@ -140,6 +173,26 @@ Hooks.once("init", () => {
     restricted: true
   });
 
+  // ✅ Enable MoSh QoL Character Creator
+  game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
+    name: "Enable QoL Character Creator",
+    hint: "If enabled, replaces the old character creation macro with the new QoL version.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true
+  });
+  
+  // ✅ Enable Ship Crits (default: false)
+  game.settings.register("mosh-greybearded-qol", "enableShipCrits", {
+    name: "Enable 0e Ship Crits",
+    hint: "If enabled, ship crit button appears and the crit logic activates.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+  
 });
 
 // Chat actions
@@ -182,15 +235,19 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   if (!(isGM || isOwner)) return;
   // Cancel if Stash
   if (sheet instanceof StashSheet) return;
-  
-  if (actor?.type === "ship") {
+
+  // 🚢 0e Ship Crits
+  if (
+    actor?.type === "ship" &&
+    game.settings.get("mosh-greybearded-qol", "enableShipCrits")
+  ) {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
     if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
-
+  
     const button = document.createElement("a");
     button.classList.add("header-button", "ship-crit");
     button.innerHTML = `<i class="fas fa-explosion"></i> Crit`;
-
+  
     Object.assign(button.style, {
       cursor: "pointer",
       padding: "0 6px",
@@ -198,11 +255,11 @@ Hooks.on("renderActorSheet", (sheet, html) => {
       fontWeight: "bold",
       textShadow: "0 0 2px rgba(255,85,0,0.5)"
     });
-
+  
     button.addEventListener("click", () => {
       game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
     });
-
+  
     titleElem.insertAdjacentElement("afterend", button);
   }
 
@@ -230,26 +287,3 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   }
 });
 
-// Remove Default Character Creator
-Hooks.once("ready", () => {
-  const actor = game.actors.find(a => a.type === "character");
-  if (!actor) return console.warn("MoSh QoL: No character found.");
-
-  const sheetClass = actor.sheet.constructor;
-
-  if (!sheetClass.prototype._getHeaderButtons) {
-    console.warn(`MoSh QoL: ${sheetClass.name} has no _getHeaderButtons method.`);
-    return;
-  }
-
-  const original = sheetClass.prototype._getHeaderButtons;
-
-  sheetClass.prototype._getHeaderButtons = function (...args) {
-    const buttons = original.call(this, ...args);
-    return buttons.filter(
-      (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
-    );
-  };
-
-  console.log(`[MoSh QoL] _getHeaderButtons removed from ${sheetClass.name}.`);
-});
