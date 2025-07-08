@@ -188,7 +188,6 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 7: Skill selection
   if (!checkStep(actor, "selectedSkills")) {
     const adjustments = await selectSkills(actor, selectedClass);
-    console.log(adjustments);
     if (!adjustments || adjustments.length === 0) {
       return ui.notifications.warn("Skill selection cancelled.");
     }
@@ -199,21 +198,105 @@ export async function startCharacterCreation(actor) {
       subtitle: actor.name,
       icon: "fa-sitemap",
       content: `
-        <ul style="columns: 2; padding-left: 1em; margin: 0;">
           ${adjustments
-            .map(i => `<li><img src="${i.img}" style="height:1em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</li>`)
+            .map(i => `<p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>`)
             .join("")}
-        </ul>`
+        `
     });
         
     await completeStep(actor, "selectedSkills");
   }
 
-
+  // ✅ Step 8: Roll Loadout + Trinkets + Patches + Credits
+  if (!checkStep(actor, "rolledLoadout")) {
+    const DEFAULT_IMAGES = {
+      Loadout: "modules/fvtt_mosh_1e_psg/icons/rolltables/loadouts.png",
+      Patches: "modules/fvtt_mosh_1e_psg/icons/rolltables/patch.png",
+      Trinkets: "modules/fvtt_mosh_1e_psg/icons/rolltables/trinkets.png"
+    };
   
-  // Placeholder for next steps
-  console.log("\u{1F4B0} TODO: Roll loadout & credits...");
-
+    const classItem = await fromUuid(actor.system.class?.uuid);
+    if (!classItem) return ui.notifications.error("Could not load class item for loadout.");
+  
+    const tableUUIDs = [
+      classItem.system.roll_tables?.loadout,
+      classItem.system.roll_tables?.patch,
+      classItem.system.roll_tables?.trinket
+    ].filter(Boolean);
+  
+    const allLoot = { Weapons: [], Armor: [], Items: [] };
+    const itemsToCreate = [];
+  
+    for (const uuid of tableUUIDs) {
+      const table = await fromUuid(uuid);
+      if (!table) continue;
+      const results = (await table.roll()).results;
+  
+      for (const result of results) {
+        const ref = result.documentCollection;
+        const docId = result.documentId;
+        let fullItem = null;
+  
+        if (ref && docId) {
+          const itemUuid = `Compendium.${ref}.${docId}`;
+          try {
+            fullItem = await fromUuid(itemUuid);
+          } catch (error) {
+            console.warn(`Failed to load item from UUID: ${itemUuid}`, error);
+          }
+        }
+  
+        if (fullItem) {
+          const itemData = fullItem.toObject(false);
+          itemsToCreate.push(itemData);
+          if (itemData.type === "weapon") allLoot.Weapons.push(itemData.name);
+          else if (itemData.type === "armor") allLoot.Armor.push(itemData.name);
+          else allLoot.Items.push(itemData.name);
+          continue;
+        }
+  
+        const cleanText = result.text?.replace(/<br\s*\/?>/gi, " ").replace(/@UUID\[[^\]]+\]/g, "").trim();
+        if (cleanText) {
+          itemsToCreate.push({
+            name: cleanText,
+            type: "item",
+            img: DEFAULT_IMAGES.Loadout,
+            system: {},
+            effects: [],
+            flags: {}
+          });
+          allLoot.Items.push(cleanText);
+        }
+      }
+    }
+  
+    // Add items to actor
+    if (itemsToCreate.length > 0) await actor.createEmbeddedDocuments("Item", itemsToCreate);
+  
+    // 🎲 Starting credits
+    const creditRoll = await new Roll("2d10 * 10").evaluate({ async: true });
+    const startingCredits = creditRoll.total;
+    await actor.update({ "system.credits.value": startingCredits });
+  
+    // 💬 Chat output
+    let lootSummary = "";
+    for (const [category, items] of Object.entries(allLoot)) {
+      if (items.length > 0) lootSummary += `<u>${category}</u>${items.map(i => `<p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>`)}`;
+    }
+    lootSummary += `<br><strong>Starting Credits:</strong> ${startingCredits} cr`;
+  
+    await chatOutput({
+      actor,
+      title: "Loadout & Gear",
+      subtitle: actor.name,
+      icon: "fa-dice",
+      image: DEFAULT_IMAGES.Loadout,
+      content: lootSummary
+    });
+  
+    await completeStep(actor, "rolledLoadout");
+  }
+     
   // ✅ Final Step: Mark character creation as completed
   await setCompleted(actor, true);
   ui.notifications.info(`${actor.name} has completed character creation.`);
