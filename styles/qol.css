@@ -247,3 +247,18 @@
   pointer-events: none;
   z-index: 0;
 }
+
+.greybeardqol .content-link,
+.greybeardqol .inline-roll,
+.greybeardqol .inline-result {
+  background-color: var(--color-bg-hover);
+  color: var(--color-highlight);
+  border-radius: 999px;
+  padding: 1px 5px;
+}
+
+.greybeardqol .content-link:hover,
+.greybeardqol .inline-roll:hover,
+.greybeardqol .inline-result:hover {
+  text-shadow: 0 0 8px var(--color-highlight);
+}
