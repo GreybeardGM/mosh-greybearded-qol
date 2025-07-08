@@ -249,9 +249,9 @@ export async function startCharacterCreation(actor) {
         if (fullItem) {
           const itemData = fullItem.toObject(false);
           itemsToCreate.push(itemData);
-          if (itemData.type === "weapon") allLoot.Weapons.push(itemData.name);
-          else if (itemData.type === "armor") allLoot.Armor.push(itemData.name);
-          else allLoot.Items.push(itemData.name);
+          if (itemData.type === "weapon") allLoot.Weapons.push({ name: itemData.name, img: itemData.img });
+          else if (itemData.type === "armor") allLoot.Armor.push({ name: itemData.name, img: itemData.img });
+          else allLoot.Items.push({ name: itemData.name, img: itemData.img });
           continue;
         }
   
@@ -281,12 +281,12 @@ export async function startCharacterCreation(actor) {
     // 💬 Chat output
     let lootSummary = "";
     for (const [category, items] of Object.entries(allLoot)) {
-      if (items.length > 0) lootSummary += `
-        <u>${category}</u>
-        ${items.map(i => `
-          <p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
-        `)}
-      `;
+      if (items.length > 0) {
+        lootSummary += `<u>${category}</u>`;
+        lootSummary += items.map(i => `
+          <p><img src="${i.img || DEFAULT_IMAGES.Loadout}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
+        `).join("");
+      }
     }
     lootSummary += `<br><strong>Starting Credits:</strong> ${startingCredits} cr`;
   
