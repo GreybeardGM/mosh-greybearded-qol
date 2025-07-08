@@ -4,43 +4,52 @@
 
 ## Features
 
-- 🧬 **Modular Character Generator**
-  - Step-by-step flow: attributes → class → skills → gear → credits
-  - Smart dialogs with dynamic layout and preview data
-  - Supports attribute choices and skill prerequisites
+- 🧬 **QoL Character Generator**
+  - Guided character creation: attributes → class → skills → gear → credits
+  - Smart dialogs with homebrew capabilities
+  - Saved creation progession
   - Full compendium integration with UUID-safe item handling
+    - Clean fallback system for non-compendium results
+  - Fully interactive skill
+  - Full GM controll via context menu
+    - Mark Ready to allow character creation
+    - Automatic activation/deactivation on fresh actors
 
-- 🎲 **Loadout Roller**
-  - Automatically rolls loadout, patches, and trinkets
-  - Categorized display of equipment in chat
-  - Clean fallback system for non-compendium results
+- 🌴 **Shore Leave Manager**
+  - Run automized shore leave from your character
+  - Customizable port classes
+  - Random flavor for your shore leave activities
+  - Integration of popular houserules
+    - no Sanity Save, no Stress Relieve, etc.
 
-- 📚 **Skill Tree Selection**
-  - Fully interactive skill tree with rank highlights and curved SVG connectors
-  - Enforces prerequisites visually
-  - Customizable skill points by rank (Trained, Expert, Master)
+- 🎁 **Stash Sheet**
+  - Add stash sheet to Character Actor
+  - Store your items and credits without visual clutter
+
+- 🚀 **0e Ship Crits**
+  - Adds button for critical ship hits on demand
+  - Escalate a crit to it's next level, if needed
 
 - ⚙️ **Utility Tools**
   - Theme color customization with CSS variable support
-  - Shore Leave manager (GM + player view)
-  - Stress conversion helper
-  - Optional "ready" flags to control when the character generator appears
+  - Shore Leave helper
+  - Stress Conversion helper
 
 ## Compatibility
 
 - 🧠 System: Mothership 1e (`mosh`)
 - 🏗️ Foundry Version: 12+
-- 📦 Designed to work with compendium packs like `fvtt_mosh_1e_psg`
+- 📦 Designed to work with compendium pack `fvtt_mosh_1e_psg`
 
 ## Installation
 
-Download the latest version from [GitHub](https://github.com/GreybeardGM/mosh-greybearded-qol) or install via manifest URL (coming soon).
+Download the latest version from [GitHub](https://github.com/GreybeardGM/mosh-greybearded-qol) or install via [manifest URL](https://raw.githubusercontent.com/Futil/foundry-mothership/master/system.json).
 
 ## Developer Notes
 
 This module was developed by GreybeardGM for use in long-running Mothership campaigns. The code is modular, readable, and meant to serve both as a usable toolset and a foundation for further customization.
 
-Pull requests, feedback, and feature requests are welcome!
+Request are welcome, but I work alone, no promises.
 
 ---
 
