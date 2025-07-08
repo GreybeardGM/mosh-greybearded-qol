@@ -212,7 +212,7 @@ export async function startCharacterCreation(actor) {
     const DEFAULT_IMAGES = {
       Loadout: "modules/fvtt_mosh_1e_psg/icons/rolltables/loadouts.png",
       Patches: "modules/fvtt_mosh_1e_psg/icons/rolltables/patch.png",
-      Trinkets: "modules/fvtt_mosh_1e_psg/icons/rolltables/trinkets.png"
+      Trinkets: "modules/fvtt_mosh_1e_psg/icons/rolltables/trinket.png"
     };
   
     const classItem = await fromUuid(actor.system.class?.uuid);
