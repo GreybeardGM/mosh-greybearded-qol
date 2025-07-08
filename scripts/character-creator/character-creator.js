@@ -192,8 +192,24 @@ export async function startCharacterCreation(actor) {
     if (!adjustments || adjustments.length === 0) {
       return ui.notifications.warn("Skill selection cancelled.");
     }
+
+    await chatOutput({
+      actor,
+      title: "Skills Selected",
+      subtitle: actor.name,
+      icon: "fa-sitemap",
+      content: `
+        <ul style="columns: 2; padding-left: 1em; margin: 0;">
+          ${adjustments
+            .map(i => `<li><img src="${i.img}" style="height:1em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</li>`)
+            .join("")}
+        </ul>`
+    });
+        
     await completeStep(actor, "selectedSkills");
   }
+
+
   
   // Placeholder for next steps
   console.log("\u{1F4B0} TODO: Roll loadout & credits...");
