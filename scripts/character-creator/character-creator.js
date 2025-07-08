@@ -239,11 +239,18 @@ export async function startCharacterCreation(actor) {
         let fullItem = null;
   
         if (ref && docId) {
+          // Compendium-Eintrag
           const itemUuid = `Compendium.${ref}.${docId}`;
           try {
             fullItem = await fromUuid(itemUuid);
           } catch (error) {
-            console.warn(`Failed to load item from UUID: ${itemUuid}`, error);
+            console.warn(`Failed to load compendium item: ${itemUuid}`, error);
+          }
+        else if (docId) {
+          // Welt-Eintrag
+          fullItem = game.items.get(docId);
+          if (!fullItem) {
+            console.warn(`Item ID ${docId} not found in world items.`);
           }
         }
   
