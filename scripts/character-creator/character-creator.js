@@ -234,37 +234,40 @@ export async function startCharacterCreation(actor) {
       const results = (await table.roll()).results;
   
       for (const result of results) {
-        const ref = result.documentCollection;
-        const docId = result.documentId;
         let fullItem = null;
-  
-        if (ref && docId) {
-          // Compendium-Eintrag
-          const itemUuid = `Compendium.${ref}.${docId}`;
+        let itemData = null;
+        
+        // 🧭 1. Try Compendium
+        if (result.documentCollection && result.documentId) {
+          const itemUuid = `Compendium.${result.documentCollection}.${result.documentId}`;
           try {
             fullItem = await fromUuid(itemUuid);
           } catch (error) {
-            console.warn(`Failed to load compendium item: ${itemUuid}`, error);
-          }
-        } 
-        else if (docId) {
-          // Welt-Eintrag
-          fullItem = game.items.get(docId);
-          if (!fullItem) {
-            console.warn(`Item ID ${docId} not found in world items.`);
+            console.warn(`Failed to load compendium item from UUID: ${itemUuid}`, error);
           }
         }
-  
+        
+        // 🏠 2. Try World item if compendium not found
+        if (!fullItem && result.documentId) {
+          fullItem = game.items.get(result.documentId);
+          if (fullItem) {
+            console.log(`Loaded World item: ${fullItem.name}`);
+          }
+        }
+        
+        // 🧱 3. Process itemData from fullItem if found
         if (fullItem) {
-          const itemData = fullItem.toObject(false);
+          itemData = fullItem.toObject(false);
           itemsToCreate.push(itemData);
+        
           if (itemData.type === "weapon") allLoot.Weapons.push({ name: itemData.name, img: itemData.img });
           else if (itemData.type === "armor") allLoot.Armor.push({ name: itemData.name, img: itemData.img });
           else allLoot.Items.push({ name: itemData.name, img: itemData.img });
+        
           continue;
         }
-  
-        // 🧱 Fallback: reiner Text (kein Item verlinkt)
+        
+        // 📝 4. Fallback: parse result.text as plain item
         const cleanText = result.text?.replace(/<br\s*\/?>/gi, " ").replace(/@UUID\[[^\]]+\]/g, "").trim();
         if (cleanText) {
           const fallbackItem = {
@@ -278,6 +281,7 @@ export async function startCharacterCreation(actor) {
           itemsToCreate.push(fallbackItem);
           allLoot.Items.push({ name: fallbackItem.name, img: fallbackItem.img });
         }
+
       }
     }
   
