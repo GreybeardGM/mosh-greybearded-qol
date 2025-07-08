@@ -299,7 +299,7 @@ export async function startCharacterCreation(actor) {
     let lootSummary = "";
     for (const [category, items] of Object.entries(allLoot)) {
       if (items.length > 0) {
-        lootSummary += `<u>${category}</u>`;
+        lootSummary += `<h4>${category}</h4>`;
         lootSummary += items.map(i => `
           <p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
         `).join("");
