@@ -29,7 +29,7 @@ function isValidCssColor(color) {
   return s.color !== "";
 }
 
-export function ensureContrast(color, reference = "#111", minRatio = 4.5) {
+function ensureContrast(color, reference = "#111", minRatio = 4.5) {
   const rgb = hexToRgb(color);
   const refRgb = hexToRgb(reference);
   if (!rgb || !refRgb) return color;
