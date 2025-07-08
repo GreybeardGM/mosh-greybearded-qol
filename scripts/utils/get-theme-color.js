@@ -1,22 +1,23 @@
 export function getThemeColor() {
-  // 1. Weltweites GM-Setting
+  // 1. GM-Setting
   const global = String(game.settings.get("mosh-greybearded-qol", "themeColor") || "").trim();
   if (isValidCssColor(global)) return global;
 
-  // 2. Spieler-spezifisches Override
+  // 2. Spieler-Override
   const override = String(game.settings.get("mosh-greybearded-qol", "themeColorOverride") || "").trim();
   if (isValidCssColor(override)) return override;
 
-  // 3. Spielerfarbe (als Zahl) -> umwandeln in HEX
+  // 3. Spielerfarbe (Pixi-Zahl) in HEX umwandeln
   const userColor = game.user?.color;
-    console.log(userColor);
-  if (typeof userColor === "number") {
-    const hex = "#" + userColor.toString(16).padStart(6, "0");
-    console.log(hex);
+  const colorNum = Number(userColor);
+  console.log("userColor (raw):", userColor);
+  if (!isNaN(colorNum)) {
+    const hex = "#" + colorNum.toString(16).padStart(6, "0");
+    console.log("hex from userColor:", hex);
     if (isValidCssColor(hex)) return hex;
   }
 
-  // 4. Harte Fallback-Farbe
+  // 4. Fallback
   return "#f50";
 }
 
