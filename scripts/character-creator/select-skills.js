@@ -42,7 +42,6 @@ export async function selectSkills(actor, selectedClass) {
   const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
   const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
   const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(uuid => uuid.split(".").pop()));
-  console.log(granted);
 
   const fullSetExpert = baseAnd.expert_full_set || 0;
   const fullSetMaster = baseAnd.master_full_set || 0;
