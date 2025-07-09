@@ -21,7 +21,7 @@
 .greybeardqol h2,
 .greybeardqol h3 {
   border-bottom: 1px solid var(--color-highlight);
-  text-shadow: 0 0 4px var(--color-bg-hover);
+  text-shadow: 0 0 4px var(--color-highlight);
 }
 
 /* Grey-out or Highlight */
