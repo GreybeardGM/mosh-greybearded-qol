@@ -22,6 +22,7 @@
 .greybeardqol h3 {
   border-bottom: 1px solid var(--color-highlight);
   text-shadow: 0 0 4px var(--color-highlight);
+  margin: 0.5em 0 0.25em;
 }
 
 /* Grey-out or Highlight */
@@ -114,15 +115,9 @@
   pointer-events: none;
 }
 
-.greybeardqol .card h3 {
-  margin: 0.5em 0 0.25em;
-  font-size: 1.2em;
-}
-
 .greybeardqol .card .icon {
   width: 100%;
   font-size: 5em;
-  margin-bottom: 0.5em;
 }
 
 /* Grids for cards */
@@ -162,7 +157,7 @@
 
 /* Pill list layout */
 .greybeardqol .pill-list {
-  margin-top: 0.5em;
+  margin: 0.5em 0;
 }
 
 /* Chat card */
@@ -215,7 +210,7 @@
   line-height: 1.2em;
 }
 
-.greybeardqol .chat-card .subtitle {
+.greybeardqol .subtitle {
   font-style: italic;
   color: var(--color-highlight);
 }
@@ -225,7 +220,7 @@
   text-align: center;
   font-size: 1.5em;
   font-weight: bold;
-  margin-bottom: 0.5em;
+  margin: 0.5em 0;
   color: var(--color-bg); /* Inverted Colors */
   background-color: var(--color-text);
   border-radius: 0.5em;
@@ -253,6 +248,24 @@
   font-weight: normal;
 }
 
+/* Shore Leave Stuff */
+.greybeardqol .flavor-description {
+  min-height: 8.4em; 
+  margin: 0.5em 0; 
+  font-size: 0.85em; 
+  opacity: 0.8;
+}
+
+.greybeardqol .flavor-label {
+  font-weight: bold; 
+  margin-top: 1em; 
+  min-height: 2.8em; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  text-align: center;
+}
+
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
   padding: 0.7em;
@@ -265,21 +278,15 @@
 .greybeardqol .trauma-response {
   height: 4.6em;
   color: var(--color-highlight);
-  font-size: 0.9em;
   font-style: italic;
   overflow: hidden;
+  font-size: 0.9em;
 }
 
 .greybeardqol .skill-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20%;
-  margin-top: 1em;
-}
-
-.greybeardqol .skill-column h3 {
-  color: var(--color-bg);
-  text-align: center;
 }
 
 .greybeardqol .skill-card span {
