@@ -30,6 +30,10 @@
   pointer-events: none;
 }
 
+.greybeardqol .text-highlight {
+  color: var(--color-highlight);
+}
+
 .greybeardqol .selected {
   border-color: var(--color-highlight) !important;
   box-shadow: 0 0 8px var(--color-highlight);
@@ -86,13 +90,17 @@
 .greybeardqol .card {
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  position: relative;
   text-align: center;
   transition: border 0.2s ease, background-color 0.2s ease;
   user-select: none;
   cursor: pointer;
-  position: relative;
 }
 
 .greybeardqol .card:hover {
@@ -206,7 +214,7 @@
   line-height: 1.2em;
 }
 
-.greybeardqol .subtitle {
+.greybeardqol .chat-card .subtitle {
   font-style: italic;
   color: var(--color-highlight);
 }
@@ -247,17 +255,20 @@
 /* Shore Leave Stuff */
 .greybeardqol .flavor-description {
   min-height: 8.4em; 
-  margin: 0.5em 0; 
   font-size: 0.85em; 
   opacity: 0.8;
 }
 
 .greybeardqol .flavor-label {
   font-weight: bold; 
-  height: 3.8em; 
+  height: 2.8em; 
   display: flex; 
   align-items: center; 
   justify-content: center; 
+}
+
+.greybeardqol .stress-description {
+  margin: 1em 0;
 }
 
 /* Character Creator Stuff */
