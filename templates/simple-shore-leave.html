@@ -13,7 +13,7 @@
         <h3>{{tier.label}}</h3>
 
         {{#if tier.flavor.label}}
-          <div class="flavor-label subtitle">
+          <div class="flavor-label text-highlight">
             {{tier.flavor.label}}
           </div>
         {{/if}}
@@ -32,12 +32,12 @@
         
         <div class="stress-description">
           <strong>Stress Conversion</strong>
-          <div>{{tier.stressString}}</div>
+          <div class="text-highlight">{{tier.stressString}}</div>
         </div>
 
         <div class="stress-description">
           <strong>Price</strong>
-          <div>{{tier.priceString}}</div>
+          <div class="text-highlight">{{tier.priceString}}</div>
         </div>
 
         <div class="pill roll-price" data-tier="{{tier.tier}}">
