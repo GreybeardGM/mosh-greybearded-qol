@@ -86,6 +86,17 @@
   box-shadow: 0 0 14px var(--color-highlight);
 }
 
+/* Everything clickable */
+.greybeardqol .interactive {
+  cursor: pointer;
+  transition: border 0.2s ease, background-color 0.2s ease;
+}
+
+.greybeardqol .interactive:hover {
+  border-color: var(--color-highlight);
+  background-color: var(--color-bg-hover);
+}
+
 /* Generic card */
 .greybeardqol .card {
   background-color: var(--color-bg);
@@ -98,14 +109,7 @@
   gap: 1.5em;
   position: relative;
   text-align: center;
-  transition: border 0.2s ease, background-color 0.2s ease;
   user-select: none;
-  cursor: pointer;
-}
-
-.greybeardqol .card:hover {
-  border-color: var(--color-highlight);
-  background-color: var(--color-bg-hover);
 }
 
 /* CRT Effect */
@@ -123,12 +127,12 @@
   pointer-events: none;
 }
 
-.greybeardqol .card .icon {
+/* Dialog Cards */
+.greybeardqol .dialog-card .icon {
   width: 100%;
   font-size: 5em;
 }
 
-/* Grids for cards */
 .greybeardqol .card-grid {
   display: grid;
   grid-template-columns: repeat(var(--col-count, 3), 1fr);
@@ -136,66 +140,7 @@
   margin: 0 auto;
 }
 
-/* Pill layout */
-.greybeardqol .pill {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  padding: 0.5em 1em;
-  cursor: pointer;
-  transition: border 0.2s ease, background-color 0.2s ease;
-  position: relative;
-}
-
-.greybeardqol .pill:hover {
-  border-color: var(--color-highlight);
-  background-color: var(--color-bg-hover);
-}
-
-.greybeardqol .pill img {
-  width: 2em;
-  height: 2em;
-  object-fit: contain;
-  margin-right: 0.5em;
-}
-
-.greybeardqol .pill-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-}
-
-/* Chat card */
-.greybeardqol .chat-card {
-  background-color: var(--color-bg);
-  border: 2px solid var(--color-border);
-  color: var(--color-text);
-  border-radius: 8px;
-  padding: 1em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75em;
-  position: relative;
-}
-
-/* CRT Effect */
-.greybeardqol .chat-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.03),
-    rgba(255, 255, 255, 0.03) 4px,
-    transparent 5px,
-    transparent 6px
-  );
-  pointer-events: none;
-}
-
+/* Chat Cards */
 .greybeardqol .chat-card .header {
   display: flex;
   align-items: center;
@@ -221,6 +166,31 @@
 .greybeardqol .chat-card .subtitle {
   font-style: italic;
   color: var(--color-highlight);
+}
+
+/* Pill layout */
+.greybeardqol .pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.5em 1em;
+  position: relative;
+}
+
+.greybeardqol .pill img {
+  width: 2em;
+  height: 2em;
+  object-fit: contain;
+  margin-right: 0.5em;
+}
+
+.greybeardqol .pill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
 }
 
 /* Remaining points info */
@@ -312,6 +282,7 @@
   z-index: 0;
 }
 
+/* Inline Overwrite */
 .greybeardqol .content-link,
 .greybeardqol .inline-roll,
 .greybeardqol .inline-result {
