@@ -108,7 +108,6 @@
   flex-direction: column;
   gap: 1.5em;
   position: relative;
-  text-align: center;
   user-select: none;
 }
 
@@ -128,6 +127,10 @@
 }
 
 /* Dialog Cards */
+.greybeardqol .dialog-card {
+  text-align: center;
+}
+
 .greybeardqol .dialog-card .icon {
   width: 100%;
   font-size: 5em;
