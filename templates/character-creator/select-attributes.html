@@ -2,7 +2,7 @@
   {{#each attributeSets}}
     <div class="attribute-set card-grid" style="max-width: {{maxWidth}}; --col-count: {{stats.length}};" data-set-index="{{@index}}" data-mod="{{modification}}">
       {{#each stats}}
-        <div class="card" data-attr="{{this}}">
+        <div class="card dialog-card interactive" data-attr="{{this}}">
           <img class="icon" src="systems/mosh/images/icons/ui/attributes/{{this}}.png" alt="{{this}} Icon">
           <h3>{{capitalize this}}</h3>
           <div class="mod counter">{{#if (gt ../modification 0)}}+{{/if}}{{../modification}}</div>
