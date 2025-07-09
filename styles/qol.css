@@ -262,3 +262,31 @@
 .greybeardqol .inline-result:hover {
   text-shadow: 0 0 8px var(--color-highlight);
 }
+
+.greybeardqol .retro-crt {
+  position: relative;
+  background: #111;
+}
+.greybeardqol .retro-crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 22%, 24%, 55% { opacity: 0.3; }
+}
+
+.greybeardqol.flicker {
+  animation: flicker 1.5s infinite;
+}
+
