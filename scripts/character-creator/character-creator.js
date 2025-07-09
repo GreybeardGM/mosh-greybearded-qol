@@ -343,10 +343,9 @@ export async function startCharacterCreation(actor) {
         lootSummary += items.map(i => `
           <p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
         `).join("");
-        lootSummary += `<br>`;
       }
     }
-    lootSummary += `<strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
+    lootSummary += `<br><strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
   
     await chatOutput({
       actor,
