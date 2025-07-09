@@ -1,7 +1,7 @@
 <form class="greybeardqol" style="--theme-color: {{themeColor}}">
   <div class="card-grid" style="--col-count: {{tiers.length}};">
     {{#each tiers as |tier|}}
-      <label class="card" style="display: block;">
+      <label class="card">
         <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
 
         {{#if tier.flavor.icon}}
@@ -30,12 +30,12 @@
           </div>
         {{/if}}
         
-        <div>
+        <div class="stress-description">
           <strong>Stress Conversion</strong>
           <div>{{tier.stressString}}</div>
         </div>
 
-        <div>
+        <div class="stress-description">
           <strong>Price</strong>
           <div>{{tier.priceString}}</div>
         </div>
