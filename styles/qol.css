@@ -148,8 +148,6 @@
   cursor: pointer;
   transition: border 0.2s ease, background-color 0.2s ease;
   position: relative;
-  margin: 0.25em 0;
-
 }
 
 .greybeardqol .pill:hover {
@@ -162,6 +160,12 @@
   height: 2em;
   object-fit: contain;
   margin-right: 0.5em;
+}
+
+.greybeardqol .pill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
 }
 
 /* Chat card */
@@ -265,10 +269,6 @@
   display: flex; 
   align-items: center; 
   justify-content: center; 
-}
-
-.greybeardqol .stress-description {
-  margin: 1em 0;
 }
 
 /* Character Creator Stuff */
