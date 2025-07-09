@@ -3,11 +3,11 @@
   <div class="or-option-row card-grid" style="--col-count: {{orOptions.length}};">
     {{#each orOptions}}
       <div class="card or-option" data-option="{{this.id}}">
-        <h4>{{this.name}}</h4>
-        <p class="points">
-          {{#if this.trained}}<span>{{this.trained}} Trained</span>{{/if}}
-          {{#if this.expert}}<span>{{this.expert}} Expert</span>{{/if}}
-          {{#if this.master}}<span>{{this.master}} Master</span>{{/if}}
+        <h3>{{this.name}}</h3>
+        <p class="counter">
+          {{#if this.trained}}{{this.trained}} <span class="bonus">Trained</span>{{/if}}
+          {{#if this.expert}}<span>{{this.expert}} <span class="bonus">Expert</span>{{/if}}
+          {{#if this.master}}<span>{{this.master}} <span class="bonus">Master</span>{{/if}}
         </p>
       </div>
     {{/each}}
