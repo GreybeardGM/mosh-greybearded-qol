@@ -234,8 +234,12 @@
 
 .greybeardqol .remaining-points span {
   font-family: monospace;
-  color: var(--color-remaining);
+  font-variant-numeric: tabular-nums;
   font-size: 1.1em;
+  min-width: 2ch;
+  display: inline-block;
+  text-align: center;
+  color: var(--color-remaining);
 }
 
 /* Counter for stress points */
