@@ -144,6 +144,12 @@
 }
 
 /* Chat Cards */
+.greybeardqol .chat-card:not(.card) { /* Fallback for outdated chat-cards */
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1em;
+}
 .greybeardqol .chat-card .header {
   display: flex;
   align-items: center;
