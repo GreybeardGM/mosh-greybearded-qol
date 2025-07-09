@@ -241,11 +241,15 @@
   color: var(--color-remaining);
 }
 
-/* Counter for stress points */
+/* Counter for Highlighting */
 .greybeardqol .counter {
   font-size: 1.4em;
   font-weight: bold;
   color: var(--color-counter);
+}
+
+.greybeardqol .counter .bonus {
+  color: var(--color-text);
 }
 
 /* Character Creator Stuff */
