@@ -20,13 +20,17 @@ export async function showStressConversionDialog(actor, points) {
       close: () => resolve(null),
       render: (html) => {
         const updateUI = () => {
-          html.find("#counter-sanity").text(values.sanity);
-          html.find("#counter-fear").text(values.fear);
-          html.find("#counter-body").text(values.body);
-
+          for (const attr of Object.keys(values)) {
+            const baseValue = base[attr];
+            const currentValue = values[attr];
+            const diff = currentValue - baseValue;
+            const diffText = diff > 0 ? ` [+${diff}]` : "";
+            html.find(`#counter-${attr}`).text(`${currentValue}${diffText}`);
+          }
+        
           const assigned = values.sanity + values.fear + values.body - base.sanity - base.fear - base.body;
           html.find("#remaining").text(points - assigned);
-
+        
           const confirmBtn = html.find("#confirm-button");
           confirmBtn.toggleClass("locked", assigned !== points);
         };
