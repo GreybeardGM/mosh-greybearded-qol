@@ -99,7 +99,8 @@
   background-color: var(--color-bg-hover);
 }
 
-.greybeardqol .card::after {
+/* CRT Effect */
+.greybeardqol .card::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -177,7 +178,8 @@
   position: relative;
 }
 
-.greybeardqol .chat-card::after {
+/* CRT Effect */
+.greybeardqol .chat-card::before {
   content: "";
   position: absolute;
   inset: 0;
