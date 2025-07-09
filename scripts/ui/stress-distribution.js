@@ -24,8 +24,8 @@ export async function showStressConversionDialog(actor, points) {
             const baseValue = base[attr];
             const currentValue = values[attr];
             const diff = currentValue - baseValue;
-            const diffText = diff > 0 ? ` [<span class="counter">+${diff}]</span>` : "";
-            html.find(`#counter-${attr}`).text(`${currentValue}${diffText}`);
+            const diffText = diff > 0 ? ` <span class="counter">[+${diff}]</span>` : "";
+            html.find(`#counter-${attr}`).html(`${currentValue}${diffText}`);
           }
         
           const assigned = values.sanity + values.fear + values.body - base.sanity - base.fear - base.body;
