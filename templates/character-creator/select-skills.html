@@ -2,7 +2,7 @@
   <!-- Top: OR options as cards -->
   <div class="or-option-row card-grid" style="--col-count: {{orOptions.length}};">
     {{#each orOptions}}
-      <div class="card or-option" data-option="{{this.id}}">
+      <div class="card dialog-card interactive or-option" data-option="{{this.id}}">
         <h3>{{this.name}}</h3>
         <p class="counter">
           {{#if this.trained}}{{this.trained}} <span class="bonus">Trained</span>{{/if}}
@@ -25,7 +25,7 @@
           <div class="pill-list">
             {{#each ../sortedSkills}}
               {{#if (eq this.system.rank rank)}}
-                <div class="pill skill-card 
+                <div class="pill interactive skill-card 
                    {{#if (includes ../../granted this._id)}}default-skill selected locked{{/if}}"
                   data-rank="{{this.system.rank}}"
                   data-uuid="{{this.uuid}}"
