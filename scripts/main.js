@@ -133,8 +133,8 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
 Hooks.once("init", () => {
   // Theme Colors
   game.settings.register("mosh-greybearded-qol", "themeColor", {
-    name: "Theme Color",
-    hint: "Theme Color",
+    name: "Global Theme Color",
+    hint: "If set, this will override the player colors.",
     scope: "world",
     config: true,
     type: String,
@@ -142,8 +142,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("mosh-greybearded-qol", "themeColorOverride", {
-    name: "Override Theme Color",
-    hint: "If set, this will override the default theme color for this user.",
+    name: "Player Theme Color",
+    hint: "If set, this will override the default color for this user.",
     scope: "client",
     config: true,
     type: String,
@@ -180,7 +180,7 @@ Hooks.once("init", () => {
 
   game.settings.register("mosh-greybearded-qol", "convertStress.formula", {
     name: "Stress Conversion Formula",
-    hint: "The default dice formula used to convert stress (e.g., '1d5').",
+    hint: "Fallback dice formula used to convert stress (useful for Homebrew-Makros).",
     scope: "world",
     config: true,
     default: "1d5",
@@ -237,7 +237,7 @@ Hooks.once("init", () => {
   // ✅ Enable Ship Crits (default: false)
   game.settings.register("mosh-greybearded-qol", "enableShipCrits", {
     name: "Enable 0e Ship Crits",
-    hint: "If enabled, ship crit button appears and the crit logic activates.",
+    hint: "If enabled, ship crit button appears and the 0e crit logic activates.",
     scope: "world",
     config: true,
     type: Boolean,
