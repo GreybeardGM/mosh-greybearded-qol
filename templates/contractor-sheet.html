@@ -2,25 +2,23 @@
   {{!-- Sheet Header --}}
 
   <div class="creature-description-grid">
-    <div class="creaturedescription widegap" style="display: flex;flex-direction: column;" >
+    <div class="creaturedescription widegap">
 
       <div class="grid grid-2col widegap" style="display: flex;">
       
         <!-- Name Input -->
-        <div class="creature-header-grid" style="flex-grow: 1;">
+        <div class="creature-header-grid">
           <input name="name" class="noborder creaturename" style="grid-area: 'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
           <div class="whiteline"></div>
         </div>
       
         <!-- Named / Generic Indicator -->
-        <div class="creature-header-grid" style="display: flex; align-items: center; justify-content: center; width: 7em;">
-      
         {{#if system.contractor.isNamed}}
-          <div class="contractor-flag named" style="text-align: center;">
+          <div class="creature-header-grid contractor-flag named">
             {{ localize 'Mosh.UniqueContractor' }}
           </div>
         {{else}}
-          <div class="contractor-flag generic clickable" data-action="promote-contractor" style="text-align: center;">
+          <div class="creature-header-grid contractor-flag generic interactive" data-action="promote-contractor">
             {{ localize 'Mosh.GenericContractor' }}
           </div>
         {{/if}}
