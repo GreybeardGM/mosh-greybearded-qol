@@ -165,6 +165,38 @@ export class QoLContractorSheet extends ActorSheet {
             }, 1);
           });
 
+        // Promote Contractor
+        html.find('[data-action="promote-contractor"]').on('click', async (event) => {
+          event.preventDefault();
+        
+          const actor = this.actor;
+          if (!actor) return;
+        
+          // 1. Promote to Named
+          await actor.update({ "system.contractor.isNamed": true });
+        
+          // 2. Loyalty Roll (kein async:true mehr für V12-Kompatibilität)
+          const roll = new Roll("2d10 + 10");
+          await roll.evaluate();
+        
+          const total = roll.total;
+        
+          // 3. Set loyalty value
+          await actor.update({ "system.stats.loyalty.value": total });
+        
+          // 4. Custom Chat Output
+          await chatOutput({
+            actor,
+            title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
+            subtitle: actor.name,
+            image: actor.img,
+            content: `<span class="counter">${total}</span> Loyalty`
+          });
+        
+          // 5. Re-render to update UI
+          this.render();
+        });
+                
         // Attribute Rolls
         // Rollable Attribute
         html.find('.stat-roll').click(ev => {
