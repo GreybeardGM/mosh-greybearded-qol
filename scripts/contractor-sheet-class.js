@@ -112,6 +112,19 @@ export class QoLContractorSheet extends ActorSheet {
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
+        // On focus: show raw number
+        html.find('.currency-input').on('focus', function () {
+            const raw = $(this).data('raw');
+            this.value = raw ?? '';
+        });
+        
+        // On blur: format number
+        html.find('.currency-input').on('blur', function () {
+            const rawValue = parseInt(this.value.replace(/\D/g, ''), 10) || 0;
+            this.value = `${rawValue.toLocaleString(game.i18n.lang)} cr`;
+            $(this).data('raw', rawValue);
+        });
+        
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
             const li = $(ev.currentTarget).parents(".item");
