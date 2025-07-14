@@ -306,3 +306,15 @@
 .greybeardqol .inline-result:hover {
   text-shadow: 0 0 8px var(--color-highlight);
 }
+
+/* Contractor Sheet */
+.greybeardqol input.currency-input {
+  color: white;
+  border: none;
+  text-align: center;
+  font-weight: bold;        /* optional, sieht oft eleganter aus */
+}
+
+.greybeardqol .currency-container {
+  margin-bottom: 0.5em;
+}
