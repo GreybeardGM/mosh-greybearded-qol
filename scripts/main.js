@@ -1,3 +1,4 @@
+import { QoLContractorSheet } from "./contractor-sheet-class.js";
 import { defineStashSheet } from "./stash-sheet-class.js";
 import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
@@ -69,9 +70,15 @@ Hooks.once("ready", () => {
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
   StashSheet = defineStashSheet(BaseSheet);
 
-  Actors.registerSheet("dwextrasheets", StashSheet, {
+  Actors.registerSheet("mosh-greybearded-qol", StashSheet, {
     types: ["character"],
     label: "Stash Sheet",
+    makeDefault: false
+  });
+
+  Actors.registerSheet("mosh-greybearded-qol", QoLContractorSheet, {
+    types: ["creature"],
+    label: "Contractor Sheet",
     makeDefault: false
   });
   
