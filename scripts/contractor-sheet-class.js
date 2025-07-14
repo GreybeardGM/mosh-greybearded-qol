@@ -43,11 +43,8 @@ export class QoLContractorSheet extends ActorSheet {
     
       // Feste Settings als Platzhalter
       data.data.system.contractor = {
-        combat: this.actor.system.contractor?.combat ?? 30,
-        instinct: this.actor.system.contractor?.instinct ?? 40,
-        loyalty: this.actor.system.contractor?.loyalty ?? 2,
-        armor: this.actor.system.contractor?.armor ?? 10,
-        baseSalary: this.actor.system.contractor?.baseSalary ?? 100,
+        isNamed: this.actor.system.contractor?.isNamed ?? false,
+        baseSalary: this.actor.system.contractor?.baseSalary ?? 0,
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
