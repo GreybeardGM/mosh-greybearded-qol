@@ -121,20 +121,21 @@
         </div>            
       </div>
 
-      <!-- MOTIVATION (sichtbar für alle) -->
-      <div class="contractor-motivationblock">
-        <div class="resource-label">{{ localize 'MoshQoL.Motivation' }}</div>
-        <textarea name="system.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterMotivation' }}">{{system.motivation}}</textarea>
-      </div>
-      
-      <!-- HIDDEN MOTIVATION (nur GM) -->
-      {{#if isGM}}
-        <div class="contractor-hiddenmotivationblock">
-          <div class="resource-label">{{ localize 'MoshQoL.HiddenMotivation' }}</div>
-          <textarea name="system.hiddenMotivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterHiddenMotivation' }}">{{system.hiddenMotivation}}</textarea>
-        </div>
+      {{#if system.contractor.isNamed}}
+        <!-- MOTIVATION (sichtbar für alle) -->
+	<div class="contractor-motivationblock">
+	  <div class="resource-label">{{ localize 'MoshQoL.Motivation' }}</div>
+	  <textarea name="system.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterMotivation' }}">{{system.motivation}}</textarea>
+	</div>
+	
+	<!-- HIDDEN MOTIVATION (nur GM) -->
+	{{#if isGM}}
+	  <div class="contractor-hiddenmotivationblock">
+	    <div class="resource-label">{{ localize 'MoshQoL.HiddenMotivation' }}</div>
+	    <textarea name="system.hiddenMotivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterHiddenMotivation' }}">{{system.hiddenMotivation}}</textarea>
+	  </div>
+	{{/if}}
       {{/if}}
-
       
     </div>
     <div class="creature-abilities">
