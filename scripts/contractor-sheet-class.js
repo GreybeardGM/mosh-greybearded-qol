@@ -55,11 +55,8 @@ export class QoLContractorSheet extends ActorSheet {
       };
 
       if (data.data.system.settings == null) data.data.system.settings = {};
-      data.data.system.settings.useCalm = game.settings.get("mosh", "useCalm");
       data.data.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
       data.data.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
-      data.data.system.settings.androidPanic = game.settings.get("mosh", "androidPanic");
-        
         
       data.data.enriched = {
         description: await TextEditor.enrichHTML(data.data.system.description, { async: true }),
