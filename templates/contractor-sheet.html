@@ -3,15 +3,15 @@
 
   <div class="creature-description-grid">
     <div class="creaturedescription">
+
+      <!-- Contractor NAME -->
       <div class="creature-header-grid">
-        <!-- Contractor NAME -->
         <input name="name" class="noborder creaturename" style="grid-area:'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
         <div class="whiteline"></div>
       </div>
-        
-      <div class="grid widegap"> 
 
-        <!-- Stats -->
+      <!-- Stats -->      
+      <div class="grid widegap"> 
         <div class="grid grid-1col widegap">
           <!-- Combat -->
           <div class="mainstatwrapper">
@@ -58,7 +58,6 @@
             </div>
           {{/if}}
         </div>
-
         <div class="grid grid-1col widegap">
           <!-- Hits -->
           <div class="resource healthspread minmaxtopstat">
@@ -104,9 +103,24 @@
             <div class="healthmaxtext">{{ localize 'Mosh.ArmorPoints' }}</div>
             <div class="healthmaxtext">{{ localize 'Mosh.DMGReduction' }}</div>
           </div>
-        </div>
-            
+        </div>            
       </div>
+
+      <!-- MOTIVATION (sichtbar für alle) -->
+      <div class="contractor-motivationblock">
+        <div class="resource-label">{{ localize 'Mosh.Motivation' }}</div>
+        <textarea name="system.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'Mosh.EnterMotivation' }}">{{system.motivation}}</textarea>
+      </div>
+      
+      <!-- HIDDEN MOTIVATION (nur GM) -->
+      {{#if isGM}}
+        <div class="contractor-hiddenmotivationblock">
+          <div class="resource-label">{{ localize 'Mosh.HiddenMotivation' }}</div>
+          <textarea name="system.hiddenMotivation" rows="2" class="textarea-input" placeholder="{{ localize 'Mosh.EnterHiddenMotivation' }}">{{system.hiddenMotivation}}</textarea>
+        </div>
+      {{/if}}
+
+      
     </div>
     <div class="creature-abilities">
       <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" style="height:auto; width:100%;" />
