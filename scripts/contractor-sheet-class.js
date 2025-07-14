@@ -117,18 +117,21 @@ export class QoLContractorSheet extends ActorSheet {
         if (!this.options.editable) return;
 
         // Salary Display
-        html.find('.currency-input')
-          .on('focus', function () {
-            const raw = $(this).data('raw');
-            if (raw !== undefined) this.value = raw;
+        html.find(".currency-input")
+          .on("focus", function () {
+            // Bei Fokus: Nur die Zahl zeigen
+            const val = this.value.replace(/\D/g, "");
+            this.value = val;
           })
-          .on('blur', function () {
-            let rawValue = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
-            // Zeige formatiert
-            this.value = `${rawValue.toLocaleString(game.i18n.lang)} cr`;
-            // Speichere Raw in input.dataset, aber auch im .value (damit Foundry es speichert!)
-            this.dataset.value = rawValue;
-            this.value = rawValue;
+          .on("blur", function () {
+            // Aufbereiten
+            const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+            // Setze echten Wert (für Speicherung)
+            this.value = raw;
+            // Und zeitverzögert formatieren
+            setTimeout(() => {
+              this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+            }, 1);
           });
         
         // Delete Inventory Item
