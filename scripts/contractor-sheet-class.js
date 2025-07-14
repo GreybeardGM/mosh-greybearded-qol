@@ -101,7 +101,7 @@ export class QoLContractorSheet extends ActorSheet {
 
             if (i.type === 'ability') {
                 abilities.push(i);
-            } else if (i.type === 'gear') {
+            } else if (i.type === 'item') {
                 gear.push(i);
             } else if (i.type === 'armor') {
                 armors.push(i);
