@@ -292,6 +292,20 @@ export class QoLContractorSheet extends ActorSheet {
         });
 
         // ARMOR
+        // Equip
+        html.find('.item-equip').click(ev => {
+          const li = ev.currentTarget.closest(".item");
+          var item;
+          if (game.release.generation >= 12) {
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+          } else {
+            item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+          }
+    
+          item.system.equipped = !item.system.equipped;
+          this.actor.updateEmbeddedDocuments('Item', [item]);
+        });
+        
         //increase oxygen
         html.on('mousedown', '.armor-oxy', ev => {
           const li = ev.currentTarget.closest(".item");
