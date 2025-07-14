@@ -4,23 +4,23 @@
   <div class="creature-description-grid">
     <div class="creaturedescription widegap" style="display: flex;flex-direction: column;" >
 
-      <div class="grid grid-2col widegap" style="align-items: center">
+      <div class="grid grid-2col widegap" style="display: flex;">
       
         <!-- Name Input -->
-        <div class="creature-header-grid">
+        <div class="creature-header-grid" style="flex-grow: 1;">
           <input name="name" class="noborder creaturename" style="grid-area: 'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
           <div class="whiteline"></div>
         </div>
       
         <!-- Named / Generic Indicator -->
-        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 1rem;">
+        <div class="creature-header-grid" style="display: flex; align-items: center; justify-content: center; width: 7em;">
       
         {{#if system.contractor.isNamed}}
-          <div class="contractor-flag named">
+          <div class="contractor-flag named" style="text-align: center;">
             {{ localize 'Mosh.UniqueContractor' }}
           </div>
         {{else}}
-          <div class="contractor-flag generic clickable" data-action="promote-contractor">
+          <div class="contractor-flag generic clickable" data-action="promote-contractor" style="text-align: center;">
             {{ localize 'Mosh.GenericContractor' }}
           </div>
         {{/if}}
