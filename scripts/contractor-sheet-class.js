@@ -146,6 +146,18 @@ export class QoLContractorSheet extends ActorSheet {
               this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
             }, 1);
           });
+
+        // Attribute Rolls
+        // Rollable Attribute
+        html.find('.stat-roll').click(ev => {
+            const div = $(ev.currentTarget);
+            const statName = div.data("key");
+            this.actor.rollCheck(null, 'low', statName, null, null, null);
+        });
+        
+        // ITEMS
+        // Add Inventory Item
+        html.find('.item-create').click(this._onItemCreate.bind(this));        
         
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
@@ -156,19 +168,41 @@ export class QoLContractorSheet extends ActorSheet {
 
         // Update Inventory Item
         html.find('.item-edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-            item.sheet.render(true);
+          const li = $(ev.currentTarget).parents(".item");
+          const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
+          item.sheet.render(true);
         });
 
-        // Rollable Attribute
-        html.find('.stat-roll').click(ev => {
-            const div = $(ev.currentTarget);
-            const statName = div.data("key");
-            this.actor.rollCheck(null, 'low', statName, null, null, null);
-        });
+        //Quantity adjuster
+        html.on('mousedown', '.item-quantity', ev => {
+          const li = ev.currentTarget.closest(".item");
+          //const item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId))
+          var item;
+          if (game.release.generation >= 12) {
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+          } else {
+            item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+          }
+          let amount = item.system.quantity;
+    
+          if (event.button == 0) {
+            item.system.quantity = Number(amount) + 1;
+          } else if (event.button == 2) {
+            item.system.quantity = Number(amount) - 1;
+          }
+    
+          this.actor.updateEmbeddedDocuments('Item', [item]);
+        });        
 
-        //Weapons
+        // Rollable Item/Anything with a description that we want to click on.
+        html.find('.description-roll').click(ev => {
+            const li = ev.currentTarget.closest(".item");
+            this.actor.printDescription(li.dataset.itemId, {
+                event: ev
+            });
+        });        
+
+        // WEAPONS
         // Add Inventory Item
         html.find('.weapon-create').click(this._onItemCreate.bind(this));
 
@@ -227,7 +261,7 @@ export class QoLContractorSheet extends ActorSheet {
             //update ammo count
             this.actor.updateEmbeddedDocuments('Item', [item]);
         });
-
+        
         //increase shots
         html.on('mousedown', '.weapon-shots', ev => {
             const li = ev.currentTarget.closest(".item");
@@ -257,14 +291,37 @@ export class QoLContractorSheet extends ActorSheet {
             this.actor.reloadWeapon(li.dataset.itemId);
         });
 
-        // Rollable Item/Anything with a description that we want to click on.
-        html.find('.description-roll').click(ev => {
-            const li = ev.currentTarget.closest(".item");
-            this.actor.printDescription(li.dataset.itemId, {
-                event: ev
-            });
+        // ARMOR
+        //increase oxygen
+        html.on('mousedown', '.armor-oxy', ev => {
+          const li = ev.currentTarget.closest(".item");
+          //const item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId))
+          var item;
+          if (game.release.generation >= 12) {
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+          } else {
+            item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+          }
+          let amount = item.system.oxygenCurrent;
+          if (event.button == 0) {
+            if (amount < item.system.oxygenMax) {
+              item.system.oxygenCurrent = Number(amount) + 1;
+            }
+          } else if (event.button == 2) {
+            if (amount > 0) {
+              item.system.oxygenCurrent = Number(amount) - 1;
+            }
+          }
+          this.actor.updateEmbeddedDocuments('Item', [item]);
+        });
+    
+        // Clicking on Armor
+        html.find('.armor-roll').click(ev => {
+          //roll panic check
+          this.actor.chooseCover();
         });
 
+        // DRAG & DROP
         // Drag events for macros.
         if (this.actor.isOwner) {
             let handler = ev => this._onDragStart(ev);
