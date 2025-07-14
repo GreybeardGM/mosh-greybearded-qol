@@ -18,6 +18,11 @@ export class QoLContractorSheet extends ActorSheet {
     }
 
     async _updateObject(event, formData) {
+        const salaryPath = "system.contractor.baseSalary";
+        if (formData[salaryPath]) {
+            formData[salaryPath] = parseInt(formData[salaryPath].replace(/\D/g, ""), 10) || 0;
+        }
+
         const actor = this.object;
         var updateData;
         if (game.release.generation >= 12) {
@@ -25,7 +30,6 @@ export class QoLContractorSheet extends ActorSheet {
         } else {
           updateData = expandObject(formData);
         }
-    
 
         await actor.update(updateData, {
             diff: false
@@ -112,18 +116,20 @@ export class QoLContractorSheet extends ActorSheet {
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
-        // On focus: show raw number
-        html.find('.currency-input').on('focus', function () {
+        // Salary Display
+        html.find('.currency-input')
+          .on('focus', function () {
             const raw = $(this).data('raw');
-            this.value = raw ?? '';
-        });
-        
-        // On blur: format number
-        html.find('.currency-input').on('blur', function () {
-            const rawValue = parseInt(this.value.replace(/\D/g, ''), 10) || 0;
+            if (raw !== undefined) this.value = raw;
+          })
+          .on('blur', function () {
+            let rawValue = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+            // Zeige formatiert
             this.value = `${rawValue.toLocaleString(game.i18n.lang)} cr`;
-            $(this).data('raw', rawValue);
-        });
+            // Speichere Raw in input.dataset, aber auch im .value (damit Foundry es speichert!)
+            this.dataset.value = rawValue;
+            this.value = rawValue;
+          });
         
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
