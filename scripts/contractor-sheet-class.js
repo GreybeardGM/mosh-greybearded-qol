@@ -1,3 +1,4 @@
+import { getThemeColor } from "./utils/get-theme-color.js";
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
@@ -59,6 +60,7 @@ export class QoLContractorSheet extends ActorSheet {
       };
 
       data.data.isGM = game.user.isGM;
+      data.data.themeColor = getThemeColor();
         
       return data.data;
     }
