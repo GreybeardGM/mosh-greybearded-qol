@@ -56,7 +56,9 @@ export class QoLContractorSheet extends ActorSheet {
         description: await TextEditor.enrichHTML(data.data.system.description, { async: true }),
         biography: await TextEditor.enrichHTML(data.data.system.biography, { async: true })
       };
-    
+
+      data.data.isGM = game.user.isGM;
+        
       return data.data;
     }
 
