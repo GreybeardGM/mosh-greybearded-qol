@@ -309,12 +309,13 @@
 
 /* Contractor Sheet */
 .greybeardqol input.currency-input {
-  color: white;
+  color: var(--color-highlight);
   border: none;
   text-align: center;
-  font-weight: bold;        /* optional, sieht oft eleganter aus */
+  font-weight: bold;
+  font-size: 1.6em;
 }
 
-.greybeardqol .currency-container {
+.greybeardqol .salary-input {
   margin-bottom: 0.5em;
 }
