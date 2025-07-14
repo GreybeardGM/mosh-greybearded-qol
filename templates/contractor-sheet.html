@@ -1,23 +1,23 @@
 <form class="{{cssClass}} greybeardqol" autocomplete="off">
   {{!-- Sheet Header --}}
 
-  <header class="creature-header-grid">
-    <!-- Creature NAME -->
-    <input name="name" class="noborder creaturename" style="grid-area:'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
-    <div class="whiteline"></div>
-  </header>
   <div class="creature-description-grid">
+    <div class="creature-header-grid">
+      <!-- Contractor NAME -->
+      <input name="name" class="noborder creaturename" style="grid-area:'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
+      <div class="whiteline"></div>
+    </div>
+
     <div class="creaturedescription">
-      <div class="grid">
- 
+      <div class="grid"> 
+
         <!-- Stats -->
         <div class="grid grid-1col widegap">
-
           <!-- Combat -->
           <div class="mainstatwrapper">
             <div class="resource mainstat">
               <div class="mainstatlabel">
-                <span class="ability-mod stat-roll rollable mainstattext" data-key="strength"
+                <span class="ability-mod stat-roll rollable mainstattext" data-key="combat" data-roll="d100"
                   data-label="{{ localize 'Mosh.Combat' }}">{{ localize 'Mosh.Combat' }}</span>
               </div>
               <input class="circle-input" type="text" name="system.stats.combat.value"
@@ -27,7 +27,6 @@
               value="{{system.stats.combat.mod}}" data-dtype="Number" />
             <div class="mainstatmod-title">+</div>
           </div>
-
           <!-- Instinct -->
           <div class="mainstatwrapper">
             <div class="resource mainstat">
@@ -42,7 +41,6 @@
               data-dtype="Number" />
             <div class="mainstatmod-title">+</div>
           </div>
-
           {{#if system.stats.loyalty.value}}
             <!-- Loyalty -->
             <div class="mainstatwrapper">
@@ -59,54 +57,53 @@
               <div class="mainstatmod-title">+</div>
             </div>
           {{/if}}
-
-        </div>
-     
-        <!-- Hits -->
-        <div class="resource healthspread minmaxtopstat">
-          {{#if system.settings.firstEdition}}
-          <label for="system.hits.value" class="resource-label minmaxtext">{{ localize 'Mosh.Wounds' }}</label>
-          {{else}}
-          <label for="system.hits.value" class="resource-label minmaxtext">{{ localize 'Mosh.Hits' }}</label>
-          {{/if}}  
-          <div class="minmaxwrapper">
-            <input class="maxhealth-input darkGreyText" type="text" name="system.hits.value" value="{{system.hits.value}}"
-              data-dtype="Number" />
-            <div class="slant"></div>
-            <input class="maxhealth-input darkGreyText" type="text" name="system.hits.max" value="{{system.hits.max}}"
-              data-dtype="Number" />
-          </div>
-  
-          <div class="healthmaxtext">{{ localize 'Mosh.Current' }}</div>
-          <div class="healthmaxtext">{{ localize 'Mosh.Maximum' }}</div>
         </div>
 
-        <!-- Armor -->
-        <div class="resource healthspread minmaxtopstat" style="grid-column-start: 2; grid-column-end: 3;">
-          <label for="system.stats.armor.value" class="resource-label minmaxtext rollable armor-roll">{{ localize 'Mosh.Armor' }}</label>
-          <div class="minmaxwrapper" style="width: 100%; background: black; border-radius: 0.3em;">
-            <div class="maxhealth-input" style="display: flex;">
-              <div class="whiteText" type="text" data-dtype="Number">{{system.stats.armor.mod}}</div>
-              {{#if (compare 'str' system.stats.armor.cover '===' 'insignificant')}}
-              <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;5</div>
-              {{/if}}
-              {{#if (compare 'str' system.stats.armor.cover '===' 'light')}}
-              <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;10</div>
-              {{/if}}
-              {{#if (compare 'str' system.stats.armor.cover '===' 'heavy')}}
-              <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;20</div>
-              {{/if}}
+        <div class="grid grid-1col widegap">
+          <!-- Hits -->
+          <div class="resource healthspread minmaxtopstat">
+            {{#if system.settings.firstEdition}}
+            <label for="system.hits.value" class="resource-label minmaxtext">{{ localize 'Mosh.Wounds' }}</label>
+            {{else}}
+            <label for="system.hits.value" class="resource-label minmaxtext">{{ localize 'Mosh.Hits' }}</label>
+            {{/if}}  
+            <div class="minmaxwrapper">
+              <input class="maxhealth-input darkGreyText" type="text" name="system.hits.value" value="{{system.hits.value}}"
+                data-dtype="Number" />
+              <div class="slant"></div>
+              <input class="maxhealth-input darkGreyText" type="text" name="system.hits.max" value="{{system.hits.max}}"
+                data-dtype="Number" />
+            </div>    
+            <div class="healthmaxtext">{{ localize 'Mosh.Current' }}</div>
+            <div class="healthmaxtext">{{ localize 'Mosh.Maximum' }}</div>
+          </div> 
+          <!-- Armor -->
+          <div class="resource healthspread minmaxtopstat" style="grid-column-start: 2; grid-column-end: 3;">
+            <label for="system.stats.armor.value" class="resource-label minmaxtext rollable armor-roll">{{ localize 'Mosh.Armor' }}</label>
+            <div class="minmaxwrapper" style="width: 100%; background: black; border-radius: 0.3em;">
+              <div class="maxhealth-input" style="display: flex;">
+                <div class="whiteText" type="text" data-dtype="Number">{{system.stats.armor.mod}}</div>
+                {{#if (compare 'str' system.stats.armor.cover '===' 'insignificant')}}
+                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;5</div>
+                {{/if}}
+                {{#if (compare 'str' system.stats.armor.cover '===' 'light')}}
+                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;10</div>
+                {{/if}}
+                {{#if (compare 'str' system.stats.armor.cover '===' 'heavy')}}
+                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;20</div>
+                {{/if}}
+              </div>
+              <div class="slant" style="border-right: 2px solid #ffffff; transform: skewX(0deg);"></div>
+              <div class="maxhealth-input" style="display: flex;">
+                <div class="whiteText" type="text" data-dtype="Number">{{system.stats.armor.damageReduction}}</div>
+                {{#if (compare 'str' system.stats.armor.cover '===' 'heavy')}}
+                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;5</div>
+                {{/if}}
+              </div>
             </div>
-            <div class="slant" style="border-right: 2px solid #ffffff; transform: skewX(0deg);"></div>
-            <div class="maxhealth-input" style="display: flex;">
-              <div class="whiteText" type="text" data-dtype="Number">{{system.stats.armor.damageReduction}}</div>
-              {{#if (compare 'str' system.stats.armor.cover '===' 'heavy')}}
-              <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;5</div>
-              {{/if}}
-            </div>
+            <div class="healthmaxtext">{{ localize 'Mosh.ArmorPoints' }}</div>
+            <div class="healthmaxtext">{{ localize 'Mosh.DMGReduction' }}</div>
           </div>
-          <div class="healthmaxtext">{{ localize 'Mosh.ArmorPoints' }}</div>
-          <div class="healthmaxtext">{{ localize 'Mosh.DMGReduction' }}</div>
         </div>
             
       </div>
