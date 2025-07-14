@@ -142,6 +142,15 @@
     </div>
     <div class="creature-abilities">
       <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" style="height:auto; width:100%;" />
+      <div class="creature-ability-container creature-ability-title">{{ localize 'Mosh.BaseSalary' }}</div>
+      <div class="whiteline"></div>
+      <div class="salary-input">
+        <input type="text"
+               name="system.contractor.salary"
+               class="currency-input"
+               value="{{formatCurrency system.contractor.salary}}"
+               data-raw="{{system.contractor.salary}}" />
+      </div>
       <div class="creature-ability-container creature-ability-title">{{ localize 'Mosh.SpecialAbilities' }}</div>
       <div class="whiteline"></div>
       {{#each abilities as |ability id|}}
