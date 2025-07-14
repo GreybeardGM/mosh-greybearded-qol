@@ -17,12 +17,7 @@ export class QoLContractorSheet extends ActorSheet {
         return foundry.utils.mergeObject(super.defaultOptions, options);
     }
 
-    /**
-     * Extend and override the sheet header buttons
-     * @override
-     */
-
-  async _updateObject(event, formData) {
+    async _updateObject(event, formData) {
         const actor = this.object;
         var updateData;
         if (game.release.generation >= 12) {
@@ -41,29 +36,28 @@ export class QoLContractorSheet extends ActorSheet {
 
     /** @override */
     async getData() {
-        const data = await super.getData();
-        data.dtypes = ["String", "Number", "Boolean"];
-        //   for (let attr of Object.values(data.data.attributes)) {
-        //     attr.isCheckbox = attr.dtype === "Boolean";
-        //   }
-
-        // Prepare items.
-        if (this.actor.type == 'creature') {
-            this._prepareCreatureItems(data);
-        }
-
-        if (data.data.system.settings == null) {
-            data.data.system.settings = {};
-        }
-        data.data.system.settings.useCalm = game.settings.get("mosh", "useCalm");
-        data.data.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
-        data.data.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
-        data.data.system.settings.androidPanic = game.settings.get("mosh", "androidPanic");
-
-        data.data.enriched = [];
-        data.data.enriched.description = await TextEditor.enrichHTML(data.data.system.description, {async: true});
-        data.data.enriched.biography = await TextEditor.enrichHTML(data.data.system.biography, {async: true});
-        return data.data;
+      const data = await super.getData();
+      data.dtypes = ["String", "Number", "Boolean"];
+    
+      this._prepareCreatureItems(data);
+    
+      // Feste Settings als Platzhalter
+      data.data.system.contractor = {
+        combat: this.actor.system.contractor?.combat ?? 30,
+        instinct: this.actor.system.contractor?.instinct ?? 40,
+        loyalty: this.actor.system.contractor?.loyalty ?? 2,
+        armor: this.actor.system.contractor?.armor ?? 10,
+        baseSalary: this.actor.system.contractor?.baseSalary ?? 100,
+        motivation: this.actor.system.contractor?.motivation ?? "",
+        hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
+      };
+    
+      data.data.enriched = {
+        description: await TextEditor.enrichHTML(data.data.system.description, { async: true }),
+        biography: await TextEditor.enrichHTML(data.data.system.biography, { async: true })
+      };
+    
+      return data.data;
     }
 
     /**
@@ -73,7 +67,7 @@ export class QoLContractorSheet extends ActorSheet {
      */
     getWoundsLeft(html){
         return html.find(`input[name="system.hits.max"]`).prop('value') - html.find(`input[name="system.hits.value"]`).prop('value'); 
-      }
+    }
 
     /**
      * Organize and classify Items for Character sheets.
