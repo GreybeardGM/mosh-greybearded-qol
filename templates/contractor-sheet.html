@@ -2,14 +2,14 @@
   {{!-- Sheet Header --}}
 
   <div class="creature-description-grid">
-    <div class="creature-header-grid">
-      <!-- Contractor NAME -->
-      <input name="name" class="noborder creaturename" style="grid-area:'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
-      <div class="whiteline"></div>
-    </div>
-
     <div class="creaturedescription">
-      <div class="grid"> 
+      <div class="creature-header-grid">
+        <!-- Contractor NAME -->
+        <input name="name" class="noborder creaturename" style="grid-area:'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
+        <div class="whiteline"></div>
+      </div>
+        
+      <div class="grid widegap"> 
 
         <!-- Stats -->
         <div class="grid grid-1col widegap">
@@ -78,7 +78,7 @@
             <div class="healthmaxtext">{{ localize 'Mosh.Maximum' }}</div>
           </div> 
           <!-- Armor -->
-          <div class="resource healthspread minmaxtopstat" style="grid-column-start: 2; grid-column-end: 3;">
+          <div class="resource healthspread minmaxtopstat">
             <label for="system.stats.armor.value" class="resource-label minmaxtext rollable armor-roll">{{ localize 'Mosh.Armor' }}</label>
             <div class="minmaxwrapper" style="width: 100%; background: black; border-radius: 0.3em;">
               <div class="maxhealth-input" style="display: flex;">
