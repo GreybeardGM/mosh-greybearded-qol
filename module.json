@@ -9,6 +9,13 @@
     "minimum": "12.0",
     "verified": "12.999"
   },
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
   "esmodules": ["scripts/main.js"],
   "styles": ["styles/qol.css"],
   "url": "https://github.com/GreybeardGM/mosh-greybearded-qol",
