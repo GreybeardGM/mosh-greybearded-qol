@@ -55,13 +55,13 @@ export class QoLContractorSheet extends ActorSheet {
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
            
-      if (actorData.system.settings == null) data.data.system.settings = {};
+      if (actorData.system.settings == null) actorData.system.settings = {};
       actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
       actorData.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
         
       actorData.enriched = {
-        description: await TextEditor.enrichHTML(data.data.system.description, { async: true }),
-        biography: await TextEditor.enrichHTML(data.data.system.biography, { async: true })
+        description: await TextEditor.enrichHTML(actorData.system.description, { async: true }),
+        biography: await TextEditor.enrichHTML(actorData.system.biography, { async: true })
       };
 
       actorData.isGM = game.user.isGM;
