@@ -43,7 +43,7 @@ export class QoLContractorSheet extends ActorSheet {
     async getData() {
       const sheetData = await super.getData();
       sheetData.dtypes = ["String", "Number", "Boolean"];
-      actorData = sheetData.data;
+      let actorData = sheetData.data;
     
       this._prepareContractorItems(sheetData);
     
