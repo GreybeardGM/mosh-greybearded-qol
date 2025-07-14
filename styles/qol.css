@@ -332,6 +332,7 @@
 .greybeardqol .creaturedescription {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .greybeardqol .creature-header-grid {
