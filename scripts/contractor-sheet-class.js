@@ -263,6 +263,12 @@ export class QoLContractorSheet extends ActorSheet {
             });
         }
 
+        // Initial format currency fields
+        html.find(".currency-input").each(function () {
+          const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+          this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+        });
+
     }
 
     /* -------------------------------------------- */
