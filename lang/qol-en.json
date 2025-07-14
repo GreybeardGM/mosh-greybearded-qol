@@ -5,5 +5,6 @@
   "MoshQoL.Motivation": "Motivation",
   "MoshQoL.EnterMotivation": "What drives the Contractor.",
   "MoshQoL.HiddenMotivation": "Secret Motivation (GM only)",
-  "MoshQoL.EnterHiddenMotivation": "Only visible to GM"
+  "MoshQoL.EnterHiddenMotivation": "Only visible to GM",
+  "MoshQoL.LoyaltyRolled": "Loyalty Rolled"
 }
