@@ -1,4 +1,5 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { chatOutput } from "./utils/chat-output.js";
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
