@@ -46,7 +46,7 @@ export class QoLContractorSheet extends ActorSheet {
       let actorData = sheetData.data;
     
       this._prepareContractorItems(sheetData);
-    
+        
       // Feste Settings als Platzhalter
       actorData.system.contractor = {
         isNamed: this.actor.system.contractor?.isNamed ?? false,
@@ -123,7 +123,9 @@ export class QoLContractorSheet extends ActorSheet {
                 weapons.push(i);
             }
         }
-    
+
+        const cover = actorData?.armor?.cover || "";
+        
         // Assign and return
         actorData.abilities = abilities;
         actorData.weapons = weapons;
@@ -131,7 +133,7 @@ export class QoLContractorSheet extends ActorSheet {
         actorData.gear = gear;
         actorData.system.stats.armor = {
             mod: armorPoints,
-            total: 10,
+            cover: cover,
             damageReduction: damageReduction
         };
     }
