@@ -44,7 +44,7 @@ export class QoLContractorSheet extends ActorSheet {
       const data = await super.getData();
       data.dtypes = ["String", "Number", "Boolean"];
     
-      this._prepareCreatureItems(data);
+      this._prepareContractorItems(data);
     
       // Feste Settings als Platzhalter
       data.data.system.contractor = {
@@ -81,21 +81,26 @@ export class QoLContractorSheet extends ActorSheet {
      *
      * @return {undefined}
      */
-    _prepareCreatureItems(sheetData) {
+    _prepareContractorItems(sheetData) {
         const actorData = sheetData.data;
 
         // Initialize containers.
         const abilities = [];
         const weapons = [];
+        const armors = [];
+        const gear = [];
 
         // Iterate through items, allocating to containers
-        // let totalWeight = 0;
         for (let i of sheetData.items) {
             let item = i.system;
             i.img = i.img || DEFAULT_TOKEN;
 
             if (i.type === 'ability') {
                 abilities.push(i);
+            } else if (i.type === 'gear') {
+                gear.push(i);
+            } else if (i.type === 'armor') {
+                armors.push(i);
             } else if (i.type === 'weapon') {
                 if (item.ranges.value == "" && item.ranges.medium > 0) {
                     item.ranges.value = item.ranges.short + "/" + item.ranges.medium + "/" + item.ranges.long;
@@ -109,6 +114,8 @@ export class QoLContractorSheet extends ActorSheet {
         // Assign and return
         actorData.abilities = abilities;
         actorData.weapons = weapons;
+        actorData.armors = armors;
+        actorData.gear = gear;
     }
 
     /** @override */
