@@ -320,15 +320,9 @@
   margin-bottom: 0.5em;
 }
 
-.greybeardqol .creature-header-grid {
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  width: 7em;
-}
-
 .greybeardqol .contractor-flag {
   text-align: center;
+  width: 7em;
 }
 
 .greybeardqol .creaturedescription {
