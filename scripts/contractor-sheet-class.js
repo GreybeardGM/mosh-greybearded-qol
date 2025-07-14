@@ -41,32 +41,46 @@ export class QoLContractorSheet extends ActorSheet {
 
     /** @override */
     async getData() {
-      const data = await super.getData();
-      data.dtypes = ["String", "Number", "Boolean"];
+      const sheetData = await super.getData();
+      sheetData.dtypes = ["String", "Number", "Boolean"];
+      actorData = sheetData.data;
     
-      this._prepareContractorItems(data);
+      this._prepareContractorItems(sheetData);
     
       // Feste Settings als Platzhalter
-      data.data.system.contractor = {
+      actorData.system.contractor = {
         isNamed: this.actor.system.contractor?.isNamed ?? false,
         baseSalary: this.actor.system.contractor?.baseSalary ?? 0,
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
-
-      if (data.data.system.settings == null) data.data.system.settings = {};
-      data.data.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
-      data.data.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
+    
+      let armorPoints = 0;
+      let damageReduction = 0;
+      const armors = this.getEmbeddedCollection("Item").filter(e => "armor" === e.type);
+      for (let armor of armors) {
+        if (armor.system.equipped) {
+          armorPoints += armor.system.armorPoints;
+          damageReduction += armor.system.damageReduction;
+        }
+      }
+      actorData.system.stats.armor.mod = armorPoints;
+      actorData.system.stats.armor.total = armorPoints + actorData.system.stats.armor.value;
+      actorData.system.stats.armor.damageReduction = damageReduction;
         
-      data.data.enriched = {
+      if (actorData.system.settings == null) data.data.system.settings = {};
+      actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
+      actorData.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
+        
+      actorData.enriched = {
         description: await TextEditor.enrichHTML(data.data.system.description, { async: true }),
         biography: await TextEditor.enrichHTML(data.data.system.biography, { async: true })
       };
 
-      data.data.isGM = game.user.isGM;
-      data.data.themeColor = getThemeColor();
+      actorData.isGM = game.user.isGM;
+      actorData.themeColor = getThemeColor();
         
-      return data.data;
+      return actorData;
     }
 
     /**
