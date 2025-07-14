@@ -343,28 +343,11 @@ Hooks.on("createActor", async (actor, options, userId) => {
   console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
 });
 
-/*
-// Remove Default Character Creator
-Hooks.once("ready", () => {
-  const actor = game.actors.find(a => a.type === "character");
-  if (!actor) return console.warn("MoSh QoL: No character found.");
 
-  const sheetClass = actor.sheet.constructor;
-
-  if (!sheetClass.prototype._getHeaderButtons) {
-    console.warn(`MoSh QoL: ${sheetClass.name} has no _getHeaderButtons method.`);
-    return;
-  }
-
-  const original = sheetClass.prototype._getHeaderButtons;
-
-  sheetClass.prototype._getHeaderButtons = function (...args) {
-    const buttons = original.call(this, ...args);
-    return buttons.filter(
-      (b) => !(b.class === "configure-actor" && b.icon === "fas fa-cogs")
-    );
-  };
-
-  console.log(`[MoSh QoL] _getHeaderButtons removed from ${sheetClass.name}.`);
+// Handlebar Helpers
+Handlebars.registerHelper('formatCurrency', function (value) {
+  if (typeof value !== 'number') value = parseInt(value, 10) || 0;
+  const locale = game.i18n.lang || 'en';
+  return `${value.toLocaleString(locale)} cr`;
 });
-*/
+
