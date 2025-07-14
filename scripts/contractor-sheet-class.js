@@ -131,6 +131,7 @@ export class QoLContractorSheet extends ActorSheet {
         actorData.gear = gear;
         actorData.system.stats.armor = {
             mod: armorPoints,
+            total: actorData.stats.armor.value,
             damageReduction: damageReduction
         };
     }
