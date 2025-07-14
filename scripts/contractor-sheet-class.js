@@ -124,7 +124,7 @@ export class QoLContractorSheet extends ActorSheet {
             }
         }
 
-        const cover = actorData?.armor?.cover || "";
+        const cover = actorData.system.stats?.armor?.cover || "";
         
         // Assign and return
         actorData.abilities = abilities;
