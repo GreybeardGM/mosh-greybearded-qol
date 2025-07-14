@@ -1,0 +1,9 @@
+{
+  "Mosh.GenericContractor": "Generic Controctor",
+  "Mosh.UniqueContractor": "Unique Controctor",
+  "Mosh.BaseSalary": "Base Salary",
+  "Mosh.Motivation": "Motivation",
+  "Mosh.EnterMotivation": "What drives the Contractor.",
+  "Mosh.HiddenMotivation": "Secret Mottivation (GM only)",
+  "Mosh.EnterHiddenMotivation": "Only visible to GM"
+}
