@@ -88,7 +88,7 @@ export class QoLContractorSheet extends ActorSheet {
      */
     _prepareContractorItems(sheetData) {
         const actorData = sheetData.data;
-
+    
         // Initialize containers.
         const abilities = [];
         const weapons = [];
@@ -96,32 +96,34 @@ export class QoLContractorSheet extends ActorSheet {
         const gear = [];
         let armorPoints = 0;
         let damageReduction = 0;
-
+    
         // Iterate through items, allocating to containers
         for (let i of sheetData.items) {
-            let item = i.system;
+            const item = i.system;
             i.img = i.img || DEFAULT_TOKEN;
-
+    
             if (i.type === 'ability') {
                 abilities.push(i);
+    
             } else if (i.type === 'item') {
                 gear.push(i);
+    
             } else if (i.type === 'armor') {
                 if (item.equipped) {
-                    armorPoints += armor.system.armorPoints;
-                    damageReduction += armor.system.damageReduction;
+                    armorPoints += item.armorPoints || 0;
+                    damageReduction += item.damageReduction || 0;
                 }
                 armors.push(i);
+    
             } else if (i.type === 'weapon') {
-                if (item.ranges.value == "" && item.ranges.medium > 0) {
-                    item.ranges.value = item.ranges.short + "/" + item.ranges.medium + "/" + item.ranges.long;
+                if (item?.ranges?.value === "" && item.ranges.medium > 0) {
+                    item.ranges.value = `${item.ranges.short}/${item.ranges.medium}/${item.ranges.long}`;
                     item.ranges.medium = 0;
                 }
-
                 weapons.push(i);
             }
         }
-
+    
         // Assign and return
         actorData.abilities = abilities;
         actorData.weapons = weapons;
@@ -132,6 +134,7 @@ export class QoLContractorSheet extends ActorSheet {
             damageReduction: damageReduction
         };
     }
+
 
     /** @override */
     activateListeners(html) {
