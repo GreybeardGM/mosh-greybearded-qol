@@ -15,11 +15,11 @@
         <!-- Named / Generic Indicator -->
         {{#if system.contractor.isNamed}}
           <div class="creature-header-grid contractor-flag named">
-            {{ localize 'Mosh.UniqueContractor' }}
+            {{ localize 'MoshQoL.UniqueContractor' }}
           </div>
         {{else}}
           <div class="creature-header-grid contractor-flag generic interactive" data-action="promote-contractor">
-            {{ localize 'Mosh.GenericContractor' }}
+            {{ localize 'MoshQoL.GenericContractor' }}
           </div>
         {{/if}}
       
@@ -123,14 +123,14 @@
 
       <!-- MOTIVATION (sichtbar für alle) -->
       <div class="contractor-motivationblock">
-        <div class="resource-label">{{ localize 'Mosh.Motivation' }}</div>
+        <div class="resource-label">{{ localize 'MoshQoL.Motivation' }}</div>
         <textarea name="system.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'Mosh.EnterMotivation' }}">{{system.motivation}}</textarea>
       </div>
       
       <!-- HIDDEN MOTIVATION (nur GM) -->
       {{#if isGM}}
         <div class="contractor-hiddenmotivationblock">
-          <div class="resource-label">{{ localize 'Mosh.HiddenMotivation' }}</div>
+          <div class="resource-label">{{ localize 'MoshQoL.HiddenMotivation' }}</div>
           <textarea name="system.hiddenMotivation" rows="2" class="textarea-input" placeholder="{{ localize 'Mosh.EnterHiddenMotivation' }}">{{system.hiddenMotivation}}</textarea>
         </div>
       {{/if}}
@@ -139,7 +139,7 @@
     </div>
     <div class="creature-abilities">
       <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" style="height:auto; width:100%;" />
-      <div class="creature-ability-container creature-ability-title">{{ localize 'Mosh.BaseSalary' }}</div>
+      <div class="creature-ability-container creature-ability-title">{{ localize 'MoshQoL.BaseSalary' }}</div>
       <div class="whiteline"></div>
       <div class="salary-input">
         <input class="currency-input" name="system.contractor.baseSalary" type="text" value="{{system.contractor.baseSalary}}" />
