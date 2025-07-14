@@ -54,20 +54,7 @@ export class QoLContractorSheet extends ActorSheet {
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
-    
-      let armorPoints = 0;
-      let damageReduction = 0;
-      const armors = this.getEmbeddedCollection("Item").filter(e => "armor" === e.type);
-      for (let armor of armors) {
-        if (armor.system.equipped) {
-          armorPoints += armor.system.armorPoints;
-          damageReduction += armor.system.damageReduction;
-        }
-      }
-      actorData.system.stats.armor.mod = armorPoints;
-      actorData.system.stats.armor.total = armorPoints + actorData.system.stats.armor.value;
-      actorData.system.stats.armor.damageReduction = damageReduction;
-        
+           
       if (actorData.system.settings == null) data.data.system.settings = {};
       actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
       actorData.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
@@ -107,6 +94,8 @@ export class QoLContractorSheet extends ActorSheet {
         const weapons = [];
         const armors = [];
         const gear = [];
+        let armorPoints = 0;
+        let damageReduction = 0;
 
         // Iterate through items, allocating to containers
         for (let i of sheetData.items) {
@@ -118,6 +107,10 @@ export class QoLContractorSheet extends ActorSheet {
             } else if (i.type === 'item') {
                 gear.push(i);
             } else if (i.type === 'armor') {
+                if (item.equipped) {
+                    armorPoints += armor.system.armorPoints;
+                    damageReduction += armor.system.damageReduction;
+                }
                 armors.push(i);
             } else if (i.type === 'weapon') {
                 if (item.ranges.value == "" && item.ranges.medium > 0) {
@@ -134,6 +127,9 @@ export class QoLContractorSheet extends ActorSheet {
         actorData.weapons = weapons;
         actorData.armors = armors;
         actorData.gear = gear;
+        actorData.system.stats.armor.mod = armorPoints;
+        actorData.system.stats.armor.total = armorPoints + actorData.system.stats.armor.value;
+        actorData.system.stats.armor.damageReduction = damageReduction;
     }
 
     /** @override */
