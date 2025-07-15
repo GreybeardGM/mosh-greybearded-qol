@@ -83,7 +83,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     await creditRoll.evaluate();
     const startingCredits = creditRoll.total;
     await actor.update({ system: { credits: { value: startingCredits } } });
-    itemSummary += `<br><strong >Starting Credits:</strong> ${startingCredits} cr`;
+    itemSummary += `<br><strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
   }
   
   await chatOutput({
