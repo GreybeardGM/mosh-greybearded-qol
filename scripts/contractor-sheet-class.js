@@ -52,7 +52,7 @@ export class QoLContractorSheet extends ActorSheet {
       actorData.system.contractor = {
         isNamed: this.actor.system.contractor?.isNamed ?? false,
         baseSalary: this.actor.system.contractor?.baseSalary ?? 0,
-        baseSalary: this.actor.system.contractor?.role ?? "",
+        role: this.actor.system.contractor?.role ?? "",
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
