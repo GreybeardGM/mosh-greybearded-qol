@@ -29,16 +29,12 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     const results = (await table.roll()).results;
 
     for (const result of results) {
-      const ref = result.documentCollection;
-      const docId = result.documentId;
       let fullItem = null;
-
-      if (ref && docId) {
-        const itemUuid = `Compendium.${ref}.${docId}`;
+      if (result.documentUuid) {
         try {
-          fullItem = await fromUuid(itemUuid);
+          fullItem = await fromUuid(result.documentUuid);
         } catch (error) {
-          console.warn(`Failed to load item from UUID: ${itemUuid}`, error);
+          console.warn(`Failed to load item from UUID: ${result.documentUuid}`, error);
         }
       }
 
