@@ -207,12 +207,13 @@ export class QoLContractorSheet extends ActorSheet {
             buttons: {
               loyalty: {
                 label: "Roll Loyalty",
-                callback: () => {
+                callback: async () => {
                   const roll = new Roll("2d10 + 10");
                   await roll.evaluate();
                   const total = roll.total;
+              
                   await actor.update({ "system.stats.loyalty.value": total });
-                  // Custom Chat Output
+              
                   await chatOutput({
                     actor,
                     title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
@@ -220,8 +221,8 @@ export class QoLContractorSheet extends ActorSheet {
                     image: actor.img,
                     content: `<span class="counter">${total}</span> Loyalty`
                   });
-                  // Re-render to update UI
-                  this.render();
+              
+                  this.render(); // Falls `this` hier noch Sheet-Kontext ist
                 }
               },
               motivation: {
