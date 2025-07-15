@@ -46,7 +46,7 @@ export function defineStashSheet(BaseSheet) {
           // Und zeitverzögert formatieren
           setTimeout(() => {
             this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
-          }, 1);
+          }, 10);
         });
     }
   };
