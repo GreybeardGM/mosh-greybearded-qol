@@ -36,11 +36,17 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
 
     for (const result of results) {
       let fullItem = null;
-      if (result.documentUuid) {
+      let uuid = result.documentUuid;
+      
+      if (!uuid && result.documentCollection && result.documentId) {
+        uuid = `Compendium.${result.documentCollection}.${result.documentId}`;
+      }
+      
+      if (uuid) {
         try {
-          fullItem = await fromUuid(result.documentUuid);
+          fullItem = await fromUuid(uuid);
         } catch (error) {
-          console.warn(`Failed to load item from UUID: ${result.documentUuid}`, error);
+          console.warn(`Failed to load item from UUID: ${uuid}`, error);
         }
       }
 
