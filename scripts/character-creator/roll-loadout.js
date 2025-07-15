@@ -42,8 +42,8 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
         const itemData = fullItem.toObject(false);
         itemsToCreate.push(itemData);
         if (itemData.type === "weapon") allItems.Weapons.push({ name: itemData.name, img: itemData.img });
-        else if (itemData.type === "armor") allItems.Weapons.push({ name: itemData.name, img: itemData.img });
-        else allItems.Weapons.push({ name: itemData.name, img: itemData.img });
+        else if (itemData.type === "armor") allItems.Armor.push({ name: itemData.name, img: itemData.img });
+        else allItems.Items.push({ name: itemData.name, img: itemData.img });
         continue;
       }
 
@@ -51,7 +51,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
       const cleanText = result.text?.replace(/<br\s*\/?>/gi, " ").replace(/@UUID\[[^\]]+\]/g, "").trim();
       if (cleanText) {
         itemsToCreate.push({ name: cleanText, type: "item", img: DEFAULT_IMAGES.Loadout, system: {}, effects: [], flags: {} });
-        allItems.Items.push(cleanText);
+        allItems.Items.push({ name: cleanText, img: DEFAULT_IMAGES.Loadout });
       }
     }
   }
@@ -70,7 +70,6 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
       `).join("");
     }
   }
-  itemSummary += `<br><strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
 
   // Roill for Staring Credits
   if (rollCredits) {
