@@ -196,7 +196,51 @@ export class QoLContractorSheet extends ActorSheet {
           // 5. Re-render to update UI
           this.render();
         });
-                
+
+        html.find('[data-action="contractor-menu"]').on("click", async (event) => {
+          const actor = this.actor; // Falls du das im Sheet-Kontext nutzt
+          if (!game.user.isGM) return;
+        
+          new Dialog({
+            title: "Contractor Actions",
+            content: `<p>Select a contractor option below:</p>`,
+            buttons: {
+              loyalty: {
+                label: "Roll Loyalty",
+                callback: () => {
+                  const roll = new Roll("2d10 + 10");
+                  await roll.evaluate();
+                  const total = roll.total;
+                  await actor.update({ "system.stats.loyalty.value": total });
+                  // Custom Chat Output
+                  await chatOutput({
+                    actor,
+                    title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
+                    subtitle: actor.name,
+                    image: actor.img,
+                    content: `<span class="counter">${total}</span> Loyalty`
+                  });
+                  // Re-render to update UI
+                  this.render();
+                }
+              },
+              motivation: {
+                label: "Roll Motivation",
+                callback: () => {
+                  console.log("TODO: Roll Motivation", actor);
+                }
+              },
+              loadout: {
+                label: "Roll Loadout",
+                callback: () => {
+                  console.log("TODO: Roll Loadout", actor);
+                }
+              }
+            },
+            default: "loyalty"
+          }).render(true);
+        });
+
         // Attribute Rolls
         // Rollable Attribute
         html.find('.stat-roll').click(ev => {
