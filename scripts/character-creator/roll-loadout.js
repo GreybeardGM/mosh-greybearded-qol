@@ -1,7 +1,7 @@
 import { chatOutput } from "../utils/chat-output.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
-  if (!actor || !selectedClass) return;
+  if (!actor || !selectedClass) return false;
 
   const DEFAULT_IMAGES = {
     Loadout: "modules/fvtt_mosh_1e_psg/icons/rolltables/loadouts.png",
@@ -88,4 +88,6 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     image: DEFAULT_IMAGES.Loadout,
     content: itemSummary
   });
+
+  return true;
 }
