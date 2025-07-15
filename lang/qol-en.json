@@ -1,6 +1,7 @@
 {
   "MoshQoL.GenericContractor": "Generic Contractor",
   "MoshQoL.UniqueContractor": "Unique Contractor",
+  "MoshQoL.ContractorRole": "Profession",
   "MoshQoL.BaseSalary": "Base Salary",
   "MoshQoL.Motivation": "Motivation",
   "MoshQoL.EnterMotivation": "What drives the Contractor.",
