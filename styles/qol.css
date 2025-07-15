@@ -312,6 +312,10 @@
   color: unset;
 }
 
+.greybeardqol.contractor .editor-content {
+  min-height: 3em;
+}
+
 .greybeardqol .highlighted-input {
   color: var(--color-highlight);
   border: none;
