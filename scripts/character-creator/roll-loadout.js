@@ -20,7 +20,13 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   const itemsToCreate = [];
 
   if (clearItems) {
-    await actor.deleteEmbeddedDocuments("Item", actor.items.map(i => i.id));
+    const deletableTypes = ["weapon", "armor", "item"];
+    const idsToDelete = actor.items
+      .filter(i => deletableTypes.includes(i.type))
+      .map(i => i.id);
+    if (idsToDelete.length > 0) {
+      await actor.deleteEmbeddedDocuments("Item", idsToDelete);
+    }
   }
 
   for (const uuid of tableUUIDs) {
