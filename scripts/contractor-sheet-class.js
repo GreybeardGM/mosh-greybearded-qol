@@ -237,7 +237,7 @@ export class QoLContractorSheet extends ActorSheet {
               },
               loadout: {
                 label: "Roll Loadout",
-                callback: () => {
+                callback: async () => {
                   const selectedClass = await selectClass(actor, false);
                   if (selectedClass) await rollLoadout(actor, selectedClass, {
                     rollCredits: false,
