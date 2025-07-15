@@ -45,9 +45,9 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
       if (fullItem) {
         const itemData = fullItem.toObject(false);
         itemsToCreate.push(itemData);
-        if (itemData.type === "weapon") allItelms.Weapons.push(itemData.name);
-        else if (itemData.type === "armor") allItems.Armor.push(itemData.name);
-        else allItems.Items.push(itemData.name);
+        if (itemData.type === "weapon") allItems.Weapons.push({ name: itemData.name, img: itemData.img });
+        else if (itemData.type === "armor") allItems.Weapons.push({ name: itemData.name, img: itemData.img });
+        else allItems.Weapons.push({ name: itemData.name, img: itemData.img });
         continue;
       }
 
@@ -64,15 +64,6 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     await actor.createEmbeddedDocuments("Item", itemsToCreate);
   }
 
-  let creditString = "";
-  if (rollCredits) {
-    const creditRoll = new Roll("2d10 * 10");
-    await creditRoll.evaluate();
-    const startingCredits = creditRoll.total;
-    await actor.update({ system: { credits: { value: startingCredits } } });
-    creditString = `<br><strong >Starting Credits:</strong> ${startingCredits} cr`;
-  }
-
   // 💬 Chat output
   let itemSummary = "";
   for (const [category, items] of Object.entries(allItems)) {
@@ -85,12 +76,21 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   }
   itemSummary += `<br><strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
 
+  // Roill for Staring Credits
+  if (rollCredits) {
+    const creditRoll = new Roll("2d10 * 10");
+    await creditRoll.evaluate();
+    const startingCredits = creditRoll.total;
+    await actor.update({ system: { credits: { value: startingCredits } } });
+    itemSummary += `<br><strong >Starting Credits:</strong> ${startingCredits} cr`;
+  }
+  
   await chatOutput({
     actor,
     title: "Loadout",
     subtitle: actor.name,
     icon: "fa-dice",
     image: DEFAULT_IMAGES.Loadout,
-    content: ItemSummary
+    content: itemSummary
   });
 }
