@@ -290,8 +290,6 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   const isGM = game.user.isGM;
   const isOwner = actor.testUserPermission(game.user, "OWNER");
   if (!(isGM || isOwner)) return;
-  // Cancel if Stash
-  if (sheet instanceof StashSheet) return;
 
   // 🚢 0e Ship Crits
   if (
@@ -304,6 +302,21 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   }
 
   if (actor?.type === "character") {
+    // Hide Defualt Character Creator Button
+    const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+    const isStash = sheet instanceof StashSheet;
+
+    if (isCreatorEnabled || isStash) {  
+      const oldCreatorButton = html[0].querySelector(".configure-actor");
+      if (oldCreatorButton) {
+        oldCreatorButton.style.display = "none";
+        console.log("[MoSh QoL] Configure-Button hidden");
+      }
+    }
+
+    // Cancel the rest if Stash
+    if (isStash) return;
+    
     const titleElem = html[0]?.querySelector(".window-header .window-title");
     if (!titleElem) return;
   
@@ -311,7 +324,6 @@ Hooks.on("renderActorSheet", (sheet, html) => {
     const existingShoreLeave = titleElem.parentElement.querySelector(".simple-shoreleave");
     if (existingShoreLeave) existingShoreLeave.remove();
   
-    const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
     const isReady = checkReady(actor) && !checkCompleted(actor);
   
     if (isCreatorEnabled && isReady) {
@@ -321,15 +333,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
       // Standard ShoreLeave-Button einfügen
       insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf", () => game.moshGreybeardQol.simpleShoreLeave(actor));
     }
-
-    if (!isCreatorEnabled) return;
-  
-    // Button finden und verstecken
-    const oldCreatorButton = html[0].querySelector(".configure-actor");
-    if (oldCreatorButton) {
-      oldCreatorButton.style.display = "none";
-      console.log("[MoSh QoL] Configure-Button hidden");
-    }
+   
   }
 });
 
@@ -342,12 +346,3 @@ Hooks.on("createActor", async (actor, options, userId) => {
   await setReady(actor);
   console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
 });
-
-
-// Handlebar Helpers
-Handlebars.registerHelper('formatCurrency', function (value) {
-  if (typeof value !== 'number') value = parseInt(value, 10) || 0;
-  const locale = game.i18n.lang || 'en';
-  return `${value.toLocaleString(locale)} cr`;
-});
-
