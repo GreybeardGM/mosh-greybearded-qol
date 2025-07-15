@@ -1,5 +1,8 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { chatOutput } from "./utils/chat-output.js";
+import { selectClass } from "./character-creator/select-class.js";
+import { rollLoadout } from "./character-creator/roll-loadout.js";
+
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
@@ -235,7 +238,11 @@ export class QoLContractorSheet extends ActorSheet {
               loadout: {
                 label: "Roll Loadout",
                 callback: () => {
-                  console.log("TODO: Roll Loadout", actor);
+                  const selectedClass = await selectClass(actor, false);
+                  if (selectedClass) await rollLoadout(actor, selectedClass, {
+                    rollCredits: false,
+                    clearItems: true
+                  });
                 }
               }
             },
