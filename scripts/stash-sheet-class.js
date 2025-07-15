@@ -48,6 +48,13 @@ export function defineStashSheet(BaseSheet) {
             this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
           }, 10);
         });
+
+        // Initial format currency fields
+        html.find(".currency-input").each(function () {
+          const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+          this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+        });
+
     }
   };
 }
