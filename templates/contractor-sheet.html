@@ -14,7 +14,7 @@
       
         <!-- Named / Generic Indicator -->
         {{#if system.contractor.isNamed}}
-          <div class="creature-header-grid contractor-flag named">
+          <div class="creature-header-grid contractor-flag named{{#if isGM}} interactive" data-action="contractor-menu{{/if}}">
             {{ localize 'MoshQoL.UniqueContractor' }}
           </div>
         {{else}}
