@@ -14,9 +14,9 @@
       
         <!-- Named / Generic Indicator -->
         {{#if system.contractor.isNamed}}
-          <div class="creature-header-grid contractor-flag named{{#if isGM}} interactive" data-action="contractor-menu{{/if}}">
-            {{ localize 'MoshQoL.UniqueContractor' }}
-          </div>
+      	  <div class="creature-header-grid contractor-flag named {{#if isGM}}interactive{{/if}}" data-action="contractor-menu">
+      	    {{ localize 'MoshQoL.UniqueContractor' }}
+      	  </div>
         {{else}}
           <div class="creature-header-grid contractor-flag generic interactive" data-action="promote-contractor">
             {{ localize 'MoshQoL.GenericContractor' }}
@@ -123,18 +123,18 @@
 
       {{#if system.contractor.isNamed}}
         <!-- MOTIVATION (sichtbar für alle) -->
-	<div class="contractor-motivationblock">
-	  <div class="resource-label">{{ localize 'MoshQoL.Motivation' }}</div>
-	  <textarea name="system.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterMotivation' }}">{{system.motivation}}</textarea>
-	</div>
-	
-	<!-- HIDDEN MOTIVATION (nur GM) -->
-	{{#if isGM}}
-	  <div class="contractor-hiddenmotivationblock">
-	    <div class="resource-label">{{ localize 'MoshQoL.HiddenMotivation' }}</div>
-	    <textarea name="system.hiddenMotivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterHiddenMotivation' }}">{{system.hiddenMotivation}}</textarea>
-	  </div>
-	{{/if}}
+      	<div class="contractor-motivationblock">
+      	  <div class="resource-label">{{ localize 'MoshQoL.Motivation' }}</div>
+      	  <textarea name="system.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterMotivation' }}">{{system.motivation}}</textarea>
+      	</div>
+      	
+      	<!-- HIDDEN MOTIVATION (nur GM) -->
+      	{{#if isGM}}
+      	  <div class="contractor-hiddenmotivationblock">
+      	    <div class="resource-label">{{ localize 'MoshQoL.HiddenMotivation' }}</div>
+      	    <textarea name="system.hiddenMotivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterHiddenMotivation' }}">{{system.hiddenMotivation}}</textarea>
+      	  </div>
+      	{{/if}}
       {{/if}}
       
     </div>
