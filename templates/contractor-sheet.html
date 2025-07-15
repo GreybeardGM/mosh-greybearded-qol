@@ -139,11 +139,16 @@
       
     </div>
     <div class="creature-abilities">
+      <div class="creature-ability-container creature-ability-title">{{ localize 'MoshQoL.ContractorRole' }}</div>
+      <div class="whiteline"></div>
+      <div class="description-input">
+        <input class="highlighted-input" name="system.contractor.role" type="text" value="{{system.contractor.role}}" />
+      </div>
       <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" style="height:auto; width:100%;" />
       <div class="creature-ability-container creature-ability-title">{{ localize 'MoshQoL.BaseSalary' }}</div>
       <div class="whiteline"></div>
-      <div class="salary-input">
-        <input class="currency-input" name="system.contractor.baseSalary" type="text" value="{{system.contractor.baseSalary}}" />
+      <div class="description-input">
+        <input class="highlighted-input" name="system.contractor.baseSalary" type="text" value="{{system.contractor.baseSalary}}" />
       </div>
       <div class="creature-ability-container creature-ability-title">{{ localize 'Mosh.SpecialAbilities' }}</div>
       <div class="whiteline"></div>
