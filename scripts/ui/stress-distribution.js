@@ -56,8 +56,8 @@ export async function showStressConversionDialog(actor, points) {
         // Confirm button handler
         html.find("#confirm-button").on("click", function () {
           if (!$(this).hasClass("locked")) {
-            dlg.close();
             resolve(values);
+            dlg.close();
           }
         });
 
