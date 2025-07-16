@@ -237,10 +237,7 @@ export class QoLContractorSheet extends ActorSheet {
                   await roll.evaluate();
               
                   const rolledValue = roll.total % 100;
-console.log(rolledValue);
                   const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
-console.log(result);              
-console.log(result.text);              
                   if (!result) {
                     ui.notifications.warn("No matching motivation found.");
                     return;
