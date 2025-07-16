@@ -2,6 +2,7 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 import { chatOutput } from "./utils/chat-output.js";
 import { selectClass } from "./character-creator/select-class.js";
 import { rollLoadout } from "./character-creator/roll-loadout.js";
+import { MOTIVATION_TABLE } from "./config/default-contractor-motivation.js";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -231,8 +232,21 @@ export class QoLContractorSheet extends ActorSheet {
               },
               motivation: {
                 label: "Roll Motivation",
-                callback: () => {
-                  console.log("TODO: Roll Motivation", actor);
+                callback: async () => {
+                  const roll = new Roll("1d100");
+                  await roll.evaluate();
+              
+                  const rolledValue = roll.total % 100;
+                  const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
+              
+                  if (!result) {
+                    ui.notifications.warn("No matching motivation found.");
+                    return;
+                  }
+              
+                  // Speichern in hiddenMotivation
+                  await actor.update({ "system.contractor.hiddenMotivation": result.text });              
+                  this.render();
                 }
               },
               loadout: {
