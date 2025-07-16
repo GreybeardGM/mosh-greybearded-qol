@@ -511,7 +511,8 @@ export class QoLContractorSheet extends ActorSheet {
       title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
       subtitle: actor.name,
       image: actor.img,
-      content: `<span class="counter">${total}</span> Loyalty`
+      content: `<span class="counter">${total}</span> Loyalty`,
+      roll
     });
   
     this.render(); // Falls `this` hier noch Sheet-Kontext ist  
