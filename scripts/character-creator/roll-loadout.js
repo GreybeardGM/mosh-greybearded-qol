@@ -94,7 +94,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   
   await chatOutput({
     actor,
-    title: "Loadout",
+    title: "Loadout Rolled",
     subtitle: actor.name,
     icon: "fa-dice",
     image: DEFAULT_IMAGES.Loadout,
