@@ -22,7 +22,7 @@
     {
       "name": "qol-rolltables",
       "label": "QoL Roll Tables",
-      "path": "packs/rolltables.db",
+      "path": "packs/rolltables.ldb",
       "type": "RollTable"
     }
   ],
