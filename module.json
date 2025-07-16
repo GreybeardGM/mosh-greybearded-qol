@@ -25,7 +25,7 @@
       "path": "packs/rolltables.db",
       "type": "RollTable"
     }
-  ]
+  ],
   "url": "https://github.com/GreybeardGM/mosh-greybearded-qol",
   "manifest": "https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json",
   "download": "https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/heads/main.zip",
