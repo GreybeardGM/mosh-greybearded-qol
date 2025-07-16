@@ -179,26 +179,22 @@ export class QoLContractorSheet extends ActorSheet {
         
           // 1. Promote to Named
           await actor.update({ "system.contractor.isNamed": true });
-        
-          // 2. Loyalty Roll (kein async:true mehr für V12-Kompatibilität)
-          const roll = new Roll("2d10 + 10");
-          await roll.evaluate();
-        
-          const total = roll.total;
-        
-          // 3. Set loyalty value
-          await actor.update({ "system.stats.loyalty.value": total });
-        
-          // 4. Custom Chat Output
+          
+          // 2. Add all the Stuff
+          await this._rollContractorLoyalty(this.actor);
+          await this._rollContractorMotivation(this.actor);
+          await this._rollContractorLoadout(this.actor);
+
+          // 3. Custom Chat Output
           await chatOutput({
             actor,
             title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
             subtitle: actor.name,
             image: actor.img,
-            content: `<span class="counter">${total}</span> Loyalty`
+            content: `<span class="counter">${this.actor.system.contractor.loyalty}</span> Loyalty`
           });
         
-          // 5. Re-render to update UI
+          // 4. Re-render to update UI
           this.render();
         });
 
@@ -212,51 +208,15 @@ export class QoLContractorSheet extends ActorSheet {
             buttons: {
               loyalty: {
                 label: "Roll Loyalty",
-                callback: async () => {
-                  const roll = new Roll("2d10 + 10");
-                  await roll.evaluate();
-                  const total = roll.total;
-              
-                  await actor.update({ "system.stats.loyalty.value": total });
-              
-                  await chatOutput({
-                    actor,
-                    title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
-                    subtitle: actor.name,
-                    image: actor.img,
-                    content: `<span class="counter">${total}</span> Loyalty`
-                  });
-              
-                  this.render(); // Falls `this` hier noch Sheet-Kontext ist
-                }
+                callback: () => this._rollContractorLoyalty(this.actor)
               },
               motivation: {
                 label: "Roll Motivation",
-                callback: async () => {
-                  const roll = new Roll("1d100");
-                  await roll.evaluate();
-              
-                  const rolledValue = roll.total % 100;
-                  const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
-                  if (!result) {
-                    ui.notifications.warn("No matching motivation found.");
-                    return;
-                  }
-              
-                  // Speichern in hiddenMotivation
-                  await actor.update({ "system.contractor.hiddenMotivation": result.text });              
-                  this.render();
-                }
+                callback: () => this._rollContractorMotivation(this.actor)
               },
               loadout: {
                 label: "Roll Loadout",
-                callback: async () => {
-                  const selectedClass = await selectClass(actor, false);
-                  if (selectedClass) await rollLoadout(actor, selectedClass, {
-                    rollCredits: false,
-                    clearItems: true
-                  });
-                }
+                callback: () => this._rollContractorLoadout(this.actor)
               }
             },
             default: "loyalty"
@@ -527,5 +487,51 @@ export class QoLContractorSheet extends ActorSheet {
             });
         }
     }
+
+  /**
+   * Rolls a motivation from the MOTIVATION_TABLE and stores it in system.contractor.hiddenMotivation
+   * @param {Actor} actor - The actor to update
+   */
+  async _rollContractorMotivation(actor) {
+    const roll = new Roll("1d100");
+    await roll.evaluate();
+
+    const rolledValue = roll.total % 100;
+    const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
+
+    if (!result) {
+      ui.notifications.warn("No matching motivation found.");
+      return;
+    }
+
+    await actor.update({ "system.contractor.hiddenMotivation": result.text }, { diff: false });
+    this.render(); // Re-render sheet if needed
+  }
+
+  async _rollContractorLoyalty(actor) {
+    const roll = new Roll("2d10 + 10");
+    await roll.evaluate();
+    const total = roll.total;
+  
+    await actor.update({ "system.stats.loyalty.value": total });
+  
+    await chatOutput({
+      actor,
+      title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
+      subtitle: actor.name,
+      image: actor.img,
+      content: `<span class="counter">${total}</span> Loyalty`
+    });
+  
+    this.render(); // Falls `this` hier noch Sheet-Kontext ist  
+  }
+
+  async _rollContractorLoadout(actor) {
+    const selectedClass = await selectClass(actor, false);
+    if (selectedClass) await rollLoadout(actor, selectedClass, {
+      rollCredits: false,
+      clearItems: true
+    });
+  }
 
 }
