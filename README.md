@@ -27,6 +27,11 @@
   - Ideal for banks, lockers, or communal stashes
   - No stats, no rolls – just storage
  
+- 👷‍♂️ **Contractor Sheet**
+  - Enhanced creature sheet type for managing contractors
+  - Setup generic contractors and upgrade them as needed
+  - Roll loadout from any class in the game
+ 
 - 🚀 **0e Ship Crits**
   - Add a button to trigger critical ship damage on demand
   - Escalate crits to the next level if needed
