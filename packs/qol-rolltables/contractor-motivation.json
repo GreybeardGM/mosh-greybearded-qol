@@ -288,21 +288,5 @@
   "replacement": true,
   "displayRoll": true,
   "folder": null,
-  "flags": {
-    "exportSource": {
-      "world": "mothership_de",
-      "system": "mosh",
-      "coreVersion": "12.343",
-      "systemVersion": "0.5.27"
-    }
-  },
-  "_stats": {
-    "coreVersion": "12.343",
-    "systemId": "mosh",
-    "systemVersion": "0.5.27",
-    "createdTime": 1752658205589,
-    "modifiedTime": 1752658883144,
-    "lastModifiedBy": "5lBnLOaOj6kuNstl"
-  },
   "formula": "1d100-1"
 }
