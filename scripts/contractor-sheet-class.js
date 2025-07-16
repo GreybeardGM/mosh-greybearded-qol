@@ -184,17 +184,8 @@ export class QoLContractorSheet extends ActorSheet {
           await this._rollContractorLoyalty(this.actor);
           await this._rollContractorMotivation(this.actor);
           await this._rollContractorLoadout(this.actor);
-
-          // 3. Custom Chat Output
-          await chatOutput({
-            actor,
-            title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
-            subtitle: actor.name,
-            image: actor.img,
-            content: `<span class="counter">${this.actor.system.contractor.loyalty}</span> Loyalty`
-          });
         
-          // 4. Re-render to update UI
+          // 3. Re-render to update UI
           this.render();
         });
 
