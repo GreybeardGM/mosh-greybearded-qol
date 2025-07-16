@@ -1,0 +1,22 @@
+export const MOTIVATION_TABLE = [
+  { min: 0,  max: 0,   text: "Secretely investigating a Corporate cover-up." },
+  { min: 1,  max: 9,   text: "Sending money back home to family." },
+  { min: 10, max: 19,  text: "Badly needs to pay off a loan shark." },
+  { min: 20, max: 24,  text: "Can't stop in one place for too long, get's restless." },
+  { min: 25, max: 29,  text: "Hears a call from an entity they can't explain." },
+  { min: 30, max: 34,  text: "Using you/your ship to smuggle contraband." },
+  { min: 35, max: 39,  text: "Revenge." },
+  { min: 40, max: 44,  text: "Secretly a con artist with no other expertise." },
+  { min: 45, max: 49,  text: "Paying a loved one's medical bills." },
+  { min: 50, max: 54,  text: "Secretly a spy for a rival corporation." },
+  { min: 55, max: 59,  text: "Need to pay off jumped bail or a court fine." },
+  { min: 60, max: 64,  text: "Undercover secret police investigating your crew." },
+  { min: 65, max: 69,  text: "In huge debt to a powerful crime syndicate." },
+  { min: 70, max: 74,  text: "Took money and ran out on their last job." },
+  { min: 75, max: 79,  text: "Family member held hostage, needs ransom." },
+  { min: 80, max: 84,  text: "Secretly a bounty hunter looking for your crew." },
+  { min: 85, max: 89,  text: "Seeking an honorable and glorious death." },
+  { min: 90, max: 94,  text: "Unknowingly contagious with a deadly disease." },
+  { min: 95, max: 98,  text: "Escaped from a corporate research facility." },
+  { min: 99, max: 99,  text: "Secretly a wanted serial killer in hiding." }
+];
