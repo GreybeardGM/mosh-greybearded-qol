@@ -1,5 +1,6 @@
 {
   "name": "Contractor Random Motivation",
+  "type": "RollTable",
   "img": "icons/svg/d20-grey.svg",
   "description": "<p>Random motivations for contractors.</p>",
   "results": [
