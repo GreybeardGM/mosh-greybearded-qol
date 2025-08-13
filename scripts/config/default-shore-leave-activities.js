@@ -238,7 +238,217 @@ export const SHORE_LEAVE_ACTIVITIES = [
         label: "Soul Auction",
         description: "You bid against the desperate and the damned. What you win may not be yours to own.",
         icon: "fa-gavel"
-      }  
+      },
+      {
+        "id": "zero-g-combat-arena",
+        "tier": "A",
+        "label": "Zero-G Combat Arena",
+        "description": "Train melee and ranged combat in a zero-gravity arena against holographic or drone targets.",
+        "icon": "fa-person-rifle"
+      },
+      {
+        "id": "live-fire-boarding-drill",
+        "tier": "S",
+        "label": "Live-Fire Boarding Drill",
+        "description": "Board a decommissioned frigate in a live-fire simulation. Smoke, shouting, chaos — nothing held back.",
+        "icon": "fa-ship"
+      },
+      {
+        "id": "hostile-environment-ops",
+        "tier": "B",
+        "label": "Hostile Environment Ops Course",
+        "description": "Survival training in simulated toxic gas, fire, and vacuum scenarios.",
+        "icon": "fa-person-harassing"
+      },
+      {
+        "id": "close-quarters-killhouse",
+        "tier": "A",
+        "label": "Close Quarters Killhouse",
+        "description": "Tactical training in cramped ship corridors with moving drone targets.",
+        "icon": "fa-gun"
+      },
+      {
+        "id": "fleet-command-sim",
+        "tier": "B",
+        "label": "Fleet Command Sim",
+        "description": "Multiplayer simulation where you command an entire fleet against rival crews.",
+        "icon": "fa-chess"
+      },
+      {
+        "id": "naval-wargames",
+        "tier": "C",
+        "label": "Naval Wargames",
+        "description": "Classic tabletop simulations of famous naval battles at miniature scale.",
+        "icon": "fa-chess-board"
+      },
+      {
+        "id": "grav-gym-extreme",
+        "tier": "B",
+        "label": "Grav-Gym Extreme",
+        "description": "High-G training to build dense muscle mass and sharpen reflexes.",
+        "icon": "fa-dumbbell"
+      },
+      {
+        "id": "underwater-combat-pool",
+        "tier": "B",
+        "label": "Underwater Combat Pool",
+        "description": "Practice boarding, sabotage, and close combat while fully submerged.",
+        "icon": "fa-water"
+      },
+      {
+        "id": "urban-breach-parkour",
+        "tier": "A",
+        "label": "Urban Breach Parkour",
+        "description": "Parkour through a decayed colony deck with breaching drills and live target shooting.",
+        "icon": "fa-person-running"
+      },
+      {
+        "id": "battlefield-therapy-pods",
+        "tier": "A",
+        "label": "Battlefield Therapy Pods",
+        "description": "Psychoactive simulations of traumatic battlefields to build stress resistance.",
+        "icon": "fa-head-side-virus"
+      },
+      {
+        "id": "fear-immunity-trials",
+        "tier": "S",
+        "label": "Fear Immunity Trials",
+        "description": "Face your deepest fears in an intense VR gauntlet. Walk out fearless — or broken.",
+        "icon": "fa-skull"
+      },
+      {
+        "id": "triage-under-fire",
+        "tier": "B",
+        "label": "Triage Under Fire",
+        "description": "Real-time medical evacuation drills under simulated enemy fire.",
+        "icon": "fa-kit-medical"
+      },
+      {
+        "id": "stealth-insertion-sim",
+        "tier": "B",
+        "label": "Stealth Insertion Sim",
+        "description": "Holo-mission to infiltrate a secured habitat without being detected.",
+        "icon": "fa-user-ninja"
+      },
+      {
+        "id": "demolition-playground",
+        "tier": "B",
+        "label": "Demolition Playground",
+        "description": "An entire deck of the station dedicated to controlled demolitions and explosives testing.",
+        "icon": "fa-bomb"
+      },
+      {
+        "id": "salvage-combat-derby",
+        "tier": "A",
+        "label": "Salvage Combat Derby",
+        "description": "PvP contest in a debris field to recover a target object before your rivals.",
+        "icon": "fa-satellite-dish"
+      },
+      {
+        "id": "orbital-cannon-bungee",
+        "tier": "X",
+        "label": "Orbital Cannon Bungee",
+        "description": "Strap in for the ultimate thrill: a high-tensile bungee jump in front of a live-firing orbital cannon. Timing is everything.",
+        "icon": "fa-bullseye"
+      },
+      {
+        "id": "neural-raid",
+        "tier": "S",
+        "label": "Neural Raid",
+        "description": "High-stakes intrusion into a live corporate server farm with full-sensory neural link. Win credits, steal secrets, or lose fragments of your identity.",
+        "icon": "fa-brain"
+      },
+      {
+        "id": "galactic-battle-sim",
+        "tier": "A",
+        "label": "Galactic Battle Sim",
+        "description": "PvP campaign spanning a simulated galaxy, complete with real-time diplomacy, ship combat, and backstabbing alliances.",
+        "icon": "fa-gamepad"
+      },
+      {
+        "id": "retro-hackathon",
+        "tier": "B",
+        "label": "Retro Hackathon",
+        "description": "Compete to crack archaic pre-expansion encryption systems. No AI tools allowed — just you, a keyboard, and stubbornness.",
+        "icon": "fa-keyboard"
+      },
+      {
+        "id": "speedrun-gauntlet",
+        "tier": "C",
+        "label": "Speedrun Gauntlet",
+        "description": "Race through increasingly broken VR games. Glitches are encouraged. Falling through the map is a valid strategy.",
+        "icon": "fa-stopwatch"
+      },
+      {
+        "id": "orbital-pilgrimage",
+        "tier": "S",
+        "label": "Orbital Pilgrimage",
+        "description": "A costly journey aboard a sanctified shuttle to visit relics suspended in high orbit. Includes zero-g prayer rites.",
+        "icon": "fa-satellite"
+      },
+      {
+        "id": "holo-relic-tour",
+        "tier": "A",
+        "label": "Holo-Relic Tour",
+        "description": "A guided VR experience of sacred artifacts from across known space — some authentic, some… inspired.",
+        "icon": "fa-vr-cardboard"
+      },
+      {
+        "id": "psalmwave-therapy",
+        "tier": "B",
+        "label": "Psalmwave Therapy",
+        "description": "Neural entrainment using ancient chants remixed with ambient waveforms for maximum spiritual resonance.",
+        "icon": "fa-music"
+      },
+      {
+        "id": "shared-prayer-lounge",
+        "tier": "C",
+        "label": "Shared Prayer Lounge",
+        "description": "Low-cost communal space for multi-faith worship, incense burning, and late-night philosophical arguments.",
+        "icon": "fa-hands-praying"
+      },
+      {
+        "id": "saint-simulation",
+        "tier": "X",
+        "label": "Saint Simulation",
+        "description": "Full-immersion neural run where you live the life of a legendary prophet. Most users don’t come back quite the same.",
+        "icon": "fa-halo"
+      },
+      {
+        "id": "station-bazaar-crawl",
+        "tier": "C",
+        "label": "Station Bazaar Crawl",
+        "description": "Wander through the neon-lit markets of the station’s lower decks. Expect counterfeit tech, street food, and dubious implants.",
+        "icon": "fa-store"
+      },
+      {
+        "id": "memory-graft-exchange",
+        "tier": "B",
+        "label": "Memory Graft Exchange",
+        "description": "Trade personal memories like currency. Walk away with someone else’s childhood — and missing parts of your own.",
+        "icon": "fa-brain"
+      },
+      {
+        "id": "synthetic-sky-garden",
+        "tier": "A",
+        "label": "Synthetic Sky Garden",
+        "description": "Relax beneath a dome projection of an alien sky, with climate and gravity tuned for comfort.",
+        "icon": "fa-cloud-sun"
+      },
+      {
+        "id": "black-market-auction",
+        "tier": "S",
+        "label": "Black Market Auction",
+        "description": "Bid on rare tech, lost artifacts, or entire asteroids. Payment in credits, favors, or untraceable DNA.",
+        "icon": "fa-gavel"
+      },
+      {
+        "id": "mindspike-experience",
+        "tier": "X",
+        "label": "Mindspike Experience",
+        "description": "A one-way trip into an unfiltered data torrent. Insights may be profound, dangerous, or sanity-breaking.",
+        "icon": "fa-bolt"
+      }
     ]
   }
 ];
