@@ -50,8 +50,7 @@
 ## Installation
 
 Download the latest version from [GitHub](https://github.com/GreybeardGM/mosh-greybearded-qol)  
-Or install via [manifest URL](https://raw.githubusercontent.com/Futil/foundry-mothership/master/system.json)
-
+Or install via [manifest URL](https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json)
 ## Developer Notes
 
 This module was created by **GreybeardGM** for use in long-running Mothership campaigns.  
