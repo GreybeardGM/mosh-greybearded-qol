@@ -52,13 +52,23 @@ export async function selectSkills(actor, selectedClass) {
     master: (baseAnd.master || 0) + fullSetMaster
   };
 
+  // Wandelt alles "zahlähnliche" sicher in Number um, sonst 0
+  const toNum = (v) => {
+    if (v === "" || v === null || v === undefined) return 0;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Bequemer Summer
+  const add = (...vals) => vals.map(toNum).reduce((a, b) => a + b, 0);
+
   const orOptions = baseOr.flat().map((opt, i) => {
     return {
       id: `or-${i}`,
-      name: opt.name || `Option ${i + 1}`,
-      trained: (opt.trained || 0) + (opt.expert_full_set || 0) + (opt.master_full_set || 0),
-      expert: (opt.expert || 0) + (opt.expert_full_set || 0) + (opt.master_full_set || 0),
-      master: (opt.master || 0) + (opt.master_full_set || 0),
+      name: opt.name ?? `Option ${i + 1}`,
+      trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
+      expert:  add(opt.expert,  opt.expert_full_set, opt.master_full_set),
+      master:  add(opt.master,  opt.master_full_set),
     };
   });
 
