@@ -2,12 +2,12 @@
   "id": "mosh-greybearded-qol",
   "title": "MoSh Greybearded QoL DEV",
   "description": "MoSh Greybearded QoL is a modular quality-of-life toolkit for the Mothership 1e system in Foundry VTT. It features a guided character generator, Shore Leave manager, stash sheet, ship crits, and various GM tools – all designed for smooth campaign play and customization.",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": "GreybeardGM",
   "type": "module",
   "compatibility": {
-    "minimum": "12.0",
-    "verified": "12.999"
+    "minimum": "13.0",
+    "verified": "13.350"
   },
   "languages": [
     {
@@ -27,7 +27,7 @@
       "type": "system",
       "manifest": "https://raw.githubusercontent.com/Futil/foundry-mothership/master/system.json",
       "compatibility": {
-        "verified": "0.5.27"
+        "verified": "0.6.0"
       }
     }]
   }
