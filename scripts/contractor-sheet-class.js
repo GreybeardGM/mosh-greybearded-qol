@@ -185,7 +185,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           this.render();
         });
 
-        await foundry.applications.api.DialogV2.prompt({
+        foundry.applications.api.DialogV2.prompt({
           window: { title: "Contractor Actions" },
           content: "<p>Select a contractor option below:</p>",
           buttons: [
