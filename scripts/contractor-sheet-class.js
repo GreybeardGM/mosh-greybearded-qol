@@ -4,11 +4,11 @@ import { selectClass } from "./character-creator/select-class.js";
 import { rollLoadout } from "./character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "./config/default-contractor-motivation.js";
 
-/**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
- */
-export class QoLContractorSheet extends ActorSheet {
+// Foundry V12/V13 kompatibles Sheet-Basisklasse-Alias ohne Deprecation
+const SheetBase = foundry?.appv1?.sheets?.ActorSheet ?? ActorSheet;
+
+/** @extends {typeof SheetBase} */
+export class QoLContractorSheet extends SheetBase {
 
     /** @override */
     static get defaultOptions() {
