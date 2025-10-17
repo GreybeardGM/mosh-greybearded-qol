@@ -54,7 +54,8 @@ function insertHeaderButton(titleElem, className, iconClass, label, color, callb
 
   // Robust in den Header einfügen (ans Ende der Header-Leiste)
   const header = titleElem.closest(".window-header") ?? titleElem.parentElement;
-  (header ?? titleElem).insertAdjacentElement("beforeend", btn);
+  // Nach dem Titel, aber vor Foundrys Standard-Buttons
+  titleElem.insertAdjacentElement("afterend", btn);
 }
 
 // Register all the stuff
