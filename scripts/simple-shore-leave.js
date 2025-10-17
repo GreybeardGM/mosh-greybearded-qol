@@ -30,7 +30,7 @@ export async function simpleShoreLeave(actor, randomFlavor) {
   });
 
   const themeColor = getThemeColor();
-  const content = await renderTemplate("modules/mosh-greybearded-qol/templates/simple-shore-leave.html", {
+  const content = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/simple-shore-leave.html", {
     tiers,
     themeColor
   });
