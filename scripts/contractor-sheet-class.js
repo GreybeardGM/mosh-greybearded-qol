@@ -185,20 +185,25 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           this.render();
         });
 
-        foundry.applications.api.DialogV2.prompt({
-          window: { title: "Contractor Actions" },
-          content: "<p>Select a contractor option below:</p>",
-          buttons: [
-            { label: "Roll Loyalty", action: "loyalty" },
-            { label: "Roll Motivation", action: "motivation" },
-            { label: "Roll Loadout", action: "loadout" }
-          ],
-          default: "loyalty",
-          // Rückgabe per then()
-        }).then(choice => {
-          if (choice === "loyalty") return this._rollContractorLoyalty(this.actor);
-          if (choice === "motivation") return this._rollContractorMotivation(this.actor);
-          if (choice === "loadout")   return this._rollContractorLoadout(this.actor);
+        html.find('[data-action="contractor-menu"]').on("click", async (event) => {
+          const actor = this.actor; // Falls du das im Sheet-Kontext nutzt
+          if (!game.user.isGM) return;
+            
+          await foundry.applications.api.DialogV2.prompt({
+            window: { title: "Contractor Actions" },
+            content: "<p>Select a contractor option below:</p>",
+            buttons: [
+              { label: "Roll Loyalty", action: "loyalty" },
+              { label: "Roll Motivation", action: "motivation" },
+              { label: "Roll Loadout", action: "loadout" }
+            ],
+            default: "loyalty",
+            // Rückgabe per then()
+          }).then(choice => {
+            if (choice === "loyalty") return this._rollContractorLoyalty(this.actor);
+            if (choice === "motivation") return this._rollContractorMotivation(this.actor);
+            if (choice === "loadout")   return this._rollContractorLoadout(this.actor);
+          });
         });
 
         // Attribute Rolls
