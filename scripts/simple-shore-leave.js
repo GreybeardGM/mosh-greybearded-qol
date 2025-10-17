@@ -5,14 +5,21 @@ import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./utils/flavorize-shore-leave.js";
 import { chatOutput } from "./utils/chat-output.js";
 
-// V2 Migration
-class ShoreLeaveDialogV2 extends foundry.applications.api.ApplicationV2 {
+// V2 + Handlebars-Mixin
+const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+
+class ShoreLeaveDialogV2 extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "moshqol-shore-leave",
     classes: ["moshqol","shore-leave"],
     window: { title: "Select Shore Leave Tier" },
     position: { width: 923 },
     resizable: false
+  };
+
+  // Handlebars-Templates definieren
+  static PARTS = {
+    body: { template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html" }
   };
 
   /** @param {{actor:Actor, tiers:any[], themeColor:string, onResolve:(v:any)=>void}} opts */
@@ -24,21 +31,14 @@ class ShoreLeaveDialogV2 extends foundry.applications.api.ApplicationV2 {
     this.onResolve = opts.onResolve;
   }
 
-  /** Template direkt nutzen (du hast bereits das HBS) */
-  get template() {
-    return "modules/mosh-greybearded-qol/templates/simple-shore-leave.html";
-  }
-
-  /** Daten an Template */
-  async _prepareContext() {
+  // Kontext fürs Template
+  async _prepareContext(_options) {
     return { tiers: this.tiers, themeColor: this.themeColor };
   }
 
-  /** HTMLElement-Listener (kein jQuery) */
+  // HTMLElement-Listener (kein jQuery)
   _attachListeners(html) {
-    const root = html; // HTMLElement
-
-    // Breite/MaxWidth justieren
+    const root = html; // HTMLElement der App
     root.style.maxWidth = "95vw";
     root.style.margin = "0 auto";
 
@@ -62,6 +62,7 @@ class ShoreLeaveDialogV2 extends foundry.applications.api.ApplicationV2 {
         const entry = this.tiers.find(t => t.tier === tierKey);
         if (!entry) return;
         const roll = new Roll(entry.priceFormula); await roll.evaluate();
+
         await chatOutput({
           actor: this.actor,
           title: entry.label,
@@ -133,4 +134,5 @@ export async function simpleShoreLeave(actor, randomFlavor) {
     const app = new ShoreLeaveDialogV2({ actor, tiers, themeColor, onResolve: resolve });
     app.render(true);
   });
+
 }
