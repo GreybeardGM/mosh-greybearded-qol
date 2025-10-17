@@ -254,9 +254,8 @@ Hooks.once("init", () => {
   });
 });
 
-// Chat actions (V12/V13 kompatibel)
-function handleQoLChatActions(rootEl) {
-  const buttons = rootEl.querySelectorAll(".greybeardqol .chat-action");
+Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
+  const buttons = html.querySelectorAll(".greybeardqol .chat-action");
   for (const button of buttons) {
     button.addEventListener("click", async () => {
       const action = button.dataset.action;
@@ -284,17 +283,7 @@ function handleQoLChatActions(rootEl) {
       }
     }, { once: true });
   }
-}
-
-if (game.release?.generation >= 13) {
-  Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
-    handleQoLChatActions(html);
-  });
-} else {
-  Hooks.on("renderChatMessage", (message, $html /* jQuery */, data) => {
-    handleQoLChatActions($html[0]);
-  });
-}
+});
 
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
