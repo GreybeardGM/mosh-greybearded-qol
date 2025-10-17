@@ -5,106 +5,118 @@ import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./utils/flavorize-shore-leave.js";
 import { chatOutput } from "./utils/chat-output.js";
 
-// V2 + Handlebars-Mixin
-const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { DialogV2 } = foundry.applications.api;
 
-class ShoreLeaveDialogV2 extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
-    id: "moshqol-shore-leave",
-    classes: ["moshqol","shore-leave"],
-    window: { title: "Select Shore Leave Tier", controls: [] }, // keine Header-Buttons
-    position: { width: 923 },
-    resizable: false
-  };
+export async function simpleShoreLeave(actor, randomFlavor) {
+  if (!actor) return ui.notifications.warn("No actor provided.");
 
-  /** V2: explizit keine Header-Controls zurückgeben */
-  _getHeaderControls() { return []; }
-  
-  // Handlebars-Templates definieren
-  static PARTS = Object.freeze({
-    body: { id: "body", template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html" }
+  const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
+  randomFlavor = flavorDisabled ? false : (randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor"));
+
+  // Config laden → Tiers bauen
+  const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+  const tiers = Object.values(config).map(tier => {
+    const base = {
+      tier: tier.tier,
+      label: tier.label,
+      icon: tier.icon ?? null,
+      stressFormula: toRollFormula(tier.baseStressConversion),
+      stressString:  toRollString(tier.baseStressConversion),
+      priceFormula:  toRollFormula(tier.basePrice),
+      priceString:   toRollString(tier.basePrice),
+      raw: tier
+    };
+    if (randomFlavor) flavorizeShoreLeave(base);
+    return base;
   });
-  
-  /** @param {{actor:Actor, tiers:any[], themeColor:string, onResolve:(v:any)=>void}} opts */
-  constructor(opts) {
-    super();
-    this.actor = opts.actor;
-    this.tiers = opts.tiers;
-    this.themeColor = opts.themeColor;
-    this.onResolve = opts.onResolve;
-  }
 
-  // Kontext fürs Template
-  async _prepareContext(_options) {
-    return { tiers: this.tiers, themeColor: this.themeColor };
-  }
+  const themeColor = getThemeColor();
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "modules/mosh-greybearded-qol/templates/simple-shore-leave.html",
+    { tiers, themeColor }
+  );
 
-  // HTMLElement-Listener (kein jQuery)
-  _attachListeners(html) {
-    const root = html; // HTMLElement der App
-    root.style.maxWidth = "95vw";
-    root.style.margin = "0 auto";
+  // DialogV2: kein Footer-Button, wir verdrahten alles innerhalb von render(html)
+  return await DialogV2.wait({
+    window: { title: "Select Shore Leave Tier" },
+    content,
+    buttons: [],                // keine V2-Buttons → keine Header-/Footer-Probleme
+    close: () => null,          // Close liefert null zurück
+    render: (root /* HTMLElement */) => {
+      root.style.maxWidth = "95vw";
+      root.style.margin = "0 auto";
 
-    const confirmBtn = root.querySelector("#confirm-button");
-    if (confirmBtn) { confirmBtn.classList.add("locked"); } else { return; } // hart abbrechen, wenn Template nicht passt
+      const confirmBtn = root.querySelector("#confirm-button");
+      if (confirmBtn) confirmBtn.classList.add("locked");
 
-    // Auswahl
-    root.querySelectorAll("input[name='shore-tier']").forEach(r => {
-      r.addEventListener("change", () => {
-        root.querySelectorAll(".card.selected").forEach(c => c.classList.remove("selected"));
-        const selectedCard = r.closest(".card");
-        if (selectedCard) selectedCard.classList.add("selected");
-        if (confirmBtn) confirmBtn.classList.remove("locked");
+      // Auswahl
+      root.querySelectorAll("input[name='shore-tier']").forEach(r => {
+        r.addEventListener("change", () => {
+          root.querySelectorAll(".card.selected").forEach(c => c.classList.remove("selected"));
+          const selectedCard = r.closest(".card");
+          if (selectedCard) selectedCard.classList.add("selected");
+          if (confirmBtn) confirmBtn.classList.remove("locked");
+        }, { passive: true });
       });
-    });
 
-    // Preiswurf
-    root.querySelectorAll(".roll-price").forEach(btn => {
-      btn.addEventListener("click", async ev => {
-        const tierKey = ev.currentTarget.dataset.tier;
-        const entry = this.tiers.find(t => t.tier === tierKey);
-        if (!entry) return;
-        const roll = new Roll(entry.priceFormula); await roll.evaluate();
+      // Preiswurf
+      root.querySelectorAll(".roll-price").forEach(btn => {
+        btn.addEventListener("click", async ev => {
+          const tierKey = ev.currentTarget?.dataset?.tier;
+          const entry = tiers.find(t => t.tier === tierKey);
+          if (!entry) return;
 
-        await chatOutput({
-          actor: this.actor,
-          title: entry.label,
-          subtitle: entry.flavor?.label || "Shore Leave",
-          content: entry.flavor?.description || "",
-          icon: entry.flavor?.icon || entry.icon,
-          roll,
-          buttons: [{ label: "Participate Now", icon: "fa-dice", action: "convertStress", args: [entry.stressFormula] }]
+          const roll = new Roll(entry.priceFormula);
+          await roll.evaluate();
+
+          await chatOutput({
+            actor,
+            title: entry.label,
+            subtitle: entry.flavor?.label || "Shore Leave",
+            content: entry.flavor?.description || "",
+            icon: entry.flavor?.icon || entry.icon,
+            roll,
+            buttons: [{ label: "Participate Now", icon: "fa-dice", action: "convertStress", args: [entry.stressFormula] }]
+          });
+        }, { passive: true });
+      });
+
+      // Flavor neu würfeln
+      root.querySelectorAll(".reroll-flavor").forEach(btn => {
+        btn.addEventListener("click", ev => {
+          const card = ev.currentTarget.closest(".card");
+          const tierKey = card.querySelector("input[name='shore-tier']")?.value;
+          const entry = tiers.find(t => t.tier === tierKey);
+          if (!entry) return;
+
+          flavorizeShoreLeave(entry);
+          card.querySelector(".icon")?.setAttribute("class", `fas ${entry.flavor.icon} icon`);
+          const l = card.querySelector(".flavor-label"); if (l) l.textContent = entry.flavor.label;
+          const d = card.querySelector(".flavor-description"); if (d) d.textContent = entry.flavor.description;
+        }, { passive: true });
+      });
+
+      // Bestätigen
+      if (confirmBtn) {
+        confirmBtn.addEventListener("click", async () => {
+          if (confirmBtn.classList.contains("locked")) return;
+
+          const selected = root.querySelector("input[name='shore-tier']:checked")?.value;
+          const entry = tiers.find(t => t.tier === selected);
+          if (!entry) { ui.notifications.error("Invalid tier selected."); return; }
+
+          const result = await convertStress(actor, entry.stressFormula);
+
+          // Dialog schließen; DialogV2.wait resolved auf Close → Rückgabe via result
+          const app = root.closest(".app")?.dataset?.appid && ui.windows?.[root.closest(".app").dataset.appid];
+          if (app) app.close();
+
+          // Ergebnis an Chat + Rückgabe
+          return result;
         });
-      }, { passive: true });
-    });
-
-    // Flavor neu würfeln
-    root.querySelectorAll(".reroll-flavor").forEach(btn => {
-      btn.addEventListener("click", ev => {
-        const card = ev.currentTarget.closest(".card");
-        const tierKey = card.querySelector("input[name='shore-tier']")?.value;
-        const entry = this.tiers.find(t => t.tier === tierKey);
-        if (!entry) return;
-        flavorizeShoreLeave(entry);
-        card.querySelector(".icon")?.setAttribute("class", `fas ${entry.flavor.icon} icon`);
-        const l = card.querySelector(".flavor-label"); if (l) l.textContent = entry.flavor.label;
-        const d = card.querySelector(".flavor-description"); if (d) d.textContent = entry.flavor.description;
-      }, { passive: true });
-    });
-
-    // Bestätigen
-    if (confirmBtn) {
-      confirmBtn.addEventListener("click", async () => {
-        if (confirmBtn.classList.contains("locked")) return;
-        const selected = root.querySelector("input[name='shore-tier']:checked")?.value;
-        const entry = this.tiers.find(t => t.tier === selected);
-        if (!entry) { ui.notifications.error("Invalid tier selected."); return; }
-        const result = await convertStress(this.actor, entry.stressFormula);
-        this.onResolve?.(result);
-        this.close();
-      });
+      }
     }
-  }
+  });
 }
 
 export async function simpleShoreLeave(actor, randomFlavor) {
