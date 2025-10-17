@@ -37,11 +37,14 @@ export async function simpleShoreLeave(actor, randomFlavor) {
   );
 
   // DialogV2: kein Footer-Button, wir verdrahten alles innerhalb von render(html)
+  let resolved = null;
   return await DialogV2.wait({
     window: { title: "Select Shore Leave Tier" },
     content,
-    buttons: [],                // keine V2-Buttons → keine Header-/Footer-Probleme
-    close: () => null,          // Close liefert null zurück
+    buttons: [
+      { label: "Close", action: "close", default: true }   // Pflichtbutton für V2
+    ],
+    close: () => resolved,                                  // Rückgabe steuern
     render: (root /* HTMLElement */) => {
       root.style.maxWidth = "95vw";
       root.style.margin = "0 auto";
