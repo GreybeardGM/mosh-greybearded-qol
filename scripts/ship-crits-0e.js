@@ -31,7 +31,7 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
   if (!crit) return ui.notifications.warn(`Kein Treffer für: ${setCrit ?? roll?.total}`);
   const next = findEscalation(crit);
   const actor = actorUUID ? await fromUuid(actorUUID) : null;
-  const enrichedContent = await TextEditor.enrichHTML(crit.content || "", {
+  const enrichedContent = await foundry.applications.ux.TextEditor.enrichHTML(crit.content || "", {
     async: true,
     rollData: actor?.getRollData?.() || {}
   });
