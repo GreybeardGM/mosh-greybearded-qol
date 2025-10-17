@@ -4,12 +4,7 @@ import { selectClass } from "./character-creator/select-class.js";
 import { rollLoadout } from "./character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "./config/default-contractor-motivation.js";
 
-// Foundry V12/V13 kompatibles Sheet-Basisklasse-Alias ohne Deprecation
-const SheetBase = foundry?.appv1?.sheets?.ActorSheet ?? ActorSheet;
-
-/** @extends {typeof SheetBase} */
-export class QoLContractorSheet extends SheetBase {
-
+export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     static get defaultOptions() {
         var options = {
@@ -65,9 +60,10 @@ export class QoLContractorSheet extends SheetBase {
       actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
       actorData.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
         
+      const TE = foundry.applications.ux.TextEditor.implementation;
       actorData.enriched = {
-        description: await TextEditor.enrichHTML(actorData.system.description, { async: true }),
-        biography: await TextEditor.enrichHTML(actorData.system.biography, { async: true })
+        description: await TE.enrichHTML(actorData.system.description ?? "", { async: true }),
+        biography:  await TE.enrichHTML(actorData.system.biography  ?? "", { async: true })
       };
 
       actorData.isGM = game.user.isGM;
