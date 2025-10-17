@@ -254,18 +254,20 @@ Hooks.once("init", () => {
   });
 });
 
-// Chat actions
-Hooks.on("renderChatMessage", (message, html, data) => {
-  html.find(".greybeardqol .chat-action").each(function () {
-    const button = this;
+// Chat actions (V12/V13 kompatibel)
+function handleQoLChatActions(rootEl) {
+  const buttons = rootEl.querySelectorAll(".greybeardqol .chat-action");
+  for (const button of buttons) {
     button.addEventListener("click", async () => {
       const action = button.dataset.action;
-      const args = button.dataset.args ? JSON.parse(button.dataset.args) : [];
-
+      let args = [];
+      if (button.dataset.args) {
+        try { args = JSON.parse(button.dataset.args); } catch { args = []; }
+      }
       if (!action) return;
 
       const actor = game.user.character;
-      if (!actor) return ui.notifications.warn("No character assigned.");
+      if (!actor) { ui.notifications.warn("No character assigned."); return; }
 
       switch (action) {
         case "convertStress":
@@ -277,13 +279,22 @@ Hooks.on("renderChatMessage", (message, html, data) => {
         case "triggerShipCrit":
           await game.moshGreybeardQol.triggerShipCrit(...args);
           break;
-        // Add more cases as needed
         default:
           ui.notifications.warn(`Unknown action: ${action}`);
       }
-    });
+    }, { once: true });
+  }
+}
+
+if (game.release?.generation >= 13) {
+  Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
+    handleQoLChatActions(html);
   });
-});
+} else {
+  Hooks.on("renderChatMessage", (message, $html /* jQuery */, data) => {
+    handleQoLChatActions($html[0]);
+  });
+}
 
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
