@@ -12,16 +12,19 @@ class ShoreLeaveDialogV2 extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "moshqol-shore-leave",
     classes: ["moshqol","shore-leave"],
-    window: { title: "Select Shore Leave Tier" },
+    window: { title: "Select Shore Leave Tier", controls: [] }, // keine Header-Buttons
     position: { width: 923 },
     resizable: false
   };
 
+  /** V2: explizit keine Header-Controls zurückgeben */
+  _getHeaderControls() { return []; }
+  
   // Handlebars-Templates definieren
-  static PARTS = {
-    body: { template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html" }
-  };
-
+  static PARTS = Object.freeze({
+    body: { id: "body", template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html" }
+  });
+  
   /** @param {{actor:Actor, tiers:any[], themeColor:string, onResolve:(v:any)=>void}} opts */
   constructor(opts) {
     super();
@@ -43,7 +46,7 @@ class ShoreLeaveDialogV2 extends HandlebarsApplicationMixin(ApplicationV2) {
     root.style.margin = "0 auto";
 
     const confirmBtn = root.querySelector("#confirm-button");
-    if (confirmBtn) confirmBtn.classList.add("locked");
+    if (confirmBtn) { confirmBtn.classList.add("locked"); } else { return; } // hart abbrechen, wenn Template nicht passt
 
     // Auswahl
     root.querySelectorAll("input[name='shore-tier']").forEach(r => {
