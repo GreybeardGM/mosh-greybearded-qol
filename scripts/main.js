@@ -14,7 +14,6 @@ import {
   reset
 } from "./character-creator/progress.js";
 
-
 // Needs to be here to check for
 let StashSheet;
 
@@ -70,13 +69,16 @@ Hooks.once("ready", () => {
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
   StashSheet = defineStashSheet(BaseSheet);
 
-  Actors.registerSheet("mosh-greybearded-qol", StashSheet, {
+  // V13 Actors
+  const ActorsCollection = foundry.documents.collections.Actors;
+  
+  ActorsCollection.registerSheet("mosh-greybearded-qol", StashSheet, {
     types: ["character"],
     label: "Stash Sheet",
     makeDefault: false
   });
 
-  Actors.registerSheet("mosh-greybearded-qol", QoLContractorSheet, {
+  ActorsCollection.registerSheet("mosh-greybearded-qol", QoLContractorSheet, {
     types: ["creature"],
     label: "Contractor Sheet",
     makeDefault: false
