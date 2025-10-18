@@ -189,20 +189,39 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           const actor = this.actor;
           if (!game.user.isGM) return;
         
-          await foundry.applications.api.DialogV2.prompt({
-            window: { title: "Contractor Actions" },
-            content: "<p>Select a contractor option below:</p>",
-            buttons: [
-              { label: "Roll Loyalty", action: "loyalty" },
-              { label: "Roll Motivation", action: "motivation" },
-              { label: "Roll Loadout", action: "loadout" }
-            ],
-            default: "loyalty"
-          }).then(choice => {
+          // Aktionen als Map für robuste Weiterleitung
+          const run = (choice) => {
             if (choice === "loyalty")   return this._rollContractorLoyalty(actor);
             if (choice === "motivation") return this._rollContractorMotivation(actor);
             if (choice === "loadout")   return this._rollContractorLoadout(actor);
-          });
+          };
+        
+          await foundry.applications.api.DialogV2
+            .prompt({
+              window: { title: "Contractor Actions" },
+              content: "<p>Select a contractor option below:</p>",
+              buttons: [
+                { label: "Roll Loyalty",    action: "loyalty"   },
+                { label: "Roll Motivation", action: "motivation"},
+                { label: "Roll Loadout",    action: "loadout"   }
+              ],
+              default: "loyalty",
+              // Auto-Close-Button aus DOM entfernen, X bleibt funktionsfähig
+              render: (app, html) => {
+                const root   = app?.element ?? html?.closest?.(".app") ?? null;
+                const footer = root?.querySelector?.(".dialog-buttons");
+                if (!footer) return;
+                // Alle erlaubten Actions
+                const allow = new Set(["loyalty", "motivation", "loadout"]);
+                // Fremden/auto Button entfernen (i. d. R. data-action="close" oder „confirm“)
+                [...footer.querySelectorAll("button")].forEach(b => {
+                  const a = b.dataset?.action || "";
+                  if (!allow.has(a)) b.remove();
+                });
+              }
+            })
+            .then(run)
+            .catch(() => { /* Schließen per X: ignorieren */ });
         });
 
         // Attribute Rolls
