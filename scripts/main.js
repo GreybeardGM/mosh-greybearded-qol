@@ -39,7 +39,7 @@ function insertHeaderButton(titleElem, className, iconClass, label, color, callb
     color,
     background: "transparent",
     border: "none",
-    textShadow: `0 0 2px ${color}88`
+    text-shadow: `0 0 2px ${color}88`
   });
 
   // Events vollständig isolieren, keine Bubbling-Kollisionen mit Foundry-Header
