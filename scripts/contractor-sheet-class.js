@@ -167,21 +167,58 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           });
 
         // Promote Contractor
-        html.find('[data-action="promote-contractor"]').on('click', async (event) => {
+        html.find('[data-action="promote-contractor"]').on("click", async (event) => {
           event.preventDefault();
         
           const actor = this.actor;
           if (!actor) return;
         
-          // 1. Promote to Named
-          await actor.update({ "system.contractor.isNamed": true });
-          
-          // 2. Add all the Stuff
-          await this._rollContractorLoyalty(this.actor);
-          await this._rollContractorMotivation(this.actor);
-          await this._rollContractorLoadout(this.actor);
+          // Dialog mit drei Optionen: Roll, Manual, Cancel
+          const choice = await foundry.applications.api.DialogV2.wait({
+            window: { title: "Promote Contractor" },
+            content: "<p>How would you like to promote this contractor?</p>",
+            buttons: [
+              {
+                label: "Roll Contractor",
+                icon: "fa-solid fa-dice",
+                action: "roll"
+              },
+              {
+                label: "Manual Promotion",
+                icon: "fa-solid fa-user-check",
+                action: "manual"
+              },
+              {
+                label: "Cancel",
+                icon: "fa-solid fa-xmark",
+                action: "cancel"
+              }
+            ],
+            default: "roll"
+          });
         
-          // 3. Re-render to update UI
+          // Handlung abhängig von der Auswahl
+          switch (choice) {
+            case "roll":
+              await actor.update({ "system.contractor.isNamed": true });
+              await this._rollContractorLoyalty(actor);
+              await this._rollContractorMotivation(actor);
+              await this._rollContractorLoadout(actor);
+              ui.notifications.info(`${actor.name} has been promoted and fully rolled.`);
+              break;
+        
+            case "manual":
+              await actor.update({ "system.contractor.isNamed": true });
+              ui.notifications.info(`${actor.name} has been promoted manually.`);
+              break;
+        
+            case "cancel":
+            default:
+              ui.notifications.info("Promotion canceled.");
+              return;
+          }
+        
+          // UI aktualisieren
           this.render();
         });
 
