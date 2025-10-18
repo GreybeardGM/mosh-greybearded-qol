@@ -197,7 +197,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
               { label: "Roll Motivation", action: "motivation" },
               { label: "Roll Loadout", action: "loadout" }
             ],
-            default: "loyalty",
+            default: "loyalty"
           }).then(choice => {
             if (choice === "loyalty")   return this._rollContractorLoyalty(actor);
             if (choice === "motivation") return this._rollContractorMotivation(actor);
