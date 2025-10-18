@@ -186,9 +186,9 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         });
 
         html.find('[data-action="contractor-menu"]').on("click", async (event) => {
-          const actor = this.actor; // Falls du das im Sheet-Kontext nutzt
+          const actor = this.actor;
           if (!game.user.isGM) return;
-            
+        
           await foundry.applications.api.DialogV2.prompt({
             window: { title: "Contractor Actions" },
             content: "<p>Select a contractor option below:</p>",
@@ -198,11 +198,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
               { label: "Roll Loadout", action: "loadout" }
             ],
             default: "loyalty",
-            // Rückgabe per then()
+            rejectClose: true   // <-- verhindert den automatischen vierten „Confirm“/„Close“-Button
           }).then(choice => {
-            if (choice === "loyalty") return this._rollContractorLoyalty(this.actor);
-            if (choice === "motivation") return this._rollContractorMotivation(this.actor);
-            if (choice === "loadout")   return this._rollContractorLoadout(this.actor);
+            if (choice === "loyalty")   return this._rollContractorLoyalty(actor);
+            if (choice === "motivation") return this._rollContractorMotivation(actor);
+            if (choice === "loadout")   return this._rollContractorLoadout(actor);
           });
         });
 
