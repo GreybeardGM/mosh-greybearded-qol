@@ -185,43 +185,26 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           this.render();
         });
 
-        html.find('[data-action="contractor-menu"]').on("click", async (event) => {
-          const actor = this.actor;
+        html.find('[data-action="contractor-menu"]').on("click", async () => {
           if (!game.user.isGM) return;
         
-          // Aktionen als Map für robuste Weiterleitung
-          const run = (choice) => {
-            if (choice === "loyalty")   return this._rollContractorLoyalty(actor);
-            if (choice === "motivation") return this._rollContractorMotivation(actor);
-            if (choice === "loadout")   return this._rollContractorLoadout(actor);
-          };
+          const choice = await foundry.applications.api.DialogV2.wait({
+            window: { title: "Contractor Actions" },
+            content: "<p>Select a contractor option below:</p>",
+            buttons: [
+              { label: "Roll Loyalty",    action: "loyalty"    },
+              { label: "Roll Motivation", action: "motivation" },
+              { label: "Roll Loadout",    action: "loadout"    }
+            ],
+            default: "loyalty",
+            // optional: render(app, html) { ... } // wenn du noch DOM-Listener brauchst
+            close: () => null          // Rückgabe beim X-Schließen (Standard: undefined)
+          });
         
-          await foundry.applications.api.DialogV2
-            .prompt({
-              window: { title: "Contractor Actions" },
-              content: "<p>Select a contractor option below:</p>",
-              buttons: [
-                { label: "Roll Loyalty",    action: "loyalty"   },
-                { label: "Roll Motivation", action: "motivation"},
-                { label: "Roll Loadout",    action: "loadout"   }
-              ],
-              default: "loyalty",
-              // Auto-Close-Button aus DOM entfernen, X bleibt funktionsfähig
-              render: (app, html) => {
-                const root   = app?.element ?? html?.closest?.(".app") ?? null;
-                const footer = root?.querySelector?.(".dialog-buttons");
-                if (!footer) return;
-                // Alle erlaubten Actions
-                const allow = new Set(["loyalty", "motivation", "loadout"]);
-                // Fremden/auto Button entfernen (i. d. R. data-action="close" oder „confirm“)
-                [...footer.querySelectorAll("button")].forEach(b => {
-                  const a = b.dataset?.action || "";
-                  if (!allow.has(a)) b.remove();
-                });
-              }
-            })
-            .then(run)
-            .catch(() => { /* Schließen per X: ignorieren */ });
+          if (choice === "loyalty")    return this._rollContractorLoyalty(this.actor);
+          if (choice === "motivation") return this._rollContractorMotivation(this.actor);
+          if (choice === "loadout")    return this._rollContractorLoadout(this.actor);
+          // choice ist undefined/null, wenn per X geschlossen wurde → nichts tun
         });
 
         // Attribute Rolls
