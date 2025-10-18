@@ -71,14 +71,23 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   if (itemsToCreate.length > 0) {
     await actor.createEmbeddedDocuments("Item", itemsToCreate);
   }
-
+  
   // 💬 Chat output
   let itemSummary = "";
   for (const [category, items] of Object.entries(allItems)) {
     if (items.length > 0) {
       itemSummary += `<h3>${category}</h3>`;
       itemSummary += items.map(i => `
-        <p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 0.5em;
+          margin: 0.2em 0;
+        ">
+          <img src="${i.img}" 
+               style="height: 2.5em; flex: 0 0 auto;">
+          <span style="flex: 1;">${i.name}</span>
+        </div>
       `).join("");
     }
   }
