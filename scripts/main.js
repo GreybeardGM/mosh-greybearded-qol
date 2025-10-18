@@ -17,47 +17,6 @@ import {
 // Needs to be here to check for
 let StashSheet;
 
-/**
- * Fügt einen Button in die Actor Sheet Header-Leiste ein.
- * @param {HTMLElement} titleElem - Der DOM-Knoten mit der Fensterüberschrift
- * @param {string} className - Zusätzliche Klasse für den Button
- * @param {string} iconClass - FontAwesome-Icon-Klasse (ohne "fas")
- * @param {string} label - Der Text des Buttons
- * @param {string} color - Die Hauptfarbe für Text und Schatten
- * @param {Function} callback - Eventhandler bei Klick
- */
-function insertHeaderButton(titleElem, className, iconClass, label, color, callback) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  // WICHTIG: Keine Foundry-Klasse "header-button" verwenden
-  btn.classList.add("gbqol-header-button", className);
-  btn.setAttribute("aria-label", label);
-  btn.innerHTML = `<i class="fas ${iconClass}" aria-hidden="true"></i><span>${label}</span>`;
-
-  // Inline-Minimalstil, Rest in Modul-CSS legen
-  Object.assign(btn.style, {
-    cursor: "pointer",
-    padding: "0 6px",
-    color,
-    fontWeight: "bold",
-    background: "transparent",
-    border: "none",
-    textShadow: `0 0 2px ${color}88`
-  });
-
-  // Events vollständig isolieren, keine Bubbling-Kollisionen mit Foundry-Header
-  btn.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    try { callback(ev); } catch (e) { console.error(e); }
-  }, { passive: false });
-
-  // Robust in den Header einfügen (ans Ende der Header-Leiste)
-  const header = titleElem.closest(".window-header") ?? titleElem.parentElement;
-  // Nach dem Titel, aber vor Foundrys Standard-Buttons
-  titleElem.insertAdjacentElement("afterend", btn);
-}
-
 // Register all the stuff
 Hooks.once("ready", () => {
   
@@ -300,57 +259,45 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
   }
 });
 
-// Sheet Header Buttons
-Hooks.on("renderActorSheet", (sheet, html) => {
-  const actor = sheet.actor;
-  // Cancel if not Owner
+// Sheet Header Buttons (Foundry-API, linkbündig via unshift)
+Hooks.on("getActorSheetHeaderButtons", (app, buttons) => {
+  const actor = app.document ?? app.actor ?? app.object;
+  if (!actor) return;
+
   const isGM = game.user.isGM;
-  const isOwner = actor.testUserPermission(game.user, "OWNER");
+  const isOwner = actor.testUserPermission?.(game.user, "OWNER") ?? true;
   if (!(isGM || isOwner)) return;
 
-  // 🚢 0e Ship Crits
-  if (
-    actor?.type === "ship" &&
-    game.settings.get("mosh-greybearded-qol", "enableShipCrits")
-  ) {
-    const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem || titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.ship-crit")) return;
-    insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50", () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid));
+  // Ship Crit (optional)
+  if (actor.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
+    buttons.unshift({
+      label: "Crit",
+      class: "ship-crit",
+      icon: "fa-solid fa-explosion",
+      onclick: () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid)
+    });
   }
 
-  if (actor?.type === "character") {
-    // Hide Defualt Character Creator Button
+  // Character Actions
+  if (actor.type === "character") {
     const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-    const isStash = sheet instanceof StashSheet;
+    const ready = checkReady(actor) && !checkCompleted(actor);
 
-    if (isCreatorEnabled || isStash) {  
-      const oldCreatorButton = html[0].querySelector(".configure-actor");
-      if (oldCreatorButton) {
-        oldCreatorButton.style.display = "none";
-        console.log("[MoSh QoL] Configure-Button hidden");
-      }
-    }
-
-    // Cancel the rest if Stash
-    if (isStash) return;
-    
-    const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem) return;
-  
-    // Entferne ShoreLeave Button, falls vorhanden
-    const existingShoreLeave = titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.simple-shoreleave");
-    if (existingShoreLeave) existingShoreLeave.remove();
-  
-    const isReady = checkReady(actor) && !checkCompleted(actor);
-  
-    if (isCreatorEnabled && isReady) {
-      // Ersetze durch Character-Reset-Button
-      insertHeaderButton(titleElem, "create-character", "fa-dice-d20", "Roll Character", "#5f0", () => game.moshGreybeardQol.startCharacterCreation(actor));
+    if (isCreatorEnabled && ready) {
+      buttons.unshift({
+        label: "Roll Character",
+        class: "create-character",
+        icon: "fa-solid fa-dice-d20",
+        onclick: () => game.moshGreybeardQol.startCharacterCreation(actor)
+      });
     } else {
-      // Standard ShoreLeave-Button einfügen
-      insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf", () => game.moshGreybeardQol.simpleShoreLeave(actor));
+      buttons.unshift({
+        label: "Shore Leave",
+        class: "simple-shoreleave",
+        icon: "fa-solid fa-umbrella-beach",
+        onclick: () => game.moshGreybeardQol.simpleShoreLeave(actor)
+      });
     }
-   
   }
 });
 
