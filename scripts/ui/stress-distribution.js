@@ -9,7 +9,7 @@ export async function showStressConversionDialog(actor, points) {
     };
     const values = structuredClone(base);
 
-    const html = await renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", { 
+    const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/stress-conversion.html", { 
       themeColor :getThemeColor()
     });
 

@@ -13,7 +13,7 @@ export async function selectAttributes(actor, attributeChoices) {
   const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
   const dialogWidth = calculateDialogWidth(maxCols, cardWidth, true);
 
-  const htmlContent = await renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html", {
+  const htmlContent = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html", {
     attributeSets,
     themeColor: getThemeColor()
   });

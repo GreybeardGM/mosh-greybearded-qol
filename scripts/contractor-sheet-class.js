@@ -4,12 +4,7 @@ import { selectClass } from "./character-creator/select-class.js";
 import { rollLoadout } from "./character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "./config/default-contractor-motivation.js";
 
-/**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
- */
-export class QoLContractorSheet extends ActorSheet {
-
+export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     static get defaultOptions() {
         var options = {
@@ -65,9 +60,10 @@ export class QoLContractorSheet extends ActorSheet {
       actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
       actorData.system.settings.firstEdition = game.settings.get("mosh", "firstEdition");
         
+      const TE = foundry.applications.ux.TextEditor.implementation;
       actorData.enriched = {
-        description: await TextEditor.enrichHTML(actorData.system.description, { async: true }),
-        biography: await TextEditor.enrichHTML(actorData.system.biography, { async: true })
+        description: await TE.enrichHTML(actorData.system.description ?? "", { async: true }),
+        biography:  await TE.enrichHTML(actorData.system.biography  ?? "", { async: true })
       };
 
       actorData.isGM = game.user.isGM;
@@ -171,47 +167,91 @@ export class QoLContractorSheet extends ActorSheet {
           });
 
         // Promote Contractor
-        html.find('[data-action="promote-contractor"]').on('click', async (event) => {
+        html.find('[data-action="promote-contractor"]').on("click", async (event) => {
           event.preventDefault();
         
           const actor = this.actor;
           if (!actor) return;
         
-          // 1. Promote to Named
-          await actor.update({ "system.contractor.isNamed": true });
-          
-          // 2. Add all the Stuff
-          await this._rollContractorLoyalty(this.actor);
-          await this._rollContractorMotivation(this.actor);
-          await this._rollContractorLoadout(this.actor);
+          // Dialog mit drei Optionen: Roll, Manual, Cancel
+          const choice = await foundry.applications.api.DialogV2.wait({
+            window: { title: "Promote Contractor" },
+            content: "<p>How would you like to promote this contractor?</p>",
+            buttons: [
+              {
+                label: "Roll Contractor",
+                icon: "fa-solid fa-dice",
+                action: "roll"
+              },
+              {
+                label: "Manual Promotion",
+                icon: "fa-solid fa-user-check",
+                action: "manual"
+              },
+              {
+                label: "Cancel",
+                icon: "fa-solid fa-xmark",
+                action: "cancel"
+              }
+            ],
+            default: "roll"
+          });
         
-          // 3. Re-render to update UI
+          // Handlung abhängig von der Auswahl
+          switch (choice) {
+            case "roll":
+              await actor.update({ "system.contractor.isNamed": true });
+              await this._rollContractorLoyalty(actor);
+              await this._rollContractorMotivation(actor);
+              await this._rollContractorLoadout(actor);
+              ui.notifications.info(`${actor.name} has been promoted and fully rolled.`);
+              break;
+        
+            case "manual":
+              await actor.update({ "system.contractor.isNamed": true });
+              ui.notifications.info(`${actor.name} has been promoted manually.`);
+              break;
+        
+            case "cancel":
+            default:
+              ui.notifications.info("Promotion canceled.");
+              return;
+          }
+        
+          // UI aktualisieren
           this.render();
         });
 
-        html.find('[data-action="contractor-menu"]').on("click", async (event) => {
-          const actor = this.actor; // Falls du das im Sheet-Kontext nutzt
+        html.find('[data-action="contractor-menu"]').on("click", async () => {
           if (!game.user.isGM) return;
         
-          new Dialog({
-            title: "Contractor Actions",
-            content: `<p>Select a contractor option below:</p>`,
-            buttons: {
-              loyalty: {
+          const actor = this.actor;
+        
+          await foundry.applications.api.DialogV2.wait({
+            window: { title: "Contractor Actions" },
+            content: "<p>Select a contractor option below:</p>",
+            buttons: [
+              {
                 label: "Roll Loyalty",
-                callback: () => this._rollContractorLoyalty(this.actor)
+                icon: "fa-solid fa-handshake",
+                action: "loyalty",
+                callback: async () => { await this._rollContractorLoyalty(actor); }
               },
-              motivation: {
+              {
                 label: "Roll Motivation",
-                callback: () => this._rollContractorMotivation(this.actor)
+                icon: "fa-solid fa-fire",
+                action: "motivation",
+                callback: async () => { await this._rollContractorMotivation(actor); }
               },
-              loadout: {
+              {
                 label: "Roll Loadout",
-                callback: () => this._rollContractorLoadout(this.actor)
+                icon: "fa-solid fa-boxes-stacked",
+                action: "loadout",
+                callback: async () => { await this._rollContractorLoadout(actor); }
               }
-            },
+            ],
             default: "loyalty"
-          }).render(true);
+          });
         });
 
         // Attribute Rolls

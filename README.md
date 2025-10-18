@@ -44,7 +44,7 @@
 ## Compatibility
 
 - 🧠 System: Mothership 1e (`mosh`)
-- 🏗️ Foundry VTT Version: 12+
+- 🏗️ Foundry VTT Version: 13+
 - 📦 Works best with the `fvtt_mosh_1e_psg` compendium pack
 
 ## Installation

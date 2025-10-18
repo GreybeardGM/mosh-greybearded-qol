@@ -1,8 +1,15 @@
 # Changelog
 
-## [0.6.2] - 2025-10-17
+## [0.6.2] - 2025-10-18
 ### Updated
-- Update for Foundry VTT v13
+- Various updates for Foundry VTT v13 compatibility.
+- MAY NO LONGER RUN ON V12
+
+### Added
+- Contractor promotion dailogue
+
+### Fixed
+- Formatting of items in the Loadout Roll chat output
   
 ## [0.6.1] - 2025-08-18
 ### Fixed

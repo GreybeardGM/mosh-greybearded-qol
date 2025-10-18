@@ -27,20 +27,31 @@ let StashSheet;
  * @param {Function} callback - Eventhandler bei Klick
  */
 function insertHeaderButton(titleElem, className, iconClass, label, color, callback) {
-  const button = document.createElement("a");
-  button.classList.add("header-button", className);
-  button.innerHTML = `<i class="fas ${iconClass}"></i> ${label}`;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  // WICHTIG: Keine Foundry-Klasse "header-button" verwenden
+  btn.classList.add("gbqol-header-button", className);
+  btn.setAttribute("aria-label", label);
+  btn.innerHTML = `<i class="fas ${iconClass}" aria-hidden="true"></i><span>${label}</span>`;
 
-  Object.assign(button.style, {
-    cursor: "pointer",
-    padding: "0 6px",
+  // Inline-Minimalstil, Rest in Modul-CSS legen
+  Object.assign(btn.style, {
     color,
-    fontWeight: "bold",
-    textShadow: `0 0 2px ${color}88`
+    background: "transparent",
+    border: "none"
   });
 
-  button.addEventListener("click", callback);
-  titleElem.insertAdjacentElement("afterend", button);
+  // Events vollständig isolieren, keine Bubbling-Kollisionen mit Foundry-Header
+  btn.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    try { callback(ev); } catch (e) { console.error(e); }
+  }, { passive: false });
+
+  // Robust in den Header einfügen (ans Ende der Header-Leiste)
+  const header = titleElem.closest(".window-header") ?? titleElem.parentElement;
+  // Nach dem Titel, aber vor Foundrys Standard-Buttons
+  titleElem.insertAdjacentElement("afterend", btn);
 }
 
 // Register all the stuff
@@ -254,9 +265,8 @@ Hooks.once("init", () => {
   });
 });
 
-// Chat actions (V12/V13 kompatibel)
-function handleQoLChatActions(rootEl) {
-  const buttons = rootEl.querySelectorAll(".greybeardqol .chat-action");
+Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
+  const buttons = html.querySelectorAll(".greybeardqol .chat-action");
   for (const button of buttons) {
     button.addEventListener("click", async () => {
       const action = button.dataset.action;
@@ -284,17 +294,7 @@ function handleQoLChatActions(rootEl) {
       }
     }, { once: true });
   }
-}
-
-if (game.release?.generation >= 13) {
-  Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
-    handleQoLChatActions(html);
-  });
-} else {
-  Hooks.on("renderChatMessage", (message, $html /* jQuery */, data) => {
-    handleQoLChatActions($html[0]);
-  });
-}
+});
 
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
@@ -310,7 +310,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
     game.settings.get("mosh-greybearded-qol", "enableShipCrits")
   ) {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem || titleElem.parentElement.querySelector(".ship-crit")) return;
+    if (!titleElem || titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.ship-crit")) return;
     insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50", () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid));
   }
 
@@ -334,7 +334,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
     if (!titleElem) return;
   
     // Entferne ShoreLeave Button, falls vorhanden
-    const existingShoreLeave = titleElem.parentElement.querySelector(".simple-shoreleave");
+    const existingShoreLeave = titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.simple-shoreleave");
     if (existingShoreLeave) existingShoreLeave.remove();
   
     const isReady = checkReady(actor) && !checkCompleted(actor);
