@@ -351,7 +351,6 @@ Hooks.on("renderActorSheet", (sheet, html) => {
       return;
     }
   }
-  */
   // HARDCODED PROBE — MUSS IM DOM SICHTBAR SEIN
   try {
     const app = html?.[0];
@@ -367,6 +366,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
       console.warn("[GBQOL] Probe conditions failed", {app: !!app, winHeader: !!winHeader});
     }
   } catch (e) { console.error("[GBQOL] Probe failed", e); }
+  */
 
   // Stash-Sheet NICHT abwürgen, sondern hier entscheiden
   const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
