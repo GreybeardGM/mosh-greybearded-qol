@@ -10,34 +10,31 @@ function getRoot(sheet, html){
 
 /** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
 export function upsertToolband(sheet, html){
-  const root = getRoot(sheet, html);
+  // in upsertToolband(...) – Erzeugung/Anker ersetzen
+  const root = html?.[0];
   if (!root) return;
-
-  // Fenster-Header/Content bestimmen
-  const winHeader  = root.querySelector(".window-header");
-  const winContent = root.querySelector(".window-content");
-  if (!winHeader && !winContent) return;
-
-  // existierende Instanz?
-  let bar = root.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`);
+  root.classList.add("gbqol-has-toolband");
+  
+  const winHeader = root.querySelector(".window-header");
+  if (!winHeader) return;
+  
+  let bar = root.querySelector(`.gbqol-toolband[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
-    bar.className = CLS;
+    bar.className = "gbqol-toolband";
     bar.dataset.appid = String(sheet.appId);
-    // direkt nach dem Fenster-Header einfügen; Fallback vor Content
-    if (winHeader) winHeader.insertAdjacentElement("afterend", bar);
-    else winContent.insertAdjacentElement("beforebegin", bar);
-
-    // Click-Delegation einmalig
+    // >>> in den Header einfügen, für relative Positionierung
+    winHeader.appendChild(bar);
+  
     bar.addEventListener("click", async (ev) => {
-      const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
+      const btn = ev.target.closest(".gbqol-toolband-btn[data-action]");
       if (!btn) return;
       ev.preventDefault(); ev.stopPropagation();
       const actor = sheet.actor;
       switch (btn.dataset.action) {
-        case "ship-crit":        return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
-        case "roll-character":   return game.moshGreybeardQol.startCharacterCreation(actor);
-        case "shore-leave":      return game.moshGreybeardQol.simpleShoreLeave(actor);
+        case "ship-crit":      return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+        case "roll-character": return game.moshGreybeardQol.startCharacterCreation(actor);
+        case "shore-leave":    return game.moshGreybeardQol.simpleShoreLeave(actor);
       }
     }, { passive: false });
   }
