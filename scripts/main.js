@@ -5,7 +5,6 @@ import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
-import { upsertToolband, removeToolband } from "./toolband.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import {
   checkReady,
@@ -295,16 +294,6 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
       }
     }, { once: true });
   }
-});
-
-// Toolband injizieren/aktualisieren – eigener Hook, kollisionsfrei zu deinem bestehenden renderActorSheet-Handler
-Hooks.on("renderActorSheet", (sheet, html) => {
-  try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
-});
-
-// Toolband aufräumen
-Hooks.on("closeActorSheet", (sheet) => {
-  try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
 
 // Sheet Header Buttons
