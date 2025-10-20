@@ -300,27 +300,26 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
-  // Cancel if not Owner
+
   const isGM = game.user.isGM;
   const isOwner = actor.testUserPermission(game.user, "OWNER");
   if (!(isGM || isOwner)) return;
 
-  // 🚢 0e Ship Crits
-  if (
-    actor?.type === "ship" &&
-    game.settings.get("mosh-greybearded-qol", "enableShipCrits")
-  ) {
+  // 🚢 Ship-Button
+  if (actor?.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem || titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.ship-crit")) return;
-    insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50", () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid));
+    if (titleElem && !titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.ship-crit")) {
+      insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50",
+        () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid)
+      );
+    }
   }
 
   if (actor?.type === "character") {
-    // Hide Defualt Character Creator Button
     const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
     const isStash = sheet instanceof StashSheet;
 
-    if (isCreatorEnabled || isStash) {  
+    if (isCreatorEnabled || isStash) {
       const oldCreatorButton = html[0].querySelector(".configure-actor");
       if (oldCreatorButton) {
         oldCreatorButton.style.display = "none";
@@ -328,27 +327,32 @@ Hooks.on("renderActorSheet", (sheet, html) => {
       }
     }
 
-    // Cancel the rest if Stash
-    if (isStash) return;
-    
-    const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem) return;
-  
-    // Entferne ShoreLeave Button, falls vorhanden
-    const existingShoreLeave = titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.simple-shoreleave");
-    if (existingShoreLeave) existingShoreLeave.remove();
-  
-    const isReady = checkReady(actor) && !checkCompleted(actor);
-  
-    if (isCreatorEnabled && isReady) {
-      // Ersetze durch Character-Reset-Button
-      insertHeaderButton(titleElem, "create-character", "fa-dice-d20", "Roll Character", "#5f0", () => game.moshGreybeardQol.startCharacterCreation(actor));
+    if (!isStash) {
+      const titleElem = html[0]?.querySelector(".window-header .window-title");
+      if (titleElem) {
+        const existingShoreLeave = titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.simple-shoreleave");
+        if (existingShoreLeave) existingShoreLeave.remove();
+
+        const isReady = checkReady(actor) && !checkCompleted(actor);
+        if (isCreatorEnabled && isReady) {
+          insertHeaderButton(titleElem, "create-character", "fa-dice-d20", "Roll Character", "#5f0",
+            () => game.moshGreybeardQol.startCharacterCreation(actor)
+          );
+        } else {
+          insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf",
+            () => game.moshGreybeardQol.simpleShoreLeave(actor)
+          );
+        }
+      }
     } else {
-      // Standard ShoreLeave-Button einfügen
-      insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf", () => game.moshGreybeardQol.simpleShoreLeave(actor));
+      // Stash: kein Toolband
+      try { removeToolband(sheet); } catch (e) { console.error(e); }
+      return;
     }
-   
   }
+
+  // <<< HIER zentral das Toolband updaten, ohne separaten Hook >>>
+  try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
 });
 
 // Prepare fesh characters for Character Creation
@@ -359,12 +363,6 @@ Hooks.on("createActor", async (actor, options, userId) => {
   // Flag setzen
   await setReady(actor);
   console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
-});
-
-// Toolband injizieren/aktualisieren – eigener Hook, kollisionsfrei zu deinem bestehenden renderActorSheet-Handler
-Hooks.on("renderActorSheet", (sheet, html) => {
-  console.log("[💥GBQOL] Toolband Hook fired!");
-  try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
 });
 
 // Toolband aufräumen
