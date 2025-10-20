@@ -352,7 +352,22 @@ Hooks.on("renderActorSheet", (sheet, html) => {
     }
   }
   */
-  
+  // HARDCODED PROBE — MUSS IM DOM SICHTBAR SEIN
+  try {
+    const app = html?.[0];
+    const winHeader = app?.querySelector(".window-header");
+    if (app && winHeader && !app.querySelector(`.gbqol-toolband[data-probe="1"]`)) {
+      const probe = document.createElement("div");
+      probe.className = "gbqol-toolband";
+      probe.dataset.probe = "1";
+      probe.textContent = "__TOOLBAND_PROBE__";
+      winHeader.insertAdjacentElement("afterend", probe);
+      console.log("[GBQOL] Probe inserted");
+    } else {
+      console.warn("[GBQOL] Probe conditions failed", {app: !!app, winHeader: !!winHeader});
+    }
+  } catch (e) { console.error("[GBQOL] Probe failed", e); }
+
   // Stash-Sheet NICHT abwürgen, sondern hier entscheiden
   const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
   if (!isStash) upsertToolband(sheet, html);
