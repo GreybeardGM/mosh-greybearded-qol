@@ -1,0 +1,52 @@
+/* Header als Positionierungs-Context nur für unsere App-Fenster */
+.gbqol-has-toolband > .window-header { position: relative; }
+
+/* Transparentes, überlappendes Band */
+.gbqol-toolband {
+  position: absolute;
+  left: var(--gbqol-band-left, 8px);
+  right: var(--gbqol-band-right, 8px);
+  bottom: var(--gbqol-band-overlap, -10px); /* negativer Wert => Überlappung in den Bogen */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--gbqol-band-pad, 4px 8px);
+  background: transparent;                 /* volle Transparenz */
+  z-index: 5;                              /* über Sheet-Inhalt, unter Header-Buttons falls nötig erhöhen */
+  pointer-events: none;                    /* Container nimmt keine Events … */
+}
+
+/* … aber die Buttons sind klickbar */
+.gbqol-toolband .gbqol-toolband-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border-light-2, #00000033);
+  border-radius: 4px;
+  background: rgba(20,20,20,0.25);        /* semitransparente Kapsel für Lesbarkeit */
+  backdrop-filter: blur(2px);              /* weicher Kontrast, wenn unterstützt */
+  -webkit-backdrop-filter: blur(2px);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  color: var(--color-text-light-1, #fff);
+  font: inherit;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.gbqol-toolband .gbqol-toolband-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,.35);
+}
+.gbqol-toolband .gbqol-toolband-btn i { margin-right: .25rem; }
+.gbqol-toolband .gbqol-toolband-spacer { flex: 1; }
+
+/* Optional: Kollision mit Header-Buttons vermeiden – Band unter deren Z-Order halten */
+.gbqol-has-toolband .window-header .header-button,
+.gbqol-has-toolband .window-header .gbqol-header-button { position: relative; z-index: 6; }
+
+/* Fail-safe: Wenn Theme den ersten Content überlappt, optional Puffer aktivieren (opt-in) */
+.gbqol-has-toolband[data-gbqol-pad="1"] > .window-content {
+  /* Höhe des Bands simuliert als Innenabstand – nur setzen, wenn gewünscht */
+  padding-top: calc(var(--gbqol-pad-height, 28px));
+}
