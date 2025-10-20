@@ -24,8 +24,11 @@ export function upsertToolband(sheet, html){
     bar.className = "gbqol-toolband";
     bar.dataset.appid = String(sheet.appId);
     // >>> in den Header einfügen, für relative Positionierung
-    winHeader.appendChild(bar);
-  
+    winHeader.insertAdjacentElement("afterend", bar);
+    // optional: Overlap dynamisch setzen (einmalig bei Erzeugung)
+    const headerH = winHeader.getBoundingClientRect().height || 32;
+    bar.style.setProperty("--gbqol-overlap", "14px"); // gewünschte Überlappung
+    
     bar.addEventListener("click", async (ev) => {
       const btn = ev.target.closest(".gbqol-toolband-btn[data-action]");
       if (!btn) return;
