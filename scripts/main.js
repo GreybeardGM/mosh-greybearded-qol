@@ -18,43 +18,6 @@ import {
 // Needs to be here to check for
 let StashSheet;
 
-/**
- * Fügt einen Button in die Actor Sheet Header-Leiste ein.
- * @param {HTMLElement} titleElem - Der DOM-Knoten mit der Fensterüberschrift
- * @param {string} className - Zusätzliche Klasse für den Button
- * @param {string} iconClass - FontAwesome-Icon-Klasse (ohne "fas")
- * @param {string} label - Der Text des Buttons
- * @param {string} color - Die Hauptfarbe für Text und Schatten
- * @param {Function} callback - Eventhandler bei Klick
- */
-function insertHeaderButton(titleElem, className, iconClass, label, color, callback) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  // WICHTIG: Keine Foundry-Klasse "header-button" verwenden
-  btn.classList.add("gbqol-header-button", className);
-  btn.setAttribute("aria-label", label);
-  btn.innerHTML = `<i class="fas ${iconClass}" aria-hidden="true"></i><span>${label}</span>`;
-
-  // Inline-Minimalstil, Rest in Modul-CSS legen
-  Object.assign(btn.style, {
-    color,
-    background: "transparent",
-    border: "none"
-  });
-
-  // Events vollständig isolieren, keine Bubbling-Kollisionen mit Foundry-Header
-  btn.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    try { callback(ev); } catch (e) { console.error(e); }
-  }, { passive: false });
-
-  // Robust in den Header einfügen (ans Ende der Header-Leiste)
-  const header = titleElem.closest(".window-header") ?? titleElem.parentElement;
-  // Nach dem Titel, aber vor Foundrys Standard-Buttons
-  titleElem.insertAdjacentElement("afterend", btn);
-}
-
 // Register all the stuff
 Hooks.once("ready", () => {
   
@@ -304,69 +267,6 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   const isGM = game.user.isGM;
   const isOwner = actor.testUserPermission(game.user, "OWNER");
   if (!(isGM || isOwner)) return;
-
-  /*
-  // 🚢 Ship-Button
-  if (actor?.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-    const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (titleElem && !titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.ship-crit")) {
-      insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50",
-        () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid)
-      );
-    }
-  }
-
-  if (actor?.type === "character") {
-    const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-    const isStash = sheet instanceof StashSheet;
-
-    if (isCreatorEnabled || isStash) {
-      const oldCreatorButton = html[0].querySelector(".configure-actor");
-      if (oldCreatorButton) {
-        oldCreatorButton.style.display = "none";
-        console.log("[MoSh QoL] Configure-Button hidden");
-      }
-    }
-
-    if (!isStash) {
-      const titleElem = html[0]?.querySelector(".window-header .window-title");
-      if (titleElem) {
-        const existingShoreLeave = titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.simple-shoreleave");
-        if (existingShoreLeave) existingShoreLeave.remove();
-
-        const isReady = checkReady(actor) && !checkCompleted(actor);
-        if (isCreatorEnabled && isReady) {
-          insertHeaderButton(titleElem, "create-character", "fa-dice-d20", "Roll Character", "#5f0",
-            () => game.moshGreybeardQol.startCharacterCreation(actor)
-          );
-        } else {
-          insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf",
-            () => game.moshGreybeardQol.simpleShoreLeave(actor)
-          );
-        }
-      }
-    } else {
-      // Stash: kein Toolband
-      try { removeToolband(sheet); } catch (e) { console.error(e); }
-      return;
-    }
-  }
-  // HARDCODED PROBE — MUSS IM DOM SICHTBAR SEIN
-  try {
-    const app = html?.[0];
-    const winHeader = app?.querySelector(".window-header");
-    if (app && winHeader && !app.querySelector(`.gbqol-toolband[data-probe="1"]`)) {
-      const probe = document.createElement("div");
-      probe.className = "gbqol-toolband";
-      probe.dataset.probe = "1";
-      probe.textContent = "__TOOLBAND_PROBE__";
-      winHeader.insertAdjacentElement("afterend", probe);
-      console.log("[GBQOL] Probe inserted");
-    } else {
-      console.warn("[GBQOL] Probe conditions failed", {app: !!app, winHeader: !!winHeader});
-    }
-  } catch (e) { console.error("[GBQOL] Probe failed", e); }
-  */
 
   // Stash-Sheet NICHT abwürgen, sondern hier entscheiden
   const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
