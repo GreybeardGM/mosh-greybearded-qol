@@ -297,16 +297,6 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
   }
 });
 
-// Toolband injizieren/aktualisieren – eigener Hook, kollisionsfrei zu deinem bestehenden renderActorSheet-Handler
-Hooks.on("renderActorSheet", (sheet, html) => {
-  try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
-});
-
-// Toolband aufräumen
-Hooks.on("closeActorSheet", (sheet) => {
-  try { removeToolband(sheet); } catch (e) { console.error(e); }
-});
-
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
@@ -369,4 +359,14 @@ Hooks.on("createActor", async (actor, options, userId) => {
   // Flag setzen
   await setReady(actor);
   console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
+});
+
+// Toolband injizieren/aktualisieren – eigener Hook, kollisionsfrei zu deinem bestehenden renderActorSheet-Handler
+Hooks.on("renderActorSheet", (sheet, html) => {
+  try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
+});
+
+// Toolband aufräumen
+Hooks.on("closeActorSheet", (sheet) => {
+  try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
