@@ -363,6 +363,7 @@ Hooks.on("createActor", async (actor, options, userId) => {
 
 // Toolband injizieren/aktualisieren – eigener Hook, kollisionsfrei zu deinem bestehenden renderActorSheet-Handler
 Hooks.on("renderActorSheet", (sheet, html) => {
+  console.log("[💥GBQOL] Toolband Hook fired!");
   try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
 });
 
