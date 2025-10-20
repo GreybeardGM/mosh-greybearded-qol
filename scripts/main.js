@@ -305,6 +305,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   const isOwner = actor.testUserPermission(game.user, "OWNER");
   if (!(isGM || isOwner)) return;
 
+  /*
   // 🚢 Ship-Button
   if (actor?.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
     const titleElem = html[0]?.querySelector(".window-header .window-title");
@@ -350,9 +351,12 @@ Hooks.on("renderActorSheet", (sheet, html) => {
       return;
     }
   }
-
-  // <<< HIER zentral das Toolband updaten, ohne separaten Hook >>>
-  try { upsertToolband(sheet, html); } catch (e) { console.error(e); }
+  */
+  
+  // Stash-Sheet NICHT abwürgen, sondern hier entscheiden
+  const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
+  if (!isStash) upsertToolband(sheet, html);
+  else removeToolband(sheet);
 });
 
 // Prepare fesh characters for Character Creation
