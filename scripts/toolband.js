@@ -1,102 +1,87 @@
-/**
- * Fügt/aktualisiert ein Menüband unmittelbar unter dem Sheet-Header.
- * Idempotent; ersetzt nur den Band-Inhalt bei Änderungen.
- */
-export function upsertToolband(sheet, html) {
-  const actor = sheet.actor;
-  const isGM = game.user.isGM;
-  const isOwner = actor?.testUserPermission(game.user, "OWNER");
-  if (!(isGM || isOwner)) return;
+// modules/mosh-greybearded-qol/toolband.js
+import { checkReady, checkCompleted } from "./character-creator/progress.js";
 
-  // Stash-Sheet ausnehmen wie bisher
-  const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
-  if (isStash) return;
+const CLS = "gbqol-toolband";
 
-  const root = html?.[0];
+/** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
+function getRoot(sheet, html){
+  return (sheet?.element?.[0]) || (html?.[0]) || null;
+}
+
+/** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
+export function upsertToolband(sheet, html){
+  const root = getRoot(sheet, html);
   if (!root) return;
 
-  // === KORREKTER ANKER ===
-  // 1) Primär: Fenster-Header (".window-header")
-  // 2) Sekundär: falls nicht vorhanden, vor ".window-content" einfügen
-  const winHeader = root.querySelector(".window-header");
+  // Fenster-Header/Content bestimmen
+  const winHeader  = root.querySelector(".window-header");
   const winContent = root.querySelector(".window-content");
   if (!winHeader && !winContent) return;
 
-  // Existierendes Band?
-  let bar = root.querySelector(`.gbqol-toolband[data-appid="${sheet.appId}"]`);
+  // existierende Instanz?
+  let bar = root.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
-    bar.className = "gbqol-toolband";
+    bar.className = CLS;
     bar.dataset.appid = String(sheet.appId);
+    // direkt nach dem Fenster-Header einfügen; Fallback vor Content
+    if (winHeader) winHeader.insertAdjacentElement("afterend", bar);
+    else winContent.insertAdjacentElement("beforebegin", bar);
 
-    // Einfügeposition: direkt NACH dem Fenster-Header,
-    // dadurch liegt das Band visuell zwischen Header und Content.
-    if (winHeader) {
-      winHeader.insertAdjacentElement("afterend", bar);
-    } else {
-      // Notfall: vor den Inhalt setzen
-      winContent.insertAdjacentElement("beforebegin", bar);
-    }
-
-    // Delegiertes Click-Handling einmalig
+    // Click-Delegation einmalig
     bar.addEventListener("click", async (ev) => {
-      const btn = ev.target.closest(".gbqol-toolband-btn[data-action]");
+      const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
       if (!btn) return;
       ev.preventDefault(); ev.stopPropagation();
-      const action = btn.dataset.action;
-      try {
-        switch (action) {
-          case "ship-crit":
-            await game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
-            break;
-          case "roll-character":
-            await game.moshGreybeardQol.startCharacterCreation(actor);
-            break;
-          case "shore-leave":
-            await game.moshGreybeardQol.simpleShoreLeave(actor);
-            break;
-          default:
-            ui.notifications.warn(`Unknown toolband action: ${action}`);
-        }
-      } catch (e) {
-        console.error(e);
-        ui.notifications.error(e?.message ?? "Action failed");
+      const actor = sheet.actor;
+      switch (btn.dataset.action) {
+        case "ship-crit":        return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+        case "roll-character":   return game.moshGreybeardQol.startCharacterCreation(actor);
+        case "shore-leave":      return game.moshGreybeardQol.simpleShoreLeave(actor);
       }
     }, { passive: false });
   }
 
-  // Buttons gemäß deinen bestehenden Regeln
-  const buttons = [];
+  // Buttons bestimmen (niemals bar entfernen, sonst „verschwindet“ es komplett)
+  const actor = sheet.actor;
+  const btns = [];
+
   if (actor?.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-    buttons.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit", color: "#f50" });
+    btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit" });
   }
+
   if (actor?.type === "character") {
     const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
     const isReady = checkReady(actor) && !checkCompleted(actor);
     if (isCreatorEnabled && isReady) {
-      buttons.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character", color: "#5f0" });
+      btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
     } else {
-      buttons.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave", color: "#3cf" });
+      btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
     }
   }
 
-  // Wenn keine Buttons nötig sind, Band entfernen
-  if (!buttons.length) { bar.remove(); return; }
+  // Diff/Neuaufbau – wenn 0 Buttons, zeige Platzhalter, damit DOM-Sichtbarkeit verifizierbar bleibt
+  const targetIds = btns.length ? btns.map(b => b.id) : ["__placeholder__"];
+  const currentIds = Array.from(bar.querySelectorAll(`.${CLS}-btn`)).map(n => n.dataset.action);
+  const changed = currentIds.length !== targetIds.length || currentIds.some((id, i) => id !== targetIds[i]);
 
-  // Diff: Nur neu bauen, wenn sich die Reihenfolge/Anzahl geändert hat
-  const innerIds = Array.from(bar.querySelectorAll(".gbqol-toolband-btn")).map(n => n.dataset.action);
-  const targetIds = buttons.map(b => b.id);
-  const changed = innerIds.length !== targetIds.length || innerIds.some((id, i) => id !== targetIds[i]);
   if (!changed) return;
 
-  bar.innerHTML = buttons.map(b => `
-    <button type="button" class="gbqol-toolband-btn" data-action="${b.id}" title="${b.label}" style="--gbqol-btn-color:${b.color}">
+  if (!btns.length) {
+    bar.innerHTML = `<div class="${CLS}-placeholder" data-note="no-buttons">—</div>`;
+    return;
+  }
+
+  bar.innerHTML = btns.map(b => `
+    <button type="button" class="${CLS}-btn" data-action="${b.id}" title="${b.label}">
       <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
     </button>
-  `).join("") + `<div class="gbqol-spacer"></div>`;
+  `).join("") + `<div class="${CLS}-spacer"></div>`;
 }
 
-/** Cleanup beim Schließen */
-export function removeToolband(sheet) {
-  document.querySelectorAll(`.gbqol-toolband[data-appid="${sheet.appId}"]`).forEach(el => el.remove());
+/** Aufräumen über App-ID */
+export function removeToolband(sheet){
+  const root = getRoot(sheet);
+  if (!root) return;
+  root.querySelectorAll(`.${CLS}[data-appid="${sheet.appId}"]`).forEach(n => n.remove());
 }
