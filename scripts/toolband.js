@@ -4,37 +4,45 @@
  */
 export function upsertToolband(sheet, html) {
   const actor = sheet.actor;
-  // Owner/GM-Gate wie bei Header-Buttons
   const isGM = game.user.isGM;
   const isOwner = actor?.testUserPermission(game.user, "OWNER");
   if (!(isGM || isOwner)) return;
 
-  // Stash-Sheet wie im Header-Button-Block ausnehmen
+  // Stash-Sheet ausnehmen wie bisher
   const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
   if (isStash) return;
 
-  // Zielanker bestimmen
   const root = html?.[0];
   if (!root) return;
-  const headerAnchor = root.querySelector(".sheet-header") || root.querySelector(".window-content");
-  if (!headerAnchor) return;
 
-  // Band-Container holen/erzeugen
-  const sel = `.gbqol-toolband[data-appid="${sheet.appId}"]`;
-  let bar = root.querySelector(sel);
+  // === KORREKTER ANKER ===
+  // 1) Primär: Fenster-Header (".window-header")
+  // 2) Sekundär: falls nicht vorhanden, vor ".window-content" einfügen
+  const winHeader = root.querySelector(".window-header");
+  const winContent = root.querySelector(".window-content");
+  if (!winHeader && !winContent) return;
+
+  // Existierendes Band?
+  let bar = root.querySelector(`.gbqol-toolband[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
     bar.className = "gbqol-toolband";
     bar.dataset.appid = String(sheet.appId);
-    // Nach Header einfügen
-    headerAnchor.insertAdjacentElement("afterend", bar);
 
-    // Delegiertes Click-Handling einmalig setzen
+    // Einfügeposition: direkt NACH dem Fenster-Header,
+    // dadurch liegt das Band visuell zwischen Header und Content.
+    if (winHeader) {
+      winHeader.insertAdjacentElement("afterend", bar);
+    } else {
+      // Notfall: vor den Inhalt setzen
+      winContent.insertAdjacentElement("beforebegin", bar);
+    }
+
+    // Delegiertes Click-Handling einmalig
     bar.addEventListener("click", async (ev) => {
       const btn = ev.target.closest(".gbqol-toolband-btn[data-action]");
       if (!btn) return;
-      ev.preventDefault();
-      ev.stopPropagation();
+      ev.preventDefault(); ev.stopPropagation();
       const action = btn.dataset.action;
       try {
         switch (action) {
@@ -57,12 +65,11 @@ export function upsertToolband(sheet, html) {
     }, { passive: false });
   }
 
-  // Buttons gemäß aktueller Bedingungen bestimmen
+  // Buttons gemäß deinen bestehenden Regeln
   const buttons = [];
   if (actor?.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
     buttons.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit", color: "#f50" });
   }
-
   if (actor?.type === "character") {
     const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
     const isReady = checkReady(actor) && !checkCompleted(actor);
@@ -73,22 +80,20 @@ export function upsertToolband(sheet, html) {
     }
   }
 
-  // Wenn keine Buttons angezeigt werden sollen, Band entfernen
+  // Wenn keine Buttons nötig sind, Band entfernen
   if (!buttons.length) { bar.remove(); return; }
 
-  // Diff: Nur neu rendern, wenn sich die Button-Reihenfolge/Anzahl geändert hat
-  const current = Array.from(bar.querySelectorAll(".gbqol-toolband-btn")).map(b => b.dataset.action);
-  const target = buttons.map(b => b.id);
-  const changed = current.length !== target.length || current.some((id, i) => id !== target[i]);
-
+  // Diff: Nur neu bauen, wenn sich die Reihenfolge/Anzahl geändert hat
+  const innerIds = Array.from(bar.querySelectorAll(".gbqol-toolband-btn")).map(n => n.dataset.action);
+  const targetIds = buttons.map(b => b.id);
+  const changed = innerIds.length !== targetIds.length || innerIds.some((id, i) => id !== targetIds[i]);
   if (!changed) return;
 
-  // Neuaufbau
-  bar.innerHTML = buttons.map(b => {
-    return `<button type="button" class="gbqol-toolband-btn" data-action="${b.id}" title="${b.label}" style="--gbqol-btn-color:${b.color}">
+  bar.innerHTML = buttons.map(b => `
+    <button type="button" class="gbqol-toolband-btn" data-action="${b.id}" title="${b.label}" style="--gbqol-btn-color:${b.color}">
       <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
-    </button>`;
-  }).join("") + `<div class="gbqol-spacer"></div>`;
+    </button>
+  `).join("") + `<div class="gbqol-spacer"></div>`;
 }
 
 /** Cleanup beim Schließen */
