@@ -1,19 +1,8 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
-import { QoLContractorSheet } from "./contractor-sheet-class.js";
 
 const CLS = "toolband";
-
-// Prüfung ob Contractor
-function isContractorSheetInstance(sheet) {
-  if (!sheet) return false;
-  // Primär: echte Klassenprüfung
-  if (typeof QoLContractorSheet === "function" && sheet instanceof QoLContractorSheet) return true;
-  // Fallback: Template-Heuristik (falls Klasse nicht greifbar wäre)
-  const tpl = String(sheet?.template || "");
-  return tpl.includes("/contractor-sheet.html");
-}
 
 /** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
 function getRoot(sheet, html){
@@ -21,65 +10,74 @@ function getRoot(sheet, html){
 }
 
 /** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
-export function upsertToolband(sheet, html){
-  // in upsertToolband(...) – Erzeugung/Anker ersetzen
+export function upsertToolband(sheet, html, ctx = {}) {
+  const { kind = "unknown", isGM = false, isOwner = false } = ctx;
+
+  // Root & Header
   const root = html?.[0];
   if (!root) return;
   root.classList.add(`has-${CLS}`);
-  
+
   const winHeader = root.querySelector(".window-header");
   if (!winHeader) return;
-  
+
+  // Leiste erstellen (einmalig)
   let bar = root.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
     bar.className = `${CLS} greybeardqol`;
     bar.dataset.appid = String(sheet.appId);
-    // >>> in den Header einfügen, für relative Positionierung
     winHeader.insertAdjacentElement("afterend", bar);
     bar.style.setProperty("--theme-color", getThemeColor());
-        
+
+    // Zentrale Click-Delegation
     bar.addEventListener("click", async (ev) => {
       const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
       if (!btn) return;
       ev.preventDefault(); ev.stopPropagation();
-    
+
       const actor = sheet.actor;
       switch (btn.dataset.action) {
         case "ship-crit":
           return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+
         case "roll-character":
           return game.moshGreybeardQol.startCharacterCreation(actor);
+
         case "shore-leave":
           return game.moshGreybeardQol.simpleShoreLeave(actor);
+
         case "mark-ready":
           await setReady(actor);
           ui.notifications?.info?.(`Character marked ready: ${actor.name}`);
           return sheet.render(false);
+
         case "mark-complete":
           await setCompleted(actor);
           ui.notifications?.info?.(`Character marked completed: ${actor.name}`);
           return sheet.render(false);
-        // ===== Contractor-spezifisch =====
+
+        // ===== Contractor: Promote =====
         case "promote-contractor": {
-          if (!isContractorSheetInstance(sheet) || !game.user.isGM) return;
+          // Guard: nur GM & nur wenn die Sheet-Methoden existieren
+          if (!isGM) return;
           const choice = await foundry.applications.api.DialogV2.wait({
             window: { title: "Promote Contractor" },
             content: "<p>How would you like to promote this contractor?</p>",
             buttons: [
-              { label: "Roll Contractor",   icon: "fa-solid fa-dice",        action: "roll" },
-              { label: "Manual Promotion",  icon: "fa-solid fa-user-check",  action: "manual" },
-              { label: "Cancel",            icon: "fa-solid fa-xmark",       action: "cancel" }
+              { label: "Roll Contractor",  icon: "fa-solid fa-dice",        action: "roll" },
+              { label: "Manual Promotion", icon: "fa-solid fa-user-check",  action: "manual" },
+              { label: "Cancel",           icon: "fa-solid fa-xmark",       action: "cancel" }
             ],
             default: "roll"
           });
-    
+
           switch (choice) {
             case "roll":
               await actor.update({ "system.contractor.isNamed": true });
-              await sheet._rollContractorLoyalty(actor);
-              await sheet._rollContractorMotivation(actor);
-              await sheet._rollContractorLoadout(actor);
+              if (typeof sheet._rollContractorLoyalty === "function")   await sheet._rollContractorLoyalty(actor);
+              if (typeof sheet._rollContractorMotivation === "function")await sheet._rollContractorMotivation(actor);
+              if (typeof sheet._rollContractorLoadout === "function")   await sheet._rollContractorLoadout(actor);
               ui.notifications.info(`${actor.name} has been promoted and fully rolled.`);
               break;
             case "manual":
@@ -92,9 +90,10 @@ export function upsertToolband(sheet, html){
           }
           return sheet.render();
         }
-    
+
+        // ===== Contractor: Menü =====
         case "contractor-menu": {
-          if (!isContractorSheetInstance(sheet) || !game.user.isGM) return;
+          if (!isGM) return;
           await foundry.applications.api.DialogV2.wait({
             window: { title: "Contractor Actions" },
             content: "<p>Select a contractor option below:</p>",
@@ -103,19 +102,28 @@ export function upsertToolband(sheet, html){
                 label: "Roll Loyalty",
                 icon: "fa-solid fa-handshake",
                 action: "loyalty",
-                callback: async () => { await sheet._rollContractorLoyalty(actor); }
+                callback: async () => { 
+                  if (typeof sheet._rollContractorLoyalty === "function") 
+                    await sheet._rollContractorLoyalty(actor); 
+                }
               },
               {
                 label: "Roll Motivation",
                 icon: "fa-solid fa-fire",
                 action: "motivation",
-                callback: async () => { await sheet._rollContractorMotivation(actor); }
+                callback: async () => { 
+                  if (typeof sheet._rollContractorMotivation === "function") 
+                    await sheet._rollContractorMotivation(actor); 
+                }
               },
               {
                 label: "Roll Loadout",
                 icon: "fa-solid fa-boxes-stacked",
                 action: "loadout",
-                callback: async () => { await sheet._rollContractorLoadout(actor); }
+                callback: async () => { 
+                  if (typeof sheet._rollContractorLoadout === "function") 
+                    await sheet._rollContractorLoadout(actor); 
+                }
               }
             ],
             default: "loyalty"
@@ -126,48 +134,103 @@ export function upsertToolband(sheet, html){
     }, { passive: false });
   }
 
-  // Buttons bestimmen (niemals bar entfernen, sonst „verschwindet“ es komplett)
+  // ---- Buttons bestimmen (nach Kategorie + GM-Unterkategorie) ----
   const actor = sheet.actor;
   const btns = [];
 
-  if (actor?.type === "ship" && game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-    btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit" });
+  switch (kind) {
+    case "character": {
+      // Nutzer-Buttons (alle Owner/Spieler)
+      const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+      const ready = checkReady(actor);
+      const completed = checkCompleted(actor);
+
+      if (isCreatorEnabled && ready && !completed) {
+        btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
+        btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
+      } else {
+        btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
+      }
+
+      // GM-Unterkategorie
+      if (isGM) {
+        if (!ready && !completed) {
+          btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Mark Ready" });
+        }
+        // (Platzhalter) — weitere GM-spezifische Character-Buttons hier ergänzen
+      }
+      break;
+    }
+
+    case "contractor": {
+      // Nutzer-Buttons (falls nötig) — aktuell keine reinen Spieleraktionen
+      // (Platzhalter) — Contractor-Spieleraktionen hier ergänzen
+
+      // GM-Unterkategorie
+      if (isGM) {
+        const isNamed = !!actor?.system?.contractor?.isNamed;
+        if (!isNamed) {
+          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Contractor" });
+        } else {
+          btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Contractor Menu" });
+        }
+      } else {
+        // (Platzhalter) — Contractor-GM-Alternative/Info für Spieler
+      }
+      break;
+    }
+
+    case "ship": {
+      // Nutzer-Buttons
+      if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
+        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit" });
+      } else {
+        // (Platzhalter) — Ship-Buttons wenn Feature deaktiviert
+      }
+
+      // GM-Unterkategorie (falls noch etwas Spezielles gebraucht wird)
+      if (isGM) {
+        // (Platzhalter) — GM-spezifische Ship-Buttons hier ergänzen
+      }
+      break;
+    }
+
+    case "stash": {
+      // Nutzer-Buttons
+      // (Platzhalter) — Stash-Spieleraktionen hier ergänzen
+
+      // GM-Unterkategorie
+      if (isGM) {
+        // (Platzhalter) — Stash-GM-Aktionen hier ergänzen
+      }
+      break;
+    }
+
+    case "creature": {
+      // Nutzer-Buttons
+      // (Platzhalter) — Creature-Spieleraktionen hier ergänzen
+
+      // GM-Unterkategorie
+      if (isGM) {
+        // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
+      }
+      break;
+    }
+
+    default: {
+      // Unbekannt
+      // (Platzhalter) — Fallback-Actions
+      if (isGM) {
+        // (Platzhalter) — Fallback-GM-Actions
+      }
+      break;
+    }
   }
 
-  if (actor?.type === "character") {
-    const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-    const isReady = checkReady(actor) && !checkCompleted(actor);
-    const isCompleted = checkCompleted(actor);
-    const isGM = game.user.isGM;
-    const isOwner = actor.testUserPermission(game.user, "OWNER");
-
-    if (isCreatorEnabled && isReady) {
-      btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
-      btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
-    } else {
-      btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
-    }
-    // 1) Mark Ready: nur für SL, nur wenn weder ready noch completed gesetzt.
-    if (isGM && !checkReady(actor) && !isCompleted) {
-      btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Mark Ready" });
-    }
-  }
-
-  // --- Contractor-Buttons nur beim QoLContractorSheet und nur für GMs ---
-  if (isContractorSheetInstance(sheet) && game.user.isGM) {
-    const isNamed = !!actor?.system?.contractor?.isNamed;
-    if (!isNamed) {
-      btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Contractor" });
-    } else {
-      btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Contractor Menu" });
-    }
-  }
-
-  // Diff/Neuaufbau – wenn 0 Buttons, zeige Platzhalter, damit DOM-Sichtbarkeit verifizierbar bleibt
+  // ---- Diff/Neuaufbau ----
   const targetIds = btns.length ? btns.map(b => b.id) : ["__placeholder__"];
   const currentIds = Array.from(bar.querySelectorAll(`.${CLS}-btn`)).map(n => n.dataset.action);
   const changed = currentIds.length !== targetIds.length || currentIds.some((id, i) => id !== targetIds[i]);
-
   if (!changed) return;
 
   if (!btns.length) {
