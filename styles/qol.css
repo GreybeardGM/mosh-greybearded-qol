@@ -380,4 +380,5 @@
   margin: 2px 0;
   color: var(--color-text);
   line-height: 1em;
+  box-shadow: unset;
 }
