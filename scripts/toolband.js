@@ -157,25 +157,20 @@ export function upsertToolband(sheet, html, ctx = {}) {
         if (!ready && !completed) {
           btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Mark Ready" });
         }
-        // (Platzhalter) — weitere GM-spezifische Character-Buttons hier ergänzen
       }
       break;
     }
 
     case "contractor": {
-      // Nutzer-Buttons (falls nötig) — aktuell keine reinen Spieleraktionen
-      // (Platzhalter) — Contractor-Spieleraktionen hier ergänzen
-
+      // Nutzer-Buttons
       // GM-Unterkategorie
       if (isGM) {
         const isNamed = !!actor?.system?.contractor?.isNamed;
         if (!isNamed) {
-          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Contractor" });
+          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Unique" });
         } else {
           btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Contractor Menu" });
         }
-      } else {
-        // (Platzhalter) — Contractor-GM-Alternative/Info für Spieler
       }
       break;
     }
@@ -184,11 +179,8 @@ export function upsertToolband(sheet, html, ctx = {}) {
       // Nutzer-Buttons
       if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
         btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit" });
-      } else {
-        // (Platzhalter) — Ship-Buttons wenn Feature deaktiviert
       }
-
-      // GM-Unterkategorie (falls noch etwas Spezielles gebraucht wird)
+      // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — GM-spezifische Ship-Buttons hier ergänzen
       }
@@ -197,8 +189,6 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "stash": {
       // Nutzer-Buttons
-      // (Platzhalter) — Stash-Spieleraktionen hier ergänzen
-
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Stash-GM-Aktionen hier ergänzen
@@ -208,8 +198,6 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "creature": {
       // Nutzer-Buttons
-      // (Platzhalter) — Creature-Spieleraktionen hier ergänzen
-
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
@@ -218,7 +206,6 @@ export function upsertToolband(sheet, html, ctx = {}) {
     }
 
     default: {
-      // Unbekannt
       // (Platzhalter) — Fallback-Actions
       if (isGM) {
         // (Platzhalter) — Fallback-GM-Actions
