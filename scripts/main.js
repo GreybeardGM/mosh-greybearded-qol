@@ -18,6 +18,19 @@ import {
 // Needs to be here to check for
 let StashSheet;
 
+/** Ermittelt einen stabilen Sheet-„Kind“-Identifier für die Toolbar-Logik */
+function getSheetKind(sheet) {
+  const actor = sheet?.actor;
+  // Konkrete Klassen zuerst prüfen
+  try { if (sheet instanceof QoLContractorSheet) return "contractor"; } catch {}
+  try { if (sheet instanceof StashSheet) return "stash"; } catch {}
+  // Generisch über Actor-Typ
+  if (actor?.type === "ship") return "ship";
+  if (actor?.type === "character") return "character";
+  if (actor?.type === "creature") return "creature";
+  return "unknown";
+}
+
 // Register all the stuff
 Hooks.once("ready", () => {
   
@@ -213,15 +226,16 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
-
   const isGM = game.user.isGM;
-  const isOwner = actor.testUserPermission(game.user, "OWNER");
-  if (!(isGM || isOwner)) return;
-
-  // Stash-Sheet NICHT abwürgen, sondern hier entscheiden
-  const isStash = (typeof StashSheet !== "undefined") && sheet instanceof StashSheet;
-  if (!isStash) upsertToolband(sheet, html);
-  else removeToolband(sheet);
+  const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
+  // Nur Sheet-Typ ermitteln und an die Helfer-Funktion durchreichen.
+  const kind = getSheetKind(sheet);
+  // upsert immer aufrufen; die Entscheidung über Sichtbarkeit/Buttons trifft später die Helfer-Funktion
+  try {
+    upsertToolband(sheet, html, { kind, isGM, isOwner });
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 // Prepare fesh characters for Character Creation
