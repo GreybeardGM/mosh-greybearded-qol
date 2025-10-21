@@ -178,7 +178,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
     case "ship": {
       // Nutzer-Buttons
       if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Crit" });
+        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Roll Critical Hit" });
       }
       // GM-Unterkategorie
       if (isGM) {
