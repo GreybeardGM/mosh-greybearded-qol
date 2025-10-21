@@ -137,7 +137,7 @@ export function upsertToolband(sheet, html){
   if (actor?.type === "creature" && game.user.isGM) {
     const isNamed = !!actor.system?.contractor?.isNamed;
     if (!isNamed) {
-      btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Contractor" });
+      btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Unique" });
     } else {
       btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Contractor Menu" });
     }
