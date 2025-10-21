@@ -360,4 +360,21 @@
 .greybeardqol .sheet-body {
   height: auto;
 }
-  
+
+/* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
+.greybeardqol.toolband {
+  position: relative;
+  height: 0;
+  flex: 0 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
+}
+.greybeardqol.toolband .toolband-btn {
+  pointer-events: auto;
+  position: relative;
+  width: 12em;
+}
