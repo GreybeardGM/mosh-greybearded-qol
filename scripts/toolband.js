@@ -1,5 +1,6 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted } from "./character-creator/progress.js";
+import { getThemeColor } from "./utils/get-theme-color.js";
 
 const CLS = "toolband";
 
@@ -25,7 +26,7 @@ export function upsertToolband(sheet, html){
     bar.dataset.appid = String(sheet.appId);
     // >>> in den Header einfügen, für relative Positionierung
     winHeader.insertAdjacentElement("afterend", bar);
-    bar.style.setProperty("--theme-color", "#f0f");
+    bar.style.setProperty("--theme-color", getThemecolor());
     
     bar.addEventListener("click", async (ev) => {
       const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
