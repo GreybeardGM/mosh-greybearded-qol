@@ -9,10 +9,11 @@
   --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg)); /* preferred */
   --color-counter: #fc6;
   --color-remaining: #596;
+  --line-height: 1.4em;
 
   font-family: var(--font-primary, sans-serif);
   font-size: 14px;
-  line-height: 1.4em;
+  line-height: var(--line-height);
   color: var(--color-text);
 }
 
@@ -375,6 +376,8 @@
 }
 .greybeardqol.toolband .toolband-btn {
   pointer-events: auto;
-  position: relative;
   width: 12em;
+  margin: 2px auto 0;
+  color: var(--color-text);
+  line-height: var(--line-height);
 }
