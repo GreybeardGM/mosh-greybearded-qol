@@ -1,13 +1,12 @@
 /* sichtbar, klickbar, ohne Layoutsprung des Fensters */
 .gbqol-toolband {
   position: relative;                  /* erzeugt eigenen Stacking-Kontext */
-  z-index: 1000;                       /* über standardmäßigem Content */
-  margin-top: calc(-1 * var(--gbqol-overlap, 14px)); /* Überlappen in den Bogen */
   display: flex;
   gap: 8px;
-  padding: 4px 8px;
-  background: transparent;             /* komplett transparent */
   pointer-events: none;                /* Container lässt Header-Drag zu */
+  height: 0;
+  flex: 0;
+  justify-content: center;
 }
 
 /* Buttons selbst interaktiv und mit Lesbarkeit */
@@ -15,20 +14,11 @@
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  gap: .4rem;
-  padding: 4px 10px;
-  border: 1px solid var(--color-border-light-2, #00000033);
-  border-radius: 4px;
-  background: rgba(10,10,10,0.28);     /* semitransparent über Content */
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  color: var(--color-text-light-1, #fff);
-  box-shadow: 0 1px 3px rgba(0,0,0,.3);
-  cursor: pointer;
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  height: 2em;
+  width: 12em;
+  margin: 5px auto 0;
 }
 .gbqol-toolband .gbqol-toolband-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(0,0,0,.35);
 }
-.gbqol-toolband .gbqol-toolband-spacer { flex: 1; }
