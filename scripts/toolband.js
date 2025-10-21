@@ -1,5 +1,5 @@
 // modules/mosh-greybearded-qol/toolband.js
-import { checkReady, checkCompleted } from "./character-creator/progress.js";
+import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
 
 const CLS = "toolband";
@@ -37,6 +37,14 @@ export function upsertToolband(sheet, html){
         case "ship-crit":      return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
         case "roll-character": return game.moshGreybeardQol.startCharacterCreation(actor);
         case "shore-leave":    return game.moshGreybeardQol.simpleShoreLeave(actor);
+        case "mark-ready":
+          await setReady(actor);
+          ui.notifications?.info?.(`Character marked ready: ${actor.name}`);
+          return sheet.render(false);
+        case "mark-complete":
+          await setCompleted(actor);
+          ui.notifications?.info?.(`Character marked completed: ${actor.name}`);
+          return sheet.render(false);
       }
     }, { passive: false });
   }
@@ -52,10 +60,19 @@ export function upsertToolband(sheet, html){
   if (actor?.type === "character") {
     const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
     const isReady = checkReady(actor) && !checkCompleted(actor);
+    const isCompleted = checkCompleted(actor);
+    const isGM = game.user.isGM;
+    const isOwner = actor.testUserPermission(game.user, "OWNER");
+
     if (isCreatorEnabled && isReady) {
       btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
+      btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
     } else {
       btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
+    }
+    // 1) Mark Ready: nur für SL, nur wenn weder ready noch completed gesetzt.
+    if (isGM && !checkReady(actor) && !isCompleted) {
+      btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Mark Ready" });
     }
   }
 
