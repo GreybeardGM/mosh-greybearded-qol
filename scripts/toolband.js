@@ -1,7 +1,7 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted } from "./character-creator/progress.js";
 
-const CLS = "gbqol-toolband";
+const CLS = "toolband";
 
 /** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
 function getRoot(sheet, html){
@@ -13,24 +13,22 @@ export function upsertToolband(sheet, html){
   // in upsertToolband(...) – Erzeugung/Anker ersetzen
   const root = html?.[0];
   if (!root) return;
-  root.classList.add("gbqol-has-toolband");
+  root.classList.add(`has-${CLS}`);
   
   const winHeader = root.querySelector(".window-header");
   if (!winHeader) return;
   
-  let bar = root.querySelector(`.gbqol-toolband[data-appid="${sheet.appId}"]`);
+  let bar = root.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
-    bar.className = "gbqol-toolband";
+    bar.className = `${CLS} greybeardqol`;
     bar.dataset.appid = String(sheet.appId);
     // >>> in den Header einfügen, für relative Positionierung
     winHeader.insertAdjacentElement("afterend", bar);
-    // optional: Overlap dynamisch setzen (einmalig bei Erzeugung)
-    const headerH = winHeader.getBoundingClientRect().height || 32;
-    bar.style.setProperty("--gbqol-overlap", "14px"); // gewünschte Überlappung
+    bar.style.setProperty("--theme-color", "#f50");
     
     bar.addEventListener("click", async (ev) => {
-      const btn = ev.target.closest(".gbqol-toolband-btn[data-action]");
+      const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
       if (!btn) return;
       ev.preventDefault(); ev.stopPropagation();
       const actor = sheet.actor;
@@ -73,7 +71,7 @@ export function upsertToolband(sheet, html){
   }
 
   bar.innerHTML = btns.map(b => `
-    <button type="button" class="${CLS}-btn" data-action="${b.id}" title="${b.label}">
+    <button type="button" class="${CLS}-btn pill" data-action="${b.id}" title="${b.label}">
       <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
     </button>
   `).join("") + `<div class="${CLS}-spacer"></div>`;
