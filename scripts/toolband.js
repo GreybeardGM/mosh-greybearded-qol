@@ -25,7 +25,7 @@ export function upsertToolband(sheet, html){
     bar.dataset.appid = String(sheet.appId);
     // >>> in den Header einfügen, für relative Positionierung
     winHeader.insertAdjacentElement("afterend", bar);
-    bar.style.setProperty("--theme-color", "#f50");
+    bar.style.setProperty("--theme-color", "#f0f");
     
     bar.addEventListener("click", async (ev) => {
       const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
@@ -71,7 +71,7 @@ export function upsertToolband(sheet, html){
   }
 
   bar.innerHTML = btns.map(b => `
-    <button type="button" class="${CLS}-btn pill" data-action="${b.id}" title="${b.label}">
+    <button type="button" class="${CLS}-btn pill interactive" data-action="${b.id}" title="${b.label}">
       <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
     </button>
   `).join("") + `<div class="${CLS}-spacer"></div>`;
