@@ -13,15 +13,13 @@
         </div>
       
         <!-- Named / Generic Indicator -->
-        {{#if system.contractor.isNamed}}
-      	  <div class="creature-header-grid contractor-flag named {{#if isGM}}interactive{{/if}}" data-action="contractor-menu">
+        <div class="creature-header-grid contractor-flag">
+          {{#if system.contractor.isNamed}}
       	    {{ localize 'MoshQoL.UniqueContractor' }}
-      	  </div>
-        {{else}}
-          <div class="creature-header-grid contractor-flag generic interactive" data-action="promote-contractor">
+          {{else}}
             {{ localize 'MoshQoL.GenericContractor' }}
-          </div>
-        {{/if}}
+          {{/if}}
+        </div>
       
       </div>
 
