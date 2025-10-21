@@ -375,8 +375,8 @@
 }
 .greybeardqol.toolband .toolband-btn {
   pointer-events: auto;
-  width: 10em;
-  margin: 2px auto 0;
+  width: 11em;
+  margin: 2px 0;
   color: var(--color-text);
   line-height: 1em;
 }
