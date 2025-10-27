@@ -58,6 +58,12 @@ export function upsertToolband(sheet, html, ctx = {}) {
           ui.notifications?.info?.(`Character marked completed: ${actor.name}`);
           return sheet.render(false);
 
+        case "apply-damage":
+          const actor = sheet.actor;
+          if (!actor) return;
+          await applyDamageWithHits(actor);
+          return;
+
         // ===== Contractor: Promote =====
         case "promote-contractor": {
           // Guard: nur GM & nur wenn die Sheet-Methoden existieren
@@ -72,15 +78,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
             ],
             default: "roll"
           });
-
-        case "apply-damage": {
-          const actor = sheet.actor;
-          if (!actor) return;
-          // Kein Damage übergeben → Helper öffnet Dialog und rechnet alles
-          await applyDamageWithHits(actor);
-          return;
-        }
-          
+         
           switch (choice) {
             case "roll":
               await actor.update({ "system.contractor.isNamed": true });
