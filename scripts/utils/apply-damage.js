@@ -16,19 +16,8 @@ export async function applyDamageWithHits(actorLike, damage) {
   if (!Number.isFinite(damage) || damage <= 0) {
     const dlg = await foundry.applications.api.DialogV2.input({
       title: "Apply Damage",
-      content: `<p>Enter the amount of damage to apply to <strong>${actor.name}</strong>:</p>`,
-      fields: [
-        {
-          type: "number",
-          label: "Damage",
-          name: "damage",
-          min: 1,
-          step: 1,
-          required: true
-        }
-      ],
-      ok: { label: "Apply" },
-      cancel: { label: "Cancel" }
+      content: `<p>Enter the amount of damage to apply to <strong>${actor.name}</strong>:</p><input type="number" name="damage">`,
+      ok: { label: "Apply" }
     });
 
     if (!dlg || !dlg.damage) return; // Abbrechen → nichts tun
