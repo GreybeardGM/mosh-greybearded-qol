@@ -6,14 +6,34 @@ import { chatOutput } from "./chat-output.js";
  * Nutzt Systemfelder:
  *   system.health.value / system.health.max
  *   system.hits.value   / system.hits.max
- * Gibt eine Chat-Nachricht aus, wenn mindestens eine Wunde entsteht.
- * Wenn HITS == HITS.MAX erreicht wird, wird eine alternative Nachricht erzeugt.
+ * Wenn damage fehlt oder kein gültiger Wert ist, fragt ein Dialog danach.
  */
 export async function applyDamageWithHits(actorLike, damage) {
-  if (!Number.isFinite(damage) || damage <= 0) return;
-
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamageWithHits: Actor nicht gefunden.");
+
+  // Wenn kein gültiger Damage angegeben, Dialog öffnen
+  if (!Number.isFinite(damage) || damage <= 0) {
+    const dlg = await foundry.applications.api.DialogV2.input({
+      title: "Apply Damage",
+      content: `<p>Enter the amount of damage to apply to <strong>${actor.name}</strong>:</p>`,
+      fields: [
+        {
+          type: "number",
+          label: "Damage",
+          name: "damage",
+          min: 1,
+          step: 1,
+          required: true
+        }
+      ],
+      ok: { label: "Apply" },
+      cancel: { label: "Cancel" }
+    });
+
+    if (!dlg || !dlg.damage) return; // Abbrechen → nichts tun
+    damage = Number(dlg.damage);
+  }
 
   const sys     = actor.system ?? {};
   const hpMax   = toInt(sys.health?.max, 0);
@@ -46,9 +66,6 @@ export async function applyDamageWithHits(actorLike, damage) {
   });
 
   if (woundsGained > 0) {
-    const plural = woundsGained !== 1;
-
-    // Prüfe, ob maximale Wunden erreicht sind
     if (hits === hitsMax) {
       await chatOutput({
         actor,
@@ -58,6 +75,7 @@ export async function applyDamageWithHits(actorLike, damage) {
         content: `${actor.name} has reached their maximum number of wounds!`
       });
     } else {
+      const plural = woundsGained !== 1;
       await chatOutput({
         actor,
         title: plural ? "Wounds Taken" : "Wound Taken",
