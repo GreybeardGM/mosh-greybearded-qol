@@ -42,7 +42,7 @@ export async function applyDamageWithHits(actorLike, damage) {
   let remaining     = Math.trunc(damage);
   let woundsGained  = 0;
 
-  while (remaining > 0) {
+  while ((remaining > 0) && (hits < hitsMax)) {
     if (remaining < hp) {
       hp -= remaining;
       remaining = 0;
@@ -53,8 +53,6 @@ export async function applyDamageWithHits(actorLike, damage) {
       hp = hpMax;
     }
   }
-
-  hits = Math.min(hits, hitsMax);
 
   await actor.update({
     "system.health.value": hp,
