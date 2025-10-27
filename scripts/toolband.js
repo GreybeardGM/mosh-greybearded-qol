@@ -1,6 +1,7 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { applyDamageWithHits } from "./utils/apply-damage.js";
 
 const CLS = "toolband";
 
@@ -72,6 +73,14 @@ export function upsertToolband(sheet, html, ctx = {}) {
             default: "roll"
           });
 
+        case "apply-damage": {
+          const actor = sheet.actor;
+          if (!actor) return;
+          // Kein Damage übergeben → Helper öffnet Dialog und rechnet alles
+          await applyDamageWithHits(actor);
+          return;
+        }
+          
           switch (choice) {
             case "roll":
               await actor.update({ "system.contractor.isNamed": true });
@@ -151,7 +160,10 @@ export function upsertToolband(sheet, html, ctx = {}) {
       } else {
         btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
       }
-
+      // Damage-Button
+      if (isOwner || isGM) {
+        btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
+      }
       // GM-Unterkategorie
       if (isGM) {
         if (!ready && !completed) {
@@ -197,7 +209,9 @@ export function upsertToolband(sheet, html, ctx = {}) {
     }
 
     case "creature": {
-      // Nutzer-Buttons
+      if (isOwner || isGM) {
+        btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
+      }
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
