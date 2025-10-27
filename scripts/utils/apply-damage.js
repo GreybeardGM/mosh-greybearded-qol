@@ -12,16 +12,23 @@ export async function applyDamageWithHits(actorLike, damage) {
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamageWithHits: Actor nicht gefunden.");
 
-  // Wenn kein gültiger Damage angegeben, Dialog öffnen
+  // Falls kein gültiger Damage angegeben: über DialogV2.input abfragen
   if (!Number.isFinite(damage) || damage <= 0) {
-    const dlg = await foundry.applications.api.DialogV2.input({
-      title: "Apply Damage",
-      content: `<p>Enter the amount of damage to apply to <strong>${actor.name}</strong>:</p><input type="number" name="damage">`,
-      ok: { label: "Apply" }
+    const data = await foundry.applications.api.DialogV2.input({
+      window: { title: "Apply Damage" },
+      content: `
+        <p>Enter the amount of damage to apply to <strong>${actor.name}</strong>:</p>
+        <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
+      `,
+      ok: { label: "Apply", icon: "fa-solid fa-check" },
+      // In v13 ist rejectClose standardmäßig false → X liefert null statt Exception.
+      // rejectClose: false 
     });
-
-    if (!dlg || !dlg.damage) return; // Abbrechen → nichts tun
-    damage = Number(dlg.damage);
+  
+    // Abbruch per X oder leere/ungültige Eingabe → nichts tun
+    if (!data || !Number.isFinite(Number(data.damage)) || Number(data.damage) <= 0) return;
+  
+    damage = Math.trunc(Number(data.damage));
   }
 
   const sys     = actor.system ?? {};
