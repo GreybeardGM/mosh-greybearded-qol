@@ -1,7 +1,7 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
-import { applyDamageWithHits } from "./utils/apply-damage.js";
+import { applyDamage } from "./utils/apply-damage.js";
 
 const CLS = "toolband";
 
@@ -61,7 +61,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
         case "apply-damage":
           const actor = sheet.actor;
           if (!actor) return;
-          await applyDamageWithHits(actor);
+          await applyDamage(actor);
           return;
 
         // ===== Contractor: Promote =====
