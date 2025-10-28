@@ -6,6 +6,7 @@ import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
+import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import {
   checkReady,
@@ -52,6 +53,7 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
   game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
   game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
+  game.moshGreybeardQol.applyDamage = applyDamage;
 
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
