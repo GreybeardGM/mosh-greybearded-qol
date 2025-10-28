@@ -59,7 +59,6 @@ export function upsertToolband(sheet, html, ctx = {}) {
           return sheet.render(false);
 
         case "apply-damage":
-          const actor = sheet.actor;
           if (!actor) return;
           await applyDamage(actor);
           return;
