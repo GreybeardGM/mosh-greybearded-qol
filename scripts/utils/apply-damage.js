@@ -66,7 +66,7 @@ export async function applyDamageWithHits(actorLike, damage) {
         title: "Maximum Wounds Reached",
         subtitle: actor.name ?? "",
         icon: "fa-skull",
-        content: `${actor.name} has reached their maximum number of wounds!`
+        content: `${actor.name} has reached their maximum number of wounds!<br>@Macro[Death Save]`
       });
     } else {
       const plural = woundsGained !== 1;
@@ -75,7 +75,7 @@ export async function applyDamageWithHits(actorLike, damage) {
         title: plural ? "Wounds Taken" : "Wound Taken",
         subtitle: actor.name ?? "",
         icon: "fa-heart-broken",
-        content: `${woundsGained} ${plural ? "wounds" : "wound"} suffered.`
+        content: `${woundsGained} ${plural ? "wounds" : "wound"} suffered.<br>@Macro[Wound Check]`
       });
     }
   }
