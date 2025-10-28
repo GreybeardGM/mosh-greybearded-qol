@@ -8,7 +8,7 @@ import { chatOutput } from "./chat-output.js";
  *   system.hits.value   / system.hits.max
  * Wenn damage fehlt oder kein gültiger Wert ist, fragt ein Dialog danach.
  */
-export async function applyDamageWithHits(actorLike, damage) {
+export async function applyDamage(actorLike, damage) {
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamageWithHits: Actor nicht gefunden.");
 
