@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.4] - 2025-10-29
+### Updated
+- Various updates for Foundry VTT v13 compatibility.
+- Moved Header Buttons to QoL-Toolband
+- Moved Context Menu Extention to QoL Toolbar
+
+### Added
+- QoL-Toolband: QoL button selection added to sheets wherever applicable.
+- Apply Damage tool, includes
+  - QoL-Toolband button
+  - Scene control button
+  - Helper for macros etc.
+
 ## [0.6.2] - 2025-10-18
 ### Updated
 - Various updates for Foundry VTT v13 compatibility.
