@@ -256,11 +256,14 @@ Hooks.on("closeActorSheet", (sheet) => {
 });
 
 // register token damage tool
-Hooks.on("getSceneControlButtons", controls => {
-  const tokenControls = controls.find(c => c.name === "token");
+Hooks.on("getSceneControlButtons", (controls) => {
+  // Normalize: get the Token controls whether `controls` is Array or Object
+  const tokenControls = Array.isArray(controls)
+    ? controls.find(c => c?.name === "token")
+    : (controls?.token ?? controls?.tokens ?? null);
   if (!tokenControls) return;
 
-  tokenControls.tools.push({
+  const toolDef = {
     name: "applyDamage",
     title: "Apply Damage to Selected Tokens",
     icon: "fa-solid fa-heart-broken",
@@ -273,7 +276,7 @@ Hooks.on("getSceneControlButtons", controls => {
         return;
       }
 
-      // Dialog einmalig anzeigen
+      // Ask once, apply to all
       const data = await foundry.applications.api.DialogV2.input({
         window: { title: "Apply Damage to Selected Tokens" },
         content: `
@@ -293,7 +296,6 @@ Hooks.on("getSceneControlButtons", controls => {
         return;
       }
 
-      // Schaden auf alle ausgewählten Tokens anwenden
       let applied = 0;
       for (const t of selected) {
         const actorLike = t?.actor ?? t;
@@ -305,11 +307,17 @@ Hooks.on("getSceneControlButtons", controls => {
           console.error("applyDamage failed for", t, err);
         }
       }
-
-      ui.notifications.info(
-        `Applied ${damage} damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`
-      );
+      ui.notifications.info(`Applied ${damage} damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
     }
-  });
-});
+  };
 
+  // Insert tool whether `tools` is an Array or an Object
+  if (Array.isArray(tokenControls.tools)) {
+    tokenControls.tools.push(toolDef);
+  } else {
+    // Object-shaped tools (older or customized setups)
+    tokenControls.tools = tokenControls.tools ?? {};
+    const order = Object.keys(tokenControls.tools).length;
+    tokenControls.tools.applyDamage = { ...toolDef, order };
+  }
+});
