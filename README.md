@@ -40,6 +40,7 @@
   - Theme color customization via CSS variables
   - Shore Leave helper
   - Stress conversion helper
+  - Apply damage helper
 
 ## Compatibility
 
