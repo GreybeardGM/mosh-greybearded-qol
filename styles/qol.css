@@ -22,6 +22,7 @@
 .greybeardqol h3 {
   border-bottom: 1px solid var(--color-highlight);
   text-shadow: 0 0 4px var(--color-highlight);
+  color: var(--color-text);
   margin: 0.5em 0 0.25em;
 }
 
@@ -183,7 +184,7 @@
   align-items: center;
   justify-content: space-between;
   background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-radius: 999px;
   padding: 0.5em 1em;
   position: relative;
@@ -360,4 +361,25 @@
 .greybeardqol .sheet-body {
   height: auto;
 }
-  
+
+/* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
+.greybeardqol.toolband {
+  position: relative;
+  height: 0;
+  flex: 0 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 100;
+}
+.greybeardqol.toolband .toolband-btn {
+  pointer-events: auto;
+  width: 11em;
+  margin: 2px 0;
+  color: var(--color-text);
+  line-height: 1em;
+  box-shadow: unset;
+}

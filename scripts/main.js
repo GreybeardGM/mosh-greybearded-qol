@@ -5,6 +5,8 @@ import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
 import { simpleShoreLeave } from "./simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
+import { upsertToolband, removeToolband } from "./toolband.js";
+import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import {
   checkReady,
@@ -17,41 +19,17 @@ import {
 // Needs to be here to check for
 let StashSheet;
 
-/**
- * Fügt einen Button in die Actor Sheet Header-Leiste ein.
- * @param {HTMLElement} titleElem - Der DOM-Knoten mit der Fensterüberschrift
- * @param {string} className - Zusätzliche Klasse für den Button
- * @param {string} iconClass - FontAwesome-Icon-Klasse (ohne "fas")
- * @param {string} label - Der Text des Buttons
- * @param {string} color - Die Hauptfarbe für Text und Schatten
- * @param {Function} callback - Eventhandler bei Klick
- */
-function insertHeaderButton(titleElem, className, iconClass, label, color, callback) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  // WICHTIG: Keine Foundry-Klasse "header-button" verwenden
-  btn.classList.add("gbqol-header-button", className);
-  btn.setAttribute("aria-label", label);
-  btn.innerHTML = `<i class="fas ${iconClass}" aria-hidden="true"></i><span>${label}</span>`;
-
-  // Inline-Minimalstil, Rest in Modul-CSS legen
-  Object.assign(btn.style, {
-    color,
-    background: "transparent",
-    border: "none"
-  });
-
-  // Events vollständig isolieren, keine Bubbling-Kollisionen mit Foundry-Header
-  btn.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    try { callback(ev); } catch (e) { console.error(e); }
-  }, { passive: false });
-
-  // Robust in den Header einfügen (ans Ende der Header-Leiste)
-  const header = titleElem.closest(".window-header") ?? titleElem.parentElement;
-  // Nach dem Titel, aber vor Foundrys Standard-Buttons
-  titleElem.insertAdjacentElement("afterend", btn);
+/** Ermittelt einen stabilen Sheet-„Kind“-Identifier für die Toolbar-Logik */
+function getSheetKind(sheet) {
+  const actor = sheet?.actor;
+  // Konkrete Klassen zuerst prüfen
+  try { if (sheet instanceof QoLContractorSheet) return "contractor"; } catch {}
+  try { if (sheet instanceof StashSheet) return "stash"; } catch {}
+  // Generisch über Actor-Typ
+  if (actor?.type === "ship") return "ship";
+  if (actor?.type === "character") return "character";
+  if (actor?.type === "creature") return "creature";
+  return "unknown";
 }
 
 // Register all the stuff
@@ -75,6 +53,7 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
   game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
   game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
+  game.moshGreybeardQol.applyDamage = applyDamage;
 
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
@@ -97,56 +76,6 @@ Hooks.once("ready", () => {
   
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");  
-});
-
-Hooks.on("getActorDirectoryEntryContext", (html, options) => {
-  const enabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-  if (!enabled) return;
-
-  options.push(
-    {
-      name: "Reset Character Creator",
-      icon: '<i class="fas fa-undo"></i>',
-      condition: li => {
-        const actor = game.actors.get(li.data("documentId"));
-        return game.user.isGM && actor?.type === "character";
-      },
-      callback: li => {
-        const actor = game.actors.get(li.data("documentId"));
-        if (!actor) return;
-        reset(actor);
-        ui.notifications.info(`Character Creator progress reset for: ${actor.name}`);
-      }
-    },
-    {
-      name: "Mark Ready",
-      icon: '<i class="fas fa-check-circle"></i>',
-      condition: li => {
-        const actor = game.actors.get(li.data("documentId"));
-        return game.user.isGM && actor?.type === "character" && !checkCompleted(actor) && !checkReady(actor);
-      },
-      callback: li => {
-        const actor = game.actors.get(li.data("documentId"));
-        if (!actor) return;
-        setReady(actor);
-        ui.notifications.info(`Character marked ready: ${actor.name}`);
-      }
-    },
-    {
-      name: "Mark Complete",
-      icon: '<i class="fas fa-flag-checkered"></i>',
-      condition: li => {
-        const actor = game.actors.get(li.data("documentId"));
-        return game.user.isGM && actor?.type === "character" && !checkCompleted(actor);
-      },
-      callback: li => {
-        const actor = game.actors.get(li.data("documentId"));
-        if (!actor) return;
-        setCompleted(actor);
-        ui.notifications.info(`Character marked completed: ${actor.name}`);
-      }
-    }
-  );
 });
 
 // Settings
@@ -299,54 +228,15 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
-  // Cancel if not Owner
   const isGM = game.user.isGM;
-  const isOwner = actor.testUserPermission(game.user, "OWNER");
-  if (!(isGM || isOwner)) return;
-
-  // 🚢 0e Ship Crits
-  if (
-    actor?.type === "ship" &&
-    game.settings.get("mosh-greybearded-qol", "enableShipCrits")
-  ) {
-    const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem || titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.ship-crit")) return;
-    insertHeaderButton(titleElem, "ship-crit", "fa-explosion", "Crit", "#f50", () => game.moshGreybeardQol.triggerShipCrit(null, actor.uuid));
-  }
-
-  if (actor?.type === "character") {
-    // Hide Defualt Character Creator Button
-    const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-    const isStash = sheet instanceof StashSheet;
-
-    if (isCreatorEnabled || isStash) {  
-      const oldCreatorButton = html[0].querySelector(".configure-actor");
-      if (oldCreatorButton) {
-        oldCreatorButton.style.display = "none";
-        console.log("[MoSh QoL] Configure-Button hidden");
-      }
-    }
-
-    // Cancel the rest if Stash
-    if (isStash) return;
-    
-    const titleElem = html[0]?.querySelector(".window-header .window-title");
-    if (!titleElem) return;
-  
-    // Entferne ShoreLeave Button, falls vorhanden
-    const existingShoreLeave = titleElem.closest(".window-header")?.querySelector(".gbqol-header-button.simple-shoreleave");
-    if (existingShoreLeave) existingShoreLeave.remove();
-  
-    const isReady = checkReady(actor) && !checkCompleted(actor);
-  
-    if (isCreatorEnabled && isReady) {
-      // Ersetze durch Character-Reset-Button
-      insertHeaderButton(titleElem, "create-character", "fa-dice-d20", "Roll Character", "#5f0", () => game.moshGreybeardQol.startCharacterCreation(actor));
-    } else {
-      // Standard ShoreLeave-Button einfügen
-      insertHeaderButton(titleElem, "simple-shoreleave", "fa-umbrella-beach", "Shore Leave", "#3cf", () => game.moshGreybeardQol.simpleShoreLeave(actor));
-    }
-   
+  const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
+  // Nur Sheet-Typ ermitteln und an die Helfer-Funktion durchreichen.
+  const kind = getSheetKind(sheet);
+  // upsert immer aufrufen; die Entscheidung über Sichtbarkeit/Buttons trifft später die Helfer-Funktion
+  try {
+    upsertToolband(sheet, html, { kind, isGM, isOwner });
+  } catch (e) {
+    console.error(e);
   }
 });
 
@@ -358,4 +248,76 @@ Hooks.on("createActor", async (actor, options, userId) => {
   // Flag setzen
   await setReady(actor);
   console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
+});
+
+// Toolband aufräumen
+Hooks.on("closeActorSheet", (sheet) => {
+  try { removeToolband(sheet); } catch (e) { console.error(e); }
+});
+
+// register token damage tool
+Hooks.on("getSceneControlButtons", (controls) => {
+  // Normalize: get the Token controls whether `controls` is Array or Object
+  const tokenControls = Array.isArray(controls)
+    ? controls.find(c => c?.name === "token")
+    : (controls?.token ?? controls?.tokens ?? null);
+  if (!tokenControls) return;
+
+  const toolDef = {
+    name: "applyDamage",
+    title: "Apply Damage to Selected Tokens",
+    icon: "fa-solid fa-heart-broken",
+    visible: game.user.isGM || game.user.isTrusted,
+    button: true,
+    onClick: async () => {
+      const selected = canvas.tokens.controlled;
+      if (!selected.length) {
+        ui.notifications.warn("No tokens selected.");
+        return;
+      }
+
+      // Ask once, apply to all
+      const data = await foundry.applications.api.DialogV2.input({
+        window: { title: "Apply Damage to Selected Tokens" },
+        content: `
+          <p>Enter the amount of damage to apply to
+          <strong>${selected.length}</strong> selected
+          ${selected.length === 1 ? "token" : "tokens"}:</p>
+          <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
+        `,
+        ok: { label: "Apply", icon: "fa-solid fa-check" },
+        cancel: { label: "Cancel", icon: "fa-solid fa-xmark" }
+      });
+
+      if (!data) return;
+      const damage = Math.trunc(Number(data.damage));
+      if (!Number.isFinite(damage) || damage <= 0) {
+        ui.notifications.warn("Please enter a positive damage value.");
+        return;
+      }
+
+      let applied = 0;
+      for (const t of selected) {
+        const actorLike = t?.actor ?? t;
+        if (!actorLike) continue;
+        try {
+          await game.moshGreybeardQol.applyDamage(actorLike, damage);
+          applied++;
+        } catch (err) {
+          console.error("applyDamage failed for", t, err);
+        }
+      }
+      ui.notifications.info(`Applied ${damage} damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
+    }
+  };
+
+  // Insert tool whether `tools` is an Array or an Object
+  if (Array.isArray(tokenControls.tools)) {
+    tokenControls.tools.push(toolDef);
+  } else {
+    // Object-shaped tools (older or customized setups)
+    tokenControls.tools = tokenControls.tools ?? {};
+    const order = Object.keys(tokenControls.tools).length;
+    tokenControls.tools.applyDamage = { ...toolDef, order };
+  }
 });
