@@ -254,3 +254,62 @@ Hooks.on("createActor", async (actor, options, userId) => {
 Hooks.on("closeActorSheet", (sheet) => {
   try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
+
+// register token damage tool
+Hooks.on("getSceneControlButtons", controls => {
+  const tokenControls = controls.find(c => c.name === "token");
+  if (!tokenControls) return;
+
+  tokenControls.tools.push({
+    name: "applyDamage",
+    title: "Apply Damage to Selected Tokens",
+    icon: "fa-solid fa-heart-broken",
+    visible: game.user.isGM || game.user.isTrusted,
+    button: true,
+    onClick: async () => {
+      const selected = canvas.tokens.controlled;
+      if (!selected.length) {
+        ui.notifications.warn("No tokens selected.");
+        return;
+      }
+
+      // Dialog einmalig anzeigen
+      const data = await foundry.applications.api.DialogV2.input({
+        window: { title: "Apply Damage to Selected Tokens" },
+        content: `
+          <p>Enter the amount of damage to apply to
+          <strong>${selected.length}</strong> selected
+          ${selected.length === 1 ? "token" : "tokens"}:</p>
+          <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
+        `,
+        ok: { label: "Apply", icon: "fa-solid fa-check" },
+        cancel: { label: "Cancel", icon: "fa-solid fa-xmark" }
+      });
+
+      if (!data) return;
+      const damage = Math.trunc(Number(data.damage));
+      if (!Number.isFinite(damage) || damage <= 0) {
+        ui.notifications.warn("Please enter a positive damage value.");
+        return;
+      }
+
+      // Schaden auf alle ausgewählten Tokens anwenden
+      let applied = 0;
+      for (const t of selected) {
+        const actorLike = t?.actor ?? t;
+        if (!actorLike) continue;
+        try {
+          await game.moshGreybeardQol.applyDamage(actorLike, damage);
+          applied++;
+        } catch (err) {
+          console.error("applyDamage failed for", t, err);
+        }
+      }
+
+      ui.notifications.info(
+        `Applied ${damage} damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`
+      );
+    }
+  });
+});
+
