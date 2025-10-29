@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.5] - 2025-10-29
+### Fixed
+- Fixed scene control button
+
 ## [0.6.4] - 2025-10-29
 ### Updated
 - Various updates for Foundry VTT v13 compatibility.
