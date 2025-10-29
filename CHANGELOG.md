@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.6.4] - 2025-xx-xx
+## [0.6.4] - 2025-10-29
 ### Updated
 - Various updates for Foundry VTT v13 compatibility.
 - Moved Header Buttons to QoL-Toolband
