@@ -191,6 +191,14 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "contractor": {
       // Nutzer-Buttons
+      // Toggle-Button Armor Broken
+      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
+      btns.push({
+        id: "armor-broken",
+        icon: "fa-solid fa-shield-halved",
+        label: "Armor Broken",
+        pressed: armorBroken
+      });
       // GM-Unterkategorie
       if (isGM) {
         const isNamed = !!actor?.system?.contractor?.isNamed;
@@ -226,6 +234,14 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "creature": {
       btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
+      // Toggle-Button Armor Broken
+      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
+      btns.push({
+        id: "armor-broken",
+        icon: "fa-solid fa-shield-halved",
+        label: "Armor Broken",
+        pressed: armorBroken
+      });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
