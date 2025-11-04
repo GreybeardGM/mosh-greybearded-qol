@@ -4,8 +4,6 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 import { applyDamage } from "./utils/apply-damage.js";
 
 const CLS = "toolband";
-const FLAG_SCOPE = "mosh-greybearded-qol";
-const ARMOR_FLAG = "armorBroken";
 
 /** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
 function getRoot(sheet, html){
@@ -67,13 +65,15 @@ export function upsertToolband(sheet, html, ctx = {}) {
         
         case "armor-broken": {
           if (!actor) return;
-          const curr = !!actor.getFlag(FLAG_SCOPE, ARMOR_FLAG);
-          await actor.setFlag(FLAG_SCOPE, ARMOR_FLAG, !curr);
+          const isActive = actor?.statuses?.has("qol-broken-armor") === true;
         
-          // Visuelle Sofort-Aktualisierung ohne komplettes Re-Rendern
-          btn.classList.toggle("is-active", !curr);
-          btn.setAttribute("aria-pressed", String(!curr));
-          ui?.notifications?.info?.(`${actor.name}: Armor ${!curr ? "broken" : "intact"}.`);
+          // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
+          await actor.toggleStatusEffect("qol-broken-armor", { active: !isActive });
+        
+          // UI sofort spiegeln (kein re-render nötig)
+          btn.classList.toggle("is-active", !isActive);
+          btn.setAttribute("aria-pressed", String(!isActive));
+          ui.notifications?.info?.(`${actor.name}: Armor ${!isActive ? "broken" : "intact"}.`);
           return;
         }
           
@@ -160,8 +160,6 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
   switch (kind) {
     case "character": {
-      const armorBroken = !!actor.getFlag(FLAG_SCOPE, ARMOR_FLAG);
-    
       // Nutzer-Buttons (alle Owner/Spieler) wie gehabt …
       const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
       const ready = checkReady(actor);
@@ -173,6 +171,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
       } else {
         btns.push({ id: "apply-damage",   icon: "fas fa-heart-broken", label: "Apply Damage" });
         // Toggle-Button Armor Broken
+        const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
         btns.push({
           id: "armor-broken",
           icon: "fa-solid fa-shield-halved",
