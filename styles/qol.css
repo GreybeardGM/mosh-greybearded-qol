@@ -367,24 +367,23 @@
   height: 0;
   display: flex;
   flex: 0 0 0;
-  flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   pointer-events: none;
   z-index: 100;
+  justify-content: center;
 }
 
 .greybeardqol.toolband .toolband-btn {
   pointer-events: auto;
   width: 10em;
-  margin: 4em -5.7em;
+  margin: 1px 2px;
   color: var(--color-text);
-  line-height: 1.2em;
   box-shadow: unset;
-  rotate: -90deg;
+  height: 1em;
 }
 
-.greybeardqol.toolband .toolband-btn i {
-  rotate: 90deg;
+.greybeardqol.toolband .toolband-btn:hover {
+  height: 3em !important;
 }
 
 .greybeardqol.toolband .is-active {
