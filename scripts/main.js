@@ -76,7 +76,7 @@ Hooks.once("ready", () => {
 
   // Armor Broken Status Effect
   const customStatus = {
-    id: "mosh-qol.broken-armor",
+    id: "qol-broken-armor",
     name: "Broken Armor",
     img: "icons/skills/melee/shield-damaged-broken-blue.webp"
   };
