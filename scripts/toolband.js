@@ -4,6 +4,8 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 import { applyDamage } from "./utils/apply-damage.js";
 
 const CLS = "toolband";
+const FLAG_SCOPE = "mosh-greybearded-qol";
+const ARMOR_FLAG = "armorBroken";
 
 /** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
 function getRoot(sheet, html){
@@ -62,7 +64,19 @@ export function upsertToolband(sheet, html, ctx = {}) {
           if (!actor) return;
           await applyDamage(actor);
           return;
-
+        
+        case "armor-broken": {
+          if (!actor) return;
+          const curr = !!actor.getFlag(FLAG_SCOPE, ARMOR_FLAG);
+          await actor.setFlag(FLAG_SCOPE, ARMOR_FLAG, !curr);
+        
+          // Visuelle Sofort-Aktualisierung ohne komplettes Re-Rendern
+          btn.classList.toggle("is-active", !curr);
+          btn.setAttribute("aria-pressed", String(!curr));
+          ui?.notifications?.info?.(`${actor.name}: Armor ${!curr ? "broken" : "intact"}.`);
+          return;
+        }
+          
         // ===== Contractor: Promote =====
         case "promote-contractor": {
           // Guard: nur GM & nur wenn die Sheet-Methoden existieren
@@ -146,19 +160,28 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
   switch (kind) {
     case "character": {
-      // Nutzer-Buttons (alle Owner/Spieler)
+      const armorBroken = !!actor.getFlag(FLAG_SCOPE, ARMOR_FLAG);
+    
+      // Nutzer-Buttons (alle Owner/Spieler) wie gehabt …
       const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
       const ready = checkReady(actor);
       const completed = checkCompleted(actor);
-
+    
       if (isCreatorEnabled && ready && !completed) {
         btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
-        btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Completed" });
+        btns.push({ id: "mark-complete",  icon: "fas fa-flag-checkered", label: "Completed" });
       } else {
-        btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
-        btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
+        btns.push({ id: "apply-damage",   icon: "fas fa-heart-broken", label: "Apply Damage" });
+        // Toggle-Button Armor Broken
+        btns.push({
+          id: "armor-broken",
+          icon: "fa-solid fa-shield-halved",
+          label: "Armor Broken",
+          pressed: armorBroken
+        });
+        btns.push({ id: "shore-leave",    icon: "fas fa-umbrella-beach", label: "Shore Leave" });
       }
-      // GM-Unterkategorie
+      // GM-Unterkategorie …
       if (isGM) {
         if (!ready && !completed) {
           btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Ready" });
@@ -231,11 +254,17 @@ export function upsertToolband(sheet, html, ctx = {}) {
     return;
   }
 
-  bar.innerHTML = btns.map(b => `
-    <button type="button" class="${CLS}-btn pill interactive" data-action="${b.id}" title="${b.label}">
-      <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
-    </button>
-  `).join("") + `<div class="${CLS}-spacer"></div>`;
+  bar.innerHTML = btns.map(b => {
+    const pressed = !!b.pressed;
+    const classes = `${CLS}-btn pill interactive` + (pressed ? " is-active" : "");
+    const aria = `aria-pressed="${pressed ? "true" : "false"}"`;
+    return `
+      <button type="button" class="${classes}" data-action="${b.id}" title="${b.label}" ${aria}>
+        <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
+      </button>
+    `;
+  }).join("");// + `<div class="${CLS}-spacer"></div>`;
+
 }
 
 /** Aufräumen über App-ID */
