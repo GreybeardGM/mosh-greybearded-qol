@@ -366,20 +366,24 @@
 .greybeardqol.toolband {
   position: relative;
   height: 0;
-  flex: 0 0 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  align-items: flex-start;
+  flex: 0 0 0;
+  flex-direction: column;
   pointer-events: none;
   z-index: 100;
 }
+
 .greybeardqol.toolband .toolband-btn {
   pointer-events: auto;
   width: 11em;
-  margin: 2px 0;
+  margin: 4.5em -6em;
   color: var(--color-text);
-  line-height: 1em;
+  line-height: 1.2em;
   box-shadow: unset;
+  rotate: -90deg;
+}
+
+
+.greybeardqol.toolband .toolband-btn i {
+  rotate: 90deg;
 }
