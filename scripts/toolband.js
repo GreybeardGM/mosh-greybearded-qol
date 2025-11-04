@@ -12,7 +12,7 @@ function getRoot(sheet, html){
 
 /** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
 export function upsertToolband(sheet, html, ctx = {}) {
-  const { kind = "unknown", isGM = false, isOwner = false } = ctx;
+  const { kind = "unknown", isGM = false } = ctx;
 
   // Root & Header
   const root = html?.[0];
@@ -156,9 +156,6 @@ export function upsertToolband(sheet, html, ctx = {}) {
         btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
       } else {
         btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
-      }
-      // Damage-Button
-      if (isOwner || isGM) {
         btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
       }
       // GM-Unterkategorie
@@ -206,9 +203,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
     }
 
     case "creature": {
-      if (isOwner || isGM) {
-        btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
-      }
+      btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
