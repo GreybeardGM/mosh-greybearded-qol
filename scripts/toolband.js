@@ -153,7 +153,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
       if (isCreatorEnabled && ready && !completed) {
         btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
-        btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
+        btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Completed" });
       } else {
         btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
         btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
@@ -161,7 +161,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
       // GM-Unterkategorie
       if (isGM) {
         if (!ready && !completed) {
-          btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Mark Ready" });
+          btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Ready" });
         }
       }
       break;
@@ -173,9 +173,9 @@ export function upsertToolband(sheet, html, ctx = {}) {
       if (isGM) {
         const isNamed = !!actor?.system?.contractor?.isNamed;
         if (!isNamed) {
-          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Unique" });
+          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote" });
         } else {
-          btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Contractor Menu" });
+          btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Menu" });
         }
       }
       break;
@@ -184,7 +184,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
     case "ship": {
       // Nutzer-Buttons
       if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Roll Critical Hit" });
+        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Critical Hit" });
       }
       // GM-Unterkategorie
       if (isGM) {
