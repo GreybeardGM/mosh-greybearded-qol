@@ -364,11 +364,10 @@
 
 /* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
 .greybeardqol.toolband {
-  position: relative;
   height: 0;
   display: flex;
   flex: 0 0 0;
-  flex-direction: column;
+  flex-direction: column !important;
   pointer-events: none;
   z-index: 100;
 }
