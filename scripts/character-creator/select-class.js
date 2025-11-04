@@ -1,6 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { calculateDialogWidth } from "../utils/calculate-dialog-width.js";
-import { loadAllItemsByType } from "../scripts-utils-itemloader.js";
+import { loadAllItemsByType } from "../utils/item-loader.js";
 
 function normalizeCaps(text) {
   const lowered = text.toLowerCase().trim();
