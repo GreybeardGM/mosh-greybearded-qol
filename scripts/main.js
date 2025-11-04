@@ -230,11 +230,12 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
   const isGM = game.user.isGM;
   const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
+  if ( !isGM || !isOwner ) return;
   // Nur Sheet-Typ ermitteln und an die Helfer-Funktion durchreichen.
   const kind = getSheetKind(sheet);
   // upsert immer aufrufen; die Entscheidung über Sichtbarkeit/Buttons trifft später die Helfer-Funktion
   try {
-    upsertToolband(sheet, html, { kind, isGM, isOwner });
+    upsertToolband(sheet, html, { kind, isGM });
   } catch (e) {
     console.error(e);
   }
