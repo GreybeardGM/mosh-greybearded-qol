@@ -387,7 +387,7 @@
   rotate: 90deg;
 }
 
-.greybeardqol .is-active {
+.greybeardqol.toolband .is-active {
   border-color: var(--color-highlight) !important;
-  box-shadow: 0 0 8px var(--color-highlight);
+  box-shadow: 0 0 8px var(--color-highlight) !important;
 }
