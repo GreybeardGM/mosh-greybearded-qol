@@ -1,5 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { calculateDialogWidth } from "../utils/calculate-dialog-width.js";
+import { loadAllItemsByType } from "../scripts-utils-itemloader.js";
 
 function normalizeCaps(text) {
   const lowered = text.toLowerCase().trim();
@@ -17,26 +18,8 @@ export async function selectClass(actor, applyStats = true) {
   const stats = ['strength', 'speed', 'intellect', 'combat'];
   const saves = ['sanity', 'fear', 'body'];
 
-  // Load all the classes
-  const compendiumPacks = [
-    "fvtt_mosh_1e_psg.items_classes_1e",
-    ...game.packs.filter(p => p.metadata.type === "Item" && p.metadata.label.toLowerCase().includes("class")).map(p => p.metadata.id)
-  ];
-  const worldClasses = game.items.filter(cls => cls.type === "class");
-  const classMap = new Map();
-
-  for (const packId of compendiumPacks) {
-    const pack = game.packs.get(packId);
-    if (!pack) continue;
-    const classes = await pack.getDocuments();
-    for (const cls of classes) {
-      if (!classMap.has(cls.name)) {
-        classMap.set(cls.name, foundry.utils.deepClone(cls));
-      }
-    }
-  }
-  for (const cls of worldClasses) classMap.set(cls.name, foundry.utils.deepClone(cls));
-  const sortedClasses = Array.from(classMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  // Load all the classes (World > other packs > fvtt_mosh_1e_psg, alphabetisch sortiert)
+  const sortedClasses = await loadAllItemsByType("class");
 
   // Compile processed class data
   const processedClasses = sortedClasses.map(cls => {
@@ -81,7 +64,7 @@ export async function selectClass(actor, applyStats = true) {
       trauma,
       description,
       attributes: attr.join('<br>') || "No attributes.",
-      uuid: cls.pack ? `Compendium.${cls.pack}.${cls.id}` : cls.uuid
+      uuid: cls.uuid
     };
   });
   
@@ -159,4 +142,3 @@ export async function selectClass(actor, applyStats = true) {
     dlg.render(true);
   });
 }
-
