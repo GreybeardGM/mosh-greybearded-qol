@@ -1,304 +1,164 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
+// modules/mosh-greybearded-qol/scripts/item-loader.js
+// Foundry VTT v12 — namebasierter Item-Loader (Homebrew-first)
 
-export async function selectSkills(actor, selectedClass) {
-  function getSkillSortOrder() {
-    return ["Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging", "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology", "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine", "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking", "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat", "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics", "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"];
+const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
+
+/* ===== Normalisierer ===== */
+const normType = (t) => String(t ?? "").trim().toLowerCase();
+const normName = (n) => String(n ?? "").trim().toLowerCase();
+const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
+
+/* ===== Skill-Sortierung (vorgegeben) ===== */
+const SKILL_ORDER = [
+    "Linguistics","Zoology","Botany","Geology","Industrial Equipment","Jury-Rigging",
+    "Chemistry","Computers","Zero-G","Mathematics","Art","Archaeology","Theology",
+    "Military Training","Rimwise","Athletics","Psychology","Pathology","Field Medicine",
+    "Ecology","Asteroid Mining","Mechanical Repair","Explosives","Pharmacology","Hacking",
+    "Piloting","Physics","Mysticism","Wilderness Survival","Firearms","Hand-to-Hand Combat",
+    "Sophontology","Exobiology","Surgery","Planetology","Robotics","Engineering","Cybernetics",
+    "Artificial Intelligence","Hyperspace","Xenoesotericism","Command"
+  ];
+const SKILL_RANK = new Map(SKILL_ORDER.map((n, i) => [normName(n), i]));
+
+/* ===== Pack-Partitionierung ===== */
+function partitionItemPacks() {
+  const packs = Array.from(game.packs).filter(p => p?.documentName === "Item");
+  const normalPacks = [];
+  const psgPacks = [];
+  for (const p of packs) {
+    const pkg = p?.metadata?.package ?? p?.metadata?.module ?? "";
+    if (pkg === SPECIFIC_MODULE_ID) psgPacks.push(p);
+    else normalPacks.push(p);
   }
-
-  function stripHtml(html) {
-    return html.replace(/<[^>]*>/g, '').trim();
-  }
-
-  function getSkillDependencies(skills) {
-    const map = new Map(); // prereqId → Set of dependentIds
-    for (const skill of skills) {
-      for (const prereq of skill.system.prerequisite_ids || []) {
-        const prereqId = prereq.split(".").pop();
-        if (!map.has(prereqId)) map.set(prereqId, new Set());
-        map.get(prereqId).add(skill.id);
-      }
-    }
-    return map;
-  }
-  
-  const compendiumSkills = await game.packs.get('fvtt_mosh_1e_psg.items_skills_1e')?.getDocuments() ?? [];
-  const worldSkills = game.items.filter(item => item.type === 'skill');
-  const allSkills = [...worldSkills, ...compendiumSkills].map(skill => {
-    skill.system.rank = skill.system.rank?.toLowerCase();
-    return skill;
-  });
-
-  const skillMap = new Map();
-  for (const skill of allSkills) {
-    skillMap.set(skill.id, skill);
-  }
-  
-  const dependencies = getSkillDependencies(allSkills);
-
-  const sortOrder = getSkillSortOrder();
-  const sortedSkills = allSkills.sort((a, b) => sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name));
-
-
-  const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
-  const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
-  const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(uuid => uuid.split(".").pop()));
-
-  const fullSetExpert = baseAnd.expert_full_set || 0;
-  const fullSetMaster = baseAnd.master_full_set || 0;
-
-  const basePoints = {
-    trained: (baseAnd.trained || 0) + fullSetExpert + fullSetMaster,
-    expert: (baseAnd.expert || 0) + fullSetExpert + fullSetMaster,
-    master: (baseAnd.master || 0) + fullSetMaster
-  };
-
-  // Wandelt alles "zahlähnliche" sicher in Number um, sonst 0
-  const toNum = (v) => {
-    if (v === "" || v === null || v === undefined) return 0;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  };
-
-  // Bequemer Summer
-  const add = (...vals) => vals.map(toNum).reduce((a, b) => a + b, 0);
-
-  const orOptions = baseOr.flat().map((opt, i) => {
-    return {
-      id: `or-${i}`,
-      name: opt.name ?? `Option ${i + 1}`,
-      trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
-      expert:  add(opt.expert,  opt.expert_full_set, opt.master_full_set),
-      master:  add(opt.master,  opt.master_full_set),
-    };
-  });
-
-  const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-skills.html", {
-    themeColor: getThemeColor(),
-    actor,
-    selectedClass,
-    sortedSkills,
-    granted: [...granted],
-    basePoints,
-    orOptions
-  });
-
-  return new Promise((resolve) => {
-    const dlg = new Dialog({
-      title: `Select Skills for ${actor.name}`,
-      content: html,
-      buttons: {},
-      close: () => {
-        resolve(null);
-      },
-      render: (html) => {
-        const wrapper = html.closest('.app');
-        if (wrapper?.length) {
-          wrapper.css({ width: '1200px', maxWidth: '95vw', margin: '0 auto' });
-        }
-
-        const points = structuredClone(basePoints);
-
-        function drawLines() {
-          const svg = html[0].querySelector("#skill-arrows");
-          if (!svg) return;
-          svg.innerHTML = "";
-        
-          const selected = new Set(
-            html.find(".skill-card.selected").map((_, el) => el.dataset.skillId)
-          );
-        
-          const linesToDraw = [];
-        
-          for (const skill of sortedSkills) {
-            const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-        
-            for (const prereqId of prereqIds) {
-              const fromEl = html[0].querySelector(`.skill-card[data-skill-id="${prereqId}"]`);
-              const toEl = html[0].querySelector(`.skill-card[data-skill-id="${skill.id}"]`);
-              if (!fromEl || !toEl) continue;
-        
-              const rect1 = fromEl.getBoundingClientRect();
-              const rect2 = toEl.getBoundingClientRect();
-              const parentRect = svg.getBoundingClientRect();
-        
-              const x1 = rect1.left + rect1.width;
-              const y1 = rect1.top + rect1.height / 2;
-              const x2 = rect2.left;
-              const y2 = rect2.top + rect2.height / 2;
-        
-              const relX1 = x1 - parentRect.left;
-              const relY1 = y1 - parentRect.top;
-              const relX2 = x2 - parentRect.left;
-              const relY2 = y2 - parentRect.top;
-        
-              const deltaX = Math.abs(relX2 - relX1) / 2;
-              const c1x = relX1 + deltaX;
-              const c1y = relY1;
-              const c2x = relX2 - deltaX;
-              const c2y = relY2;
-        
-              const pathData = `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`;
-              const isHighlighted =
-                selected.has(skill.id) &&
-                selected.has(prereqId) &&
-                (skill.system.rank === "expert" || skill.system.rank === "master");
-        
-              linesToDraw.push({ d: pathData, highlight: isHighlighted });
-            }
-          }
-        
-          // ⬇️ Zuerst: graue Linien
-          for (const line of linesToDraw.filter(l => !l.highlight)) {
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", line.d);
-            path.setAttribute("fill", "none");
-            path.setAttribute("stroke", "var(--color-border)");
-            path.setAttribute("stroke-width", "2");
-            svg.appendChild(path);
-          }
-        
-          // ⬆️ Dann: farbige oben drauf
-          for (const line of linesToDraw.filter(l => l.highlight)) {
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", line.d);
-            path.setAttribute("fill", "none");
-            path.setAttribute("stroke", "var(--theme-color)");
-            path.setAttribute("stroke-width", "3");
-            svg.appendChild(path);
-          }
-        }
-
-        const updateSkillAvailability = () => {
-          const selectedSkills = new Set(
-            html.find(".skill-card.selected").map((_, el) => el.dataset.skillId)
-          );
-        
-          html.find(".skill-card").not(".default-skill").each(function () {
-            const skillId = this.dataset.skillId;
-            const rank = this.dataset.rank;
-            const selected = this.classList.contains("selected");
-        
-            if (points[rank] === 0 && !selected) {
-              this.classList.add("locked");
-            } else {
-              if (rank === "trained") {
-                this.classList.remove("locked");
-              } else {
-                const skill = skillMap.get(skillId);
-                const prereqs = (skill?.system?.prerequisite_ids || []).map(p => p.split(".").pop());
-                const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkills.has(id));
-                if (unlocked) {
-                  this.classList.remove("locked");
-                } else {
-                  this.classList.add("locked");
-                  this.classList.remove("selected");
-                }
-              }
-            }
-          });
-        };
-
-        const updateUI = () => {
-          html.find(".point-count").each(function () {
-            const rank = this.dataset.rank;
-            this.innerText = points[rank];
-          });
-        
-          const remaining = Object.values(points).reduce((a, b) => a + b, 0);
-          const hasOrOptions = orOptions.length > 0;
-          const orSelected = !hasOrOptions || html.find(".or-option.selected").length > 0;
-        
-          const allowConfirm = remaining === 0 && orSelected;
-          html.find(".confirm-button").toggleClass("locked", !allowConfirm);
-
-          updateSkillAvailability();
-          drawLines();
-        };
-
-        html.find(".skill-card").on("click", function () {
-          if (this.classList.contains("default-skill") || this.classList.contains("locked")) return;
-
-          const rank = this.dataset.rank;
-          if (this.classList.contains("selected")) {
-            const skillId = this.dataset.skillId;
-            const dependents = dependencies.get(skillId) || new Set();
-          
-            for (const depId of dependents) {
-              const depEl = html[0].querySelector(`[data-skill-id="${depId}"]`);
-              if (!depEl?.classList.contains("selected")) continue;
-          
-              const depSkill = skillMap.get(depId);
-              const depPrereqs = (depSkill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-          
-              const fulfilled = depPrereqs.filter(pid => {
-                if (pid === skillId) return false; // gerade ausgewählter Skill fällt weg
-                const el = html[0].querySelector(`[data-skill-id="${pid}"]`);
-                return el?.classList.contains("selected");
-              });
-          
-              if (fulfilled.length === 0) {
-                ui.notifications.warn(`${depSkill.name} needs this skill to remain selected.`);
-                return;
-              }
-            }
-          
-            this.classList.remove("selected");
-            points[rank]++;
-            updateUI();
-            return;
-          } else {
-            if (points[rank] <= 0) return;
-            this.classList.add("selected");
-            points[rank]--;
-          }
-
-          updateUI();
-        });
-
-        html.find(".or-option").on("click", function () {
-          html.find(".or-option").removeClass("selected");
-          this.classList.add("selected");
-
-          const optionId = this.dataset.option;
-          const opt = orOptions.find(o => o.id === optionId);
-          points.trained = basePoints.trained + (opt?.trained || 0);
-          points.expert  = basePoints.expert  + (opt?.expert  || 0);
-          points.master  = basePoints.master  + (opt?.master  || 0);
-
-          html.find(".skill-card.selected:not(.default-skill)").removeClass("selected");
-          updateUI();
-        });
-
-        html.find(".confirm-button").on("click", async function () {
-          const selectedUUIDs = Array.from(
-            html[0].querySelectorAll(".skill-card.selected[data-uuid]")
-          ).map(el => el.dataset.uuid);
-          
-          const selectedItems = await Promise.all(
-            selectedUUIDs.map(async uuid => {
-              const item = await fromUuid(uuid);
-              if (!item || item.type !== "skill") {
-                console.warn("Invalid or missing skill:", uuid);
-                return null;
-              }
-              const itemData = item.toObject();
-              delete itemData._id;
-              return itemData;
-            })
-          );
-        
-          const validItems = selectedItems.filter(i => i);
-          if (validItems.length > 0) {
-            await actor.createEmbeddedDocuments("Item", validItems);
-          }
-        
-          resolve(validItems.length > 0 ? validItems : null);
-          dlg.close();
-        });
-
-        updateUI();
-      }
-    });
-    dlg.render(true);
-  });
+  return { normalPacks, psgPacks };
 }
+
+/* ===== Welt-Items eines Typs (gruppiert) ===== */
+function collectWorldByTypeToMap(itemType, map) {
+  const t = normType(itemType);
+  for (const it of game.items) {
+    if (!it || normType(it.type) !== t) continue;
+    const nm = it.name ?? "";
+    if (!nm) continue;
+    const k = keyOf(it.type, nm);
+    let g = map.get(k);
+    if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+    if (!g.world) g.world = it; // World gewinnt die Gruppe
+  }
+}
+
+/* ===== Pack-Items eines Typs (gruppiert) ===== */
+async function collectPackByTypeToMap(packs, slot, itemType, map) {
+  const t = normType(itemType);
+  for (const pack of packs) {
+    // indexbasiert filtern
+    const index = await pack.getIndex({ fields: ["name", "type"] });
+    const wanted = index.filter(e => normType(e.type) === t && e.name && e.name.trim().length);
+    if (!wanted.length) continue;
+
+    // IDs in Blöcken laden (schonend)
+    const ids = wanted.map(e => e._id);
+    if (!ids.length) continue;
+    const docs = await pack.getDocuments({ _id: ids });
+
+    for (const d of docs) {
+      if (!d || normType(d.type) !== t) continue;
+      const nm = d.name ?? "";
+      if (!nm) continue;
+      const k = keyOf(d.type, nm);
+      let g = map.get(k);
+      if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+      if (!g[slot]) g[slot] = d; // nur setzen, wenn Slot leer (stabile Reihenfolge)
+    }
+  }
+}
+
+/* ===== Gewinner pro Gruppe in Priorität bestimmen ===== */
+function winnersFromMap(map) {
+  const out = [];
+  for (const g of map.values()) {
+    const winner = g.world ?? g.normal ?? g.psg ?? null;
+    if (winner) out.push(winner);
+  }
+  return out;
+}
+
+/* ===== Sortierung ===== */
+function sortItems(itemType, items) {
+  const t = normType(itemType);
+  if (t === "skill") {
+    // 1) nach definierter Reihenfolge, 2) unbekannte hinten alphabetisch
+    return items.sort((a, b) => {
+      const ra = SKILL_RANK.get(normName(a.name)) ?? Number.MAX_SAFE_INTEGER;
+      const rb = SKILL_RANK.get(normName(b.name)) ?? Number.MAX_SAFE_INTEGER;
+      if (ra !== rb) return ra - rb;
+      return String(a.name).localeCompare(String(b.name));
+    });
+  }
+  // Default: alphabetisch
+  return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+/* ===== Öffentliche API ===== */
+
+/**
+ * Lädt ALLE Items eines Typs, gruppiert ausschließlich über (type, name) und
+ * löst je Gruppe den Gewinner nach Priorität:
+ *   1) World, 2) alle Packs außer fvtt_mosh_1e_psg, 3) fvtt_mosh_1e_psg
+ * Rückgabe: SORTIERTES Array (Skills per fester Reihenfolge, sonst A→Z).
+ */
+export async function loadAllItemsByType(itemType) {
+  const map = new Map();
+
+  // 1) World
+  collectWorldByTypeToMap(itemType, map);
+
+  // 2) Packs
+  const { normalPacks, psgPacks } = partitionItemPacks();
+  await collectPackByTypeToMap(normalPacks, "normal", itemType, map);
+  await collectPackByTypeToMap(psgPacks, "psg", itemType, map);
+
+  // 3) Gewinner + Sortierung
+  const winners = winnersFromMap(map);
+  return sortItems(itemType, winners);
+}
+
+/**
+ * Sucht EIN Item per (type, name) in Priorität:
+ *   1) World, 2) alle Packs außer fvtt_mosh_1e_psg, 3) fvtt_mosh_1e_psg
+ * exakter Name (case-insensitive, trim).
+ */
+export async function findItem(itemType, name) {
+  const t = normType(itemType);
+  const n = normName(name);
+  if (!n) return null;
+
+  // 1) World
+  for (const it of game.items) {
+    if (!it || normType(it.type) !== t) continue;
+    if (normName(it.name) === n) return it;
+  }
+
+  // 2) Packs
+  const { normalPacks, psgPacks } = partitionItemPacks();
+
+  // Helper: im Pack exakten Namen finden (indexbasiert, dann getDocument)
+  const findInPacks = async (packs) => {
+    for (const pack of packs) {
+      const index = await pack.getIndex({ fields: ["name", "type"] });
+      const hit = index.find(e => normType(e.type) === t && normName(e.name) === n);
+      if (hit) return await pack.getDocument(hit._id);
+    }
+    return null;
+  };
+
+  // 2a) alle außer fvtt_mosh_1e_psg
+  const normalHit = await findInPacks(normalPacks);
+  if (normalHit) return normalHit;
+
+  // 3) zuletzt fvtt_mosh_1e_psg
+  return await findInPacks(psgPacks);
+}
+
+/* ===== Optional: global zum Testen ===== */
+// globalThis.GB_ItemLoader = { loadAllItemsByType, findItem };
