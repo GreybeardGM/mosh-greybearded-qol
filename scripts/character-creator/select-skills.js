@@ -1,10 +1,7 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { loadAllItemsByType } from "../utils/item-loader.js";
 
 export async function selectSkills(actor, selectedClass) {
-  function getSkillSortOrder() {
-    return ["Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging", "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology", "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine", "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking", "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat", "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics", "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"];
-  }
-
   function stripHtml(html) {
     return html.replace(/<[^>]*>/g, '').trim();
   }
@@ -21,23 +18,19 @@ export async function selectSkills(actor, selectedClass) {
     return map;
   }
   
-  const compendiumSkills = await game.packs.get('fvtt_mosh_1e_psg.items_skills_1e')?.getDocuments() ?? [];
-  const worldSkills = game.items.filter(item => item.type === 'skill');
-  const allSkills = [...worldSkills, ...compendiumSkills].map(skill => {
-    skill.system.rank = skill.system.rank?.toLowerCase();
+  // Skills über universellen Loader laden (V13; Homebrew-first; bereits nach SKILL_ORDER sortiert)
+  const loadedSkills = await loadAllItemsByType("skill");
+  // Rank-Notation vereinheitlichen + direkte Weiterverwendung
+  const allSkills = loadedSkills.map(skill => {
+    if (skill?.system?.rank) skill.system.rank = String(skill.system.rank).toLowerCase();
     return skill;
   });
-
-  const skillMap = new Map();
-  for (const skill of allSkills) {
-    skillMap.set(skill.id, skill);
-  }
-  
+  // Für schnelle Lookups (Prereq-Prüfung, UI)
+  const skillMap = new Map(allSkills.map(s => [s.id, s]));
+  // Abhängigkeiten vorbereiten (nutzt .system.prerequisite_ids)
   const dependencies = getSkillDependencies(allSkills);
-
-  const sortOrder = getSkillSortOrder();
-  const sortedSkills = allSkills.sort((a, b) => sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name));
-
+  // Loader sortiert Skills bereits per festem Order; hier keine zusätzliche Sortierung nötig
+  const sortedSkills = allSkills;
 
   const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
   const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
