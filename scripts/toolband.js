@@ -155,8 +155,8 @@ export function upsertToolband(sheet, html, ctx = {}) {
         btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
         btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
       } else {
-        btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
         btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
+        btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
       }
       // GM-Unterkategorie
       if (isGM) {
