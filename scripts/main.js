@@ -73,6 +73,16 @@ Hooks.once("ready", () => {
     label: "Contractor Sheet",
     makeDefault: false
   });
+
+  // Armor Broken Status Effect
+  const customStatus = {
+    id: "mosh-qol.broken-armor",
+    label: "Broken Armor",
+    icon: "icons/skills/melee/shield-damaged-broken-blue.webp"
+  };
+  if (!CONFIG.statusEffects.some(e => e.id === customStatus.id)) {
+    CONFIG.statusEffects.push(customStatus);
+  }
   
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");  
