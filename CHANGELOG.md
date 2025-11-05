@@ -9,7 +9,7 @@
 - Better toolband styling  
   Toolband buttons are made smaller not to block other sheet components.  
   Bottons grow when hovered.
-- Better item loading handler  
+- Better item loading 
   Items (like classes and skills) are now handled with a new item loader.  
   The loader will load from all compendiums and the world's item collection.  
   Items with the same name are filtered out with the priority on custom items:  
