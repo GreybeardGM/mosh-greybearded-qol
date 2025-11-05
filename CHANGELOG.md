@@ -2,11 +2,13 @@
 
 ## [0.6.6] - 2025-xx-xx
 ### Added
-- Armor Broken Status Effect & Toolband Toggle
+- Armor Broken Status Effect
+  Includes minimalistic SVG for armor-broken status and toolband toggle button.
 
-### Improovements
-- Better Toolband placement
-  Toolband has been moved to the right side of the Sheet.
+### Improvements
+- Better toolband styling
+  Toolband buttons are made smaller not to block other sheet components.
+  Bottons grow when hovered.
 - Better item loading handler
   Items (like classes and skills) are now handled with a new item loader.
   The loader will load from all compendiums and the world's item collection.
