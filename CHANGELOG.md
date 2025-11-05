@@ -10,13 +10,11 @@
   Toolband buttons are made smaller not to block other sheet components.  
   Bottons grow when hovered.
 - Better item loading handler  
-  Items (like classes and skills) are now handled with a new item loader.  
+  Items (like classes and skills) are now handled with a new item loader.
   The loader will load from all compendiums and the world's item collection.  
   Items with the same name are filtered out with the priority on custom items:  
-    1. World items
-    2. Custom compendium items
-    3. PSG compendium items  
-If you want acces to both (e.G. PSG and custom variants) give your items distinct names.
+  World items > Custom compendium items > PSG compendium items  
+  If you want acces to both (e.G. PSG and custom variants) give your items distinct names.
 
 ## [0.6.5] - 2025-10-29
 ### Fixed
