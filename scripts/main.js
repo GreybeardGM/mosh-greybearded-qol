@@ -78,7 +78,7 @@ Hooks.once("ready", () => {
   const customStatus = {
     id: "qol-broken-armor",
     name: "Broken Armor",
-    img: "icons/skills/melee/shield-damaged-broken-blue.webp"
+    img: "modules/mosh-greybearded-qol/assets/icons/status/armor-broken.svg"
   };
   if (!CONFIG.statusEffects.some(e => e.id === customStatus.id)) {
     CONFIG.statusEffects.push(customStatus);
