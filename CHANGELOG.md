@@ -3,7 +3,7 @@
 ## [0.6.6] - 2025-11-06
 ### Added
 - Armor Broken Status Effect  
-  Includes minimalistic SVG for armor-broken status and toolband toggle button.
+  Includes minimalistic SVG for armor-broken status and toolband toggle button.  
   Toggle button in the toolband to switch as well as show status.
 
 ### Improvements
