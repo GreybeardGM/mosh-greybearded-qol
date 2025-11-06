@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.6] - 2025-11-06
+### Added
+- Armor Broken Status Effect  
+  Includes minimalistic SVG for armor-broken status and toolband toggle button.  
+  Toggle button in the toolband to switch as well as show status.
+
+### Improvements
+- Better toolband styling  
+  Toolband buttons are made smaller so they do no longer to block other sheet components.  
+  Bottons grow when hovered.
+- Better item loading 
+  Items (like classes and skills) are now handled with a new item loader.  
+  The loader will load from all compendiums and the world's item collection.  
+  Items with the same name are filtered out with the priority on custom items:  
+  World items > Custom compendium items > PSG compendium items  
+  If you want acces to both (e.G. PSG and custom variants) give your items distinct names.
+
 ## [0.6.5] - 2025-10-29
 ### Fixed
 - Fixed scene control button

@@ -1,205 +1,164 @@
-// modules/mosh-greybearded-qol/scripts/utils/item-loader.js
-// Foundry VTT v12 – Item Loader (MoSh)
+// scripts/utils/item-loader.js
+// Foundry VTT v13 — namebasierter Item-Loader (Homebrew-first)
 
 const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
 
-/** Utility: robustes, kleinschreibendes Typ-Matching */
-function normType(t) { return String(t ?? "").trim().toLowerCase(); }
+/* ---------- Helpers ---------- */
+const normType = (t) => String(t ?? "").trim().toLowerCase();
+const normName = (n) => String(n ?? "").trim().toLowerCase();
+const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
 
-/** Utility: dedupe über UUID (Fallback auf zusammengesetzte ID) */
-function docKey(d) {
-  return d?.uuid ?? (d?.pack ? `${d.pack}.${d.id}` : `World.Item.${d?.id}`);
+/* Skill-Sortierung */
+function getSkillSortOrder() {
+  return [
+    "Linguistics","Zoology","Botany","Geology","Industrial Equipment","Jury-Rigging",
+    "Chemistry","Computers","Zero-G","Mathematics","Art","Archaeology","Theology",
+    "Military Training","Rimwise","Athletics","Psychology","Pathology","Field Medicine",
+    "Ecology","Asteroid Mining","Mechanical Repair","Explosives","Pharmacology","Hacking",
+    "Piloting","Physics","Mysticism","Wilderness Survival","Firearms","Hand-to-Hand Combat",
+    "Sophontology","Exobiology","Surgery","Planetology","Robotics","Engineering","Cybernetics",
+    "Artificial Intelligence","Hyperspace","Xenoesotericism","Command"
+  ];
 }
+const SKILL_RANK = new Map(getSkillSortOrder().map((n, i) => [normName(n), i]));
 
-/** Packs in gewünschte Reihenfolge partitionieren */
+/* Packs partitionieren (V13: pack.collection ist stabil) */
 function partitionItemPacks() {
-  // Nur Item-Compendia
-  const allItemPacks = game.packs
-    .filter(p => p?.documentName === "Item");
-
-  const normal = [];
-  const specific = [];
-  for (const p of allItemPacks) {
-    const pkg = p?.metadata?.package ?? p?.metadata?.module; // safety
-    if (pkg === SPECIFIC_MODULE_ID) specific.push(p);
-    else normal.push(p);
+  const packs = Array.from(game.packs).filter(p => p?.documentName === "Item");
+  const normalPacks = [];
+  const psgPacks = [];
+  for (const p of packs) {
+    const isPSG = String(p.collection || "").startsWith(`${SPECIFIC_MODULE_ID}.`);
+    (isPSG ? psgPacks : normalPacks).push(p);
   }
-  return { normal, specific };
+  return { normalPacks, psgPacks };
 }
 
-/** Welt-Items eines Typs holen */
-function getWorldItemsByType(type) {
-  const t = normType(type);
-  return game.items.filter(i => normType(i.type) === t);
+/* World sammeln */
+function collectWorldByTypeToMap(itemType, map) {
+  const t = normType(itemType);
+  for (const it of game.items) {
+    if (!it || normType(it.type) !== t) continue;
+    const nm = it.name ?? "";
+    if (!nm) continue;
+    const k = keyOf(it.type, nm);
+    let g = map.get(k);
+    if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+    if (!g.world) g.world = it;
+  }
 }
 
-/** Aus einem Pack alle Items des Typs holen (Index-basiert, dann Dokumente) */
-async function getPackItemsByType(pack, type) {
-  const t = normType(type);
-  // Index holen (performant), dann IDs für den Typ filtern
-  const index = await pack.getIndex({ fields: ["name", "type"] });
-  const ids = index.filter(e => normType(e.type) === t).map(e => e._id);
-  if (!ids.length) return [];
-  // Dokumente gezielt laden
-  const docs = await pack.getDocuments({ _id: ids });
-  return docs.filter(d => normType(d.type) === t);
+/* Packs sammeln (Index tolerant, Typ final am Dokument prüfen) */
+async function collectPackByTypeToMap(packs, slot, itemType, map) {
+  const t = normType(itemType);
+  for (const pack of packs) {
+    const index = await pack.getIndex({ fields: ["name", "type"] });
+    const ids = index
+      .filter(e => e?.name && e.name.trim().length)
+      .filter(e => !e.type || normType(e.type) === t) // toleriert fehlenden/inkonsistenten type im Index
+      .map(e => e._id);
+
+    if (!ids.length) continue;
+
+    // V13: getDocument(id) ist stabil; sequentiell/Promise.all funktioniert
+    const docs = await Promise.all(ids.map(id => pack.getDocument(id)));
+
+    for (const d of docs) {
+      if (!d || normType(d.type) !== t) continue;
+      const nm = d.name ?? "";
+      if (!nm) continue;
+      const k = keyOf(d.type, nm);
+      let g = map.get(k);
+      if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+      if (!g[slot]) g[slot] = d;
+    }
+  }
 }
 
-/**
- * Lädt ALLE Items eines Typs in Priorität:
- * 1) Welt, 2) alle Packs außer SPECIFIC_MODULE_ID, 3) SPECIFIC_MODULE_ID
- * @param {string} itemType z.B. "class" oder "skill"
- * @returns {Promise<Item[]>}
- */
-export async function loadAllItemsByType(itemType) {
+/* Gewinner extrahieren */
+function winnersFromMap(map) {
   const out = [];
-  const seen = new Set();
-
-  // 1) Welt
-  for (const it of getWorldItemsByType(itemType)) {
-    const k = docKey(it);
-    if (!seen.has(k)) { out.push(it); seen.add(k); }
+  for (const g of map.values()) {
+    const winner = g.world ?? g.normal ?? g.psg ?? null;
+    if (winner) out.push(winner);
   }
-
-  const { normal, specific } = partitionItemPacks();
-
-  // 2) Alle "normalen" Packs
-  for (const pack of normal) {
-    const docs = await getPackItemsByType(pack, itemType);
-    for (const d of docs) {
-      const k = docKey(d);
-      if (!seen.has(k)) { out.push(d); seen.add(k); }
-    }
-  }
-
-  // 3) Zuletzt die "specific"-Packs (fvtt_mosh_1e_psg)
-  for (const pack of specific) {
-    const docs = await getPackItemsByType(pack, itemType);
-    for (const d of docs) {
-      const k = docKey(d);
-      if (!seen.has(k)) { out.push(d); seen.add(k); }
-    }
-  }
-
   return out;
 }
 
-/**
- * Findet EIN spezifisches Item in der Priorität (Welt > normal > specific).
- * Query kann sein:
- *  - { id }      : Foundry-ID
- *  - { uuid }    : vollständige UUID
- *  - { name }    : Name (exact oder fuzzy)
- *  - string      : wird als Name behandelt (exact, dann fuzzy)
- *
- * @param {string} itemType
- * @param {object|string} query
- * @param {object} [opts]
- * @param {boolean} [opts.fuzzy=true]  // nach exact match optional fuzzy (case-insensitive enthält)
- * @returns {Promise<Item|null>}
- */
-export async function findItem(itemType, query, { fuzzy = true } = {}) {
+/* Sortierung */
+function sortItems(itemType, items) {
   const t = normType(itemType);
+  if (t === "skill") {
+    return items.sort((a, b) => {
+      const ra = SKILL_RANK.get(normName(a.name)) ?? Number.MAX_SAFE_INTEGER;
+      const rb = SKILL_RANK.get(normName(b.name)) ?? Number.MAX_SAFE_INTEGER;
+      if (ra !== rb) return ra - rb;
+      return String(a.name).localeCompare(String(b.name));
+    });
+  }
+  return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
 
-  // Query normalisieren
-  let q = {};
-  if (typeof query === "string") q.name = query;
-  else if (query && typeof query === "object") q = query;
-  const name = q.name?.toString() ?? null;
-  const id   = q.id?.toString() ?? null;
-  const uuid = q.uuid?.toString() ?? null;
+/* ---------- Öffentliche API ---------- */
+export async function loadAllItemsByType(itemType) {
+  const map = new Map();
+  collectWorldByTypeToMap(itemType, map);
+  const { normalPacks, psgPacks } = partitionItemPacks();
+  await collectPackByTypeToMap(normalPacks, "normal", itemType, map);
+  await collectPackByTypeToMap(psgPacks, "psg", itemType, map);
 
-  // 1) Direkter UUID-Treffer
-  if (uuid) {
+  const winners = winnersFromMap(map);
+  const sorted = sortItems(itemType, winners);
+
+  if (sorted.length === 0) {
+    const msg = `
+      <p><strong>MoSh Greybearded QoL</strong> could not find any valid
+      <em>${foundry.utils.escapeHTML(String(itemType))}</em> items in your World
+      Items collection or in any loaded compendium.</p>
+      <p>To ensure correct functionality, please install a compatible compendium
+      pack or create your own items in the World Items collection.</p>
+    `.trim();
+
     try {
-      const doc = await fromUuid(uuid);
-      if (doc && normType(doc.type) === t) return doc;
-    } catch {/* ignore */}
+      // Foundry V13: DialogV2.prompt — einfacher OK-Bestätigungsdialog
+      await DialogV2.prompt({
+        window: { title: "No Items Found" },
+        content: msg
+      });
+    } catch (e) {
+      // Fallback (sollte in V13 nicht nötig sein)
+      ui.notifications?.warn("MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World.");
+      console.warn("[MoSh Greybearded QoL] loadAllItemsByType: No items found for type:", itemType, e);
+    }
   }
 
-  // Hilfsfinder: in beliebiger Sammlung (Array<Item>) nach Name
-  const matchInList = (list) => {
-    if (!list?.length) return null;
-    // 1) Exact (case-insensitive)
-    if (name) {
-      const exact = list.find(i => i.name?.toLowerCase() === name.toLowerCase());
-      if (exact) return exact;
-      // 2) Fuzzy
-      if (fuzzy) {
-        const fuzzyHit = list.find(i => i.name?.toLowerCase().includes(name.toLowerCase()));
-        if (fuzzyHit) return fuzzyHit;
-      }
-    }
-    // ID-Match (falls gewünscht)
-    if (id) {
-      const byId = list.find(i => i.id === id);
-      if (byId) return byId;
+  return sorted;
+}
+
+export async function findItem(itemType, name) {
+  const t = normType(itemType);
+  const n = normName(name);
+  if (!n) return null;
+
+  // 1) World
+  for (const it of game.items) {
+    if (!it || normType(it.type) !== t) continue;
+    if (normName(it.name) === n) return it;
+  }
+
+  // 2) Packs: erst alle außer PSG, dann PSG
+  const { normalPacks, psgPacks } = partitionItemPacks();
+
+  const findInPacks = async (packs) => {
+    for (const pack of packs) {
+      const index = await pack.getIndex({ fields: ["name", "type"] });
+      const hit = index.find(e => normName(e?.name) === n && (!e.type || normType(e.type) === t));
+      if (!hit) continue;
+      const doc = await pack.getDocument(hit._id);
+      if (doc && normType(doc.type) === t) return doc;
     }
     return null;
   };
 
-  // 2) Welt zuerst
-  {
-    const world = getWorldItemsByType(itemType);
-    const hit = matchInList(world);
-    if (hit) return hit;
-    if (id) {
-      const byId = world.find(i => i.id === id);
-      if (byId) return byId;
-    }
-  }
-
-  const { normal, specific } = partitionItemPacks();
-
-  // 3) Normal-Packs
-  for (const pack of normal) {
-    // UUID-Packspezifisch?
-    if (uuid && uuid.startsWith(pack.collection)) {
-      try {
-        const doc = await fromUuid(uuid);
-        if (doc && normType(doc.type) === t) return doc;
-      } catch {/* ignore */}
-    }
-
-    const index = await pack.getIndex({ fields: ["name", "type"] });
-    // Exact
-    if (name) {
-      const exact = index.find(e => normType(e.type) === t && e.name?.toLowerCase() === name.toLowerCase());
-      if (exact) return await pack.getDocument(exact._id);
-      if (fuzzy) {
-        const fuzzyHit = index.find(e => normType(e.type) === t && e.name?.toLowerCase().includes(name.toLowerCase()));
-        if (fuzzyHit) return await pack.getDocument(fuzzyHit._id);
-      }
-    }
-    if (id) {
-      const byId = index.find(e => e._id === id && normType(e.type) === t);
-      if (byId) return await pack.getDocument(byId._id);
-    }
-  }
-
-  // 4) Specific-Packs (fvtt_mosh_1e_psg) zuletzt
-  for (const pack of specific) {
-    if (uuid && uuid.startsWith(pack.collection)) {
-      try {
-        const doc = await fromUuid(uuid);
-        if (doc && normType(doc.type) === t) return doc;
-      } catch {/* ignore */}
-    }
-
-    const index = await pack.getIndex({ fields: ["name", "type"] });
-    if (name) {
-      const exact = index.find(e => normType(e.type) === t && e.name?.toLowerCase() === name.toLowerCase());
-      if (exact) return await pack.getDocument(exact._id);
-      if (fuzzy) {
-        const fuzzyHit = index.find(e => normType(e.type) === t && e.name?.toLowerCase().includes(name.toLowerCase()));
-        if (fuzzyHit) return await pack.getDocument(fuzzyHit._id);
-      }
-    }
-    if (id) {
-      const byId = index.find(e => e._id === id && normType(e.type) === t);
-      if (byId) return await pack.getDocument(byId._id);
-    }
-  }
-
-  return null;
+  return (await findInPacks(normalPacks)) ?? (await findInPacks(psgPacks));
 }

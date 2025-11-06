@@ -1,49 +1,9 @@
-// modules/mosh-greybearded-qol/scripts/item-loader.js
-// Foundry VTT v12 — namebasierter Item-Loader (Homebrew-first)
+import { getThemeColor } from "../utils/get-theme-color.js";
+import { loadAllItemsByType } from "../utils/item-loader.js";
 
-const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
-
-/* ===== Normalisierer ===== */
-const normType = (t) => String(t ?? "").trim().toLowerCase();
-const normName = (n) => String(n ?? "").trim().toLowerCase();
-const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
-
-/* ===== Skill-Sortierung (vorgegeben) ===== */
-const SKILL_ORDER = [
-    "Linguistics","Zoology","Botany","Geology","Industrial Equipment","Jury-Rigging",
-    "Chemistry","Computers","Zero-G","Mathematics","Art","Archaeology","Theology",
-    "Military Training","Rimwise","Athletics","Psychology","Pathology","Field Medicine",
-    "Ecology","Asteroid Mining","Mechanical Repair","Explosives","Pharmacology","Hacking",
-    "Piloting","Physics","Mysticism","Wilderness Survival","Firearms","Hand-to-Hand Combat",
-    "Sophontology","Exobiology","Surgery","Planetology","Robotics","Engineering","Cybernetics",
-    "Artificial Intelligence","Hyperspace","Xenoesotericism","Command"
-  ];
-const SKILL_RANK = new Map(SKILL_ORDER.map((n, i) => [normName(n), i]));
-
-/* ===== Pack-Partitionierung ===== */
-function partitionItemPacks() {
-  const packs = Array.from(game.packs).filter(p => p?.documentName === "Item");
-  const normalPacks = [];
-  const psgPacks = [];
-  for (const p of packs) {
-    const pkg = p?.metadata?.package ?? p?.metadata?.module ?? "";
-    if (pkg === SPECIFIC_MODULE_ID) psgPacks.push(p);
-    else normalPacks.push(p);
-  }
-  return { normalPacks, psgPacks };
-}
-
-/* ===== Welt-Items eines Typs (gruppiert) ===== */
-function collectWorldByTypeToMap(itemType, map) {
-  const t = normType(itemType);
-  for (const it of game.items) {
-    if (!it || normType(it.type) !== t) continue;
-    const nm = it.name ?? "";
-    if (!nm) continue;
-    const k = keyOf(it.type, nm);
-    let g = map.get(k);
-    if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
-    if (!g.world) g.world = it; // World gewinnt die Gruppe
+export async function selectSkills(actor, selectedClass) {
+  function stripHtml(html) {
+    return html.replace(/<[^>]*>/g, '').trim();
   }
 }
 
@@ -71,17 +31,149 @@ async function collectPackByTypeToMap(packs, slot, itemType, map) {
       if (!g[slot]) g[slot] = d; // nur setzen, wenn Slot leer (stabile Reihenfolge)
     }
   }
-}
+  
+  // Skills über universellen Loader laden (V13; Homebrew-first; bereits nach SKILL_ORDER sortiert)
+  const loadedSkills = await loadAllItemsByType("skill");
+  // Rank-Notation vereinheitlichen + direkte Weiterverwendung
+  const allSkills = loadedSkills.map(skill => {
+    if (skill?.system?.rank) skill.system.rank = String(skill.system.rank).toLowerCase();
+    return skill;
+  });
+  // Für schnelle Lookups (Prereq-Prüfung, UI)
+  const skillMap = new Map(allSkills.map(s => [s.id, s]));
+  // Abhängigkeiten vorbereiten (nutzt .system.prerequisite_ids)
+  const dependencies = getSkillDependencies(allSkills);
+  // Loader sortiert Skills bereits per festem Order; hier keine zusätzliche Sortierung nötig
+  const sortedSkills = allSkills;
 
-/* ===== Gewinner pro Gruppe in Priorität bestimmen ===== */
-function winnersFromMap(map) {
-  const out = [];
-  for (const g of map.values()) {
-    const winner = g.world ?? g.normal ?? g.psg ?? null;
-    if (winner) out.push(winner);
-  }
-  return out;
-}
+  const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
+  const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
+  const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(uuid => uuid.split(".").pop()));
+
+  const fullSetExpert = baseAnd.expert_full_set || 0;
+  const fullSetMaster = baseAnd.master_full_set || 0;
+
+  const basePoints = {
+    trained: (baseAnd.trained || 0) + fullSetExpert + fullSetMaster,
+    expert: (baseAnd.expert || 0) + fullSetExpert + fullSetMaster,
+    master: (baseAnd.master || 0) + fullSetMaster
+  };
+
+  // Wandelt alles "zahlähnliche" sicher in Number um, sonst 0
+  const toNum = (v) => {
+    if (v === "" || v === null || v === undefined) return 0;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Bequemer Summer
+  const add = (...vals) => vals.map(toNum).reduce((a, b) => a + b, 0);
+
+  const orOptions = baseOr.flat().map((opt, i) => {
+    return {
+      id: `or-${i}`,
+      name: opt.name ?? `Option ${i + 1}`,
+      trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
+      expert:  add(opt.expert,  opt.expert_full_set, opt.master_full_set),
+      master:  add(opt.master,  opt.master_full_set),
+    };
+  });
+
+  const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-skills.html", {
+    themeColor: getThemeColor(),
+    actor,
+    selectedClass,
+    sortedSkills,
+    granted: [...granted],
+    basePoints,
+    orOptions
+  });
+
+  return new Promise((resolve) => {
+    const dlg = new Dialog({
+      title: `Select Skills for ${actor.name}`,
+      content: html,
+      buttons: {},
+      close: () => {
+        resolve(null);
+      },
+      render: (html) => {
+        const wrapper = html.closest('.app');
+        if (wrapper?.length) {
+          wrapper.css({ width: '1200px', maxWidth: '95vw', margin: '0 auto' });
+        }
+
+        const points = structuredClone(basePoints);
+
+        function drawLines() {
+          const svg = html[0].querySelector("#skill-arrows");
+          if (!svg) return;
+          svg.innerHTML = "";
+        
+          const selected = new Set(
+            html.find(".skill-card.selected").map((_, el) => el.dataset.skillId)
+          );
+        
+          const linesToDraw = [];
+        
+          for (const skill of sortedSkills) {
+            const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
+        
+            for (const prereqId of prereqIds) {
+              const fromEl = html[0].querySelector(`.skill-card[data-skill-id="${prereqId}"]`);
+              const toEl = html[0].querySelector(`.skill-card[data-skill-id="${skill.id}"]`);
+              if (!fromEl || !toEl) continue;
+        
+              const rect1 = fromEl.getBoundingClientRect();
+              const rect2 = toEl.getBoundingClientRect();
+              const parentRect = svg.getBoundingClientRect();
+        
+              const x1 = rect1.left + rect1.width;
+              const y1 = rect1.top + rect1.height / 2;
+              const x2 = rect2.left;
+              const y2 = rect2.top + rect2.height / 2;
+        
+              const relX1 = x1 - parentRect.left;
+              const relY1 = y1 - parentRect.top;
+              const relX2 = x2 - parentRect.left;
+              const relY2 = y2 - parentRect.top;
+        
+              const deltaX = Math.abs(relX2 - relX1) / 2;
+              const c1x = relX1 + deltaX;
+              const c1y = relY1;
+              const c2x = relX2 - deltaX;
+              const c2y = relY2;
+        
+              const pathData = `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`;
+              const isHighlighted =
+                selected.has(skill.id) &&
+                selected.has(prereqId) &&
+                (skill.system.rank === "expert" || skill.system.rank === "master");
+        
+              linesToDraw.push({ d: pathData, highlight: isHighlighted });
+            }
+          }
+        
+          // ⬇️ Zuerst: graue Linien
+          for (const line of linesToDraw.filter(l => !l.highlight)) {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", line.d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "var(--color-border)");
+            path.setAttribute("stroke-width", "2");
+            svg.appendChild(path);
+          }
+        
+          // ⬆️ Dann: farbige oben drauf
+          for (const line of linesToDraw.filter(l => l.highlight)) {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", line.d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "var(--theme-color)");
+            path.setAttribute("stroke-width", "3");
+            svg.appendChild(path);
+          }
+        }
 
 /* ===== Sortierung ===== */
 function sortItems(itemType, items) {

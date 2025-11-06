@@ -12,7 +12,7 @@ function getRoot(sheet, html){
 
 /** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
 export function upsertToolband(sheet, html, ctx = {}) {
-  const { kind = "unknown", isGM = false, isOwner = false } = ctx;
+  const { kind = "unknown", isGM = false } = ctx;
 
   // Root & Header
   const root = html?.[0];
@@ -62,7 +62,21 @@ export function upsertToolband(sheet, html, ctx = {}) {
           if (!actor) return;
           await applyDamage(actor);
           return;
-
+        
+        case "armor-broken": {
+          if (!actor) return;
+          const isActive = actor?.statuses?.has("qol-broken-armor") === true;
+        
+          // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
+          await actor.toggleStatusEffect("qol-broken-armor", { active: !isActive });
+        
+          // UI sofort spiegeln (kein re-render nötig)
+          btn.classList.toggle("is-active", !isActive);
+          btn.setAttribute("aria-pressed", String(!isActive));
+          ui.notifications?.info?.(`${actor.name}: Armor ${!isActive ? "broken" : "intact"}.`);
+          return;
+        }
+          
         // ===== Contractor: Promote =====
         case "promote-contractor": {
           // Guard: nur GM & nur wenn die Sheet-Methoden existieren
@@ -146,25 +160,30 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
   switch (kind) {
     case "character": {
-      // Nutzer-Buttons (alle Owner/Spieler)
+      // Nutzer-Buttons (alle Owner/Spieler) wie gehabt …
       const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
       const ready = checkReady(actor);
       const completed = checkCompleted(actor);
-
+    
       if (isCreatorEnabled && ready && !completed) {
         btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
-        btns.push({ id: "mark-complete", icon: "fas fa-flag-checkered", label: "Mark Completed" });
+        btns.push({ id: "mark-complete",  icon: "fas fa-flag-checkered", label: "Completed" });
       } else {
-        btns.push({ id: "shore-leave", icon: "fas fa-umbrella-beach", label: "Shore Leave" });
+        btns.push({ id: "apply-damage",   icon: "fas fa-heart-broken", label: "Apply Damage" });
+        // Toggle-Button Armor Broken
+        const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
+        btns.push({
+          id: "armor-broken",
+          icon: "fa-solid fa-shield-halved",
+          label: "Armor Broken",
+          pressed: armorBroken
+        });
+        btns.push({ id: "shore-leave",    icon: "fas fa-umbrella-beach", label: "Shore Leave" });
       }
-      // Damage-Button
-      if (isOwner || isGM) {
-        btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
-      }
-      // GM-Unterkategorie
+      // GM-Unterkategorie …
       if (isGM) {
         if (!ready && !completed) {
-          btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Mark Ready" });
+          btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Ready" });
         }
       }
       break;
@@ -172,13 +191,21 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "contractor": {
       // Nutzer-Buttons
+      // Toggle-Button Armor Broken
+      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
+      btns.push({
+        id: "armor-broken",
+        icon: "fa-solid fa-shield-halved",
+        label: "Armor Broken",
+        pressed: armorBroken
+      });
       // GM-Unterkategorie
       if (isGM) {
         const isNamed = !!actor?.system?.contractor?.isNamed;
         if (!isNamed) {
-          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote Unique" });
+          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote" });
         } else {
-          btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Contractor Menu" });
+          btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Menu" });
         }
       }
       break;
@@ -187,7 +214,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
     case "ship": {
       // Nutzer-Buttons
       if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Roll Critical Hit" });
+        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Critical Hit" });
       }
       // GM-Unterkategorie
       if (isGM) {
@@ -206,9 +233,15 @@ export function upsertToolband(sheet, html, ctx = {}) {
     }
 
     case "creature": {
-      if (isOwner || isGM) {
-        btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
-      }
+      btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
+      // Toggle-Button Armor Broken
+      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
+      btns.push({
+        id: "armor-broken",
+        icon: "fa-solid fa-shield-halved",
+        label: "Armor Broken",
+        pressed: armorBroken
+      });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
@@ -236,11 +269,17 @@ export function upsertToolband(sheet, html, ctx = {}) {
     return;
   }
 
-  bar.innerHTML = btns.map(b => `
-    <button type="button" class="${CLS}-btn pill interactive" data-action="${b.id}" title="${b.label}">
-      <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
-    </button>
-  `).join("") + `<div class="${CLS}-spacer"></div>`;
+  bar.innerHTML = btns.map(b => {
+    const pressed = !!b.pressed;
+    const classes = `${CLS}-btn pill interactive` + (pressed ? " is-active" : "");
+    const aria = `aria-pressed="${pressed ? "true" : "false"}"`;
+    return `
+      <button type="button" class="${classes}" data-action="${b.id}" title="${b.label}" ${aria}>
+        <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
+      </button>
+    `;
+  }).join("");// + `<div class="${CLS}-spacer"></div>`;
+
 }
 
 /** Aufräumen über App-ID */

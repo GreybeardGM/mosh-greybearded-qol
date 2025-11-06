@@ -364,22 +364,30 @@
 
 /* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
 .greybeardqol.toolband {
-  position: relative;
   height: 0;
-  flex: 0 0 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+  flex: 0 0 0;
   align-items: flex-start;
   pointer-events: none;
   z-index: 100;
+  justify-content: center;
 }
+
 .greybeardqol.toolband .toolband-btn {
   pointer-events: auto;
-  width: 11em;
-  margin: 2px 0;
+  width: 10em;
+  margin: 1px 2px;
   color: var(--color-text);
-  line-height: 1em;
   box-shadow: unset;
+  line-height: 1em;
+  padding: 1px 0.6em
+}
+
+.greybeardqol.toolband .toolband-btn:hover {
+  line-height: 2em;
+}
+
+.greybeardqol.toolband .is-active {
+  border-color: var(--color-highlight) !important;
+  box-shadow: 0 0 8px var(--color-highlight) !important;
 }

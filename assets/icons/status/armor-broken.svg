@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-labelledby="title" role="img">
+  <title>Armor Broken</title>
+
+  <!-- Linke Schildhälfte -->
+  <path fill="#FFFFFF" d="
+    M27,1
+    Q19,10 3,12
+    L3,26
+    Q3,50 27,63
+    L36,40
+    L18,27
+    Z
+  "/>
+
+  <!-- Rechte Schildhälfte -->
+  <path fill="#FFFFFF" d="
+    M37,1
+    Q45,10 61,12
+    L61,26
+    Q61,50 37,63
+    L46,37
+    L28,24
+    Z
+  "/>
+</svg>
