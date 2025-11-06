@@ -5,17 +5,31 @@ export async function selectSkills(actor, selectedClass) {
   function stripHtml(html) {
     return html.replace(/<[^>]*>/g, '').trim();
   }
+}
 
-  function getSkillDependencies(skills) {
-    const map = new Map(); // prereqId → Set of dependentIds
-    for (const skill of skills) {
-      for (const prereq of skill.system.prerequisite_ids || []) {
-        const prereqId = prereq.split(".").pop();
-        if (!map.has(prereqId)) map.set(prereqId, new Set());
-        map.get(prereqId).add(skill.id);
-      }
+/* ===== Pack-Items eines Typs (gruppiert) ===== */
+async function collectPackByTypeToMap(packs, slot, itemType, map) {
+  const t = normType(itemType);
+  for (const pack of packs) {
+    // indexbasiert filtern
+    const index = await pack.getIndex({ fields: ["name", "type"] });
+    const wanted = index.filter(e => normType(e.type) === t && e.name && e.name.trim().length);
+    if (!wanted.length) continue;
+
+    // IDs in Blöcken laden (schonend)
+    const ids = wanted.map(e => e._id);
+    if (!ids.length) continue;
+    const docs = await pack.getDocuments({ _id: ids });
+
+    for (const d of docs) {
+      if (!d || normType(d.type) !== t) continue;
+      const nm = d.name ?? "";
+      if (!nm) continue;
+      const k = keyOf(d.type, nm);
+      let g = map.get(k);
+      if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+      if (!g[slot]) g[slot] = d; // nur setzen, wenn Slot leer (stabile Reihenfolge)
     }
-    return map;
   }
   
   // Skills über universellen Loader laden (V13; Homebrew-first; bereits nach SKILL_ORDER sortiert)
@@ -161,137 +175,82 @@ export async function selectSkills(actor, selectedClass) {
           }
         }
 
-        const updateSkillAvailability = () => {
-          const selectedSkills = new Set(
-            html.find(".skill-card.selected").map((_, el) => el.dataset.skillId)
-          );
-        
-          html.find(".skill-card").not(".default-skill").each(function () {
-            const skillId = this.dataset.skillId;
-            const rank = this.dataset.rank;
-            const selected = this.classList.contains("selected");
-        
-            if (points[rank] === 0 && !selected) {
-              this.classList.add("locked");
-            } else {
-              if (rank === "trained") {
-                this.classList.remove("locked");
-              } else {
-                const skill = skillMap.get(skillId);
-                const prereqs = (skill?.system?.prerequisite_ids || []).map(p => p.split(".").pop());
-                const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkills.has(id));
-                if (unlocked) {
-                  this.classList.remove("locked");
-                } else {
-                  this.classList.add("locked");
-                  this.classList.remove("selected");
-                }
-              }
-            }
-          });
-        };
-
-        const updateUI = () => {
-          html.find(".point-count").each(function () {
-            const rank = this.dataset.rank;
-            this.innerText = points[rank];
-          });
-        
-          const remaining = Object.values(points).reduce((a, b) => a + b, 0);
-          const hasOrOptions = orOptions.length > 0;
-          const orSelected = !hasOrOptions || html.find(".or-option.selected").length > 0;
-        
-          const allowConfirm = remaining === 0 && orSelected;
-          html.find(".confirm-button").toggleClass("locked", !allowConfirm);
-
-          updateSkillAvailability();
-          drawLines();
-        };
-
-        html.find(".skill-card").on("click", function () {
-          if (this.classList.contains("default-skill") || this.classList.contains("locked")) return;
-
-          const rank = this.dataset.rank;
-          if (this.classList.contains("selected")) {
-            const skillId = this.dataset.skillId;
-            const dependents = dependencies.get(skillId) || new Set();
-          
-            for (const depId of dependents) {
-              const depEl = html[0].querySelector(`[data-skill-id="${depId}"]`);
-              if (!depEl?.classList.contains("selected")) continue;
-          
-              const depSkill = skillMap.get(depId);
-              const depPrereqs = (depSkill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-          
-              const fulfilled = depPrereqs.filter(pid => {
-                if (pid === skillId) return false; // gerade ausgewählter Skill fällt weg
-                const el = html[0].querySelector(`[data-skill-id="${pid}"]`);
-                return el?.classList.contains("selected");
-              });
-          
-              if (fulfilled.length === 0) {
-                ui.notifications.warn(`${depSkill.name} needs this skill to remain selected.`);
-                return;
-              }
-            }
-          
-            this.classList.remove("selected");
-            points[rank]++;
-            updateUI();
-            return;
-          } else {
-            if (points[rank] <= 0) return;
-            this.classList.add("selected");
-            points[rank]--;
-          }
-
-          updateUI();
-        });
-
-        html.find(".or-option").on("click", function () {
-          html.find(".or-option").removeClass("selected");
-          this.classList.add("selected");
-
-          const optionId = this.dataset.option;
-          const opt = orOptions.find(o => o.id === optionId);
-          points.trained = basePoints.trained + (opt?.trained || 0);
-          points.expert  = basePoints.expert  + (opt?.expert  || 0);
-          points.master  = basePoints.master  + (opt?.master  || 0);
-
-          html.find(".skill-card.selected:not(.default-skill)").removeClass("selected");
-          updateUI();
-        });
-
-        html.find(".confirm-button").on("click", async function () {
-          const selectedUUIDs = Array.from(
-            html[0].querySelectorAll(".skill-card.selected[data-uuid]")
-          ).map(el => el.dataset.uuid);
-          
-          const selectedItems = await Promise.all(
-            selectedUUIDs.map(async uuid => {
-              const item = await fromUuid(uuid);
-              if (!item || item.type !== "skill") {
-                console.warn("Invalid or missing skill:", uuid);
-                return null;
-              }
-              const itemData = item.toObject();
-              delete itemData._id;
-              return itemData;
-            })
-          );
-        
-          const validItems = selectedItems.filter(i => i);
-          if (validItems.length > 0) {
-            await actor.createEmbeddedDocuments("Item", validItems);
-          }
-        
-          resolve(validItems.length > 0 ? validItems : null);
-          dlg.close();
-        });
-
-        updateUI();
-      }
+/* ===== Sortierung ===== */
+function sortItems(itemType, items) {
+  const t = normType(itemType);
+  if (t === "skill") {
+    // 1) nach definierter Reihenfolge, 2) unbekannte hinten alphabetisch
+    return items.sort((a, b) => {
+      const ra = SKILL_RANK.get(normName(a.name)) ?? Number.MAX_SAFE_INTEGER;
+      const rb = SKILL_RANK.get(normName(b.name)) ?? Number.MAX_SAFE_INTEGER;
+      if (ra !== rb) return ra - rb;
+      return String(a.name).localeCompare(String(b.name));
     });
-    dlg.render(true);
-  });
+  }
+  // Default: alphabetisch
+  return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }
+
+/* ===== Öffentliche API ===== */
+
+/**
+ * Lädt ALLE Items eines Typs, gruppiert ausschließlich über (type, name) und
+ * löst je Gruppe den Gewinner nach Priorität:
+ *   1) World, 2) alle Packs außer fvtt_mosh_1e_psg, 3) fvtt_mosh_1e_psg
+ * Rückgabe: SORTIERTES Array (Skills per fester Reihenfolge, sonst A→Z).
+ */
+export async function loadAllItemsByType(itemType) {
+  const map = new Map();
+
+  // 1) World
+  collectWorldByTypeToMap(itemType, map);
+
+  // 2) Packs
+  const { normalPacks, psgPacks } = partitionItemPacks();
+  await collectPackByTypeToMap(normalPacks, "normal", itemType, map);
+  await collectPackByTypeToMap(psgPacks, "psg", itemType, map);
+
+  // 3) Gewinner + Sortierung
+  const winners = winnersFromMap(map);
+  return sortItems(itemType, winners);
+}
+
+/**
+ * Sucht EIN Item per (type, name) in Priorität:
+ *   1) World, 2) alle Packs außer fvtt_mosh_1e_psg, 3) fvtt_mosh_1e_psg
+ * exakter Name (case-insensitive, trim).
+ */
+export async function findItem(itemType, name) {
+  const t = normType(itemType);
+  const n = normName(name);
+  if (!n) return null;
+
+  // 1) World
+  for (const it of game.items) {
+    if (!it || normType(it.type) !== t) continue;
+    if (normName(it.name) === n) return it;
+  }
+
+  // 2) Packs
+  const { normalPacks, psgPacks } = partitionItemPacks();
+
+  // Helper: im Pack exakten Namen finden (indexbasiert, dann getDocument)
+  const findInPacks = async (packs) => {
+    for (const pack of packs) {
+      const index = await pack.getIndex({ fields: ["name", "type"] });
+      const hit = index.find(e => normType(e.type) === t && normName(e.name) === n);
+      if (hit) return await pack.getDocument(hit._id);
+    }
+    return null;
+  };
+
+  // 2a) alle außer fvtt_mosh_1e_psg
+  const normalHit = await findInPacks(normalPacks);
+  if (normalHit) return normalHit;
+
+  // 3) zuletzt fvtt_mosh_1e_psg
+  return await findInPacks(psgPacks);
+}
+
+/* ===== Optional: global zum Testen ===== */
+// globalThis.GB_ItemLoader = { loadAllItemsByType, findItem };
