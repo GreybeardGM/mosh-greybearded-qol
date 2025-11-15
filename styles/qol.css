@@ -49,11 +49,13 @@
   color: var(--color-highlight);
 }
 
-.greybeardqol .locked.selected {
+.greybeardqol .locked.selected,
+.greybeardqol .or-option-skill.selected {
   opacity: 0.95;
 }
 
-.greybeardqol .locked.selected::after {
+.greybeardqol .locked.selected::after,
+.greybeardqol .or-option-skill.selected::after {
   content: "🔒";
 }
 
@@ -203,6 +205,39 @@
   gap: 0.25em;
 }
 
+/* OR Skills Display */
+.greybeardqol .or-skills {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin: 0.5em 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.greybeardqol .or-skill-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 0.8em;
+  text-align: center;
+  max-width: 80px;
+}
+
+.greybeardqol .or-skill-item img {
+  width: 1.5em;
+  height: 1.5em;
+  object-fit: contain;
+}
+
+.greybeardqol .or-skill-item span {
+  word-wrap: break-word;
+  word-break: break-word;
+  font-size: 0.9em;
+}
+
 /* Remaining points info */
 .greybeardqol .remaining-points {
   text-align: center;
@@ -257,7 +292,8 @@
   height: 7em;
   font-family: monospace;
   text-align: left;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .greybeardqol .trauma-response {

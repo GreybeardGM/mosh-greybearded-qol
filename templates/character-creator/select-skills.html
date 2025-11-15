@@ -4,6 +4,18 @@
     {{#each orOptions}}
       <div class="card dialog-card interactive or-option" data-option="{{this.id}}">
         <h3>{{this.name}}</h3>
+        {{#if this.skillIds.length}}
+          <div class="or-skills">
+            {{#each this.skillIds as |skillId|}}
+              {{#with (findSkill ../../sortedSkills skillId)}}
+                <div class="or-skill-item" title="{{this.name}}">
+                  <img src="{{this.img}}" alt="{{this.name}}" />
+                  <span>{{this.name}}</span>
+                </div>
+              {{/with}}
+            {{/each}}
+          </div>
+        {{/if}}
         <p class="counter">
           {{#if this.trained}}{{this.trained}} <span class="bonus">Trained</span>{{/if}}
           {{#if this.expert}}<span>{{this.expert}} <span class="bonus">Expert</span>{{/if}}
