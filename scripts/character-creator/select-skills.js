@@ -56,14 +56,46 @@ export async function selectSkills(actor, selectedClass) {
   const add = (...vals) => vals.map(toNum).reduce((a, b) => a + b, 0);
 
   const orOptions = baseOr.flat().map((opt, i) => {
+    // Resolve skill IDs from the option's skill references
+    const skillIds = [];
+
+    const skillRefs = opt.from_list || [];
+
+    if (skillRefs && Array.isArray(skillRefs) && skillRefs.length > 0) {
+      for (const skillRef of skillRefs) {
+        // Extract UUID part if it's a full UUID
+        const skillIdToMatch = skillRef.split(".").pop();
+
+        // Handle both by name (string), by ID (string), or by UUID
+        const skill = allSkills.find(s =>
+          s.name === skillRef ||
+          s.id === skillRef ||
+          s.id === skillIdToMatch ||
+          s.uuid === skillRef
+        );
+        if (skill) {
+          skillIds.push(skill.id);
+        }
+      }
+    }
+
     return {
       id: `or-${i}`,
       name: opt.name ?? `Option ${i + 1}`,
       trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
       expert:  add(opt.expert,  opt.expert_full_set, opt.master_full_set),
       master:  add(opt.master,  opt.master_full_set),
+      skillIds: skillIds,
     };
   });
+
+  const findSkillHelper = (skills, skillId, options) => {
+    if (!Array.isArray(skills)) {
+      return null;
+    }
+    return skills.find(s => s.id === skillId);
+  };
+  Handlebars.registerHelper("findSkill", findSkillHelper);
 
   const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/character-creator/select-skills.html", {
     themeColor: getThemeColor(),
@@ -211,6 +243,14 @@ export async function selectSkills(actor, selectedClass) {
         html.find(".skill-card").on("click", function () {
           if (this.classList.contains("default-skill") || this.classList.contains("locked")) return;
 
+          // Prevent deselection of skills that are part of the selected OR option
+          if (this.classList.contains("or-option-skill")) {
+            if (this.classList.contains("selected")) {
+              ui.notifications.warn("This skill is part of your selected specialization and cannot be deselected.");
+              return;
+            }
+          }
+
           const rank = this.dataset.rank;
           if (this.classList.contains("selected")) {
             const skillId = this.dataset.skillId;
@@ -254,11 +294,30 @@ export async function selectSkills(actor, selectedClass) {
 
           const optionId = this.dataset.option;
           const opt = orOptions.find(o => o.id === optionId);
+
+          // Reset points to base, THEN add the OR option's points
+          // The OR option skills are "baked in" and don't consume the extra points
           points.trained = basePoints.trained + (opt?.trained || 0);
           points.expert  = basePoints.expert  + (opt?.expert  || 0);
           points.master  = basePoints.master  + (opt?.master  || 0);
 
+          // Clear all non-default skill locks first (from previous OR option selections)
+          html.find(".skill-card").removeClass("or-option-skill");
+
           html.find(".skill-card.selected:not(.default-skill)").removeClass("selected");
+
+          // Auto-select skills associated with this OR option
+          // These skills don't consume from the point pools since they're part of the option
+          if (opt?.skillIds && opt.skillIds.length > 0) {
+            for (const skillId of opt.skillIds) {
+              const skillEl = html[0].querySelector(`.skill-card[data-skill-id="${skillId}"]`);
+              if (skillEl && !skillEl.classList.contains("default-skill")) {
+                skillEl.classList.add("selected");
+                skillEl.classList.add("or-option-skill"); // Mark as part of OR option (locked)
+              }
+            }
+          }
+
           updateUI();
         });
 
