@@ -21,6 +21,9 @@ export async function selectClass(actor, applyStats = true) {
   // Load all the classes (World > other packs > fvtt_mosh_1e_psg, alphabetisch sortiert)
   const sortedClasses = await loadAllItemsByType("class");
 
+  // Load all skills for reference in OR choice processing
+  const sortedSkills = await loadAllItemsByType("skill");
+
   // Compile processed class data
   const processedClasses = sortedClasses.map(cls => {
     const description = stripHtml(cls.system.description || "No description available.");
@@ -56,7 +59,74 @@ export async function selectClass(actor, applyStats = true) {
         attr.push(formatAttribute(mod, `Choose 1: ${label}`));
       }
     }
-  
+
+    // Format skill choices for display
+    let skillsInfo = '';
+    const andChoices = selected.choose_skill_and || {};
+    let orChoices = selected.choose_skill_or || [];
+
+    // Flatten orChoices in case it's nested (array of arrays)
+    orChoices = orChoices.flat();
+
+    // AND choices (base skill points)
+    const skillPoints = [];
+    if (andChoices.trained) skillPoints.push(`${andChoices.trained} Trained`);
+    if (andChoices.expert) skillPoints.push(`${andChoices.expert} Expert`);
+    if (andChoices.master) skillPoints.push(`${andChoices.master} Master`);
+    if (andChoices.expert_full_set) skillPoints.push(`${andChoices.expert_full_set} Expert Sets`);
+    if (andChoices.master_full_set) skillPoints.push(`${andChoices.master_full_set} Master Sets`);
+
+    if (skillPoints.length > 0) {
+      skillsInfo += `Skills: ${skillPoints.join(', ')}<br>`;
+    }
+
+    // OR choices (named skill packages)
+    if (Array.isArray(orChoices) && orChoices.length > 0) {
+      skillsInfo += `<strong>OR Choose One:</strong><br>`;
+      for (const orChoice of orChoices) {
+        // Skip entries that aren't objects (empty arrays, etc.)
+        if (!orChoice || typeof orChoice !== 'object') continue;
+
+        const optName = orChoice.name || 'Unnamed';
+        skillsInfo += `• <strong>${optName}</strong><br>`;
+
+        // Display point allocations
+        const orPoints = [];
+        if (orChoice.trained) orPoints.push(`${orChoice.trained} Trained`);
+        if (orChoice.expert) orPoints.push(`${orChoice.expert} Expert`);
+        if (orChoice.master) orPoints.push(`${orChoice.master} Master`);
+        if (orChoice.expert_full_set) orPoints.push(`${orChoice.expert_full_set} Expert Set${orChoice.expert_full_set > 1 ? 's' : ''}`);
+        if (orChoice.master_full_set) orPoints.push(`${orChoice.master_full_set} Master Set${orChoice.master_full_set > 1 ? 's' : ''}`);
+
+        if (orPoints.length > 0) {
+          skillsInfo += `&nbsp;&nbsp;Points: ${orPoints.join(', ')}<br>`;
+        }
+
+        // Display included skills if available
+        if (orChoice.from_list && Array.isArray(orChoice.from_list) && orChoice.from_list.length > 0) {
+          skillsInfo += `&nbsp;&nbsp;Skills:<br>`;
+          for (const skillRef of orChoice.from_list) {
+            // Extract UUID part if it's a full UUID
+            const skillIdToMatch = skillRef.split(".").pop();
+            // Try to find the skill
+            const skill = sortedSkills.find(s =>
+              s.name === skillRef ||
+              s.id === skillRef ||
+              s.id === skillIdToMatch ||
+              s.uuid === skillRef
+            );
+            if (skill) {
+              skillsInfo += `&nbsp;&nbsp;&nbsp;&nbsp;- ${skill.name}<br>`;
+            }
+          }
+        }
+      }
+    }
+
+    if (skillsInfo) {
+      attr.push(skillsInfo);
+    }
+
     return {
       id: cls.id,
       name: cls.name,
