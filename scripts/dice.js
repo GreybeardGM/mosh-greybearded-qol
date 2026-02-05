@@ -1,4 +1,4 @@
-class ZeroBasedDie extends Die {
+class ZeroBasedDie extends foundry.dice.terms.Die {
   static FACES = 0;
 
   static get MAX_VALUE() {
