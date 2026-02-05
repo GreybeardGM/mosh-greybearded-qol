@@ -81,6 +81,6 @@ class dVDie extends ZeroBasedDie {
 export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
   CONFIG.Dice.terms.x = dXDie;
-  CONFIG.Dice.terms.c = dCDie;
+  CONFIG.Dice.terms.h = dCDie;
   CONFIG.Dice.terms.v = dVDie;
 }
