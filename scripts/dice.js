@@ -100,8 +100,60 @@ class dCDie extends Die {
   }
 }
 
+class dVDie extends Die {
+  static DENOMINATION = "v";
+
+  constructor(termData = {}) {
+    super({ ...termData, faces: 5 });
+  }
+
+  static map5to04(result) {
+    return result % 5;
+  }
+
+  roll(options) {
+    const roll = super.roll(options);
+    for (const result of this.results) {
+      result.result = dVDie.map5to04(result.result);
+    }
+    return roll;
+  }
+
+  getResultLabel(result) {
+    return String(dVDie.map5to04(result.result));
+  }
+
+  getResultCSS(result) {
+    const css = super.getResultCSS(result);
+    const classNames = Array.isArray(css)
+      ? css.join(" ")
+      : typeof css === "string"
+        ? css
+        : "";
+    const value = dVDie.map5to04(result.result);
+    const classList = new Set(classNames.split(/\s+/).filter(Boolean));
+
+    classList.delete("min");
+    classList.delete("max");
+
+    if (value === 0) classList.add("min");
+    if (value === 4) classList.add("max");
+
+    return Array.from(classList);
+  }
+
+  get values() {
+    return this.results.map(result => result.result);
+  }
+
+  get total() {
+    return this.values.reduce((total, value) => total + value, 0);
+  }
+}
+
 export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
   CONFIG.Dice.terms.x = dXDie;
   CONFIG.Dice.terms.c = dCDie;
+  CONFIG.Dice.terms.v = dVDie;
 }
