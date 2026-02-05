@@ -56,39 +56,17 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
 }
 
 class dXDie extends ZeroBasedDie {
-  static DENOMINATION = "x";
+  static DENOMINATION = "z9";
   static FACES = 10;
-}
-
-class dZDie extends ZeroBasedDie {
-  static DENOMINATION = "z";
-  static FACES = 10;
-  static REGEXP = /(\d*)z(\d+)/i;
-
-  roll({ minimize = false, maximize = false } = {}) {
-    const faces = this.faces;
-    const value = maximize
-      ? faces - 1
-      : minimize
-        ? 0
-        : Math.floor(CONFIG.Dice.randomUniform() * faces);
-
-    this.results.push({
-      result: value,
-      active: true
-    });
-
-    return this;
-  }
 }
 
 class dCDie extends ZeroBasedDie {
-  static DENOMINATION = "c";
+  static DENOMINATION = "z99";
   static FACES = 100;
 }
 
 class dVDie extends ZeroBasedDie {
-  static DENOMINATION = "v";
+  static DENOMINATION = "z4";
   static FACES = 10;
   static LABELS = ["0", "0", "1", "1", "2", "2", "3", "3", "4", "4"];
 
@@ -104,8 +82,7 @@ class dVDie extends ZeroBasedDie {
 
 export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
-  CONFIG.Dice.terms.x = dXDie;
-  CONFIG.Dice.terms.z = dZDie;
-  CONFIG.Dice.terms.c = dCDie;
-  CONFIG.Dice.terms.v = dVDie;
+  CONFIG.Dice.terms.z9 = dXDie;
+  CONFIG.Dice.terms.z99 = dCDie;
+  CONFIG.Dice.terms.z4 = dVDie;
 }
