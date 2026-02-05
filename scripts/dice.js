@@ -11,17 +11,23 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
   }
 
   mapResult(result) {
-    if (result <= this.maxValue) return result;
-    return result % this.faces;
+    return result;
   }
 
-  roll(options) {
-    const roll = super.roll(options);
-    const { mapResult } = this.constructor;
-    for (const result of this.results) {
-      result.result = this.mapResult(result.result);
-    }
-    return roll;
+  roll({ minimize = false, maximize = false } = {}) {
+    const faces = this.faces;
+    const value = maximize
+      ? faces - 1
+      : minimize
+        ? 0
+        : Math.floor(CONFIG.Dice.randomUniform() * faces);
+
+    this.results.push({
+      result: value,
+      active: true
+    });
+
+    return this;
   }
 
   getResultLabel(result) {
@@ -75,9 +81,20 @@ class dVDie extends ZeroBasedDie {
     return 4;
   }
 
-  mapResult(result) {
-    if (result <= this.maxValue) return result;
-    return Number(this.constructor.LABELS[result - 1]);
+  roll({ minimize = false, maximize = false } = {}) {
+    const faces = this.faces;
+    const index = maximize
+      ? faces - 1
+      : minimize
+        ? 0
+        : Math.floor(CONFIG.Dice.randomUniform() * faces);
+
+    this.results.push({
+      result: Number(this.constructor.LABELS[index]),
+      active: true
+    });
+
+    return this;
   }
 }
 
