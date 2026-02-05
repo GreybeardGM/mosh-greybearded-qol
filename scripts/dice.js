@@ -11,10 +11,9 @@ class dXDie extends Die {
 
   roll(options) {
     const roll = super.roll(options);
-    this.results = this.results.map(result => ({
-      ...result,
-      result: dXDie.map10to09(result.result)
-    }));
+    for (const result of this.results) {
+      result.result = dXDie.map10to09(result.result);
+    }
     return roll;
   }
 
@@ -42,7 +41,7 @@ class dXDie extends Die {
   }
 
   get values() {
-    return this.results.map(result => dXDie.map10to09(result.result));
+    return this.results.map(result => result.result);
   }
 
   get total() {
@@ -63,10 +62,9 @@ class dCDie extends Die {
 
   roll(options) {
     const roll = super.roll(options);
-    this.results = this.results.map(result => ({
-      ...result,
-      result: dCDie.map100to099(result.result)
-    }));
+    for (const result of this.results) {
+      result.result = dCDie.map100to099(result.result);
+    }
     return roll;
   }
 
@@ -94,7 +92,7 @@ class dCDie extends Die {
   }
 
   get values() {
-    return this.results.map(result => dCDie.map100to099(result.result));
+    return this.results.map(result => result.result);
   }
 
   get total() {
