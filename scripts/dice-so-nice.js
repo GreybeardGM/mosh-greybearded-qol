@@ -4,6 +4,7 @@ const DICE_SO_NICE_SYSTEM = {
 };
 
 const ZERO_TO_NINE = Array.from({ length: 10 }, (_, index) => String(index));
+const ZERO_TO_FOUR = Array.from({ length: 5 }, (_, index) => String(index));
 const ZERO_TO_NINETY_NINE = Array.from({ length: 100 }, (_, index) =>
   String(index).padStart(2, "0")
 );
@@ -30,6 +31,24 @@ export function registerDiceSoNice() {
       type: "d10",
       labels: ZERO_TO_NINE,
       term: "x"
+    });
+
+    addZeroBasedPreset(dice3d, {
+      type: "d10",
+      labels: ZERO_TO_NINE,
+      term: "z"
+    });
+
+    addZeroBasedPreset(dice3d, {
+      type: "d5",
+      labels: ZERO_TO_FOUR,
+      term: "z"
+    });
+
+    addZeroBasedPreset(dice3d, {
+      type: "d100",
+      labels: ZERO_TO_NINETY_NINE,
+      term: "z"
     });
 
     addZeroBasedPreset(dice3d, {

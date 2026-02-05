@@ -1,29 +1,30 @@
 class ZeroBasedDie extends foundry.dice.terms.Die {
   static FACES = 0;
 
-  static get MAX_VALUE() {
-    return this.FACES - 1;
-  }
-
   constructor(termData = {}) {
-    super({ ...termData, faces: new.target.FACES });
+    const faces = termData.faces ?? new.target.FACES;
+    super({ ...termData, faces });
   }
 
-  static mapResult(result) {
-    return result % this.FACES;
+  get maxValue() {
+    return this.faces - 1;
+  }
+
+  mapResult(result) {
+    return result % this.faces;
   }
 
   roll(options) {
     const roll = super.roll(options);
     const { mapResult } = this.constructor;
     for (const result of this.results) {
-      result.result = this.constructor.mapResult(result.result);
+      result.result = this.mapResult(result.result);
     }
     return roll;
   }
 
   getResultLabel(result) {
-    return String(this.constructor.mapResult(result.result));
+    return String(this.mapResult(result.result));
   }
 
   getResultCSS(result) {
@@ -33,14 +34,14 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
       : typeof css === "string"
         ? css
         : "";
-    const value = this.constructor.mapResult(result.result);
+    const value = this.mapResult(result.result);
     const classList = new Set(classNames.split(/\s+/).filter(Boolean));
 
     classList.delete("min");
     classList.delete("max");
 
     if (value === 0) classList.add("min");
-    if (value === this.constructor.MAX_VALUE) classList.add("max");
+    if (value === this.maxValue) classList.add("max");
 
     return Array.from(classList);
   }
@@ -59,6 +60,11 @@ class dXDie extends ZeroBasedDie {
   static FACES = 10;
 }
 
+class dZDie extends ZeroBasedDie {
+  static DENOMINATION = "z";
+  static FACES = 10;
+}
+
 class dCDie extends ZeroBasedDie {
   static DENOMINATION = "c";
   static FACES = 100;
@@ -69,18 +75,20 @@ class dVDie extends ZeroBasedDie {
   static FACES = 10;
   static LABELS = ["0", "0", "1", "1", "2", "2", "3", "3", "4", "4"];
 
-  static get MAX_VALUE() {
+  get maxValue() {
     return 4;
   }
 
-  static mapResult(result) {
-    return Number(this.LABELS[result - 1]);
+  mapResult(result) {
+    if (result <= this.maxValue) return result;
+    return Number(this.constructor.LABELS[result - 1]);
   }
 }
 
 export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
   CONFIG.Dice.terms.x = dXDie;
+  CONFIG.Dice.terms.z = dZDie;
   CONFIG.Dice.terms.c = dCDie;
   CONFIG.Dice.terms.v = dVDie;
 }
