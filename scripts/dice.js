@@ -1,37 +1,28 @@
 class ZeroBasedDie extends foundry.dice.terms.Die {
   static FACES = 0;
 
+  static get MAX_VALUE() {
+    return this.FACES - 1;
+  }
+
   constructor(termData = {}) {
-    const faces = termData.faces ?? new.target.FACES;
-    super({ ...termData, faces });
+    super({ ...termData, faces: new.target.FACES });
   }
 
-  get maxValue() {
-    return this.faces - 1;
+  static mapResult(result) {
+    return result % this.FACES;
   }
 
-  mapResult(result) {
-    return result;
-  }
-
-  roll({ minimize = false, maximize = false } = {}) {
-    const faces = this.faces;
-    const value = maximize
-      ? faces - 1
-      : minimize
-        ? 0
-        : Math.floor(CONFIG.Dice.randomUniform() * faces);
-
-    this.results.push({
-      result: value,
-      active: true
-    });
-
-    return this;
+  roll(options) {
+    const roll = super.roll(options);
+    for (const result of this.results) {
+      result.result = this.constructor.mapResult(result.result);
+    }
+    return roll;
   }
 
   getResultLabel(result) {
-    return String(this.mapResult(result.result));
+    return String(this.constructor.mapResult(result.result));
   }
 
   getResultCSS(result) {
@@ -41,14 +32,14 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
       : typeof css === "string"
         ? css
         : "";
-    const value = this.mapResult(result.result);
+    const value = this.constructor.mapResult(result.result);
     const classList = new Set(classNames.split(/\s+/).filter(Boolean));
 
     classList.delete("min");
     classList.delete("max");
 
     if (value === 0) classList.add("min");
-    if (value === this.maxValue) classList.add("max");
+    if (value === this.constructor.MAX_VALUE) classList.add("max");
 
     return Array.from(classList);
   }
@@ -68,7 +59,7 @@ class dXDie extends ZeroBasedDie {
 }
 
 class dCDie extends ZeroBasedDie {
-  static DENOMINATION = "h";
+  static DENOMINATION = "c";
   static FACES = 100;
 }
 
@@ -77,24 +68,13 @@ class dVDie extends ZeroBasedDie {
   static FACES = 10;
   static LABELS = ["0", "0", "1", "1", "2", "2", "3", "3", "4", "4"];
 
-  get maxValue() {
+  static get MAX_VALUE() {
     return 4;
   }
 
-  roll({ minimize = false, maximize = false } = {}) {
-    const faces = this.faces;
-    const index = maximize
-      ? faces - 1
-      : minimize
-        ? 0
-        : Math.floor(CONFIG.Dice.randomUniform() * faces);
-
-    this.results.push({
-      result: Number(this.constructor.LABELS[index]),
-      active: true
-    });
-
-    return this;
+  static mapResult(result) {
+    if (result <= this.MAX_VALUE) return result;
+    return Number(this.LABELS[result - 1]);
   }
 }
 

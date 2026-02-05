@@ -32,11 +32,10 @@ export function registerDiceSoNice() {
       term: "x"
     });
 
-    const supportsD100 = Boolean(dice3d?.DICE?.d100);
     addZeroBasedPreset(dice3d, {
-      type: supportsD100 ? "d100" : "d10",
-      labels: supportsD100 ? ZERO_TO_NINETY_NINE : ZERO_TO_NINE,
-      term: "h"
+      type: "d100",
+      labels: ZERO_TO_NINETY_NINE,
+      term: "c"
     });
 
     addZeroBasedPreset(dice3d, {
