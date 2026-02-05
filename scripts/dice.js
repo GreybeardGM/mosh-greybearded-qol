@@ -56,17 +56,17 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
 }
 
 class dXDie extends ZeroBasedDie {
-  static DENOMINATION = "z9";
+  static DENOMINATION = "zx";
   static FACES = 10;
 }
 
 class dCDie extends ZeroBasedDie {
-  static DENOMINATION = "z99";
+  static DENOMINATION = "zc";
   static FACES = 100;
 }
 
 class dVDie extends ZeroBasedDie {
-  static DENOMINATION = "z4";
+  static DENOMINATION = "zv";
   static FACES = 10;
   static LABELS = ["0", "0", "1", "1", "2", "2", "3", "3", "4", "4"];
 
@@ -82,7 +82,7 @@ class dVDie extends ZeroBasedDie {
 
 export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
-  CONFIG.Dice.terms.z9 = dXDie;
-  CONFIG.Dice.terms.z99 = dCDie;
-  CONFIG.Dice.terms.z4 = dVDie;
+  CONFIG.Dice.terms.zx = dXDie;
+  CONFIG.Dice.terms.zc = dCDie;
+  CONFIG.Dice.terms.zv = dVDie;
 }

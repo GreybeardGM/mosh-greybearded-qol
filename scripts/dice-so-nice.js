@@ -29,19 +29,19 @@ export function registerDiceSoNice() {
     addZeroBasedPreset(dice3d, {
       type: "d10",
       labels: ZERO_TO_NINE,
-      term: "z9"
+      term: "zx"
     });
 
     addZeroBasedPreset(dice3d, {
       type: "d100",
       labels: ZERO_TO_NINETY_NINE,
-      term: "z99"
+      term: "zc"
     });
 
     addZeroBasedPreset(dice3d, {
       type: "d10",
       labels: ZERO_TO_FOUR_DUPLICATED,
-      term: "z4"
+      term: "zv"
     });
   });
 }
