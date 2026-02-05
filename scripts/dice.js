@@ -11,6 +11,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
   }
 
   mapResult(result) {
+    if (result <= this.maxValue) return result;
     return result % this.faces;
   }
 
