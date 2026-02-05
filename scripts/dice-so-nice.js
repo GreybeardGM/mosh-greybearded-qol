@@ -1,8 +1,3 @@
-const DICE_SO_NICE_SYSTEM = {
-  id: "mosh-greybearded-qol",
-  name: "MoSh Greybearded QoL"
-};
-
 const ZERO_TO_NINE = Array.from({ length: 10 }, (_, index) => String(index));
 const ZERO_TO_NINETY_NINE = Array.from({ length: 100 }, (_, index) =>
   String(index).padStart(2, "0")
