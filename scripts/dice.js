@@ -13,11 +13,22 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
     return result % this.FACES;
   }
 
-  roll(options) {
-    const roll = super.roll(options);
+  _applyZeroBasedResults() {
     for (const result of this.results) {
       result.result = this.constructor.mapResult(result.result);
     }
+    this._total = this.values.reduce((total, value) => total + value, 0);
+  }
+
+  roll(options) {
+    const roll = super.roll(options);
+    this._applyZeroBasedResults();
+    return roll;
+  }
+
+  async evaluate(options) {
+    const roll = await super.evaluate(options);
+    this._applyZeroBasedResults();
     return roll;
   }
 
@@ -58,8 +69,8 @@ class dXDie extends ZeroBasedDie {
   static FACES = 10;
 }
 
-class dCDie extends ZeroBasedDie {
-  static DENOMINATION = "c";
+class dHDie extends ZeroBasedDie {
+  static DENOMINATION = "h";
   static FACES = 100;
 }
 
@@ -79,8 +90,11 @@ class dVDie extends ZeroBasedDie {
 }
 
 export function registerDiceTerms() {
-  if (!globalThis.CONFIG?.Dice?.terms) return;
+  if (!globalThis.CONFIG?.Dice?.terms) {
+    Hooks.once("setup", registerDiceTerms);
+    return;
+  }
   CONFIG.Dice.terms.x = dXDie;
-  CONFIG.Dice.terms.h = dCDie;
+  CONFIG.Dice.terms.h = dHDie;
   CONFIG.Dice.terms.v = dVDie;
 }
