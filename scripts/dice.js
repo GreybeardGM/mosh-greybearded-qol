@@ -76,17 +76,7 @@ class dHDie extends ZeroBasedDie {
 
 class dVDie extends ZeroBasedDie {
   static DENOMINATION = "v";
-  static FACES = 10;
-  static LABELS = ["0", "0", "1", "1", "2", "2", "3", "3", "4", "4"];
-
-  static get MAX_VALUE() {
-    return 4;
-  }
-
-  static mapResult(result) {
-    if (result <= this.MAX_VALUE) return result;
-    return Number(this.LABELS[result - 1]);
-  }
+  static FACES = 5;
 }
 
 export function registerDiceTerms() {
