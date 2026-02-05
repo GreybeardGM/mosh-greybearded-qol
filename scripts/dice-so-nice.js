@@ -3,8 +3,7 @@ const D_0_TO_9 = ["1","2","3","4","5","6","7","8","9","0"];
 const D_00_TO_90 = ["10","20","30","40","50","60","70","80","90","00"];
 
 function addZeroBasedPreset(dice3d, { type, labels, system, shape }) {
-  const preset = { type, system };
-  if (labels) preset.labels = labels;          // nur setzen, wenn du wirklich labeln willst
+  const preset = { type, labels, system };
   dice3d.addDicePreset(preset, shape);
 }
 
@@ -20,8 +19,8 @@ export function registerDiceSoNice() {
     dice3d.addSystem(system, true);
 
     // scripts/dice-so-nice.js
-    addZeroBasedPreset(dice3d, { type: "dx", system: system.id, shape: "d10" });
-    addZeroBasedPreset(dice3d, { type: "dh", labels: [...D_00_TO_90, ...D_0_TO_9], system: system.id, shape: "d10" });
+    addZeroBasedPreset(dice3d, { type: "dx", system: D_0_TO_9, system.id, shape: "d10" });
+    addZeroBasedPreset(dice3d, { type: "dh", labels: [...D_00_TO_90, ...D_0_TO_9], system: system.id, shape: "d100" });
     addZeroBasedPreset(dice3d, { type: "dv", labels: D_0_TO_4, system: system.id, shape: "d10" });
     
   });
