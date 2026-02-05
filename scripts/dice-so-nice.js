@@ -26,7 +26,7 @@ export function registerDiceSoNice() {
 
     // scripts/dice-so-nice.js
     addZeroBasedPreset(dice3d, { type: "dx", labels: D_0_TO_9, system: system.id, shape: "d10" });
-    addZeroBasedPreset(dice3d, { type: "dh", labels: [...D_00_TO_90, ...D_0_TO_9], system: system.id, shape: "d100" });
+    addZeroBasedPreset(dice3d, { type: "dh", labels: [D_00_TO_90, D_0_TO_9], system: system.id, shape: "d100" });
     addZeroBasedPreset(dice3d, { type: "dv", labels: D_0_TO_4, system: system.id, shape: "d10" });
     
   });
