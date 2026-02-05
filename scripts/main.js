@@ -9,6 +9,7 @@ import { upsertToolband, removeToolband } from "./toolband.js";
 import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
+import { registerDiceSoNice } from "./dice-so-nice.js";
 import {
   checkReady,
   checkCompleted,
@@ -92,6 +93,7 @@ Hooks.once("ready", () => {
 // Settings
 Hooks.once("init", () => {
   registerDiceTerms();
+  registerDiceSoNice();
 
   // Theme Colors
   game.settings.register("mosh-greybearded-qol", "themeColor", {
