@@ -63,6 +63,23 @@ class dXDie extends ZeroBasedDie {
 class dZDie extends ZeroBasedDie {
   static DENOMINATION = "z";
   static FACES = 10;
+  static REGEXP = /(\d*)z(\d+)/i;
+
+  roll({ minimize = false, maximize = false } = {}) {
+    const faces = this.faces;
+    const value = maximize
+      ? faces - 1
+      : minimize
+        ? 0
+        : Math.floor(CONFIG.Dice.randomUniform() * faces);
+
+    this.results.push({
+      result: value,
+      active: true
+    });
+
+    return this;
+  }
 }
 
 class dCDie extends ZeroBasedDie {
