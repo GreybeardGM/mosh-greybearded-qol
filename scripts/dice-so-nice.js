@@ -7,7 +7,9 @@ const ZERO_TO_NINE = Array.from({ length: 10 }, (_, index) => String(index));
 const ZERO_TO_NINETY_NINE = Array.from({ length: 100 }, (_, index) =>
   String(index).padStart(2, "0")
 );
-const ZERO_TO_FOUR = Array.from({ length: 5 }, (_, index) => String(index));
+const ZERO_TO_FOUR_DUPLICATED = Array.from({ length: 10 }, (_, index) =>
+  String(Math.floor(index / 2))
+);
 
 function addZeroBasedPreset(dice3d, { type, labels, term }) {
   dice3d.addDicePreset({
@@ -37,8 +39,8 @@ export function registerDiceSoNice() {
     });
 
     addZeroBasedPreset(dice3d, {
-      type: "d5",
-      labels: ZERO_TO_FOUR,
+      type: "d10",
+      labels: ZERO_TO_FOUR_DUPLICATED,
       term: "v"
     });
   });

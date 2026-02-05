@@ -17,7 +17,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
     const roll = super.roll(options);
     const { mapResult } = this.constructor;
     for (const result of this.results) {
-      result.result = mapResult(result.result);
+      result.result = this.constructor.mapResult(result.result);
     }
     return roll;
   }
@@ -66,7 +66,16 @@ class dCDie extends ZeroBasedDie {
 
 class dVDie extends ZeroBasedDie {
   static DENOMINATION = "v";
-  static FACES = 5;
+  static FACES = 10;
+  static LABELS = ["0", "0", "1", "1", "2", "2", "3", "3", "4", "4"];
+
+  static get MAX_VALUE() {
+    return 4;
+  }
+
+  static mapResult(result) {
+    return Number(this.LABELS[result - 1]);
+  }
 }
 
 export function registerDiceTerms() {
