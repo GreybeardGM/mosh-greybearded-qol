@@ -28,25 +28,10 @@ export function registerDiceSoNice() {
 
     dice3d.addSystem(system, true);
 
-    addZeroBasedPreset(dice3d, {
-      type: "x",
-      labels: ZERO_TO_NINE,
-      system: system.id,
-      shape: "d10"
-    });
-
-    addZeroBasedPreset(dice3d, {
-      type: "h",
-      labels: ZERO_TO_NINETY_NINE,
-      system: system.id,
-      shape: "d100"
-    });
-
-    addZeroBasedPreset(dice3d, {
-      type: "v",
-      labels: ZERO_TO_FOUR_DUPLICATED,
-      system: system.id,
-      shape: "d10"
-    });
+    // scripts/dice-so-nice.js
+    addZeroBasedPreset(dice3d, { type: "dx", labels: ZERO_TO_NINE, system: system.id, shape: "d10" });
+    addZeroBasedPreset(dice3d, { type: "dh", labels: ZERO_TO_NINETY_NINE, system: system.id, shape: "d100" });
+    addZeroBasedPreset(dice3d, { type: "dv", labels: ZERO_TO_FOUR_DUPLICATED, system: system.id, shape: "d10" });
+    
   });
 }
