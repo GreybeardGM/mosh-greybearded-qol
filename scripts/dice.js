@@ -13,12 +13,22 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
     return result % this.FACES;
   }
 
-  roll(options) {
-    const roll = super.roll(options);
+  _applyZeroBasedResults() {
     for (const result of this.results) {
       result.result = this.constructor.mapResult(result.result);
     }
     this._total = this.values.reduce((total, value) => total + value, 0);
+  }
+
+  roll(options) {
+    const roll = super.roll(options);
+    this._applyZeroBasedResults();
+    return roll;
+  }
+
+  async evaluate(options) {
+    const roll = await super.evaluate(options);
+    this._applyZeroBasedResults();
     return roll;
   }
 
