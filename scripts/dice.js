@@ -11,10 +11,9 @@ class dXDie extends Die {
 
   roll(options) {
     const roll = super.roll(options);
-    this.results = this.results.map(result => ({
-      ...result,
-      result: dXDie.map10to09(result.result)
-    }));
+    for (const result of this.results) {
+      result.result = dXDie.map10to09(result.result);
+    }
     return roll;
   }
 
@@ -42,7 +41,7 @@ class dXDie extends Die {
   }
 
   get values() {
-    return this.results.map(result => dXDie.map10to09(result.result));
+    return this.results.map(result => result.result);
   }
 
   get total() {
@@ -63,10 +62,9 @@ class dCDie extends Die {
 
   roll(options) {
     const roll = super.roll(options);
-    this.results = this.results.map(result => ({
-      ...result,
-      result: dCDie.map100to099(result.result)
-    }));
+    for (const result of this.results) {
+      result.result = dCDie.map100to099(result.result);
+    }
     return roll;
   }
 
@@ -94,7 +92,58 @@ class dCDie extends Die {
   }
 
   get values() {
-    return this.results.map(result => dCDie.map100to099(result.result));
+    return this.results.map(result => result.result);
+  }
+
+  get total() {
+    return this.values.reduce((total, value) => total + value, 0);
+  }
+}
+
+class dVDie extends Die {
+  static DENOMINATION = "v";
+
+  constructor(termData = {}) {
+    super({ ...termData, faces: 5 });
+  }
+
+  static map5to04(result) {
+    return result % 5;
+  }
+
+  roll(options) {
+    const roll = super.roll(options);
+    for (const result of this.results) {
+      result.result = dVDie.map5to04(result.result);
+    }
+    return roll;
+  }
+
+  getResultLabel(result) {
+    return String(dVDie.map5to04(result.result));
+  }
+
+  getResultCSS(result) {
+    const css = super.getResultCSS(result);
+    const classNames = Array.isArray(css)
+      ? css.join(" ")
+      : typeof css === "string"
+        ? css
+        : "";
+    const value = dVDie.map5to04(result.result);
+    const classList = new Set(classNames.split(/\s+/).filter(Boolean));
+
+    classList.delete("min");
+    classList.delete("max");
+
+    if (value === 0) classList.add("min");
+    if (value === 4) classList.add("max");
+
+    return Array.from(classList);
+  }
+
+  get values() {
+    return this.results.map(result => result.result);
   }
 
   get total() {
@@ -106,4 +155,5 @@ export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
   CONFIG.Dice.terms.x = dXDie;
   CONFIG.Dice.terms.c = dCDie;
+  CONFIG.Dice.terms.v = dVDie;
 }
