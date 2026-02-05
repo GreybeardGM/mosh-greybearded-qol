@@ -15,6 +15,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
 
   roll(options) {
     const roll = super.roll(options);
+    const { mapResult } = this.constructor;
     for (const result of this.results) {
       result.result = this.constructor.mapResult(result.result);
     }
