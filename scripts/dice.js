@@ -6,7 +6,7 @@ class ZeroBasedDie extends Die {
   }
 
   constructor(termData = {}) {
-    super({ ...termData, faces: this.constructor.FACES });
+    super({ ...termData, faces: new.target.FACES });
   }
 
   static mapResult(result) {
