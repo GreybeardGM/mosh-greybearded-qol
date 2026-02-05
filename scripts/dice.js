@@ -58,8 +58,8 @@ class dXDie extends ZeroBasedDie {
   static FACES = 10;
 }
 
-class dCDie extends ZeroBasedDie {
-  static DENOMINATION = "c";
+class dHDie extends ZeroBasedDie {
+  static DENOMINATION = "h";
   static FACES = 100;
 }
 
@@ -81,6 +81,6 @@ class dVDie extends ZeroBasedDie {
 export function registerDiceTerms() {
   if (!globalThis.CONFIG?.Dice?.terms) return;
   CONFIG.Dice.terms.x = dXDie;
-  CONFIG.Dice.terms.h = dCDie;
+  CONFIG.Dice.terms.h = dHDie;
   CONFIG.Dice.terms.v = dVDie;
 }
