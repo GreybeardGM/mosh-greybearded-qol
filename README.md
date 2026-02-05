@@ -44,6 +44,7 @@
   - Shore Leave helper
   - Stress conversion helper
   - Apply damage helper
+  - Custom dice terms: `dX` (0–9) and `dC` (0–99)
 
 ## Compatibility
 

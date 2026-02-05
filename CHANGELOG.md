@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.7] - 2026-02-05
+### Added
+- Custom dice terms `dX` (0–9) and `dC` (0–99) with zero-based results and min/max styling.
+
 ## [0.6.6] - 2025-11-06
 ### Added
 - Armor Broken Status Effect  
