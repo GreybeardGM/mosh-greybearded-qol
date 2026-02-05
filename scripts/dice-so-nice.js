@@ -35,7 +35,7 @@ export function registerDiceSoNice() {
     addZeroBasedPreset(dice3d, {
       type: "d100",
       labels: ZERO_TO_NINETY_NINE,
-      term: "c"
+      term: "h"
     });
 
     addZeroBasedPreset(dice3d, {
