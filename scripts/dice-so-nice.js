@@ -1,9 +1,6 @@
 const D_0_TO_4_LABELS = ["1","2","3","4","0"];
-const D_0_TO_4_VALUES = [1,2,3,4,0];
 const D_0_TO_9_LABELS = ["1","2","3","4","5","6","7","8","9","0"];
-const D_0_TO_9_VALUES = [1,2,3,4,5,6,7,8,9,0];
 const D_00_TO_90_LABELS = ["10","20","30","40","50","60","70","80","90","00"];
-const D_00_TO_90_VALUES = [10,20,30,40,50,60,70,80,90,00];
 
 function addZeroBasedPreset(dice3d, { type, labels, values, system, shape }) {
   dice3d.addDicePreset(
@@ -29,9 +26,9 @@ export function registerDiceSoNice() {
     dice3d.addSystem(system, true);
 
     // scripts/dice-so-nice.js
-    addZeroBasedPreset(dice3d, { type: "dx", labels: D_0_TO_9_LABELS, values: D_0_TO_9_VALUES, system: system.id, shape: "d10" });
-    addZeroBasedPreset(dice3d, { type: "dh", labels: D_00_TO_90_LABELS, values: D_00_TO_90_VALUES, system: system.id, shape: "d100" });
-    addZeroBasedPreset(dice3d, { type: "dv", labels: D_0_TO_4_LABELS, values: D_0_TO_4_VALUES, system: system.id, shape: "d10" });
+    addZeroBasedPreset(dice3d, { type: "dx", labels: D_0_TO_9_LABELS, values: {min:0,max:9}, system: system.id, shape: "d10" });
+    addZeroBasedPreset(dice3d, { type: "dh", labels: D_00_TO_90_LABELS, values: {min:0,max:90}, system: system.id, shape: "d10" });
+    addZeroBasedPreset(dice3d, { type: "dv", labels: D_0_TO_4_LABELS, values: {min:0,max:4}, system: system.id, shape: "d10" });
     
   });
 }
