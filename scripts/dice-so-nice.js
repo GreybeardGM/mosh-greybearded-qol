@@ -5,8 +5,8 @@ const ZERO_TO_NINETY_NINE = Array.from({ length: 100 }, (_, index) =>
 const ZERO_TO_FOUR_DUPLICATED = Array.from({ length: 10 }, (_, index) =>
   String(Math.floor(index / 2))
 );
-const DV_0_TO_4 = ["0","0","1","1","2","2","3","3","4","4"];              // 10 Faces
-const DX_0_TO_9 = ["1","2","3","4","5","6","7","8","9","0"];               // Face 10 => "0"
+const DV_0_TO_4 = ["1","2","3","4","0"];
+const DX_0_TO_9 = ["1","2","3","4","5","6","7","8","9","0"];
 
 function addZeroBasedPreset(dice3d, { type, labels, system, shape }) {
   dice3d.addDicePreset(
