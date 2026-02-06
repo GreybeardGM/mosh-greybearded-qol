@@ -189,6 +189,14 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return new Set(cards.filter(el => el.classList.contains("selected")).map(el => el.dataset.skillId));
   }
 
+  _isSkillSelected(skillId) {
+    return this._selectedSkillIds.has(skillId);
+  }
+
+  _getPrereqIds(skill) {
+    return (skill?.system?.prerequisite_ids || []).map(prereq => prereq.split(".").pop());
+  }
+
   _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
     if (rebuild) this._needsLineGeometryRebuild = true;
     if (changedSkillIds?.size) {
@@ -430,25 +438,21 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static _onToggleSkill(event, target) {
     if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
 
-    const root = this._dom?.root;
-    if (!root) return;
+    if (!this._dom) return;
 
     const rank = target.dataset.rank;
     if (target.classList.contains("selected")) {
       const skillId = target.dataset.skillId;
       const dependents = this.dependencies.get(skillId) || new Set();
+      const selectedDependents = [...dependents].filter(depId => {
+        const depEl = this._dom.skillCardById.get(depId);
+        return depEl?.classList.contains("selected");
+      });
 
-      for (const depId of dependents) {
-        const depEl = root.querySelector(`[data-skill-id='${depId}']`);
-        if (!depEl?.classList.contains("selected")) continue;
-
+      for (const depId of selectedDependents) {
         const depSkill = this.skillMap.get(depId);
-        const depPrereqs = (depSkill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-
-        const fulfilled = depPrereqs.filter(pid => {
-          if (pid === skillId) return false;
-          return this._selectedSkillIds.has(pid);
-        });
+        const depPrereqs = this._getPrereqIds(depSkill);
+        const fulfilled = depPrereqs.filter(pid => pid !== skillId && this._isSkillSelected(pid));
 
         if (fulfilled.length === 0) {
           ui.notifications.warn(`${depSkill.name} needs this skill to remain selected.`);
