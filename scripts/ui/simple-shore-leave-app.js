@@ -33,6 +33,11 @@ export class SimpleShoreLeaveApp extends HandlebarsApplicationMixin(ApplicationV
   };
 
   static wait({ actor, randomFlavor }) {
+    if (!actor) {
+      ui.notifications.warn("No actor provided.");
+      return null;
+    }
+
     return new Promise(resolve => {
       const app = new this({ actor, randomFlavor, resolve });
       app.render(true);
