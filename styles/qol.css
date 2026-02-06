@@ -251,6 +251,45 @@
   justify-content: center; 
 }
 
+.shore-leave-config fieldset {
+  margin-bottom: 1em;
+  border: 1px solid #666;
+  border-radius: 6px;
+}
+
+.shore-leave-config legend {
+  font-weight: bold;
+}
+
+.shore-leave-config .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.1em;
+}
+
+.shore-leave-config .form-group label {
+  font-size: 0.9em;
+  margin-bottom: 0.25em;
+}
+
+.shore-leave-config .inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.shore-leave-config input[type="number"],
+.shore-leave-config input[type="text"] {
+  width: 5em;
+}
+
+.shore-leave-config .form-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1em;
+}
+
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
   padding: 0.7em;
