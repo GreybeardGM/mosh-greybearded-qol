@@ -1,0 +1,12 @@
+<div class="or-option-row card-grid" style="--col-count: {{orOptions.length}}; --theme-color: {{themeColor}};">
+  {{#each orOptions}}
+    <div class="card dialog-card interactive or-option" data-action="selectOrOption" data-option="{{this.id}}">
+      <h3>{{this.name}}</h3>
+      <p class="counter">
+        {{#if this.trained}}{{this.trained}} <span class="bonus">Trained</span>{{/if}}
+        {{#if this.expert}}{{this.expert}} <span class="bonus">Expert</span>{{/if}}
+        {{#if this.master}}{{this.master}} <span class="bonus">Master</span>{{/if}}
+      </p>
+    </div>
+  {{/each}}
+</div>
