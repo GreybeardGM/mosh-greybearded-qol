@@ -4,15 +4,14 @@
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;
-  --color-highlight: var(--theme-color);
   --color-bg-hover: #222; /* fallback */
   --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg)); /* preferred */
   --color-counter: #fc6;
   --color-remaining: #596;
 
   font-family: var(--font-primary, sans-serif);
-  font-size: 0.8rem;
-  line-height: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.2rem;
   color: var(--color-text);
 }
 
@@ -20,8 +19,8 @@
 .greybeardqol h1,
 .greybeardqol h2,
 .greybeardqol h3 {
-  border-bottom: 1px solid var(--color-highlight);
-  text-shadow: 0 0 4px var(--color-highlight);
+  border-bottom: 1px solid var(--theme-color);
+  text-shadow: 0 0 4px var(--theme-color);
   color: var(--color-text);
   margin: 0.5em 0 0.25em;
 }
@@ -32,12 +31,12 @@
 }
 
 .greybeardqol .text-highlight {
-  color: var(--color-highlight);
+  color: var(--theme-color);
 }
 
 .greybeardqol .selected {
-  border-color: var(--color-highlight) !important;
-  outline: 2px solid var(--color-highlight);
+  border-color: var(--theme-color) !important;
+  outline: 2px solid var(--theme-color);
   outline-offset: 1px;
 }
 
@@ -47,7 +46,7 @@
   bottom: 8px;
   right: 10px;
   font-size: 1.4em;
-  color: var(--color-highlight);
+  color: var(--theme-color);
 }
 
 .greybeardqol .locked.selected {
@@ -84,12 +83,16 @@
   color: var(--color-text);
   font-weight: bold;
   font-size: 1.2em;
-  box-shadow: 0 0 10px var(--color-highlight);
+}
+
+.greybeardqol .confirm-button:not(.locked) {
+  outline: 2px solid var(--color-border);
+  outline-offset: 1px;
 }
 
 .greybeardqol .confirm-button:hover:not(.locked) {
+  outline-color: var(--theme-color);
   transform: scale(1.02);
-  box-shadow: 0 0 14px var(--color-highlight);
 }
 
 /* Everything clickable */
@@ -99,7 +102,7 @@
 }
 
 .greybeardqol .interactive:hover {
-  border-color: var(--color-highlight);
+  border-color: var(--theme-color);
   background-color: var(--color-bg-hover);
 }
 
@@ -180,7 +183,7 @@
 
 .greybeardqol .chat-card .subtitle {
   font-style: italic;
-  color: var(--color-highlight);
+  color: var(--theme-color);
 }
 
 /* Pill layout */
@@ -305,7 +308,7 @@
 
 .greybeardqol .trauma-response {
   height: 4.6em;
-  color: var(--color-highlight);
+  color: var(--theme-color);
   font-style: italic;
   overflow: hidden;
   font-size: 0.9em;
@@ -339,7 +342,7 @@
 .greybeardqol .inline-roll,
 .greybeardqol .inline-result {
   background-color: var(--color-bg-hover);
-  color: var(--color-highlight);
+  color: var(--theme-color);
   border-radius: 999px;
   padding: 1px 5px;
 }
@@ -347,7 +350,7 @@
 .greybeardqol .content-link:hover,
 .greybeardqol .inline-roll:hover,
 .greybeardqol .inline-result:hover {
-  text-shadow: 0 0 8px var(--color-highlight);
+  text-shadow: 0 0 8px var(--theme-color);
 }
 
 /* Contractor Sheet */
@@ -368,7 +371,7 @@
 }
 
 .greybeardqol .highlighted-input {
-  color: var(--color-highlight);
+  color: var(--theme-color);
   border: none;
   text-align: center;
   font-weight: bold;
@@ -430,6 +433,6 @@
 }
 
 .greybeardqol.toolband .is-active {
-  border-color: var(--color-highlight) !important;
-  box-shadow: 0 0 8px var(--color-highlight) !important;
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 8px var(--theme-color) !important;
 }
