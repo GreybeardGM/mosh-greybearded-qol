@@ -138,6 +138,9 @@
 /* Dialog Cards */
 .greybeardqol .dialog-card {
   text-align: center;
+  max-width: 10rem;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .greybeardqol .dialog-card .icon {

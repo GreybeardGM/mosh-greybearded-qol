@@ -1,4 +1,5 @@
-<div class="card-grid" style="--col-count: 3; --theme-color: {{themeColor}};">
+<div class="stress-conversion-content" style="--theme-color: {{themeColor}};">
+<div class="card-grid" style="--col-count: 3;">
   {{#each attrs as |entry|}}
     <div class="card dialog-card interactive" data-action="incrementAttr" data-attr="{{entry.attr}}">
       <input type="hidden" name="{{entry.attr}}" value="{{entry.value}}">
@@ -13,4 +14,5 @@
 
 <div class="remaining-points">
   Remaining Points [ <span id="remaining">{{remaining}}</span> ]
+</div>
 </div>
