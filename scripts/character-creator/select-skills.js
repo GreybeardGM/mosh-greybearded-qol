@@ -10,7 +10,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     window: {
       title: "Select Skills",
       contentClasses: ["greybeardqol", "skill-selection"],
-      resizable: true
+      resizable: false
     },
     position: {
       width: 1200,
@@ -121,10 +121,12 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     this.points = structuredClone(basePoints);
     this._lineDrawFrame = null;
-    this._resizeObserver = null;
     this._dom = null;
     this._linePathCache = new Map();
+    this._lineKeyBySkill = new Map();
     this._needsLineGeometryRebuild = true;
+    this._prevSelectedSkills = new Set();
+    this._pendingChangedSkillIds = null;
   }
 
   _getRoot() {
@@ -149,16 +151,21 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return new Set(cards.filter(el => el.classList.contains("selected")).map(el => el.dataset.skillId));
   }
 
-  _scheduleDrawLines({ rebuild = false } = {}) {
+  _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
     if (rebuild) this._needsLineGeometryRebuild = true;
+    if (changedSkillIds?.size) {
+      if (!this._pendingChangedSkillIds) this._pendingChangedSkillIds = new Set();
+      for (const skillId of changedSkillIds) this._pendingChangedSkillIds.add(skillId);
+    }
     if (this._lineDrawFrame) cancelAnimationFrame(this._lineDrawFrame);
     this._lineDrawFrame = requestAnimationFrame(() => {
       this._lineDrawFrame = null;
-      this._drawLines();
+      this._drawLines(this._pendingChangedSkillIds);
+      this._pendingChangedSkillIds = null;
     });
   }
 
-  _drawLines() {
+  _drawLines(changedSkillIds = null) {
     const root = this._dom?.root;
     const svg = this._dom?.svg;
     if (!root || !svg) return;
@@ -167,6 +174,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
       this._linePathCache.clear();
+      this._lineKeyBySkill.clear();
       svg.innerHTML = "";
 
       const cardById = new Map(this._dom.skillCards.map(el => [el.dataset.skillId, el]));
@@ -203,6 +211,11 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
             skillId: skill.id,
             highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
           });
+
+          if (!this._lineKeyBySkill.has(prereqId)) this._lineKeyBySkill.set(prereqId, new Set());
+          if (!this._lineKeyBySkill.has(skill.id)) this._lineKeyBySkill.set(skill.id, new Set());
+          this._lineKeyBySkill.get(prereqId).add(key);
+          this._lineKeyBySkill.get(skill.id).add(key);
         }
       }
 
@@ -210,7 +223,21 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       this._needsLineGeometryRebuild = false;
     }
 
-    for (const line of this._linePathCache.values()) {
+    const keysToUpdate = new Set();
+    const updateAll = this._needsLineGeometryRebuild || !changedSkillIds || changedSkillIds.size === 0;
+    if (updateAll) {
+      for (const key of this._linePathCache.keys()) keysToUpdate.add(key);
+    } else {
+      for (const skillId of changedSkillIds) {
+        const keys = this._lineKeyBySkill.get(skillId);
+        if (!keys) continue;
+        for (const key of keys) keysToUpdate.add(key);
+      }
+    }
+
+    for (const key of keysToUpdate) {
+      const line = this._linePathCache.get(key);
+      if (!line) continue;
       const highlighted = line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId);
       line.path.setAttribute("stroke", highlighted ? "var(--theme-color)" : "var(--color-border)");
       line.path.setAttribute("stroke-width", highlighted ? "3" : "2");
@@ -218,6 +245,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   _updateSkillAvailability(selectedSkills) {
+    const removedSelections = new Set();
     for (const el of this._dom?.skillCards ?? []) {
       if (el.classList.contains("default-skill")) continue;
 
@@ -242,12 +270,18 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
         el.classList.remove("locked");
       } else {
         el.classList.add("locked");
-        el.classList.remove("selected");
+        if (el.classList.contains("selected")) {
+          el.classList.remove("selected");
+          removedSelections.add(skillId);
+          selectedSkills.delete(skillId);
+        }
       }
     }
+
+    return removedSelections;
   }
 
-  _updateUi() {
+  _updateUi({ changedSkillIds = null } = {}) {
     if (!this._dom) return;
 
     this._dom.pointCounts.forEach(el => {
@@ -265,9 +299,22 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       this._dom.confirm.disabled = !allowConfirm;
     }
 
-    const selectedSkills = this._selectedSkills();
-    this._updateSkillAvailability(selectedSkills);
-    this._scheduleDrawLines();
+    const selectedBeforeAvailability = this._selectedSkills();
+    const removedByAvailability = this._updateSkillAvailability(selectedBeforeAvailability);
+    const selectedAfterAvailability = this._selectedSkills();
+
+    const changed = new Set(changedSkillIds ?? []);
+    for (const skillId of removedByAvailability) changed.add(skillId);
+
+    for (const skillId of selectedAfterAvailability) {
+      if (!this._prevSelectedSkills.has(skillId)) changed.add(skillId);
+    }
+    for (const skillId of this._prevSelectedSkills) {
+      if (!selectedAfterAvailability.has(skillId)) changed.add(skillId);
+    }
+
+    this._scheduleDrawLines({ changedSkillIds: changed });
+    this._prevSelectedSkills = selectedAfterAvailability;
   }
 
   async _prepareContext() {
@@ -294,24 +341,23 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       wrapper.style.width = "1200px";
       wrapper.style.maxWidth = "95vw";
       wrapper.style.margin = "0 auto";
+
+      const windowContent = wrapper.querySelector(".window-content");
+      if (windowContent) {
+        windowContent.style.overflowY = "auto";
+        windowContent.style.maxHeight = "85vh";
+      }
     }
 
     this._cacheDomReferences(root);
-
-    if (this._resizeObserver) this._resizeObserver.disconnect();
-    const skillArea = root.querySelector(".skill-area-wrapper");
-    if (skillArea && "ResizeObserver" in window) {
-      this._resizeObserver = new ResizeObserver(() => this._scheduleDrawLines({ rebuild: true }));
-      this._resizeObserver.observe(skillArea);
-    }
 
     root.querySelectorAll(".skill-card img").forEach(img => {
       if (img.complete) return;
       img.addEventListener("load", () => this._scheduleDrawLines({ rebuild: true }), { once: true });
     });
 
-    this._scheduleDrawLines({ rebuild: true });
     this._updateUi();
+    this._scheduleDrawLines({ rebuild: true });
   }
 
   static _onToggleSkill(event, target) {
@@ -346,20 +392,25 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
       target.classList.remove("selected");
       this.points[rank]++;
-      this._updateUi();
+      this._updateUi({ changedSkillIds: new Set([skillId]) });
       return;
     }
 
     if (this.points[rank] <= 0) return;
+    const skillId = target.dataset.skillId;
     target.classList.add("selected");
     this.points[rank]--;
-    this._updateUi();
+    this._updateUi({ changedSkillIds: new Set([skillId]) });
   }
 
   static _onSelectOrOption(event, target) {
     if (!this._dom) return;
+    if (target.classList.contains("selected")) return;
 
-    this._dom.orOptions.forEach(el => el.classList.remove("selected"));
+    const changedSkillIds = new Set();
+
+    const activeOrOption = this._dom.orOptions.find(el => el.classList.contains("selected"));
+    if (activeOrOption) activeOrOption.classList.remove("selected");
     target.classList.add("selected");
 
     const opt = this.orOptions.find(o => o.id === target.dataset.option);
@@ -370,9 +421,11 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this._dom.skillCards.forEach(el => {
       if (el.classList.contains("selected") && !el.classList.contains("default-skill")) {
         el.classList.remove("selected");
+        changedSkillIds.add(el.dataset.skillId);
       }
     });
-    this._updateUi();
+
+    this._updateUi({ changedSkillIds });
   }
 
   static async _onSubmit() {
@@ -414,13 +467,11 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       cancelAnimationFrame(this._lineDrawFrame);
       this._lineDrawFrame = null;
     }
-    if (this._resizeObserver) {
-      this._resizeObserver.disconnect();
-      this._resizeObserver = null;
-    }
-
     this._dom = null;
     this._linePathCache.clear();
+    this._lineKeyBySkill.clear();
+    this._prevSelectedSkills.clear();
+    this._pendingChangedSkillIds = null;
     this._resolveOnce(null);
     return super.close(options);
   }
