@@ -136,14 +136,44 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   _cacheDomReferences(root) {
+    const skillCards = Array.from(root.querySelectorAll(".skill-card"));
+    const skillCardById = new Map(skillCards.map(el => [el.dataset.skillId, el]));
+    const skillCardsByRank = new Map();
+    for (const el of skillCards) {
+      const rank = el.dataset.rank;
+      if (!skillCardsByRank.has(rank)) skillCardsByRank.set(rank, []);
+      skillCardsByRank.get(rank).push(el);
+    }
+
     this._dom = {
       root,
       svg: root.querySelector("#skill-arrows"),
       confirm: root.querySelector("#confirm-button"),
       orOptions: Array.from(root.querySelectorAll(".or-option")),
       pointCounts: Array.from(root.querySelectorAll(".point-count")),
-      skillCards: Array.from(root.querySelectorAll(".skill-card"))
+      skillCards,
+      skillCardById,
+      skillCardsByRank
     };
+  }
+
+  _collectAvailabilityAffectedSkillIds(seedSkillIds) {
+    if (!seedSkillIds?.size) return null;
+
+    const affected = new Set(seedSkillIds);
+    const queue = [...seedSkillIds];
+    while (queue.length) {
+      const skillId = queue.shift();
+      const dependents = this.dependencies.get(skillId);
+      if (!dependents) continue;
+      for (const dependentId of dependents) {
+        if (affected.has(dependentId)) continue;
+        affected.add(dependentId);
+        queue.push(dependentId);
+      }
+    }
+
+    return affected;
   }
 
   _selectedSkills() {
@@ -172,6 +202,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const selected = this._selectedSkills();
 
+    let rebuiltGeometry = false;
     if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
       this._linePathCache.clear();
       this._lineKeyBySkill.clear();
@@ -203,13 +234,16 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
           const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
           path.setAttribute("d", pathData);
           path.setAttribute("fill", "none");
+          path.setAttribute("stroke", "var(--color-border)");
+          path.setAttribute("stroke-width", "2");
           frag.appendChild(path);
 
           this._linePathCache.set(key, {
             path,
             prereqId,
             skillId: skill.id,
-            highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
+            highlightable: skill.system.rank === "expert" || skill.system.rank === "master",
+            isHighlighted: false
           });
 
           if (!this._lineKeyBySkill.has(prereqId)) this._lineKeyBySkill.set(prereqId, new Set());
@@ -221,10 +255,11 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
       svg.appendChild(frag);
       this._needsLineGeometryRebuild = false;
+      rebuiltGeometry = true;
     }
 
     const keysToUpdate = new Set();
-    const updateAll = this._needsLineGeometryRebuild || !changedSkillIds || changedSkillIds.size === 0;
+    const updateAll = rebuiltGeometry || !changedSkillIds || changedSkillIds.size === 0;
     if (updateAll) {
       for (const key of this._linePathCache.keys()) keysToUpdate.add(key);
     } else {
@@ -239,14 +274,31 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const line = this._linePathCache.get(key);
       if (!line) continue;
       const highlighted = line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId);
+      if (line.isHighlighted === highlighted) continue;
+
       line.path.setAttribute("stroke", highlighted ? "var(--theme-color)" : "var(--color-border)");
       line.path.setAttribute("stroke-width", highlighted ? "3" : "2");
+      line.isHighlighted = highlighted;
     }
   }
 
-  _updateSkillAvailability(selectedSkills) {
+  _updateSkillAvailability(selectedSkills, { affectedSkillIds = null, affectedRanks = null } = {}) {
     const removedSelections = new Set();
-    for (const el of this._dom?.skillCards ?? []) {
+
+    const cards = new Set();
+    if (!affectedSkillIds && !affectedRanks) {
+      for (const el of this._dom?.skillCards ?? []) cards.add(el);
+    } else {
+      for (const skillId of affectedSkillIds ?? []) {
+        const el = this._dom?.skillCardById?.get(skillId);
+        if (el) cards.add(el);
+      }
+      for (const rank of affectedRanks ?? []) {
+        for (const el of this._dom?.skillCardsByRank?.get(rank) ?? []) cards.add(el);
+      }
+    }
+
+    for (const el of cards) {
       if (el.classList.contains("default-skill")) continue;
 
       const skillId = el.dataset.skillId;
@@ -281,7 +333,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return removedSelections;
   }
 
-  _updateUi({ changedSkillIds = null } = {}) {
+  _updateUi({ changedSkillIds = null, changedRanks = null, forceFullAvailability = false } = {}) {
     if (!this._dom) return;
 
     this._dom.pointCounts.forEach(el => {
@@ -300,7 +352,13 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     const selectedBeforeAvailability = this._selectedSkills();
-    const removedByAvailability = this._updateSkillAvailability(selectedBeforeAvailability);
+    const affectedSkillIds = forceFullAvailability
+      ? null
+      : this._collectAvailabilityAffectedSkillIds(new Set(changedSkillIds ?? []));
+    const removedByAvailability = this._updateSkillAvailability(selectedBeforeAvailability, {
+      affectedSkillIds,
+      affectedRanks: forceFullAvailability ? null : new Set(changedRanks ?? [])
+    });
     const selectedAfterAvailability = this._selectedSkills();
 
     const changed = new Set(changedSkillIds ?? []);
@@ -341,12 +399,6 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       wrapper.style.width = "1200px";
       wrapper.style.maxWidth = "95vw";
       wrapper.style.margin = "0 auto";
-
-      const windowContent = wrapper.querySelector(".window-content");
-      if (windowContent) {
-        windowContent.style.overflowY = "auto";
-        windowContent.style.maxHeight = "85vh";
-      }
     }
 
     this._cacheDomReferences(root);
@@ -392,7 +444,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
       target.classList.remove("selected");
       this.points[rank]++;
-      this._updateUi({ changedSkillIds: new Set([skillId]) });
+      this._updateUi({ changedSkillIds: new Set([skillId]), changedRanks: new Set([rank]) });
       return;
     }
 
@@ -400,7 +452,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const skillId = target.dataset.skillId;
     target.classList.add("selected");
     this.points[rank]--;
-    this._updateUi({ changedSkillIds: new Set([skillId]) });
+    this._updateUi({ changedSkillIds: new Set([skillId]), changedRanks: new Set([rank]) });
   }
 
   static _onSelectOrOption(event, target) {
@@ -425,7 +477,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       }
     });
 
-    this._updateUi({ changedSkillIds });
+    this._updateUi({ changedSkillIds, forceFullAvailability: true });
   }
 
   static async _onSubmit() {

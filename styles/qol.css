@@ -37,7 +37,8 @@
 
 .greybeardqol .selected {
   border-color: var(--color-highlight) !important;
-  box-shadow: 0 0 8px var(--color-highlight);
+  outline: 2px solid var(--color-highlight);
+  outline-offset: 1px;
 }
 
 .greybeardqol .selected::after {
@@ -59,6 +60,11 @@
 
 .greybeardqol .locked:not(.selected) {
   opacity: 0.4;
+}
+
+.application.skill-selection .window-content {
+  overflow-y: auto;
+  max-height: 85vh;
 }
 
 /* Icon/Image resizing */
