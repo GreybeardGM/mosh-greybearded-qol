@@ -10,6 +10,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "simple-shore-leave",
+    classes: ["greybeardqol"],
     tag: "form",
     window: {
       title: "Select Shore Leave Tier",
@@ -22,7 +23,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     form: {
       handler: this._onSubmit,
       submitOnChange: false,
-      closeOnSubmit: false
+      closeOnSubmit: true
     },
     actions: {
       selectTier: this._onSelectTier,
@@ -138,7 +139,6 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const result = await convertStress(this.actor, entry.stressFormula);
     this._resolveOnce(result);
-    await this.close();
   }
 
   async close(options = {}) {
