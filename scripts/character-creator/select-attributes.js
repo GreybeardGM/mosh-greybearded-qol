@@ -13,7 +13,7 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: false
     },
     position: {
-      width: 960,
+      width: "auto",
       height: "auto"
     },
     form: {
@@ -27,7 +27,7 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    content: {
+    form: {
       template: "modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html"
     },
     confirm: {
@@ -60,8 +60,6 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       maxWidth: `${calculateDialogWidth(choice.stats.length, cardWidth, false)}px`
     }));
 
-    const maxCols = Math.max(...attributeChoices.map(choice => choice.stats.length));
-    this.dialogWidth = calculateDialogWidth(maxCols, cardWidth, true);
     this.themeColor = getThemeColor();
     this._selectedBySet = new Map();
   }
@@ -110,7 +108,7 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const wrapper = root.closest(".app");
     if (wrapper) {
-      wrapper.style.width = `${this.dialogWidth}px`;
+      wrapper.style.width = "auto";
       wrapper.style.maxWidth = "95vw";
       wrapper.style.margin = "0 auto";
     }

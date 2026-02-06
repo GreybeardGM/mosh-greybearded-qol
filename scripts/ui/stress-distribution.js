@@ -12,7 +12,7 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: false
     },
     position: {
-      width: 512,
+      width: "auto",
       height: "auto"
     },
     form: {
