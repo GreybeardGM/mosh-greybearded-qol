@@ -10,10 +10,11 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "simple-shore-leave",
-    classes: ["greybeardqol"],
     tag: "form",
     window: {
       title: "Select Shore Leave Tier",
+      icon: "fas fa-umbrella-beach",
+      contentClasses: ["greybeardqol"],
       resizable: false
     },
     position: {
