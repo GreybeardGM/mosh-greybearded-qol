@@ -62,6 +62,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor"));
     this.themeColor = getThemeColor();
     this.tiers = this._loadTiers();
+    this.tierById = new Map(this.tiers.map(tier => [tier.tier, tier]));
   }
 
   _loadTiers() {
@@ -82,6 +83,36 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     });
   }
 
+  _getTier(tierKey) {
+    return this.tierById.get(tierKey);
+  }
+
+  _getElementRoot() {
+    if (this.element instanceof HTMLElement) return this.element;
+    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
+    return null;
+  }
+
+  _updateSelectionUi() {
+    const root = this._getElementRoot();
+    if (!root) return;
+
+    root.querySelectorAll(".card").forEach(card => {
+      const isSelected = card.dataset.tier === this._selectedTier;
+      card.classList.toggle("selected", isSelected);
+
+      const input = card.querySelector("input[name='shore-tier']");
+      if (input) input.checked = isSelected;
+    });
+
+    const confirm = root.querySelector("#confirm-button");
+    if (!confirm) return;
+
+    const locked = !this._selectedTier;
+    confirm.classList.toggle("locked", locked);
+    confirm.disabled = locked;
+  }
+
   async _prepareContext() {
     return {
       tiers: this.tiers.map(tier => ({
@@ -94,13 +125,17 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static _onSelectTier(event, target) {
-    this._selectedTier = target.dataset.tier ?? target.value;
-    this.render();
+    const nextTier = target.dataset.tier ?? target.value;
+    if (!nextTier || nextTier === this._selectedTier) return;
+
+    this._selectedTier = nextTier;
+    // Selection ist ein leichter UI-Update und braucht kein komplettes Re-Render.
+    this._updateSelectionUi();
   }
 
   static async _onRollPrice(event, target) {
     const tier = target.dataset.tier;
-    const entry = this.tiers.find(t => t.tier === tier);
+    const entry = this._getTier(tier);
     if (!entry) return;
 
     const roll = new Roll(entry.priceFormula);
@@ -126,16 +161,31 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static _onRerollFlavor(event, target) {
     const tier = target.dataset.tier;
-    const entry = this.tiers.find(t => t.tier === tier);
+    const entry = this._getTier(tier);
     if (!entry) return;
 
     flavorizeShoreLeave(entry);
-    this.render();
+
+    // Nur die betroffene Card aktualisieren statt kompletter App-Re-Render.
+    const card = target.closest(".card");
+    if (!card) return;
+
+    const iconEl = card.querySelector(".icon");
+    if (iconEl) {
+      const iconClass = entry.flavor?.icon || entry.icon;
+      if (iconClass) iconEl.className = `fas ${iconClass} icon`;
+    }
+
+    const flavorLabel = card.querySelector(".flavor-label");
+    if (flavorLabel) flavorLabel.textContent = entry.flavor?.label || "";
+
+    const flavorDescription = card.querySelector(".flavor-description");
+    if (flavorDescription) flavorDescription.textContent = entry.flavor?.description || "";
   }
 
   static async _onSubmit(event, form, formData) {
     const selectedTier = formData.object?.["shore-tier"] ?? this._selectedTier;
-    const entry = this.tiers.find(t => t.tier === selectedTier);
+    const entry = this._getTier(selectedTier);
     if (!entry) return ui.notifications.error("Invalid tier selected.");
 
     const result = await convertStress(this.actor, entry.stressFormula);
