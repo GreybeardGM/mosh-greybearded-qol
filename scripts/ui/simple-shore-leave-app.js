@@ -1,6 +1,9 @@
 import { convertStress } from "../convert-stress.js";
 import { flavorizeShoreLeave } from "../utils/flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
+import { getThemeColor } from "../utils/get-theme-color.js";
+import { toRollFormula } from "../utils/to-roll-formula.js";
+import { toRollString } from "../utils/to-roll-string.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -29,21 +32,42 @@ export class SimpleShoreLeaveApp extends HandlebarsApplicationMixin(ApplicationV
     }
   };
 
-  static wait({ actor, tiers, themeColor }) {
+  static wait({ actor, randomFlavor }) {
     return new Promise(resolve => {
-      const app = new this({ actor, tiers, themeColor, resolve });
+      const app = new this({ actor, randomFlavor, resolve });
       app.render(true);
     });
   }
 
-  constructor({ actor, tiers, themeColor, resolve }, options = {}) {
+  constructor({ actor, randomFlavor, resolve }, options = {}) {
     super(options);
     this.actor = actor;
-    this.tiers = tiers;
-    this.themeColor = themeColor;
-    this._selectedTier = null;
     this._resolve = resolve;
     this._resolved = false;
+    this._selectedTier = null;
+
+    const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
+    this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor"));
+    this.themeColor = getThemeColor();
+    this.tiers = this._loadTiers();
+  }
+
+  _loadTiers() {
+    const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+    return Object.values(config).map(tier => {
+      const base = {
+        tier: tier.tier,
+        label: tier.label,
+        icon: tier.icon ?? null,
+        stressFormula: toRollFormula(tier.baseStressConversion),
+        stressString: toRollString(tier.baseStressConversion),
+        priceFormula: toRollFormula(tier.basePrice),
+        priceString: toRollString(tier.basePrice),
+        raw: tier
+      };
+      if (this.randomFlavor) flavorizeShoreLeave(base);
+      return base;
+    });
   }
 
   async _prepareContext() {
