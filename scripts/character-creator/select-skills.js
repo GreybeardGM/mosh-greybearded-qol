@@ -196,9 +196,12 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   _drawLines(changedSkillIds = null) {
-    const root = this._dom?.root;
+    const root = this._getRoot();
+    if (root) this._cacheDomReferences(root);
+
+    const cachedRoot = this._dom?.root;
     const svg = this._dom?.svg;
-    if (!root || !svg) return;
+    if (!cachedRoot || !svg) return;
 
     const selected = this._selectedSkills();
 
@@ -208,15 +211,15 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       this._lineKeyBySkill.clear();
       svg.innerHTML = "";
 
-      const cardById = new Map(this._dom.skillCards.map(el => [el.dataset.skillId, el]));
+      // Reuse the centralized DOM cache to keep draw geometry in sync with one source of truth.
       const parentRect = svg.getBoundingClientRect();
       const frag = document.createDocumentFragment();
 
       for (const skill of this.sortedSkills) {
         const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
         for (const prereqId of prereqIds) {
-          const fromEl = cardById.get(prereqId);
-          const toEl = cardById.get(skill.id);
+          const fromEl = this._dom.skillCardById.get(prereqId);
+          const toEl = this._dom.skillCardById.get(skill.id);
           if (!fromEl || !toEl) continue;
 
           const rect1 = fromEl.getBoundingClientRect();
