@@ -1,5 +1,4 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
-import { calculateDialogWidth } from "../utils/calculate-dialog-width.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -53,11 +52,9 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this._resolve = resolve;
     this._resolved = false;
 
-    const cardWidth = 160;
     this.attributeSets = attributeChoices.map(choice => ({
       modification: parseInt(choice.modification, 10) || 0,
-      stats: choice.stats,
-      maxWidth: `${calculateDialogWidth(choice.stats.length, cardWidth, false)}px`
+      stats: choice.stats
     }));
 
     this.themeColor = getThemeColor();
