@@ -15,7 +15,7 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
     form: {
       handler: this._onSubmit,
       submitOnChange: false,
-      closeOnSubmit: false
+      closeOnSubmit: true
     },
     actions: {
       resetDefaults: this._onResetDefaults
