@@ -7,7 +7,7 @@ import { toRollString } from "../utils/to-roll-string.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export class SimpleShoreLeaveApp extends HandlebarsApplicationMixin(ApplicationV2) {
+export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "simple-shore-leave",
     window: {
