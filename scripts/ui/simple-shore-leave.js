@@ -160,6 +160,10 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static _onRerollFlavor(event, target) {
+    // Flavor reroll soll die Tier-Auswahl nicht verändern.
+    event.preventDefault();
+    event.stopPropagation();
+
     const tier = target.dataset.tier;
     const entry = this._getTier(tier);
     if (!entry) return;

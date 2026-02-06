@@ -44,6 +44,8 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.points = points;
     this._resolve = resolve;
     this._resolved = false;
+    this._boundContextMenu = null;
+    this._dom = null;
 
     this.base = {
       sanity: actor.system.stats.sanity.value ?? 0,
@@ -58,6 +60,29 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return (this.values.sanity + this.values.fear + this.values.body) - (this.base.sanity + this.base.fear + this.base.body);
   }
 
+  _getElementRoot() {
+    if (this.element instanceof HTMLElement) return this.element;
+    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
+    return null;
+  }
+
+  _cacheDomReferences(root) {
+    this._dom = {
+      remaining: root.querySelector("#remaining"),
+      confirmBtn: root.querySelector("#confirm-button"),
+      counters: {
+        sanity: root.querySelector("[data-counter='sanity']"),
+        fear: root.querySelector("[data-counter='fear']"),
+        body: root.querySelector("[data-counter='body']")
+      },
+      inputs: {
+        sanity: root.querySelector("input[name='sanity']"),
+        fear: root.querySelector("input[name='fear']"),
+        body: root.querySelector("input[name='body']")
+      }
+    };
+  }
+
   async _prepareContext() {
     const attrs = ["sanity", "fear", "body"].map(attr => {
       const baseValue = this.base[attr];
@@ -68,7 +93,6 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
         label: attr[0].toUpperCase() + attr.slice(1),
         icon: `systems/mosh/images/icons/ui/attributes/${attr}.png`,
         value: currentValue,
-        diff,
         diffText: diff > 0 ? `+${diff}` : ""
       };
     });
@@ -83,44 +107,51 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
-    const root = this.element instanceof HTMLElement ? this.element : this.element?.[0];
+    const root = this._getElementRoot();
     if (!root) return;
 
-    root.querySelectorAll(".card[data-attr]").forEach(card => {
-      card.addEventListener("contextmenu", ev => {
-        ev.preventDefault();
-        const attr = card.dataset.attr;
-        if (!attr || this.values[attr] <= this.base[attr]) return;
-        this.values[attr] -= 1;
-        this._updateUi();
-      });
-    });
+    this._cacheDomReferences(root);
+
+    // Delegation: pro Render genau ein Contextmenu-Handler am Root.
+    if (this._boundContextMenu) {
+      root.removeEventListener("contextmenu", this._boundContextMenu);
+    }
+    this._boundContextMenu = ev => {
+      const card = ev.target.closest(".card[data-attr]");
+      if (!card || !root.contains(card)) return;
+      ev.preventDefault();
+
+      const attr = card.dataset.attr;
+      if (!attr || this.values[attr] <= this.base[attr]) return;
+      this.values[attr] -= 1;
+      this._updateUi();
+    };
+    root.addEventListener("contextmenu", this._boundContextMenu);
   }
 
   _updateUi() {
-    const root = this.element instanceof HTMLElement ? this.element : this.element?.[0];
-    if (!root) return;
+    const dom = this._dom;
+    if (!dom) return;
 
     for (const attr of Object.keys(this.values)) {
       const value = this.values[attr];
       const diff = value - this.base[attr];
-      const counter = root.querySelector(`[data-counter='${attr}']`);
+
+      const counter = dom.counters[attr];
       if (counter) {
         counter.innerHTML = diff > 0 ? `${value} <span class="bonus">[+${diff}]</span>` : `${value}`;
       }
 
-      const hiddenInput = root.querySelector(`input[name='${attr}']`);
+      const hiddenInput = dom.inputs[attr];
       if (hiddenInput) hiddenInput.value = String(value);
     }
 
-    const remaining = root.querySelector("#remaining");
-    if (remaining) remaining.textContent = String(this.points - this._assignedPoints);
+    if (dom.remaining) dom.remaining.textContent = String(this.points - this._assignedPoints);
 
-    const confirmBtn = root.querySelector("#confirm-button");
-    if (!confirmBtn) return;
+    if (!dom.confirmBtn) return;
     const locked = this._assignedPoints !== this.points;
-    confirmBtn.classList.toggle("locked", locked);
-    confirmBtn.disabled = locked;
+    dom.confirmBtn.classList.toggle("locked", locked);
+    dom.confirmBtn.disabled = locked;
   }
 
   static _onIncrementAttr(event, target) {
@@ -144,6 +175,13 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   async close(options = {}) {
+    const root = this._getElementRoot();
+    if (root && this._boundContextMenu) {
+      root.removeEventListener("contextmenu", this._boundContextMenu);
+    }
+    this._boundContextMenu = null;
+    this._dom = null;
+
     this._resolveOnce(null);
     return super.close(options);
   }
