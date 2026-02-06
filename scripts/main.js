@@ -2,7 +2,7 @@ import { QoLContractorSheet } from "./contractor-sheet-class.js";
 import { defineStashSheet } from "./stash-sheet-class.js";
 import { convertStress } from "./convert-stress.js";
 import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
-import { simpleShoreLeave } from "./simple-shore-leave.js";
+import { SimpleShoreLeave } from "./ui/simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
@@ -52,7 +52,7 @@ Hooks.once("ready", () => {
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
-  game.moshGreybeardQol.simpleShoreLeave = simpleShoreLeave;
+  game.moshGreybeardQol.SimpleShoreLeave = SimpleShoreLeave;
   game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
   game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
   game.moshGreybeardQol.applyDamage = applyDamage;
@@ -228,7 +228,7 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
           await game.moshGreybeardQol.convertStress(actor, ...args);
           break;
         case "simpleShoreLeave":
-          await game.moshGreybeardQol.simpleShoreLeave(actor, ...args);
+          await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
           break;
         case "triggerShipCrit":
           await game.moshGreybeardQol.triggerShipCrit(...args);
