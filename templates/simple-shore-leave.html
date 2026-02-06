@@ -1,56 +1,55 @@
-<form class="greybeardqol" style="--theme-color: {{themeColor}}">
-  <div class="card-grid" style="--col-count: {{tiers.length}};">
-    {{#each tiers as |tier|}}
-      <label class="card dialog-card interactive">
-        <input type="radio" name="shore-tier" value="{{tier.tier}}" style="display: none;">
+<div class="card-grid" style="--col-count: {{tiers.length}}; --theme-color: {{themeColor}};">
+  {{#each tiers as |tier|}}
+    <label class="card dialog-card interactive {{#if tier.selected}}selected{{/if}}" data-action="selectTier" data-tier="{{tier.tier}}">
+      <input
+        type="radio"
+        name="shore-tier"
+        value="{{tier.tier}}"
+        style="display: none;"
+        {{#if tier.selected}}checked{{/if}}
+      >
 
-        {{#if tier.flavor.icon}}
-          <i class="fas {{tier.flavor.icon}} icon"></i>
-        {{else if tier.icon}}
-          <i class="fas {{tier.icon}} icon"></i>
-        {{/if}}
+      {{#if tier.flavor.icon}}
+        <i class="fas {{tier.flavor.icon}} icon"></i>
+      {{else if tier.icon}}
+        <i class="fas {{tier.icon}} icon"></i>
+      {{/if}}
 
-        <h3>{{tier.label}}</h3>
+      <h3>{{tier.label}}</h3>
 
-        {{#if tier.flavor.label}}
-          <div class="flavor-label text-highlight">
-            {{tier.flavor.label}}
-          </div>
-        {{/if}}
-        
-        {{#if tier.flavor.description}}
-          <div class="flavor-description">
-            {{tier.flavor.description}}
-          </div>
-        {{/if}}
-        {{#if tier.flavor.label}}
-          <div class="pill reroll-flavor interactive">
-            <i class="fas fa-dice"></i>
-            <span>Reroll Flavor</span>
-          </div>
-        {{/if}}
-        
-        <div class="stress-description">
-          <strong>Stress Conversion</strong>
-          <div class="text-highlight">{{tier.stressString}}</div>
+      {{#if tier.flavor.label}}
+        <div class="flavor-label text-highlight">
+          {{tier.flavor.label}}
         </div>
+      {{/if}}
 
-        <div class="stress-description">
-          <strong>Price</strong>
-          <div class="text-highlight">{{tier.priceString}}</div>
+      {{#if tier.flavor.description}}
+        <div class="flavor-description">
+          {{tier.flavor.description}}
         </div>
+      {{/if}}
 
-        <div class="pill roll-price interactive" data-tier="{{tier.tier}}">
-          <i class="fas fa-coins"></i>
-          <span>Roll Price</span>
+      {{#if tier.flavor.label}}
+        <div class="pill reroll-flavor interactive" data-action="rerollFlavor" data-tier="{{tier.tier}}">
+          <i class="fas fa-dice"></i>
+          <span>Reroll Flavor</span>
         </div>
+      {{/if}}
 
-      </label>
-    {{/each}}
-  </div>
-  <!-- Confirm Button -->
-  <div class="confirm-button-row">
-    <button type="button" id="confirm-button" class="pill confirm-button locked">Confirm</button>
-  </div>
- 
-</form>
+      <div class="stress-description">
+        <strong>Stress Conversion</strong>
+        <div class="text-highlight">{{tier.stressString}}</div>
+      </div>
+
+      <div class="stress-description">
+        <strong>Price</strong>
+        <div class="text-highlight">{{tier.priceString}}</div>
+      </div>
+
+      <div class="pill roll-price interactive" data-action="rollPrice" data-tier="{{tier.tier}}">
+        <i class="fas fa-coins"></i>
+        <span>Roll Price</span>
+      </div>
+    </label>
+  {{/each}}
+</div>
