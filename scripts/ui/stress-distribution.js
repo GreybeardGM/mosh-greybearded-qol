@@ -30,7 +30,7 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
       template: "modules/mosh-greybearded-qol/templates/stress-conversion.html"
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/parts/stress-conversion-confirm-button.html"
+      template: "modules/mosh-greybearded-qol/templates/parts/confirm-button.html"
     }
   };
 
