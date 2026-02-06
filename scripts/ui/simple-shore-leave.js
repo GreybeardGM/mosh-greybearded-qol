@@ -18,7 +18,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       resizable: false
     },
     position: {
-      width: 923,
+      width: "auto",
       height: "auto"
     },
     form: {

@@ -1,7 +1,7 @@
-<div class="greybeardqol" style="--theme-color: {{themeColor}}">
+<div class="class-selection-content" style="--theme-color: {{themeColor}};">
   <div class="card-grid" style="--col-count: {{gridColumns}};">
     {{#each classes}}
-      <div class="card dialog-card interactive" data-class="{{this.id}}">
+      <div class="card dialog-card interactive class-card" data-action="selectClass" data-class-id="{{this.id}}">
         <img src="{{this.img}}" alt="{{this.name}}">
         <h3>{{this.name}}</h3>
         <div class="attributes-container">{{{this.attributes}}}</div>
