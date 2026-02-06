@@ -68,6 +68,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     });
 
     const skillMap = new Map(allSkills.map(s => [s.id, s]));
+    const skillByUuid = new Map(allSkills.map(s => [s.uuid, s]));
     const dependencies = getSkillDependencies(allSkills);
     const sortedSkills = allSkills;
 
@@ -99,10 +100,10 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       master: add(opt.master, opt.master_full_set)
     }));
 
-    return { stripHtml, sortedSkills, skillMap, dependencies, granted, basePoints, orOptions };
+    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions };
   }
 
-  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, dependencies, granted, basePoints, orOptions }, options = {}) {
+  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions }, options = {}) {
     super(options);
     this.actor = actor;
     this.selectedClass = selectedClass;
@@ -112,12 +113,18 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.stripHtml = stripHtml;
     this.sortedSkills = sortedSkills;
     this.skillMap = skillMap;
+    this.skillByUuid = skillByUuid;
     this.dependencies = dependencies;
     this.granted = granted;
     this.basePoints = basePoints;
     this.orOptions = orOptions;
 
     this.points = structuredClone(basePoints);
+    this._lineDrawFrame = null;
+    this._resizeObserver = null;
+    this._dom = null;
+    this._linePathCache = new Map();
+    this._needsLineGeometryRebuild = true;
   }
 
   _getRoot() {
@@ -126,88 +133,106 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     return null;
   }
 
+  _cacheDomReferences(root) {
+    this._dom = {
+      root,
+      svg: root.querySelector("#skill-arrows"),
+      confirm: root.querySelector("#confirm-button"),
+      orOptions: Array.from(root.querySelectorAll(".or-option")),
+      pointCounts: Array.from(root.querySelectorAll(".point-count")),
+      skillCards: Array.from(root.querySelectorAll(".skill-card"))
+    };
+  }
+
   _selectedSkills() {
-    const root = this._getRoot();
-    if (!root) return new Set();
-    return new Set(Array.from(root.querySelectorAll(".skill-card.selected")).map(el => el.dataset.skillId));
+    const cards = this._dom?.skillCards ?? [];
+    return new Set(cards.filter(el => el.classList.contains("selected")).map(el => el.dataset.skillId));
+  }
+
+  _scheduleDrawLines({ rebuild = false } = {}) {
+    if (rebuild) this._needsLineGeometryRebuild = true;
+    if (this._lineDrawFrame) cancelAnimationFrame(this._lineDrawFrame);
+    this._lineDrawFrame = requestAnimationFrame(() => {
+      this._lineDrawFrame = null;
+      this._drawLines();
+    });
   }
 
   _drawLines() {
-    const root = this._getRoot();
-    if (!root) return;
-
-    const svg = root.querySelector("#skill-arrows");
-    if (!svg) return;
-    svg.innerHTML = "";
+    const root = this._dom?.root;
+    const svg = this._dom?.svg;
+    if (!root || !svg) return;
 
     const selected = this._selectedSkills();
-    const linesToDraw = [];
-    const cardById = new Map(
-      Array.from(root.querySelectorAll(".skill-card[data-skill-id]")).map(el => [el.dataset.skillId, el])
-    );
 
-    for (const skill of this.sortedSkills) {
-      const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-      for (const prereqId of prereqIds) {
-        const fromEl = cardById.get(prereqId);
-        const toEl = cardById.get(skill.id);
-        if (!fromEl || !toEl) continue;
+    if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
+      this._linePathCache.clear();
+      svg.innerHTML = "";
 
-        const rect1 = fromEl.getBoundingClientRect();
-        const rect2 = toEl.getBoundingClientRect();
-        const parentRect = svg.getBoundingClientRect();
+      const cardById = new Map(this._dom.skillCards.map(el => [el.dataset.skillId, el]));
+      const parentRect = svg.getBoundingClientRect();
+      const frag = document.createDocumentFragment();
 
-        const relX1 = rect1.left + rect1.width - parentRect.left;
-        const relY1 = rect1.top + rect1.height / 2 - parentRect.top;
-        const relX2 = rect2.left - parentRect.left;
-        const relY2 = rect2.top + rect2.height / 2 - parentRect.top;
+      for (const skill of this.sortedSkills) {
+        const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
+        for (const prereqId of prereqIds) {
+          const fromEl = cardById.get(prereqId);
+          const toEl = cardById.get(skill.id);
+          if (!fromEl || !toEl) continue;
 
-        const deltaX = Math.abs(relX2 - relX1) / 2;
-        const pathData = `M ${relX1},${relY1} C ${relX1 + deltaX},${relY1} ${relX2 - deltaX},${relY2} ${relX2},${relY2}`;
-        const isHighlighted = selected.has(skill.id) && selected.has(prereqId) && (skill.system.rank === "expert" || skill.system.rank === "master");
+          const rect1 = fromEl.getBoundingClientRect();
+          const rect2 = toEl.getBoundingClientRect();
 
-        linesToDraw.push({ d: pathData, highlight: isHighlighted });
+          const relX1 = rect1.left + rect1.width - parentRect.left;
+          const relY1 = rect1.top + rect1.height / 2 - parentRect.top;
+          const relX2 = rect2.left - parentRect.left;
+          const relY2 = rect2.top + rect2.height / 2 - parentRect.top;
+
+          const deltaX = Math.abs(relX2 - relX1) / 2;
+          const pathData = `M ${relX1},${relY1} C ${relX1 + deltaX},${relY1} ${relX2 - deltaX},${relY2} ${relX2},${relY2}`;
+
+          const key = `${prereqId}->${skill.id}`;
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", pathData);
+          path.setAttribute("fill", "none");
+          frag.appendChild(path);
+
+          this._linePathCache.set(key, {
+            path,
+            prereqId,
+            skillId: skill.id,
+            highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
+          });
+        }
       }
+
+      svg.appendChild(frag);
+      this._needsLineGeometryRebuild = false;
     }
 
-    for (const line of linesToDraw.filter(l => !l.highlight)) {
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute("d", line.d);
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", "var(--color-border)");
-      path.setAttribute("stroke-width", "2");
-      svg.appendChild(path);
-    }
-
-    for (const line of linesToDraw.filter(l => l.highlight)) {
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute("d", line.d);
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", "var(--theme-color)");
-      path.setAttribute("stroke-width", "3");
-      svg.appendChild(path);
+    for (const line of this._linePathCache.values()) {
+      const highlighted = line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId);
+      line.path.setAttribute("stroke", highlighted ? "var(--theme-color)" : "var(--color-border)");
+      line.path.setAttribute("stroke-width", highlighted ? "3" : "2");
     }
   }
 
-  _updateSkillAvailability() {
-    const root = this._getRoot();
-    if (!root) return;
+  _updateSkillAvailability(selectedSkills) {
+    for (const el of this._dom?.skillCards ?? []) {
+      if (el.classList.contains("default-skill")) continue;
 
-    const selectedSkills = this._selectedSkills();
-
-    root.querySelectorAll(".skill-card:not(.default-skill)").forEach(el => {
       const skillId = el.dataset.skillId;
       const rank = el.dataset.rank;
       const selected = el.classList.contains("selected");
 
       if (this.points[rank] === 0 && !selected) {
         el.classList.add("locked");
-        return;
+        continue;
       }
 
       if (rank === "trained") {
         el.classList.remove("locked");
-        return;
+        continue;
       }
 
       const skill = this.skillMap.get(skillId);
@@ -219,31 +244,30 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
         el.classList.add("locked");
         el.classList.remove("selected");
       }
-    });
+    }
   }
 
   _updateUi() {
-    const root = this._getRoot();
-    if (!root) return;
+    if (!this._dom) return;
 
-    root.querySelectorAll(".point-count").forEach(el => {
+    this._dom.pointCounts.forEach(el => {
       const rank = el.dataset.rank;
       el.textContent = String(this.points[rank]);
     });
 
     const remaining = Object.values(this.points).reduce((a, b) => a + b, 0);
     const hasOrOptions = this.orOptions.length > 0;
-    const orSelected = !hasOrOptions || root.querySelector(".or-option.selected");
-    const allowConfirm = remaining === 0 && !!orSelected;
+    const orSelected = !hasOrOptions || this._dom.orOptions.some(el => el.classList.contains("selected"));
+    const allowConfirm = remaining === 0 && orSelected;
 
-    const confirm = root.querySelector("#confirm-button");
-    if (confirm) {
-      confirm.classList.toggle("locked", !allowConfirm);
-      confirm.disabled = !allowConfirm;
+    if (this._dom.confirm) {
+      this._dom.confirm.classList.toggle("locked", !allowConfirm);
+      this._dom.confirm.disabled = !allowConfirm;
     }
 
-    this._updateSkillAvailability();
-    this._drawLines();
+    const selectedSkills = this._selectedSkills();
+    this._updateSkillAvailability(selectedSkills);
+    this._scheduleDrawLines();
   }
 
   async _prepareContext() {
@@ -261,22 +285,39 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
-    this._updateUi();
 
     const root = this._getRoot();
     if (!root) return;
+
     const wrapper = root.closest(".app");
     if (wrapper) {
       wrapper.style.width = "1200px";
       wrapper.style.maxWidth = "95vw";
       wrapper.style.margin = "0 auto";
     }
+
+    this._cacheDomReferences(root);
+
+    if (this._resizeObserver) this._resizeObserver.disconnect();
+    const skillArea = root.querySelector(".skill-area-wrapper");
+    if (skillArea && "ResizeObserver" in window) {
+      this._resizeObserver = new ResizeObserver(() => this._scheduleDrawLines({ rebuild: true }));
+      this._resizeObserver.observe(skillArea);
+    }
+
+    root.querySelectorAll(".skill-card img").forEach(img => {
+      if (img.complete) return;
+      img.addEventListener("load", () => this._scheduleDrawLines({ rebuild: true }), { once: true });
+    });
+
+    this._scheduleDrawLines({ rebuild: true });
+    this._updateUi();
   }
 
   static _onToggleSkill(event, target) {
     if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
 
-    const root = this._getRoot();
+    const root = this._dom?.root;
     if (!root) return;
 
     const rank = target.dataset.rank;
@@ -316,10 +357,9 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static _onSelectOrOption(event, target) {
-    const root = this._getRoot();
-    if (!root) return;
+    if (!this._dom) return;
 
-    root.querySelectorAll(".or-option").forEach(el => el.classList.remove("selected"));
+    this._dom.orOptions.forEach(el => el.classList.remove("selected"));
     target.classList.add("selected");
 
     const opt = this.orOptions.find(o => o.id === target.dataset.option);
@@ -327,18 +367,30 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.points.expert = this.basePoints.expert + (opt?.expert || 0);
     this.points.master = this.basePoints.master + (opt?.master || 0);
 
-    root.querySelectorAll(".skill-card.selected:not(.default-skill)").forEach(el => el.classList.remove("selected"));
+    this._dom.skillCards.forEach(el => {
+      if (el.classList.contains("selected") && !el.classList.contains("default-skill")) {
+        el.classList.remove("selected");
+      }
+    });
     this._updateUi();
   }
 
   static async _onSubmit() {
-    const root = this._getRoot();
-    const confirm = root?.querySelector("#confirm-button");
-    if (!root || !confirm || confirm.classList.contains("locked")) return;
+    const confirm = this._dom?.confirm;
+    if (!confirm || confirm.classList.contains("locked")) return;
 
-    const selectedUUIDs = Array.from(root.querySelectorAll(".skill-card.selected[data-uuid]")).map(el => el.dataset.uuid);
+    const selectedUUIDs = this._dom.skillCards
+      .filter(el => el.classList.contains("selected") && el.dataset.uuid)
+      .map(el => el.dataset.uuid);
 
     const selectedItems = await Promise.all(selectedUUIDs.map(async uuid => {
+      const preloaded = this.skillByUuid.get(uuid);
+      if (preloaded) {
+        const data = preloaded.toObject();
+        delete data._id;
+        return data;
+      }
+
       const item = await fromUuid(uuid);
       if (!item || item.type !== "skill") {
         console.warn("Invalid or missing skill:", uuid);
@@ -358,6 +410,17 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   async close(options = {}) {
+    if (this._lineDrawFrame) {
+      cancelAnimationFrame(this._lineDrawFrame);
+      this._lineDrawFrame = null;
+    }
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+
+    this._dom = null;
+    this._linePathCache.clear();
     this._resolveOnce(null);
     return super.close(options);
   }
