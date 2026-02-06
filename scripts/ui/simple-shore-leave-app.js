@@ -5,18 +5,23 @@ import { chatOutput } from "../utils/chat-output.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class SimpleShoreLeaveApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
+  static DEFAULT_OPTIONS = {
     id: "simple-shore-leave",
-    tag: "div",
     window: {
       title: "Select Shore Leave Tier",
-      resizable: true
+      resizable: false
     },
     position: {
       width: 923,
       height: "auto"
+    },
+    actions: {
+      selectTier: this._onSelectTier,
+      rollPrice: this._onRollPrice,
+      rerollFlavor: this._onRerollFlavor,
+      confirm: this._onConfirm
     }
-  });
+  };
 
   static PARTS = {
     content: {
@@ -43,73 +48,62 @@ export class SimpleShoreLeaveApp extends HandlebarsApplicationMixin(ApplicationV
 
   async _prepareContext() {
     return {
-      tiers: this.tiers,
-      themeColor: this.themeColor
+      tiers: this.tiers.map(tier => ({
+        ...tier,
+        selected: tier.tier === this._selectedTier
+      })),
+      themeColor: this.themeColor,
+      confirmLocked: !this._selectedTier
     };
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
-    const html = $(this.element);
-    const confirmBtn = html.find("#confirm-button");
-    confirmBtn.addClass("locked");
+  static _onSelectTier(event, target) {
+    this._selectedTier = target.value;
+    this.render();
+  }
 
-    html.find("input[name='shore-tier']").on("change", ev => {
-      this._selectedTier = ev.currentTarget.value;
-      html.find(".card").removeClass("selected");
-      $(ev.currentTarget).closest(".card").addClass("selected");
-      confirmBtn.removeClass("locked");
+  static async _onRollPrice(event, target) {
+    const tier = target.dataset.tier;
+    const entry = this.tiers.find(t => t.tier === tier);
+    if (!entry) return;
+
+    const roll = new Roll(entry.priceFormula);
+    await roll.evaluate();
+
+    await chatOutput({
+      actor: this.actor,
+      title: entry.label,
+      subtitle: entry.flavor?.label || "Shore Leave",
+      content: entry.flavor?.description || "",
+      icon: entry.flavor?.icon || entry.icon,
+      roll,
+      buttons: [
+        {
+          label: "Participate Now",
+          icon: "fa-dice",
+          action: "convertStress",
+          args: [entry.stressFormula]
+        }
+      ]
     });
+  }
 
-    html.find(".roll-price").on("click", async ev => {
-      const tier = ev.currentTarget.dataset.tier;
-      const entry = this.tiers.find(t => t.tier === tier);
-      if (!entry) return;
+  static _onRerollFlavor(event, target) {
+    const tier = target.dataset.tier;
+    const entry = this.tiers.find(t => t.tier === tier);
+    if (!entry) return;
 
-      const roll = new Roll(entry.priceFormula);
-      await roll.evaluate();
+    flavorizeShoreLeave(entry);
+    this.render();
+  }
 
-      await chatOutput({
-        actor: this.actor,
-        title: entry.label,
-        subtitle: entry.flavor?.label || "Shore Leave",
-        content: entry.flavor?.description || "",
-        icon: entry.flavor?.icon || entry.icon,
-        roll,
-        buttons: [
-          {
-            label: "Participate Now",
-            icon: "fa-dice",
-            action: "convertStress",
-            args: [entry.stressFormula]
-          }
-        ]
-      });
-    });
+  static async _onConfirm() {
+    const entry = this.tiers.find(t => t.tier === this._selectedTier);
+    if (!entry) return ui.notifications.error("Invalid tier selected.");
 
-    html.find(".reroll-flavor").on("click", ev => {
-      const card = $(ev.currentTarget).closest(".card");
-      const tierKey = card.find("input[name='shore-tier']").val();
-      const entry = this.tiers.find(t => t.tier === tierKey);
-      if (!entry) return;
-
-      flavorizeShoreLeave(entry);
-
-      card.find(".icon").attr("class", `fas ${entry.flavor.icon} icon`);
-      card.find(".flavor-label").text(entry.flavor.label);
-      card.find(".flavor-description").text(entry.flavor.description);
-    });
-
-    confirmBtn.on("click", async () => {
-      if (confirmBtn.hasClass("locked")) return;
-
-      const entry = this.tiers.find(t => t.tier === this._selectedTier);
-      if (!entry) return ui.notifications.error("Invalid tier selected.");
-
-      const result = await convertStress(this.actor, entry.stressFormula);
-      this._resolveOnce(result);
-      await this.close();
-    });
+    const result = await convertStress(this.actor, entry.stressFormula);
+    this._resolveOnce(result);
+    await this.close();
   }
 
   async close(options = {}) {
