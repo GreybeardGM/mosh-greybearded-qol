@@ -42,7 +42,8 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
   }
 
   static async _onSubmit(event, form, formData) {
-    await game.settings.set("mosh-greybearded-qol", "shoreLeaveTiers", formData.object.tiers);
+    const expanded = foundry.utils.expandObject(formData.object ?? {});
+    await game.settings.set("mosh-greybearded-qol", "shoreLeaveTiers", expanded.tiers);
     ui.notifications.info("Shore Leave Tiers updated.");
     this.close();
   }
