@@ -1,28 +1,16 @@
-<form class="greybeardqol stress-conversion-form" style="--theme-color: {{themeColor}}">
-  <div class="card-grid" style="--col-count: 3;">
-    <div class="card dialog-card interactive" data-attr="sanity">
-      <img class="icon" src="systems/mosh/images/icons/ui/attributes/sanity.png" alt="Sanity Icon">
-      <h3>Sanity</h3>
-      <div id="counter-sanity" class="counter" style="margin-top:0.5em;">0</div>
+<div class="card-grid" style="--col-count: 3; --theme-color: {{themeColor}};">
+  {{#each attrs as |entry|}}
+    <div class="card dialog-card interactive" data-action="incrementAttr" data-attr="{{entry.attr}}">
+      <input type="hidden" name="{{entry.attr}}" value="{{entry.value}}">
+      <img class="icon" src="{{entry.icon}}" alt="{{entry.label}} Icon">
+      <h3>{{entry.label}}</h3>
+      <div data-counter="{{entry.attr}}" class="counter" style="margin-top:0.5em;">
+        {{entry.value}}{{#if entry.diffText}} <span class="bonus">[{{entry.diffText}}]</span>{{/if}}
+      </div>
     </div>
-    <div class="card dialog-card interactive" data-attr="fear">
-      <img class="icon" src="systems/mosh/images/icons/ui/attributes/fear.png" alt="Fear Icon">
-      <h3>Fear</h3>
-      <div id="counter-fear" class="counter" style="margin-top:0.5em;">0</div>
-    </div>
-    <div class="card dialog-card interactive" data-attr="body">
-      <img class="icon" src="systems/mosh/images/icons/ui/attributes/body.png" alt="Body Icon">
-      <h3>Body</h3>
-      <div id="counter-body" class="counter" style="margin-top:0.5em;">0</div>
-    </div>
-  </div>
+  {{/each}}
+</div>
 
-  <div class="remaining-points">
-    Remaining Points [ <span id="remaining">0</span> ]
-  </div>
-  <!-- Confirm Button -->
-  <div class="confirm-button-row">
-    <button type="button" id="confirm-button" class="pill confirm-button locked">Confirm</button>
-  </div>
-  
-</form>
+<div class="remaining-points">
+  Remaining Points [ <span id="remaining">{{remaining}}</span> ]
+</div>

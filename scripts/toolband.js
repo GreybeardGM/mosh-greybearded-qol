@@ -46,7 +46,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
           return game.moshGreybeardQol.startCharacterCreation(actor);
 
         case "shore-leave":
-          return game.moshGreybeardQol.simpleShoreLeave(actor);
+          return game.moshGreybeardQol.SimpleShoreLeave.wait({ actor });
 
         case "mark-ready":
           await setReady(actor);
