@@ -10,6 +10,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "simple-shore-leave",
+    tag: "form",
     window: {
       title: "Select Shore Leave Tier",
       resizable: false
@@ -18,16 +19,20 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       width: 923,
       height: "auto"
     },
+    form: {
+      handler: this._onSubmit,
+      submitOnChange: false,
+      closeOnSubmit: false
+    },
     actions: {
       selectTier: this._onSelectTier,
       rollPrice: this._onRollPrice,
-      rerollFlavor: this._onRerollFlavor,
-      confirm: this._onConfirm
+      rerollFlavor: this._onRerollFlavor
     }
   };
 
   static PARTS = {
-    content: {
+    form: {
       template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html"
     }
   };
@@ -87,7 +92,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static _onSelectTier(event, target) {
-    this._selectedTier = target.value;
+    this._selectedTier = target.dataset.tier ?? target.value;
     this.render();
   }
 
@@ -126,8 +131,9 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     this.render();
   }
 
-  static async _onConfirm() {
-    const entry = this.tiers.find(t => t.tier === this._selectedTier);
+  static async _onSubmit(event, form, formData) {
+    const selectedTier = formData.object?.["shore-tier"] ?? this._selectedTier;
+    const entry = this.tiers.find(t => t.tier === selectedTier);
     if (!entry) return ui.notifications.error("Invalid tier selected.");
 
     const result = await convertStress(this.actor, entry.stressFormula);

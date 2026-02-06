@@ -1,13 +1,12 @@
-<form class="greybeardqol" style="--theme-color: {{themeColor}}">
+<div class="greybeardqol" style="--theme-color: {{themeColor}}">
   <div class="card-grid" style="--col-count: {{tiers.length}};">
     {{#each tiers as |tier|}}
-      <label class="card dialog-card interactive {{#if tier.selected}}selected{{/if}}">
+      <label class="card dialog-card interactive {{#if tier.selected}}selected{{/if}}" data-action="selectTier" data-tier="{{tier.tier}}">
         <input
           type="radio"
           name="shore-tier"
           value="{{tier.tier}}"
           style="display: none;"
-          data-action="selectTier"
           {{#if tier.selected}}checked{{/if}}
         >
 
@@ -58,12 +57,12 @@
 
   <div class="confirm-button-row">
     <button
-      type="button"
+      type="submit"
       id="confirm-button"
-      data-action="confirm"
       class="pill confirm-button {{#if confirmLocked}}locked{{/if}}"
+      {{#if confirmLocked}}disabled{{/if}}
     >
       Confirm
     </button>
   </div>
-</form>
+</div>
