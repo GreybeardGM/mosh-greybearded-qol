@@ -11,8 +11,8 @@
   --color-remaining: #596;
 
   font-family: var(--font-primary, sans-serif);
-  font-size: 14px;
-  line-height: 1.4em;
+  font-size: 0.8rem;
+  line-height: 1rem;
   color: var(--color-text);
 }
 
@@ -191,15 +191,14 @@
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 999px;
-  padding: 0.5em 1em;
+  padding: 0.25rem 1rem;
   position: relative;
 }
 
 .greybeardqol .pill img {
-  width: 2em;
-  height: 2em;
+  width: 1.6rem;
+  height: 1.6rem;
   object-fit: contain;
-  margin-right: 0.5em;
 }
 
 .greybeardqol .pill-list {
@@ -318,10 +317,9 @@
   gap: 20%;
 }
 
-.greybeardqol .skill-card span {
-  margin-right: 1.3em;
+.greybeardqol .skill-card {
+  padding-right: 2.5rem;
 }
-
 .greybeardqol .skill-area-wrapper {
   position: relative;
 }
