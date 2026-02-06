@@ -285,15 +285,18 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   _updateSkillAvailability(selectedSkills, { affectedSkillIds = null, affectedRanks = null } = {}) {
     const removedSelections = new Set();
 
+    const hasAffectedSkillIds = affectedSkillIds instanceof Set && affectedSkillIds.size > 0;
+    const hasAffectedRanks = affectedRanks instanceof Set && affectedRanks.size > 0;
+
     const cards = new Set();
-    if (!affectedSkillIds && !affectedRanks) {
+    if (!hasAffectedSkillIds && !hasAffectedRanks) {
       for (const el of this._dom?.skillCards ?? []) cards.add(el);
     } else {
-      for (const skillId of affectedSkillIds ?? []) {
+      for (const skillId of hasAffectedSkillIds ? affectedSkillIds : []) {
         const el = this._dom?.skillCardById?.get(skillId);
         if (el) cards.add(el);
       }
-      for (const rank of affectedRanks ?? []) {
+      for (const rank of hasAffectedRanks ? affectedRanks : []) {
         for (const el of this._dom?.skillCardsByRank?.get(rank) ?? []) cards.add(el);
       }
     }
