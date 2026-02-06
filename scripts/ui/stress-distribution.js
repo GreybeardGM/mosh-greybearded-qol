@@ -28,6 +28,9 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = {
     form: {
       template: "modules/mosh-greybearded-qol/templates/stress-conversion.html"
+    },
+    confirm: {
+      template: "modules/mosh-greybearded-qol/templates/parts/stress-conversion-confirm-button.html"
     }
   };
 

@@ -1,29 +1,16 @@
-<div style="--theme-color: {{themeColor}}">
-  <div class="card-grid" style="--col-count: 3;">
-    {{#each attrs as |entry|}}
-      <div class="card dialog-card interactive" data-action="incrementAttr" data-attr="{{entry.attr}}">
-        <input type="hidden" name="{{entry.attr}}" value="{{entry.value}}">
-        <img class="icon" src="{{entry.icon}}" alt="{{entry.label}} Icon">
-        <h3>{{entry.label}}</h3>
-        <div data-counter="{{entry.attr}}" class="counter" style="margin-top:0.5em;">
-          {{entry.value}}{{#if entry.diffText}} <span class="bonus">[{{entry.diffText}}]</span>{{/if}}
-        </div>
+<div class="card-grid" style="--col-count: 3; --theme-color: {{themeColor}};">
+  {{#each attrs as |entry|}}
+    <div class="card dialog-card interactive" data-action="incrementAttr" data-attr="{{entry.attr}}">
+      <input type="hidden" name="{{entry.attr}}" value="{{entry.value}}">
+      <img class="icon" src="{{entry.icon}}" alt="{{entry.label}} Icon">
+      <h3>{{entry.label}}</h3>
+      <div data-counter="{{entry.attr}}" class="counter" style="margin-top:0.5em;">
+        {{entry.value}}{{#if entry.diffText}} <span class="bonus">[{{entry.diffText}}]</span>{{/if}}
       </div>
-    {{/each}}
-  </div>
+    </div>
+  {{/each}}
+</div>
 
-  <div class="remaining-points">
-    Remaining Points [ <span id="remaining">{{remaining}}</span> ]
-  </div>
-
-  <div class="confirm-button-row">
-    <button
-      type="submit"
-      id="confirm-button"
-      class="pill confirm-button {{#if confirmLocked}}locked{{/if}}"
-      {{#if confirmLocked}}disabled{{/if}}
-    >
-      Confirm
-    </button>
-  </div>
+<div class="remaining-points">
+  Remaining Points [ <span id="remaining">{{remaining}}</span> ]
 </div>

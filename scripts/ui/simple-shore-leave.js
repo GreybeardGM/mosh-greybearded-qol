@@ -36,6 +36,9 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   static PARTS = {
     form: {
       template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html"
+    },
+    confirm: {
+      template: "modules/mosh-greybearded-qol/templates/parts/simple-shore-leave-confirm-button.html"
     }
   };
 
