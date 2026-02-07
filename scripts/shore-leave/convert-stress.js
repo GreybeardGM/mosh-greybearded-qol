@@ -1,5 +1,5 @@
-import { showStressConversionDialog } from "./ui/stress-distribution.js";
-import { chatOutput } from "./utils/chat-output.js";
+import { StressDistributionApp } from "./stress-distribution.js";
+import { chatOutput } from "../utils/chat-output.js";
 
 export async function convertStress(actor, formula, options = {}) {
   // Fallback Actor
@@ -68,7 +68,7 @@ export async function convertStress(actor, formula, options = {}) {
     roll
   });
 
-  const finalSaves = await showStressConversionDialog(actor, conversionPoints);
+  const finalSaves = await StressDistributionApp.wait({ actor, points: conversionPoints });
   if (!finalSaves) return { result: "canceled" };
 
   const targetStress = noStressRelieve ? Math.max(minStress, currentStress - conversionPoints) : minStress;

@@ -1,5 +1,5 @@
-import { convertStress } from "../convert-stress.js";
-import { flavorizeShoreLeave } from "../utils/flavorize-shore-leave.js";
+import { convertStress } from "./convert-stress.js";
+import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { toRollFormula } from "../utils/to-roll-formula.js";
@@ -35,10 +35,10 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/simple-shore-leave.html"
+      template: "modules/mosh-greybearded-qol/templates/shore-leave/simple-shore-leave.html"
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/parts/confirm-button.html"
+      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
     }
   };
 

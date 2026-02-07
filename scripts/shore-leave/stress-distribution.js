@@ -2,7 +2,7 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
+export class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "stress-distribution",
     tag: "form",
@@ -27,10 +27,10 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/stress-conversion.html"
+      template: "modules/mosh-greybearded-qol/templates/shore-leave/stress-conversion.html"
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/parts/confirm-button.html"
+      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
     }
   };
 
@@ -194,8 +194,4 @@ class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this._resolved = true;
     this._resolve?.(value);
   }
-}
-
-export async function showStressConversionDialog(actor, points) {
-  return StressDistributionApp.wait({ actor, points });
 }
