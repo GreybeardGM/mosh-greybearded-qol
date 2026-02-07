@@ -8,7 +8,7 @@ function normalizeCaps(text) {
   return lowered.charAt(0).toUpperCase() + lowered.slice(1);
 }
 
-class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
+export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "character-creator-select-class",
     tag: "form",
@@ -36,7 +36,7 @@ class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       template: "modules/mosh-greybearded-qol/templates/character-creator/select-class.html"
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/parts/confirm-button.html"
+      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
     }
   };
 
@@ -236,8 +236,4 @@ class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this._resolved = true;
     this._resolve?.(value);
   }
-}
-
-export async function selectClass(actor, applyStats = true) {
-  return ClassSelectorApp.wait({ actor, applyStats });
 }

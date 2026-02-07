@@ -1,9 +1,9 @@
-import { QoLContractorSheet } from "./contractor-sheet-class.js";
-import { defineStashSheet } from "./stash-sheet-class.js";
-import { convertStress } from "./convert-stress.js";
-import { ShoreLeaveTierEditor } from "./ui/edit-shore-leave-tiers.js";
-import { SimpleShoreLeave } from "./ui/simple-shore-leave.js";
-import { SHORE_LEAVE_TIERS } from "./config/default-shore-leave-tiers.js";
+import { QoLContractorSheet } from "./sheets/contractor-sheet-class.js";
+import { defineStashSheet } from "./sheets/stash-sheet-class.js";
+import { convertStress } from "./shore-leave/convert-stress.js";
+import { ShoreLeaveTierEditor } from "./shore-leave/edit-shore-leave-tiers.js";
+import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
+import { SHORE_LEAVE_TIERS } from "./shore-leave/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
 import { applyDamage } from "./utils/apply-damage.js";

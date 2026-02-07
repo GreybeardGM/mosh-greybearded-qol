@@ -24,7 +24,7 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/edit-shore-leave-tiers.html"
+      template: "modules/mosh-greybearded-qol/templates/shore-leave/edit-shore-leave-tiers.html"
     }
   };
 
@@ -35,7 +35,7 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
 
   static async _onResetDefaults(event, target) {
     event.preventDefault();
-    const module = await import("../config/default-shore-leave-tiers.js");
+    const module = await import("./default-shore-leave-tiers.js");
     await game.settings.set("mosh-greybearded-qol", "shoreLeaveTiers", module.SHORE_LEAVE_TIERS);
     this.render();
     ui.notifications.info("Shore Leave tiers reset to defaults.");
