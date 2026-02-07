@@ -1,30 +1,44 @@
-export function getThemeColor() {
-  // 1. GM-Setting
-  const global = String(game.settings.get("mosh-greybearded-qol", "themeColor") || "").trim();
-  if (isValidCssColor(global)) return ensureContrast(global, "#111");
+const cssColorProbe = new Option().style;
+let lastThemeInputs = null;
+let lastThemeResult = "#f50";
 
-  // 2. Spieler-Override
+export function getThemeColor() {
+  const global = String(game.settings.get("mosh-greybearded-qol", "themeColor") || "").trim();
   const override = String(game.settings.get("mosh-greybearded-qol", "themeColorOverride") || "").trim();
-  if (isValidCssColor(override)) return ensureContrast(override, "#111");
-  
-  // 3. Spielerfarbe (Pixi-Zahl) in HEX umwandeln
   const userColor = game.user?.color;
-  const colorNum = Number(userColor);
-  if (!isNaN(colorNum)) {
-    const hex = "#" + colorNum.toString(16).padStart(6, "0");
-    if (isValidCssColor(hex)) return ensureContrast(hex, "#111");
+
+  const cacheKey = `${global}|${override}|${String(userColor ?? "")}`;
+  if (cacheKey === lastThemeInputs) return lastThemeResult;
+
+  let result = "#f50";
+
+  // 1. GM-Setting
+  if (isValidCssColor(global)) {
+    result = ensureContrast(global, "#111");
+  }
+  // 2. Spieler-Override
+  else if (isValidCssColor(override)) {
+    result = ensureContrast(override, "#111");
+  }
+  // 3. Spielerfarbe (Pixi-Zahl) in HEX umwandeln
+  else {
+    const colorNum = Number(userColor);
+    if (!isNaN(colorNum)) {
+      const hex = "#" + colorNum.toString(16).padStart(6, "0");
+      if (isValidCssColor(hex)) result = ensureContrast(hex, "#111");
+    }
   }
 
-  // 4. Fallback
-  return "#f50";
+  lastThemeInputs = cacheKey;
+  lastThemeResult = result;
+  return result;
 }
 
 function isValidCssColor(color) {
   if (typeof color !== "string") return false;
-  const s = new Option().style;
-  s.color = "";
-  s.color = color;
-  return s.color !== "";
+  cssColorProbe.color = "";
+  cssColorProbe.color = color;
+  return cssColorProbe.color !== "";
 }
 
 function ensureContrast(color, reference = "#111", minRatio = 4.5) {
@@ -47,9 +61,7 @@ function ensureContrast(color, reference = "#111", minRatio = 4.5) {
     factor += 0.1;
   }
 
-  const result = rgbToHex(rgb);
-  console.log("🎨 [MoSh QoL] brightness adjusted:", result);
-  return result;
+  return rgbToHex(rgb);
 }
 
 function hexToRgb(hex) {
