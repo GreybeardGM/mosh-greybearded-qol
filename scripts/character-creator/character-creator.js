@@ -13,11 +13,16 @@ export async function startCharacterCreation(actor) {
   // ✅ Check if character is already completed
   if (checkCompleted(actor)) {
     if (game.user.isGM) {
-      const resetConfirm = await Dialog.confirm({
-        title: "Character Already Completed",
-        content: `<p><strong>${actor.name}</strong> has already completed character creation.<br>Do you want to reset and start over?</p>`
+      const resetConfirm = await foundry.applications.api.DialogV2.wait({
+        window: { title: "Character Already Completed" },
+        content: `<p><strong>${actor.name}</strong> has already completed character creation.<br>Do you want to reset and start over?</p>`,
+        buttons: [
+          { label: "Reset", icon: "fa-solid fa-rotate-left", action: "reset" },
+          { label: "Cancel", icon: "fa-solid fa-xmark", action: "cancel" }
+        ],
+        default: "cancel"
       });
-      if (resetConfirm) {
+      if (resetConfirm === "reset") {
         await reset(actor);
         ui.notifications.info(`Character creation for ${actor.name} has been reset.`);
       } else {
@@ -38,26 +43,26 @@ export async function startCharacterCreation(actor) {
       <p>Please choose an action:</p>
     `;
   
-    const choice = await Dialog.wait({
-      title: "Character Creator: Warning",
+    const choice = await foundry.applications.api.DialogV2.wait({
+      window: { title: "Character Creator: Warning" },
       content,
-      buttons: {
-        overwrite: {
+      buttons: [
+        {
           label: "Overwrite",
-          icon: `<i class="fa fa-exclamation-triangle" style="color: #f50;"></i>`,
-          callback: () => "overwrite"
+          icon: "fa-solid fa-triangle-exclamation",
+          action: "overwrite"
         },
-        markComplete: {
+        {
           label: "Mark Completed",
-          icon: `<i class="fa fa-check-circle" style="color: green;"></i>`,
-          callback: () => "complete"
+          icon: "fa-solid fa-check-circle",
+          action: "complete"
         },
-        cancel: {
+        {
           label: "Cancel",
-          icon: `<i class="fa fa-times" style="color: red;"></i>`,
-          callback: () => null
+          icon: "fa-solid fa-xmark",
+          action: "cancel"
         }
-      },
+      ],
       default: "cancel"
     });
   
