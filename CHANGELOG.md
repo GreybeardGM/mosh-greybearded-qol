@@ -1,8 +1,12 @@
 # Changelog
 
-## [0.6.7] - 2026-02-05
+## [0.7.0] - 2026-02-08
 ### Added
 - Custom dice terms `dX` (0–9) and `dH` (0–99) with zero-based results and min/max styling.
+
+### Improvements
+- Performance improvements for item loading and lookup flows.
+- Better runtime efficiency in theme color resolution and skill selection prep.
 
 ## [0.6.6] - 2025-11-06
 ### Added
