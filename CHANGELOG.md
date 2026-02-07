@@ -7,6 +7,7 @@
 ### Improvements
 - Performance improvements for item loading and lookup flows.
 - Better runtime efficiency in theme color resolution and skill selection prep.
+- Character Creator: improved OR-option linked-skill handling with centralized reference normalization, targeted selection updates (less DOM churn), and clearer option cards with full-width layout plus linked-skill icon pills.
 
 ## [0.6.6] - 2025-11-06
 ### Added

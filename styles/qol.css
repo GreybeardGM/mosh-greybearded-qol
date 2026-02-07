@@ -218,6 +218,26 @@
   font-weight: normal;
 }
 
+.greybeardqol .or-option-row .or-option {
+  width: 100%;
+}
+
+.greybeardqol .or-option-skill-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.greybeardqol .or-option-skill-pill {
+  gap: 0.5rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.greybeardqol .or-option-skill-pill span {
+  white-space: nowrap;
+}
+
 /* Shore Leave Stuff */
 .greybeardqol .flavor-description {
   min-height: 7.2rem; 
