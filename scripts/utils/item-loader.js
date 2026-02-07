@@ -11,16 +11,78 @@ const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
 /* Skill-Sortierung */
 function getSkillSortOrder() {
   return [
-    "Linguistics","Zoology","Botany","Geology","Industrial Equipment","Jury-Rigging",
-    "Chemistry","Computers","Zero-G","Mathematics","Art","Archaeology","Theology",
-    "Military Training","Rimwise","Athletics","Psychology","Pathology","Field Medicine",
-    "Ecology","Asteroid Mining","Mechanical Repair","Explosives","Pharmacology","Hacking",
-    "Piloting","Physics","Mysticism","Wilderness Survival","Firearms","Hand-to-Hand Combat",
-    "Sophontology","Exobiology","Surgery","Planetology","Robotics","Engineering","Cybernetics",
-    "Artificial Intelligence","Hyperspace","Xenoesotericism","Command"
+    "Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging",
+    "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology",
+    "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine",
+    "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking",
+    "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat",
+    "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics",
+    "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"
   ];
 }
 const SKILL_RANK = new Map(getSkillSortOrder().map((n, i) => [normName(n), i]));
+
+/* ---------- Cache (defensiv begrenzt) ---------- */
+const HOT_CACHE_TYPES = new Set(["skill", "class"]);
+const MAX_CACHED_TYPES = 4;
+const MAX_ITEMS_PER_CACHED_TYPE = 250;
+
+const packIndexCache = new Map(); // pack.collection -> index
+const itemsByTypeCache = new Map(); // normType -> sorted winners
+const itemByTypeAndNameCache = new Map(); // normType -> Map(normName, item)
+const cacheTypeLru = []; // keys in access order (oldest -> newest)
+let cacheInvalidationHooksRegistered = false;
+
+export function clearItemLoaderCache() {
+  packIndexCache.clear();
+  itemsByTypeCache.clear();
+  itemByTypeAndNameCache.clear();
+  cacheTypeLru.length = 0;
+}
+
+function ensureCacheInvalidationHooks() {
+  if (cacheInvalidationHooksRegistered || typeof Hooks === "undefined") return;
+  cacheInvalidationHooksRegistered = true;
+
+  const invalidate = () => clearItemLoaderCache();
+  Hooks.on("createItem", invalidate);
+  Hooks.on("updateItem", invalidate);
+  Hooks.on("deleteItem", invalidate);
+  Hooks.on("createCompendium", invalidate);
+  Hooks.on("deleteCompendium", invalidate);
+}
+
+function touchTypeLru(typeKey) {
+  const idx = cacheTypeLru.indexOf(typeKey);
+  if (idx >= 0) cacheTypeLru.splice(idx, 1);
+  cacheTypeLru.push(typeKey);
+
+  while (cacheTypeLru.length > MAX_CACHED_TYPES) {
+    const evict = cacheTypeLru.shift();
+    if (!evict) break;
+    itemsByTypeCache.delete(evict);
+    itemByTypeAndNameCache.delete(evict);
+  }
+}
+
+function shouldCacheType(typeKey, items) {
+  if (!HOT_CACHE_TYPES.has(typeKey)) return false;
+  return items.length <= MAX_ITEMS_PER_CACHED_TYPE;
+}
+
+function cacheTypeData(typeKey, items) {
+  if (!shouldCacheType(typeKey, items)) {
+    itemsByTypeCache.delete(typeKey);
+    itemByTypeAndNameCache.delete(typeKey);
+    const idx = cacheTypeLru.indexOf(typeKey);
+    if (idx >= 0) cacheTypeLru.splice(idx, 1);
+    return;
+  }
+
+  itemsByTypeCache.set(typeKey, items);
+  itemByTypeAndNameCache.set(typeKey, new Map(items.map(it => [normName(it.name), it])));
+  touchTypeLru(typeKey);
+}
 
 /* Packs partitionieren (V13: pack.collection ist stabil) */
 function partitionItemPacks() {
@@ -43,24 +105,35 @@ function collectWorldByTypeToMap(itemType, map) {
     if (!nm) continue;
     const k = keyOf(it.type, nm);
     let g = map.get(k);
-    if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+    if (!g) {
+      g = { world: null, normal: null, psg: null };
+      map.set(k, g);
+    }
     if (!g.world) g.world = it;
   }
+}
+
+async function getPackIndexCached(pack) {
+  const key = String(pack?.collection ?? "");
+  if (!key) return pack.getIndex({ fields: ["name", "type"] });
+  if (packIndexCache.has(key)) return packIndexCache.get(key);
+  const index = await pack.getIndex({ fields: ["name", "type"] });
+  packIndexCache.set(key, index);
+  return index;
 }
 
 /* Packs sammeln (Index tolerant, Typ final am Dokument prüfen) */
 async function collectPackByTypeToMap(packs, slot, itemType, map) {
   const t = normType(itemType);
   for (const pack of packs) {
-    const index = await pack.getIndex({ fields: ["name", "type"] });
+    const index = await getPackIndexCached(pack);
     const ids = index
       .filter(e => e?.name && e.name.trim().length)
-      .filter(e => !e.type || normType(e.type) === t) // toleriert fehlenden/inkonsistenten type im Index
+      .filter(e => !e.type || normType(e.type) === t)
       .map(e => e._id);
 
     if (!ids.length) continue;
 
-    // V13: getDocument(id) ist stabil; sequentiell/Promise.all funktioniert
     const docs = await Promise.all(ids.map(id => pack.getDocument(id)));
 
     for (const d of docs) {
@@ -69,7 +142,10 @@ async function collectPackByTypeToMap(packs, slot, itemType, map) {
       if (!nm) continue;
       const k = keyOf(d.type, nm);
       let g = map.get(k);
-      if (!g) { g = { world: null, normal: null, psg: null }; map.set(k, g); }
+      if (!g) {
+        g = { world: null, normal: null, psg: null };
+        map.set(k, g);
+      }
       if (!g[slot]) g[slot] = d;
     }
   }
@@ -99,8 +175,7 @@ function sortItems(itemType, items) {
   return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }
 
-/* ---------- Öffentliche API ---------- */
-export async function loadAllItemsByType(itemType) {
+async function buildResolvedItemsByType(itemType) {
   const map = new Map();
   collectWorldByTypeToMap(itemType, map);
   const { normalPacks, psgPacks } = partitionItemPacks();
@@ -108,7 +183,22 @@ export async function loadAllItemsByType(itemType) {
   await collectPackByTypeToMap(psgPacks, "psg", itemType, map);
 
   const winners = winnersFromMap(map);
-  const sorted = sortItems(itemType, winners);
+  return sortItems(itemType, winners);
+}
+
+/* ---------- Öffentliche API ---------- */
+export async function loadAllItemsByType(itemType) {
+  ensureCacheInvalidationHooks();
+
+  const typeKey = normType(itemType);
+  const cached = itemsByTypeCache.get(typeKey);
+  if (cached) {
+    touchTypeLru(typeKey);
+    return [...cached];
+  }
+
+  const sorted = await buildResolvedItemsByType(itemType);
+  cacheTypeData(typeKey, sorted);
 
   if (sorted.length === 0) {
     const msg = `
@@ -120,45 +210,38 @@ export async function loadAllItemsByType(itemType) {
     `.trim();
 
     try {
-      // Foundry V13: DialogV2.prompt — einfacher OK-Bestätigungsdialog
       await DialogV2.prompt({
         window: { title: "No Items Found" },
         content: msg
       });
     } catch (e) {
-      // Fallback (sollte in V13 nicht nötig sein)
       ui.notifications?.warn("MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World.");
       console.warn("[MoSh Greybearded QoL] loadAllItemsByType: No items found for type:", itemType, e);
     }
   }
 
-  return sorted;
+  return [...sorted];
 }
 
 export async function findItem(itemType, name) {
+  ensureCacheInvalidationHooks();
+
   const t = normType(itemType);
   const n = normName(name);
   if (!n) return null;
 
-  // 1) World
-  for (const it of game.items) {
-    if (!it || normType(it.type) !== t) continue;
-    if (normName(it.name) === n) return it;
+  // Für nicht-cached Typen liefert loadAllItemsByType weiterhin korrekte Daten.
+  const items = itemsByTypeCache.has(t) ? [...(itemsByTypeCache.get(t) ?? [])] : await loadAllItemsByType(t);
+
+  let byName = itemByTypeAndNameCache.get(t);
+  if (!byName) {
+    byName = new Map(items.map(it => [normName(it.name), it]));
+    // Name-Map nur halten, wenn der Typ grundsätzlich gecacht wird.
+    if (shouldCacheType(t, items)) {
+      itemByTypeAndNameCache.set(t, byName);
+      touchTypeLru(t);
+    }
   }
 
-  // 2) Packs: erst alle außer PSG, dann PSG
-  const { normalPacks, psgPacks } = partitionItemPacks();
-
-  const findInPacks = async (packs) => {
-    for (const pack of packs) {
-      const index = await pack.getIndex({ fields: ["name", "type"] });
-      const hit = index.find(e => normName(e?.name) === n && (!e.type || normType(e.type) === t));
-      if (!hit) continue;
-      const doc = await pack.getDocument(hit._id);
-      if (doc && normType(doc.type) === t) return doc;
-    }
-    return null;
-  };
-
-  return (await findInPacks(normalPacks)) ?? (await findInPacks(psgPacks));
+  return byName.get(n) ?? null;
 }

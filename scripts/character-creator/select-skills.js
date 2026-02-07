@@ -61,16 +61,20 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       return map;
     };
 
-    const loadedSkills = await loadAllItemsByType("skill");
-    const allSkills = loadedSkills.map(skill => {
-      if (skill?.system?.rank) skill.system.rank = String(skill.system.rank).toLowerCase();
-      return skill;
-    });
+    const allSkills = await loadAllItemsByType("skill");
 
     const skillMap = new Map(allSkills.map(s => [s.id, s]));
     const skillByUuid = new Map(allSkills.map(s => [s.uuid, s]));
     const dependencies = getSkillDependencies(allSkills);
-    const sortedSkills = allSkills;
+    const sortedSkills = allSkills.map(skill => ({
+      id: skill.id,
+      _id: skill.id,
+      uuid: skill.uuid,
+      name: skill.name,
+      img: skill.img,
+      system: skill.system,
+      rank: String(skill?.system?.rank ?? "").toLowerCase()
+    }));
 
     const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
     const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];

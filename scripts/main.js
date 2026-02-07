@@ -10,13 +10,7 @@ import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
 import { registerDiceSoNice } from "./dice-so-nice.js";
-import {
-  checkReady,
-  checkCompleted,
-  setReady,
-  setCompleted,
-  reset
-} from "./character-creator/progress.js";
+import { setReady } from "./character-creator/progress.js";
 
 // Needs to be here to check for
 let StashSheet;
@@ -25,8 +19,8 @@ let StashSheet;
 function getSheetKind(sheet) {
   const actor = sheet?.actor;
   // Konkrete Klassen zuerst prüfen
-  try { if (sheet instanceof QoLContractorSheet) return "contractor"; } catch {}
-  try { if (sheet instanceof StashSheet) return "stash"; } catch {}
+  if (sheet instanceof QoLContractorSheet) return "contractor";
+  if (StashSheet && sheet instanceof StashSheet) return "stash";
   // Generisch über Actor-Typ
   if (actor?.type === "ship") return "ship";
   if (actor?.type === "character") return "character";
@@ -216,7 +210,12 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
       const action = button.dataset.action;
       let args = [];
       if (button.dataset.args) {
-        try { args = JSON.parse(button.dataset.args); } catch { args = []; }
+        try {
+          args = JSON.parse(button.dataset.args);
+        } catch (error) {
+          console.warn("[MoSh QoL] Failed to parse chat action args", error);
+          args = [];
+        }
       }
       if (!action) return;
 
@@ -256,7 +255,7 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   }
 });
 
-// Prepare fesh characters for Character Creation
+// Prepare fresh characters for Character Creation
 Hooks.on("createActor", async (actor, options, userId) => {
   // Nur für Charaktere
   if (actor.type !== "character") return;
