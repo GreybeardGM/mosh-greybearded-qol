@@ -3,7 +3,7 @@ import { loadAllItemsByType } from "../utils/item-loader.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
+export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "character-creator-select-skills",
     tag: "form",
@@ -35,7 +35,7 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       template: "modules/mosh-greybearded-qol/templates/character-creator/select-skills-skilltree.html"
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/parts/confirm-button.html"
+      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
     }
   };
 
@@ -555,8 +555,4 @@ class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this._resolved = true;
     this._resolve?.(value);
   }
-}
-
-export async function selectSkills(actor, selectedClass) {
-  return SkillSelectorApp.wait({ actor, selectedClass });
 }

@@ -1,8 +1,8 @@
 import { chatOutput } from "../utils/chat-output.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
-import { selectClass } from "./select-class.js";
-import { selectAttributes } from "./select-attributes.js";
-import { selectSkills } from "./select-skills.js";
+import { ClassSelectorApp } from "./select-class.js";
+import { AttributeSelectorApp } from "./select-attributes.js";
+import { SkillSelectorApp } from "./select-skills.js";
 import { rollLoadout } from "./roll-loadout.js";
 
 export async function startCharacterCreation(actor) {
@@ -171,7 +171,7 @@ export async function startCharacterCreation(actor) {
   // If nothing was loaded -> selection dialog
   if (!selectedClass) {
     console.log("📚 Selecting class...");
-    selectedClass = await selectClass(actor);
+    selectedClass = await ClassSelectorApp.wait({ actor });
     if (!selectedClass) {
       ui.notifications.warn("Class selection cancelled.");
       return;
@@ -191,7 +191,7 @@ export async function startCharacterCreation(actor) {
     const choices = selectedClass.system?.selected_adjustment?.choose_stat || [];
     if (choices.length > 0) {
       try {
-        const adjustments = await selectAttributes(actor, choices);
+        const adjustments = await AttributeSelectorApp.wait({ actor, attributeChoices: choices });
         if (!adjustments) return ui.notifications.warn("Attribute selection cancelled.");
       } catch (err) {
         console.warn("Attribute selection aborted:", err);
@@ -228,7 +228,7 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 7: Skill selection
   if (!checkStep(actor, "selectedSkills")) {
-    const adjustments = await selectSkills(actor, selectedClass);
+    const adjustments = await SkillSelectorApp.wait({ actor, selectedClass });
     if (!adjustments || adjustments.length === 0) {
       return ui.notifications.warn("Skill selection cancelled.");
     }

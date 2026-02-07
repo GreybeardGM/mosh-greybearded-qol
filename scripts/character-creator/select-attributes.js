@@ -2,7 +2,7 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
+export class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "character-creator-select-attributes",
     tag: "form",
@@ -30,7 +30,7 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
       template: "modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html"
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/parts/confirm-button.html"
+      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
     }
   };
 
@@ -158,8 +158,4 @@ class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this._resolved = true;
     this._resolve?.(value);
   }
-}
-
-export async function selectAttributes(actor, attributeChoices) {
-  return AttributeSelectorApp.wait({ actor, attributeChoices });
 }
