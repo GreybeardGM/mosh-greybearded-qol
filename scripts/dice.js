@@ -2,7 +2,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
   static FACES = 0;
 
   static get MAX_VALUE() {
-    return this.FACES - 1;
+    return this.mapResult(this.FACES - 1);
   }
 
   constructor(termData = {}) {
@@ -33,7 +33,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
   }
 
   getResultLabel(result) {
-    return String(this.constructor.mapResult(result.result));
+    return String(result.result);
   }
 
   getResultCSS(result) {
@@ -43,7 +43,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
       : typeof css === "string"
         ? css
         : "";
-    const value = this.constructor.mapResult(result.result);
+    const value = result.result;
     const classList = new Set(classNames.split(/\s+/).filter(Boolean));
 
     classList.delete("min");
@@ -71,7 +71,16 @@ class dXDie extends ZeroBasedDie {
 
 class dHDie extends ZeroBasedDie {
   static DENOMINATION = "h";
-  static FACES = 100;
+  static FACES = 10;
+
+  static mapResult(result) {
+    return (result % this.FACES) * 10;
+  }
+}
+
+class dTDie extends ZeroBasedDie {
+  static DENOMINATION = "t";
+  static FACES = 10;
 }
 
 class dVDie extends ZeroBasedDie {
@@ -86,5 +95,6 @@ export function registerDiceTerms() {
   }
   CONFIG.Dice.terms.x = dXDie;
   CONFIG.Dice.terms.h = dHDie;
+  CONFIG.Dice.terms.t = dTDie;
   CONFIG.Dice.terms.v = dVDie;
 }

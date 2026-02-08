@@ -436,7 +436,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
    * @param {Actor} actor - The actor to update
    */
   async _rollContractorMotivation(actor) {
-    const roll = new Roll("1dH");
+    const roll = new Roll("1dH + 1dT");
     await roll.evaluate();
 
     const rolledValue = roll.total;
