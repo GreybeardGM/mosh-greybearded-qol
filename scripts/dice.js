@@ -15,7 +15,9 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
 
   _applyZeroBasedResults() {
     for (const result of this.results) {
+      if (result._zeroBasedMapped) continue;
       result.result = this.constructor.mapResult(result.result);
+      result._zeroBasedMapped = true;
     }
     this._total = this.values.reduce((total, value) => total + value, 0);
   }
