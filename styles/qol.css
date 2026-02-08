@@ -4,15 +4,14 @@
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;
-  --color-highlight: var(--theme-color);
   --color-bg-hover: #222; /* fallback */
   --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg)); /* preferred */
   --color-counter: #fc6;
   --color-remaining: #596;
 
   font-family: var(--font-primary, sans-serif);
-  font-size: 14px;
-  line-height: 1.4em;
+  font-size: 0.875rem;
+  line-height: 1.2rem;
   color: var(--color-text);
 }
 
@@ -20,10 +19,9 @@
 .greybeardqol h1,
 .greybeardqol h2,
 .greybeardqol h3 {
-  border-bottom: 1px solid var(--color-highlight);
-  text-shadow: 0 0 4px var(--color-highlight);
+  border-bottom: 1px solid var(--theme-color);
   color: var(--color-text);
-  margin: 0.5em 0 0.25em;
+  margin: 0;
 }
 
 /* Grey-out or Highlight */
@@ -32,34 +30,26 @@
 }
 
 .greybeardqol .text-highlight {
-  color: var(--color-highlight);
+  color: var(--theme-color);
 }
 
 .greybeardqol .selected {
-  border-color: var(--color-highlight) !important;
-  box-shadow: 0 0 8px var(--color-highlight);
-}
-
-.greybeardqol .selected::after {
-  content: "✓";
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-  font-size: 1.4em;
-  color: var(--color-highlight);
+  border-color: var(--theme-color) !important;
+  outline: 2px solid var(--theme-color);
+  outline-offset: 1px;
 }
 
 .greybeardqol .locked.selected {
-  opacity: 0.95;
-}
-
-.greybeardqol .locked.selected::after {
-  content: "🔒";
+  opacity: 0.9;
 }
 
 .greybeardqol .locked:not(.selected) {
   opacity: 0.4;
-  filter: grayscale(100%);
+}
+
+.application.skill-selection .window-content {
+  overflow-y: auto;
+  max-height: 85vh;
 }
 
 /* Icon/Image resizing */
@@ -73,18 +63,21 @@
 
 .greybeardqol .confirm-button {
   width: 50%;
-  margin: 1.5em auto 0 !important;
-  text-align: center;
+  margin: 1.5rem auto 0 !important;
   justify-content: center !important;
   color: var(--color-text);
   font-weight: bold;
-  font-size: 1.2em;
-  box-shadow: 0 0 10px var(--color-highlight);
+  font-size: 1.2rem;
+}
+
+.greybeardqol .confirm-button:not(.locked) {
+  outline: 2px solid var(--color-border);
+  outline-offset: 1px;
 }
 
 .greybeardqol .confirm-button:hover:not(.locked) {
+  outline-color: var(--theme-color);
   transform: scale(1.02);
-  box-shadow: 0 0 14px var(--color-highlight);
 }
 
 /* Everything clickable */
@@ -94,7 +87,7 @@
 }
 
 .greybeardqol .interactive:hover {
-  border-color: var(--color-highlight);
+  border-color: var(--theme-color);
   background-color: var(--color-bg-hover);
 }
 
@@ -103,13 +96,13 @@
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   color: var(--color-text);
-  border-radius: 8px;
-  padding: 1em;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5em;
+  gap: 1rem;
   position: relative;
-  user-select: none;
+  /*! user-select: none; */
 }
 
 /* CRT Effect */
@@ -130,52 +123,42 @@
 /* Dialog Cards */
 .greybeardqol .dialog-card {
   text-align: center;
+  width: 11rem;
+  margin: 0 auto;
 }
 
 .greybeardqol .dialog-card .icon {
-  width: 100%;
-  font-size: 5em;
+  font-size: 5rem;
 }
 
 .greybeardqol .card-grid {
   display: grid;
   grid-template-columns: repeat(var(--col-count, 3), 1fr);
-  gap: 8px; /* <- Matches Foundriey Dialog Border */
+  gap: 0.5rem;
   margin: 0 auto;
 }
 
 /* Chat Cards */
-.greybeardqol .chat-card:not(.card) { /* Fallback for outdated chat-cards */
-  background-color: var(--color-bg);
-  border: 2px solid var(--color-border);
-  border-radius: 8px;
-  padding: 1em;
-}
 .greybeardqol .chat-card .header {
   display: flex;
   align-items: center;
-  gap: 1em;
+  gap: 1rem;
 }
 
 .greybeardqol .chat-card .icon {
-  width: 2em;
-  flex-shrink: 0;
-  font-size: 2.2em;
-}
-
-.greybeardqol .chat-card .header-text {
-  flex-grow: 1;
+  width: 3rem;
+  height: 3rem;
+  font-size: 2.5rem;
 }
 
 .greybeardqol .chat-card .title {
-  font-size: 1.3em;
+  font-size: 1.2rem;
   font-weight: bold;
-  line-height: 1.2em;
 }
 
 .greybeardqol .chat-card .subtitle {
   font-style: italic;
-  color: var(--color-highlight);
+  color: var(--theme-color);
 }
 
 /* Pill layout */
@@ -186,33 +169,32 @@
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 999px;
-  padding: 0.5em 1em;
+  padding: 0.15rem 0.75rem;
   position: relative;
 }
 
 .greybeardqol .pill img {
-  width: 2em;
-  height: 2em;
+  width: 1.6rem;
+  height: 1.6rem;
   object-fit: contain;
-  margin-right: 0.5em;
 }
 
 .greybeardqol .pill-list {
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
+  gap: 0.25rem;
 }
 
 /* Remaining points info */
 .greybeardqol .remaining-points {
   text-align: center;
-  font-size: 1.5em;
+  font-size: 1.2rem;
   font-weight: bold;
-  margin: 0.5em 0;
+  margin: 0.75rem 0;
   color: var(--color-bg); /* Inverted Colors */
   background-color: var(--color-text);
-  border-radius: 0.5em;
-  padding: 0.5em 1em;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 } 
 
 .greybeardqol .remaining-points span {
@@ -226,7 +208,7 @@
 
 /* Counter for Highlighting */
 .greybeardqol .counter {
-  font-size: 1.4em;
+  font-size: 1.1rem;
   font-weight: bold;
   color: var(--color-counter);
 }
@@ -236,36 +218,95 @@
   font-weight: normal;
 }
 
+.greybeardqol .or-option-row .or-option {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.greybeardqol .or-option-skill-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.greybeardqol .or-option-skill-pill {
+  gap: 0.5rem;
+}
+
+.greybeardqol .or-option-skill-pill span {
+  white-space: nowrap;
+}
+
 /* Shore Leave Stuff */
 .greybeardqol .flavor-description {
-  min-height: 8.4em; 
-  font-size: 0.85em; 
+  min-height: 7.2rem; 
+  font-size: 0.8rem; 
   opacity: 0.8;
 }
 
 .greybeardqol .flavor-label {
   font-weight: bold; 
-  height: 2.8em; 
+  height: 2rem; 
   display: flex; 
   align-items: center; 
   justify-content: center; 
 }
 
+.shore-leave-config fieldset {
+  margin-bottom: 1em;
+  border: 1px solid #666;
+  border-radius: 6px;
+}
+
+.shore-leave-config legend {
+  font-weight: bold;
+}
+
+.shore-leave-config .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.1em;
+}
+
+.shore-leave-config .form-group label {
+  font-size: 0.9em;
+  margin-bottom: 0.25em;
+}
+
+.shore-leave-config .inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.shore-leave-config input[type="number"],
+.shore-leave-config input[type="text"] {
+  width: 5em;
+}
+
+.shore-leave-config .form-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1em;
+}
+
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
-  padding: 0.7em;
-  height: 7em;
+  height: 6rem;
   font-family: monospace;
   text-align: left;
   overflow: hidden;
+  font-size: 0.75rem;
 }
 
 .greybeardqol .trauma-response {
-  height: 4.6em;
-  color: var(--color-highlight);
+  height: 4.5rem;
+  color: var(--theme-color);
   font-style: italic;
   overflow: hidden;
-  font-size: 0.9em;
+  font-size: 0.75rem;
 }
 
 .greybeardqol .skill-columns {
@@ -274,10 +315,9 @@
   gap: 20%;
 }
 
-.greybeardqol .skill-card span {
-  margin-right: 1.3em;
+.greybeardqol .skill-card {
+  padding-right: 2.5rem;
 }
-
 .greybeardqol .skill-area-wrapper {
   position: relative;
 }
@@ -297,7 +337,7 @@
 .greybeardqol .inline-roll,
 .greybeardqol .inline-result {
   background-color: var(--color-bg-hover);
-  color: var(--color-highlight);
+  color: var(--theme-color);
   border-radius: 999px;
   padding: 1px 5px;
 }
@@ -305,7 +345,7 @@
 .greybeardqol .content-link:hover,
 .greybeardqol .inline-roll:hover,
 .greybeardqol .inline-result:hover {
-  text-shadow: 0 0 8px var(--color-highlight);
+  text-shadow: 0 0 8px var(--theme-color);
 }
 
 /* Contractor Sheet */
@@ -326,7 +366,7 @@
 }
 
 .greybeardqol .highlighted-input {
-  color: var(--color-highlight);
+  color: var(--theme-color);
   border: none;
   text-align: center;
   font-weight: bold;
@@ -375,19 +415,19 @@
 
 .greybeardqol.toolband .toolband-btn {
   pointer-events: auto;
-  width: 10em;
+  width: 8rem;
   margin: 1px 2px;
   color: var(--color-text);
   box-shadow: unset;
-  line-height: 1em;
-  padding: 1px 0.6em
+  line-height: 1rem;
+  padding: 1px 0.5rem
 }
 
 .greybeardqol.toolband .toolband-btn:hover {
-  line-height: 2em;
+  line-height: 2rem;
 }
 
 .greybeardqol.toolband .is-active {
-  border-color: var(--color-highlight) !important;
-  box-shadow: 0 0 8px var(--color-highlight) !important;
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 8px var(--theme-color) !important;
 }
