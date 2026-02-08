@@ -24,7 +24,7 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
   if (typeof setCrit === "number") {
     crit = findCrit(setCrit);
   } else {
-    roll = await (new Roll("1dH")).evaluate();
+    roll = await (new Roll("1dH + 1dT")).evaluate();
     crit = findCrit(roll.total);
   }
 
