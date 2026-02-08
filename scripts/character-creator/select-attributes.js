@@ -7,7 +7,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     id: "character-creator-select-attributes",
     tag: "form",
     window: {
-      title: "Select Attributes",
+      title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
       contentClasses: ["greybeardqol", "attribute-selection"],
       resizable: false
     },
@@ -36,7 +36,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
 
   static wait({ actor, attributeChoices }) {
     if (!actor) {
-      ui.notifications.warn("No actor provided.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoActorProvided"));
       return null;
     }
 
@@ -136,7 +136,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     }).filter(Boolean);
 
     if (selections.length !== this.attributeSets.length) {
-      ui.notifications.warn("You must select one attribute per set.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.SelectAttributes.MustSelectOnePerSet"));
       return;
     }
 

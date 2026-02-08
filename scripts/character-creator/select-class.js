@@ -13,7 +13,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     id: "character-creator-select-class",
     tag: "form",
     window: {
-      title: "Select Your Class",
+      title: "MoshQoL.CharacterCreator.SelectClass.Title",
       contentClasses: ["greybeardqol", "class-selection"],
       resizable: false
     },
@@ -42,7 +42,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static async wait({ actor, applyStats = true }) {
     if (!actor) {
-      ui.notifications.warn("No actor provided.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoActorProvided"));
       return null;
     }
 
@@ -68,8 +68,8 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const sortedClasses = await loadAllItemsByType("class");
 
     const classes = sortedClasses.map(cls => {
-      const description = stripHtml(cls.system.description || "No description available.");
-      const trauma = normalizeCaps(stripHtml(cls.system.trauma_response || "No trauma specified."));
+      const description = stripHtml(cls.system.description || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoDescription"));
+      const trauma = normalizeCaps(stripHtml(cls.system.trauma_response || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoTraumaSpecified")));
       const base = cls.system.base_adjustment || {};
       const selected = cls.system.selected_adjustment || {};
       const attr = [];
@@ -78,7 +78,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         const values = group.map(stat => base[stat] || 0);
         const allEqual = values.every(v => v === values[0]);
         if (allEqual && values[0] !== 0) {
-          attr.push(formatAttribute(values[0], group === stats ? "All Stats" : "All Saves"));
+          attr.push(formatAttribute(values[0], group === stats ? game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.AllStats") : game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.AllSaves")));
         } else {
           for (const stat of group) {
             const value = base[stat] || 0;
@@ -89,19 +89,19 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       }
 
       const wounds = (base.max_wounds || 0) + (selected.max_wounds || 0);
-      if (wounds) attr.push(formatAttribute(wounds, "Wounds"));
+      if (wounds) attr.push(formatAttribute(wounds, game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.Wounds")));
 
       if (Array.isArray(selected.choose_stat)) {
         for (const choice of selected.choose_stat) {
           const isAllStats = stats.every(stat => choice.stats.includes(stat));
           const isAllSaves = saves.every(save => choice.stats.includes(save));
           const label = isAllStats
-            ? "Any Stat"
+            ? game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.AnyStat")
             : isAllSaves
-              ? "Any Save"
+              ? game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.AnySave")
               : choice.stats.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(", ");
           const mod = parseInt(choice.modification, 10) || 0;
-          attr.push(formatAttribute(mod, `Choose 1: ${label}`));
+          attr.push(formatAttribute(mod, game.i18n.format("MoshQoL.CharacterCreator.SelectClass.ChooseOne", { label })));
         }
       }
 
@@ -112,7 +112,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         img: cls.img || "icons/svg/mystery-man.svg",
         trauma,
         description,
-        attributes: attr.join("<br>") || "No attributes."
+        attributes: attr.join("<br>") || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoAttributes")
       };
     });
 
@@ -197,7 +197,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!selected) return;
 
     const classItem = await fromUuid(selected.uuid);
-    if (!classItem) return ui.notifications.error("Failed to load class data.");
+    if (!classItem) return ui.notifications.error(game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.FailedToLoadClassData"));
 
     const updates = {
       "system.class.value": classItem.name,

@@ -4,7 +4,7 @@ import { chatOutput } from "../utils/chat-output.js";
 export async function convertStress(actor, formula, options = {}) {
   // Fallback Actor
   actor = actor || game.user.character;
-  if (!actor) return ui.notifications.warn("No actor available for stress conversion.");
+  if (!actor) return ui.notifications.warn(game.i18n.localize("MoshQoL.ShoreLeave.NoActorForStressConversion"));
 
   formula = formula ?? game.settings.get("mosh-greybearded-qol", "convertStress.formula");
   const noSanitySave = options.noSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.noSanitySave");
@@ -61,8 +61,8 @@ export async function convertStress(actor, formula, options = {}) {
   conversionPoints = Math.min(roll.total, conversionPoints);
   await chatOutput({
     actor,
-    title: "Stress Conversion",
-    content: `Converted Stress: <label class="counter">${conversionPoints}</label>`,
+    title: game.i18n.localize("MoshQoL.ShoreLeave.StressConversion"),
+    content: `${game.i18n.localize("MoshQoL.ShoreLeave.ConvertedStress")}: <label class="counter">${conversionPoints}</label>`,
     subtitle: actor.name,
     image: actor.img,
     roll

@@ -5,7 +5,7 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
     id: "shore-leave-tier-editor",
     tag: "form",
     window: {
-      title: "Edit Shore Leave Tiers",
+      title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
       resizable: true
     },
     position: {
@@ -38,13 +38,13 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
     const module = await import("./default-shore-leave-tiers.js");
     await game.settings.set("mosh-greybearded-qol", "shoreLeaveTiers", module.SHORE_LEAVE_TIERS);
     this.render();
-    ui.notifications.info("Shore Leave tiers reset to defaults.");
+    ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.ResetSuccess"));
   }
 
   static async _onSubmit(event, form, formData) {
     const expanded = foundry.utils.expandObject(formData.object ?? {});
     await game.settings.set("mosh-greybearded-qol", "shoreLeaveTiers", expanded.tiers);
-    ui.notifications.info("Shore Leave Tiers updated.");
+    ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.UpdateSuccess"));
     this.close();
   }
 }

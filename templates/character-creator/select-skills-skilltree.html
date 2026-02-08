@@ -3,7 +3,7 @@
   <div class="skill-columns">
     {{#each (array 'trained' 'expert' 'master') as |rank|}}
       <div class="skill-column">
-        <div class="remaining-points">{{capitalize rank}} [ <span class="point-count" data-rank="{{rank}}">0</span> ]</div>
+        <div class="remaining-points">{{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}} [ <span class="point-count" data-rank="{{rank}}">0</span> ]</div>
         <div class="pill-list">
           {{#each ../sortedSkills}}
             {{#if (eq this.rank rank)}}

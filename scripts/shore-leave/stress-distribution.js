@@ -7,7 +7,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
     id: "stress-distribution",
     tag: "form",
     window: {
-      title: "Distribute Stress Conversion",
+      title: "MoshQoL.ShoreLeave.DistributeStressConversion",
       contentClasses: ["greybeardqol", "stress-conversion-form"],
       resizable: false
     },
@@ -93,7 +93,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
       const diff = currentValue - baseValue;
       return {
         attr,
-        label: attr[0].toUpperCase() + attr.slice(1),
+        label: game.i18n.localize(`MoshQoL.Attributes.${attr.charAt(0).toUpperCase() + attr.slice(1)}`),
         icon: `systems/mosh/images/icons/ui/attributes/${attr}.png`,
         value: currentValue,
         diffText: diff > 0 ? `+${diff}` : ""

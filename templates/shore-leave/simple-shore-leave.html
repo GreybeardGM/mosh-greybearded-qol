@@ -32,23 +32,23 @@
       {{#if tier.flavor.label}}
         <div class="pill reroll-flavor interactive" data-action="rerollFlavor" data-tier="{{tier.tier}}">
           <i class="fas fa-dice"></i>
-          <span>Reroll Flavor</span>
+          <span>{{localize "MoshQoL.ShoreLeave.RerollFlavor"}}</span>
         </div>
       {{/if}}
 
       <div class="stress-description">
-        <strong>Stress Conversion</strong>
+        <strong>{{localize "MoshQoL.ShoreLeave.StressConversion"}}</strong>
         <div class="text-highlight">{{tier.stressString}}</div>
       </div>
 
       <div class="stress-description">
-        <strong>Price</strong>
+        <strong>{{localize "MoshQoL.ShoreLeave.Price"}}</strong>
         <div class="text-highlight">{{tier.priceString}}</div>
       </div>
 
       <div class="pill roll-price interactive" data-action="rollPrice" data-tier="{{tier.tier}}">
         <i class="fas fa-coins"></i>
-        <span>Roll Price</span>
+        <span>{{localize "MoshQoL.ShoreLeave.RollPrice"}}</span>
       </div>
     </label>
   {{/each}}
