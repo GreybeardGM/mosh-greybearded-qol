@@ -33,7 +33,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
   }
 
   getResultLabel(result) {
-    return String(this.constructor.mapResult(result.result));
+    return String(result.result);
   }
 
   getResultCSS(result) {
@@ -43,7 +43,7 @@ class ZeroBasedDie extends foundry.dice.terms.Die {
       : typeof css === "string"
         ? css
         : "";
-    const value = this.constructor.mapResult(result.result);
+    const value = result.result;
     const classList = new Set(classNames.split(/\s+/).filter(Boolean));
 
     classList.delete("min");
