@@ -5,7 +5,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const toSkillId = value => String(value ?? "").split(".").pop();
 
-function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = "Unknown OR Option" }) {
+function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = game.i18n.localize("MoshQoL.CharacterCreator.SelectSkills.UnknownOrOption") }) {
   const candidates = Array.isArray(option?.from_list) ? option.from_list : [];
   const unique = new Map();
 
@@ -38,7 +38,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     id: "character-creator-select-skills",
     tag: "form",
     window: {
-      title: "Select Skills",
+      title: "MoshQoL.CharacterCreator.SelectSkills.Title",
       contentClasses: ["greybeardqol", "skill-selection"],
       resizable: false
     },
@@ -495,7 +495,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         const fulfilled = depPrereqs.filter(pid => pid !== skillId && this._isSkillSelected(pid));
 
         if (fulfilled.length === 0) {
-          ui.notifications.warn(`${depSkill.name} needs this skill to remain selected.`);
+          ui.notifications.warn(game.i18n.format("MoshQoL.CharacterCreator.SelectSkills.DependencyNeedsSkill", { skillName: depSkill.name }));
           return;
         }
       }

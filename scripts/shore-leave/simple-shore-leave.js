@@ -12,7 +12,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     id: "simple-shore-leave",
     tag: "form",
     window: {
-      title: "Select Shore Leave Tier",
+      title: "MoshQoL.ShoreLeave.SelectTier",
       icon: "fas fa-umbrella-beach",
       contentClasses: ["greybeardqol"],
       resizable: false
@@ -44,7 +44,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static wait({ actor, randomFlavor }) {
     if (!actor) {
-      ui.notifications.warn("No actor provided.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoActorProvided"));
       return null;
     }
 
@@ -147,13 +147,13 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     await chatOutput({
       actor: this.actor,
       title: entry.label,
-      subtitle: entry.flavor?.label || "Shore Leave",
+      subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.ShoreLeave.Title"),
       content: entry.flavor?.description || "",
       icon: entry.flavor?.icon || entry.icon,
       roll,
       buttons: [
         {
-          label: "Participate Now",
+          label: game.i18n.localize("MoshQoL.ShoreLeave.ParticipateNow"),
           icon: "fa-dice",
           action: "convertStress",
           args: [entry.stressFormula]
@@ -193,7 +193,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   static async _onSubmit(event, form, formData) {
     const selectedTier = formData.object?.["shore-tier"] ?? this._selectedTier;
     const entry = this._getTier(selectedTier);
-    if (!entry) return ui.notifications.error("Invalid tier selected.");
+    if (!entry) return ui.notifications.error(game.i18n.localize("MoshQoL.ShoreLeave.InvalidTier"));
 
     const result = await convertStress(this.actor, entry.stressFormula);
     this._resolveOnce(result);

@@ -1,6 +1,6 @@
 <div class="shore-leave-config">
-  <h2>Shore Leave Tier Configuration</h2>
-  <p>Edit stress conversion and pricing formulas for each shore leave tier.</p>
+  <h2>{{localize "MoshQoL.ShoreLeave.Editor.Title"}}</h2>
+  <p>{{localize "MoshQoL.ShoreLeave.Editor.Description"}}</p>
 
   <div class="form-group">
     {{#each tiers as |tier i|}}
@@ -11,28 +11,28 @@
       <input type="hidden" name="tiers.{{i}}.icon" value="{{tier.icon}}">
 
       <div class="form-group">
-        <label>Stress Conversion</label>
+        <label>{{localize "MoshQoL.ShoreLeave.StressConversion"}}</label>
         <div class="inline-row">
-          <input type="number" name="tiers.{{i}}.baseStressConversion.dice" value="{{tier.baseStressConversion.dice}}" placeholder="Dice">
+          <input type="number" name="tiers.{{i}}.baseStressConversion.dice" value="{{tier.baseStressConversion.dice}}" placeholder="{{localize 'MoshQoL.Common.Dice'}}">
           <span>d</span>
-          <input type="number" name="tiers.{{i}}.baseStressConversion.faces" value="{{tier.baseStressConversion.faces}}" placeholder="Faces">
+          <input type="number" name="tiers.{{i}}.baseStressConversion.faces" value="{{tier.baseStressConversion.faces}}" placeholder="{{localize 'MoshQoL.Common.Faces'}}">
           <input type="text" name="tiers.{{i}}.baseStressConversion.keep" value="{{tier.baseStressConversion.keep}}" placeholder="+/-">
           <span>+</span>
-          <input type="number" name="tiers.{{i}}.baseStressConversion.bonus" value="{{tier.baseStressConversion.bonus}}" placeholder="Bonus">
+          <input type="number" name="tiers.{{i}}.baseStressConversion.bonus" value="{{tier.baseStressConversion.bonus}}" placeholder="{{localize 'MoshQoL.Common.Bonus'}}">
           <span>×</span>
           <input type="number" name="tiers.{{i}}.baseStressConversion.multiplier" value="{{tier.baseStressConversion.multiplier}}" placeholder="×">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Price Formula</label>
+        <label>{{localize "MoshQoL.ShoreLeave.PriceFormula"}}</label>
         <div class="inline-row">
-          <input type="number" name="tiers.{{i}}.basePrice.dice" value="{{tier.basePrice.dice}}" placeholder="Dice">
+          <input type="number" name="tiers.{{i}}.basePrice.dice" value="{{tier.basePrice.dice}}" placeholder="{{localize 'MoshQoL.Common.Dice'}}">
           <span>d</span>
-          <input type="number" name="tiers.{{i}}.basePrice.faces" value="{{tier.basePrice.faces}}" placeholder="Faces">
+          <input type="number" name="tiers.{{i}}.basePrice.faces" value="{{tier.basePrice.faces}}" placeholder="{{localize 'MoshQoL.Common.Faces'}}">
           <input type="text" name="tiers.{{i}}.basePrice.keep" value="{{tier.basePrice.keep}}" placeholder="h/l">
           <span>+</span>
-          <input type="number" name="tiers.{{i}}.basePrice.bonus" value="{{tier.basePrice.bonus}}" placeholder="Bonus">
+          <input type="number" name="tiers.{{i}}.basePrice.bonus" value="{{tier.basePrice.bonus}}" placeholder="{{localize 'MoshQoL.Common.Bonus'}}">
           <span>×</span>
           <input type="number" name="tiers.{{i}}.basePrice.multiplier" value="{{tier.basePrice.multiplier}}" placeholder="×">
         </div>
@@ -42,7 +42,7 @@
   </div>
 
   <footer class="form-footer">
-    <button type="submit" class="dialog-button default">Save Changes</button>
-    <button type="button" class="dialog-button" data-action="resetDefaults">Reset to Default</button>
+    <button type="submit" class="dialog-button default">{{localize "MoshQoL.Common.SaveChanges"}}</button>
+    <button type="button" class="dialog-button" data-action="resetDefaults">{{localize "MoshQoL.Common.ResetToDefault"}}</button>
   </footer>
 </div>

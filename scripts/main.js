@@ -34,6 +34,7 @@ Hooks.once("ready", () => {
   Handlebars.registerHelper("eq", (a, b) => a === b);  
   Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
   Handlebars.registerHelper("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
+  Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
   Handlebars.registerHelper("includes", function (collection, value) {
     if (Array.isArray(collection)) return collection.includes(value);
     if (collection instanceof Set) return collection.has(value);
@@ -60,20 +61,20 @@ Hooks.once("ready", () => {
   
   ActorsCollection.registerSheet("mosh-greybearded-qol", StashSheet, {
     types: ["character"],
-    label: "Stash Sheet",
+    label: "MoshQoL.Sheets.Stash",
     makeDefault: false
   });
 
   ActorsCollection.registerSheet("mosh-greybearded-qol", QoLContractorSheet, {
     types: ["creature"],
-    label: "Contractor Sheet",
+    label: "MoshQoL.Sheets.Contractor",
     makeDefault: false
   });
 
   // Armor Broken Status Effect
   const customStatus = {
     id: "qol-broken-armor",
-    name: "Broken Armor",
+    name: "MoshQoL.Status.BrokenArmor",
     img: "modules/mosh-greybearded-qol/assets/icons/status/armor-broken.svg"
   };
   if (!CONFIG.statusEffects.some(e => e.id === customStatus.id)) {
@@ -91,8 +92,8 @@ Hooks.once("init", () => {
 
   // Theme Colors
   game.settings.register("mosh-greybearded-qol", "themeColor", {
-    name: "Global Theme Color",
-    hint: "If set, this will override the player colors.",
+    name: "MoshQoL.Settings.ThemeColor.Name",
+    hint: "MoshQoL.Settings.ThemeColor.Hint",
     scope: "world",
     config: true,
     type: String,
@@ -100,8 +101,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("mosh-greybearded-qol", "themeColorOverride", {
-    name: "Player Theme Color",
-    hint: "If set, this will override the default color for this user.",
+    name: "MoshQoL.Settings.ThemeColorOverride.Name",
+    hint: "MoshQoL.Settings.ThemeColorOverride.Hint",
     scope: "client",
     config: true,
     type: String,
@@ -110,8 +111,8 @@ Hooks.once("init", () => {
 
   // Config Stress Conversion
   game.settings.register("mosh-greybearded-qol", "convertStress.noSanitySave", {
-    name: "No Sanity Save",
-    hint: "If enabled, stress will be converted without a sanity save.",
+    name: "MoshQoL.Settings.ConvertStress.NoSanitySave.Name",
+    hint: "MoshQoL.Settings.ConvertStress.NoSanitySave.Hint",
     scope: "world",
     config: true,
     default: false,
@@ -119,8 +120,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("mosh-greybearded-qol", "convertStress.noStressRelieve", {
-    name: "No Stress Relieve",
-    hint: "If enabled, stress will not be reset to minimum after stress conversion.",
+    name: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Name",
+    hint: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Hint",
     scope: "world",
     config: true,
     default: false,
@@ -128,8 +129,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("mosh-greybearded-qol", "convertStress.minStressConversion", {
-    name: "Convert Minimum Stress",
-    hint: "If enabled, stess conversion is capped at 0 instead of miminum stress.",
+    name: "MoshQoL.Settings.ConvertStress.MinStressConversion.Name",
+    hint: "MoshQoL.Settings.ConvertStress.MinStressConversion.Hint",
     scope: "world",
     config: true,
     default: false,
@@ -137,8 +138,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("mosh-greybearded-qol", "convertStress.formula", {
-    name: "Stress Conversion Formula",
-    hint: "Fallback dice formula used to convert stress (useful for Homebrew-Makros).",
+    name: "MoshQoL.Settings.ConvertStress.Formula.Name",
+    hint: "MoshQoL.Settings.ConvertStress.Formula.Hint",
     scope: "world",
     config: true,
     default: "1d5",
@@ -147,8 +148,8 @@ Hooks.once("init", () => {
 
   // Config simple shore leave
   game.settings.register("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor", {
-    name: "Flovored shore leave activities",
-    hint: "Enhance simple shore leave with random, flavored activities.",
+    name: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Name",
+    hint: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Hint",
     scope: "world",
     config: true,
     default: true,
@@ -156,8 +157,8 @@ Hooks.once("init", () => {
   });
 
   game.settings.register("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor", {
-    name: "Disable shore leave flavor",
-    hint: "Disable the randomized flavor of shore leave activities.",
+    name: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Name",
+    hint: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Hint",
     scope: "client",
     config: true,
     default: false,
@@ -166,7 +167,7 @@ Hooks.once("init", () => {
   
   // Config Shore Leave Tiers
   game.settings.register("mosh-greybearded-qol", "shoreLeaveTiers", {
-    name: "Shore Leave Tier Definitions",
+    name: "MoshQoL.Settings.ShoreLeaveTiers.Name",
     scope: "world",
     config: false,
     type: Object,
@@ -174,9 +175,9 @@ Hooks.once("init", () => {
   });
 
   game.settings.registerMenu("mosh-greybearded-qol", "shoreLeaveEditor", {
-    name: "Edit Shore Leave Tiers",
-    label: "Edit Shore Leave...",
-    hint: "Customize the tiers used in the simple shore leave system.",
+    name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+    label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
+    hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
     icon: "fas fa-edit",
     type: ShoreLeaveTierEditor,
     restricted: true
@@ -184,8 +185,8 @@ Hooks.once("init", () => {
 
   // ✅ Enable MoSh QoL Character Creator
   game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
-    name: "Enable QoL Character Creator",
-    hint: "If enabled, replaces the old character creation macro with the new QoL version.",
+    name: "MoshQoL.Settings.EnableCharacterCreator.Name",
+    hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
     scope: "world",
     config: true,
     type: Boolean,
@@ -194,8 +195,8 @@ Hooks.once("init", () => {
   
   // ✅ Enable Ship Crits (default: false)
   game.settings.register("mosh-greybearded-qol", "enableShipCrits", {
-    name: "Enable 0e Ship Crits",
-    hint: "If enabled, ship crit button appears and the 0e crit logic activates.",
+    name: "MoshQoL.Settings.EnableShipCrits.Name",
+    hint: "MoshQoL.Settings.EnableShipCrits.Hint",
     scope: "world",
     config: true,
     type: Boolean,

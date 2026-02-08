@@ -74,9 +74,15 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   
   // 💬 Chat output
   let itemSummary = "";
+  const categoryLabels = {
+    Weapons: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Categories.Weapons"),
+    Armor: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Categories.Armor"),
+    Items: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Categories.Items")
+  };
+
   for (const [category, items] of Object.entries(allItems)) {
     if (items.length > 0) {
-      itemSummary += `<h3>${category}</h3>`;
+      itemSummary += `<h3>${categoryLabels[category] ?? category}</h3>`;
       itemSummary += items.map(i => `
         <div style="
           display: flex;
@@ -98,12 +104,12 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     await creditRoll.evaluate();
     const startingCredits = creditRoll.total;
     await actor.update({ system: { credits: { value: startingCredits } } });
-    itemSummary += `<br><strong>Starting Credits:</strong> <label class="counter">${startingCredits}</label> cr`;
+    itemSummary += `<br><strong>${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:</strong> <label class="counter">${startingCredits}</label> cr`;
   }
   
   await chatOutput({
     actor,
-    title: "Loadout Rolled",
+    title: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Title"),
     subtitle: actor.name,
     icon: "fa-dice",
     image: DEFAULT_IMAGES.Loadout,
