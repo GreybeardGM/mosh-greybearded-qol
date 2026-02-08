@@ -1,5 +1,5 @@
 // scripts/utils/item-loader.js
-// Foundry VTT v13 — namebasierter Item-Loader (Homebrew-first)
+// Foundry VTT v13 — Item-Aggregation (Homebrew-first) + Sortierung
 
 const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
 
@@ -29,14 +29,12 @@ const MAX_ITEMS_PER_CACHED_TYPE = 250;
 
 const packIndexCache = new Map(); // pack.collection -> index
 const itemsByTypeCache = new Map(); // normType -> sorted winners
-const itemByTypeAndNameCache = new Map(); // normType -> Map(normName, item)
 const cacheTypeLru = []; // keys in access order (oldest -> newest)
 let cacheInvalidationHooksRegistered = false;
 
 export function clearItemLoaderCache() {
   packIndexCache.clear();
   itemsByTypeCache.clear();
-  itemByTypeAndNameCache.clear();
   cacheTypeLru.length = 0;
 }
 
@@ -61,7 +59,6 @@ function touchTypeLru(typeKey) {
     const evict = cacheTypeLru.shift();
     if (!evict) break;
     itemsByTypeCache.delete(evict);
-    itemByTypeAndNameCache.delete(evict);
   }
 }
 
@@ -73,14 +70,12 @@ function shouldCacheType(typeKey, items) {
 function cacheTypeData(typeKey, items) {
   if (!shouldCacheType(typeKey, items)) {
     itemsByTypeCache.delete(typeKey);
-    itemByTypeAndNameCache.delete(typeKey);
     const idx = cacheTypeLru.indexOf(typeKey);
     if (idx >= 0) cacheTypeLru.splice(idx, 1);
     return;
   }
 
   itemsByTypeCache.set(typeKey, items);
-  itemByTypeAndNameCache.set(typeKey, new Map(items.map(it => [normName(it.name), it])));
   touchTypeLru(typeKey);
 }
 
@@ -221,27 +216,4 @@ export async function loadAllItemsByType(itemType) {
   }
 
   return [...sorted];
-}
-
-export async function findItem(itemType, name) {
-  ensureCacheInvalidationHooks();
-
-  const t = normType(itemType);
-  const n = normName(name);
-  if (!n) return null;
-
-  // Für nicht-cached Typen liefert loadAllItemsByType weiterhin korrekte Daten.
-  const items = itemsByTypeCache.has(t) ? [...(itemsByTypeCache.get(t) ?? [])] : await loadAllItemsByType(t);
-
-  let byName = itemByTypeAndNameCache.get(t);
-  if (!byName) {
-    byName = new Map(items.map(it => [normName(it.name), it]));
-    // Name-Map nur halten, wenn der Typ grundsätzlich gecacht wird.
-    if (shouldCacheType(t, items)) {
-      itemByTypeAndNameCache.set(t, byName);
-      touchTypeLru(t);
-    }
-  }
-
-  return byName.get(n) ?? null;
 }
