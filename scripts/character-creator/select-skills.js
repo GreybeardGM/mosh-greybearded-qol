@@ -3,14 +3,10 @@ import { loadAllItemsByType } from "../utils/item-loader.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-// Order matters: prefer explicit grant/link fields first, then generic identifiers for compatibility across data versions.
-const OR_SKILL_REF_KEYS = ["skills_granted", "skills", "skill_uuids", "linked_skills", "skill_ids"];
-
-const toArray = value => (Array.isArray(value) ? value : []);
 const toSkillId = value => String(value ?? "").split(".").pop();
 
 function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = "Unknown OR Option" }) {
-  const candidates = OR_SKILL_REF_KEYS.flatMap(key => toArray(option?.[key]));
+  const candidates = Array.isArray(option?.from_list) ? option.from_list : [];
   const unique = new Map();
 
   for (const entry of candidates) {
@@ -18,9 +14,7 @@ function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = "Un
     if (!rawRef) continue;
 
     const byUuid = skillByUuid.get(rawRef);
-    const skillId = byUuid?.id || toSkillId(rawRef);
-    const byId = skillMap.get(skillId);
-    const skill = byUuid || byId;
+    const skill = byUuid || skillMap.get(toSkillId(rawRef));
 
     if (!skill) {
       console.debug(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`);
