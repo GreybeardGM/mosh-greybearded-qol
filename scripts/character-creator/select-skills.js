@@ -3,6 +3,36 @@ import { loadAllItemsByType } from "../utils/item-loader.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+const toSkillId = value => String(value ?? "").split(".").pop();
+
+function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = "Unknown OR Option" }) {
+  const candidates = Array.isArray(option?.from_list) ? option.from_list : [];
+  const unique = new Map();
+
+  for (const entry of candidates) {
+    const rawRef = typeof entry === "string" ? entry : entry?.uuid || entry?.id;
+    if (!rawRef) continue;
+
+    const byUuid = skillByUuid.get(rawRef);
+    const skill = byUuid || skillMap.get(toSkillId(rawRef));
+
+    if (!skill) {
+      console.debug(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`);
+      continue;
+    }
+
+    unique.set(skill.id, {
+      id: skill.id,
+      uuid: skill.uuid,
+      name: skill.name,
+      img: skill.img || "icons/svg/d20-grey.svg",
+      rank: String(skill?.system?.rank ?? "").toLowerCase()
+    });
+  }
+
+  return [...unique.values()];
+}
+
 export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "character-creator-select-skills",
@@ -96,13 +126,17 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     };
     const add = (...vals) => vals.map(toNum).reduce((a, b) => a + b, 0);
 
-    const orOptions = baseOr.flat().map((opt, i) => ({
-      id: `or-${i}`,
-      name: opt.name ?? `Option ${i + 1}`,
-      trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
-      expert: add(opt.expert, opt.expert_full_set, opt.master_full_set),
-      master: add(opt.master, opt.master_full_set)
-    }));
+    const orOptions = baseOr.flat().map((opt, i) => {
+      const name = opt.name ?? `Option ${i + 1}`;
+      return {
+        id: `or-${i}`,
+        name,
+        trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
+        expert: add(opt.expert, opt.expert_full_set, opt.master_full_set),
+        master: add(opt.master, opt.master_full_set),
+        skills: resolveOrOptionSkills(opt, { skillByUuid, skillMap, optionName: name })
+      };
+    });
 
     return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions };
   }
@@ -132,6 +166,8 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this._prevSelectedSkills = new Set();
     this._pendingChangedSkillIds = null;
     this._selectedSkillIds = new Set();
+    this._orOptionById = new Map(orOptions.map(option => [option.id, option]));
+    this._currentOrLockedSkillIds = new Set();
   }
 
   _getRoot() {
@@ -325,7 +361,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     }
 
     for (const el of cards) {
-      if (el.classList.contains("default-skill")) continue;
+      if (el.classList.contains("default-skill") || el.classList.contains("or-locked-skill")) continue;
 
       const skillId = el.dataset.skillId;
       const rank = el.dataset.rank;
@@ -489,19 +525,33 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     if (activeOrOption) activeOrOption.classList.remove("selected");
     target.classList.add("selected");
 
-    const opt = this.orOptions.find(o => o.id === target.dataset.option);
+    const opt = this._orOptionById.get(target.dataset.option);
     this.points.trained = this.basePoints.trained + (opt?.trained || 0);
     this.points.expert = this.basePoints.expert + (opt?.expert || 0);
     this.points.master = this.basePoints.master + (opt?.master || 0);
 
-    this._dom.skillCards.forEach(el => {
-      if (el.classList.contains("selected") && !el.classList.contains("default-skill")) {
-        el.classList.remove("selected");
-        const skillId = el.dataset.skillId;
-        this._selectedSkillIds.delete(skillId);
-        changedSkillIds.add(skillId);
+    for (const skillId of [...this._selectedSkillIds]) {
+      const el = this._dom.skillCardById.get(skillId);
+      if (!el || el.classList.contains("default-skill")) continue;
+
+      el.classList.remove("selected");
+      if (this._currentOrLockedSkillIds.has(skillId)) {
+        el.classList.remove("or-locked-skill", "locked");
       }
-    });
+
+      this._selectedSkillIds.delete(skillId);
+      changedSkillIds.add(skillId);
+    }
+
+    this._currentOrLockedSkillIds.clear();
+    for (const skill of opt?.skills || []) {
+      const el = this._dom.skillCardById.get(skill.id);
+      if (!el) continue;
+      el.classList.add("selected", "locked", "or-locked-skill");
+      this._selectedSkillIds.add(skill.id);
+      this._currentOrLockedSkillIds.add(skill.id);
+      changedSkillIds.add(skill.id);
+    }
 
     this._updateUi({ changedSkillIds, forceFullAvailability: true });
   }
@@ -550,6 +600,8 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this._lineKeyBySkill.clear();
     this._prevSelectedSkills.clear();
     this._pendingChangedSkillIds = null;
+    this._orOptionById.clear();
+    this._currentOrLockedSkillIds.clear();
     this._resolveOnce(null);
     return super.close(options);
   }

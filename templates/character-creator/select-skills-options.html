@@ -7,6 +7,17 @@
         {{#if this.expert}}{{this.expert}} <span class="bonus">Expert</span>{{/if}}
         {{#if this.master}}{{this.master}} <span class="bonus">Master</span>{{/if}}
       </p>
+      {{#if this.skills.length}}
+        <p><strong>Linked Skills:</strong></p>
+        <div class="or-option-skill-pills">
+          {{#each this.skills}}
+            <div class="pill or-option-skill-pill">
+              <img src="{{this.img}}" alt="{{this.name}}" />
+              <span>{{this.name}}</span>
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
     </div>
   {{/each}}
 </div>
