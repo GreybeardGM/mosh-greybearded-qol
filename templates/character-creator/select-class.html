@@ -16,13 +16,15 @@
                 {{#if this.skillView.defaultSkills.trained}}<li>{{this.skillView.defaultSkills.trained}} {{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</li>{{/if}}
                 {{#if this.skillView.defaultSkills.expert}}<li>{{this.skillView.defaultSkills.expert}} {{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</li>{{/if}}
                 {{#if this.skillView.defaultSkills.master}}<li>{{this.skillView.defaultSkills.master}} {{localize "MoshQoL.CharacterCreator.Skills.Master"}}</li>{{/if}}
-                {{#if this.skillView.defaultSkills.skills.length}}
-                  <li><strong>{{localize "MoshQoL.CharacterCreator.Skills.LinkedSkills"}}:</strong></li>
+              </ul>
+              {{#if this.skillView.defaultSkills.skills.length}}
+                <h5 class="class-skill-linked-heading">{{localize "MoshQoL.CharacterCreator.Skills.LinkedSkills"}}</h5>
+                <ul class="class-skill-list">
                   {{#each this.skillView.defaultSkills.skills}}
                     <li>{{this.name}}</li>
                   {{/each}}
-                {{/if}}
-              </ul>
+                </ul>
+              {{/if}}
             </div>
             {{#each this.skillView.orOptions}}
               <div class="card class-skill-option-card">
@@ -31,13 +33,15 @@
                   {{#if this.trained}}<li>{{this.trained}} {{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</li>{{/if}}
                   {{#if this.expert}}<li>{{this.expert}} {{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</li>{{/if}}
                   {{#if this.master}}<li>{{this.master}} {{localize "MoshQoL.CharacterCreator.Skills.Master"}}</li>{{/if}}
-                  {{#if this.skills.length}}
-                    <li><strong>{{localize "MoshQoL.CharacterCreator.Skills.LinkedSkills"}}:</strong></li>
+                </ul>
+                {{#if this.skills.length}}
+                  <h5 class="class-skill-linked-heading">{{localize "MoshQoL.CharacterCreator.Skills.LinkedSkills"}}</h5>
+                  <ul class="class-skill-list">
                     {{#each this.skills}}
                       <li>{{this.name}}</li>
                     {{/each}}
-                  {{/if}}
-                </ul>
+                  </ul>
+                {{/if}}
               </div>
             {{/each}}
           </div>

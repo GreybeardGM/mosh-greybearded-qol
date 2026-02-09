@@ -358,6 +358,13 @@
   font-size: 0.75rem;
 }
 
+.greybeardqol .class-skill-linked-heading {
+  margin: 0;
+  text-align: left;
+  font-size: 0.7rem;
+  color: var(--theme-color);
+}
+
 .greybeardqol .skill-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
