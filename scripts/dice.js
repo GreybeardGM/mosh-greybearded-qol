@@ -117,6 +117,35 @@ function registerZeroMaxModifier() {
     Die.prototype._zeroMaxPatchedLabel = true;
   }
 
+
+  if (!Die.prototype._zeroMaxPatchedCss) {
+    const originalGetResultCSS = Die.prototype.getResultCSS;
+    Die.prototype.getResultCSS = function (result) {
+      const css = originalGetResultCSS.call(this, result);
+      const classNames = Array.isArray(css)
+        ? css.join(" ")
+        : typeof css === "string"
+          ? css
+          : "";
+      const classList = new Set(classNames.split(/\s+/).filter(Boolean));
+
+      const usesZeroMax = Array.isArray(this.modifiers) && this.modifiers.includes("z");
+      if (!usesZeroMax) return Array.from(classList);
+
+      classList.delete("min");
+      classList.delete("max");
+
+      const max = Number(this.faces);
+      const zeroMaxTopValue = max - 1;
+
+      if (result?._zeroMaxApplied) classList.add("min");
+      else if (Number.isFinite(zeroMaxTopValue) && result?.result === zeroMaxTopValue) classList.add("max");
+
+      return Array.from(classList);
+    };
+    Die.prototype._zeroMaxPatchedCss = true;
+  }
+
   if (!Die.prototype._zeroMaxPatchedTotal) {
     const totalDescriptor = Object.getOwnPropertyDescriptor(Die.prototype, "total");
     if (totalDescriptor?.get) {
