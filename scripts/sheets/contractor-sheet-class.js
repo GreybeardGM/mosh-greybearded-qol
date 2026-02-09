@@ -96,6 +96,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         const weapons = [];
         const armors = [];
         const gear = [];
+        const skills = [];
+        const conditions = [];
         let armorPoints = 0;
         let damageReduction = 0;
     
@@ -123,6 +125,16 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
                     item.ranges.medium = 0;
                 }
                 weapons.push(i);
+
+            } else if (i.type === 'skill') {
+                skills.push(i);
+
+            } else if (i.type === 'condition') {
+                item.treatment = item.treatment ?? {};
+                item.treatment.value = Number(item.treatment.value ?? 0);
+                item.treatment.max = Number(item.treatment.max ?? 0);
+                item.severity = Number(item.severity ?? 0);
+                conditions.push(i);
             }
         }
 
@@ -134,6 +146,18 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         actorData.weapons = weapons;
         actorData.armors = armors;
         actorData.gear = gear;
+        actorData.skills = skills;
+        actorData.conditions = conditions;
+
+        actorData.system.xp = actorData.system.xp ?? {};
+        actorData.system.xp.value = Number(actorData.system.xp.value ?? 0);
+        const xpMax = Number(actorData.system.xp.max ?? 10);
+        actorData.system.xp.max = xpMax;
+        actorData.xpPips = Array.from({ length: xpMax }, (_, idx) => ({
+            index: idx,
+            active: idx < actorData.system.xp.value
+        }));
+
         actorData.system.stats = actorData.system.stats ?? {};
         actorData.system.stats.armor = {
             ...existingArmor,
@@ -180,6 +204,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // ITEMS
         // Add Inventory Item
         html.find('.item-create').click(this._onItemCreate.bind(this));        
+        html.find('.skill-create').click(this._onItemCreate.bind(this));
         
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
@@ -193,6 +218,87 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           const li = $(ev.currentTarget).parents(".item");
           const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
           item.sheet.render(true);
+        });
+
+        html.find('.skill-edit').click(ev => {
+            const li = $(ev.currentTarget).parents(".item");
+            const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
+            item.sheet.render(true);
+        });
+
+        html.find('.skill-roll').click(ev => {
+            const li = ev.currentTarget.closest(".item");
+            const skill = this.actor.getEmbeddedDocument("Item", li.dataset.itemId);
+            if (!skill) return;
+
+            if (typeof this.actor.rollSkill === "function") {
+                this.actor.rollSkill(skill);
+                return;
+            }
+
+            this.actor.rollCheck(null, 'low', skill.name, null, null, null);
+        });
+
+        html.on('mousedown', '.char-pip-button', async ev => {
+            ev.preventDefault();
+            const pipIndex = Number(ev.currentTarget.dataset.index ?? 0);
+            const currentValue = Number(this.actor.system?.xp?.value ?? 0);
+            let nextValue = currentValue;
+
+            if (ev.button === 0) {
+                nextValue = pipIndex + 1;
+            } else if (ev.button === 2) {
+                nextValue = Math.max(0, currentValue - 1);
+            }
+
+            await this.actor.update({ "system.xp.value": nextValue });
+        });
+
+        html.on('mousedown', '.treatment-button', async ev => {
+            ev.preventDefault();
+            const li = ev.currentTarget.closest(".item");
+            if (!li?.dataset?.itemId) return;
+
+            const item = game.release.generation >= 12
+                ? foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId))
+                : duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+
+            const treatment = item.system.treatment ?? {};
+            const current = Number(treatment.value ?? 0);
+            const max = Number(treatment.max ?? 0);
+            let next = current;
+
+            if (ev.button === 0) {
+                next = Math.min(max, current + 1);
+            } else if (ev.button === 2) {
+                next = Math.max(0, current - 1);
+            }
+
+            item.system.treatment = { ...treatment, value: next, max };
+            await this.actor.updateEmbeddedDocuments('Item', [item]);
+        });
+
+        html.on('mousedown', '.severity-button', async ev => {
+            ev.preventDefault();
+            const li = ev.currentTarget.closest(".item");
+            if (!li?.dataset?.itemId) return;
+
+            const item = game.release.generation >= 12
+                ? foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId))
+                : duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+
+            const severity = Number(item.system.severity ?? 0);
+            const maxSeverity = Number(item.system.maxSeverity ?? 4);
+            let nextSeverity = severity;
+
+            if (ev.button === 0) {
+                nextSeverity = Math.min(maxSeverity, severity + 1);
+            } else if (ev.button === 2) {
+                nextSeverity = Math.max(0, severity - 1);
+            }
+
+            item.system.severity = nextSeverity;
+            await this.actor.updateEmbeddedDocuments('Item', [item]);
         });
 
         //Quantity adjuster
