@@ -207,9 +207,9 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           }
           let amount = item.system.quantity;
     
-          if (event.button == 0) {
+          if (ev.button == 0) {
             item.system.quantity = Number(amount) + 1;
-          } else if (event.button == 2) {
+          } else if (ev.button == 2) {
             item.system.quantity = Number(amount) - 1;
           }
     
@@ -271,11 +271,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             }
             let amount = item.system.ammo;
             //increase ammo
-            if (event.button == 0) {
+            if (ev.button == 0) {
                 if (amount >= 0) {
                     item.system.ammo = Number(amount) + 1;
                 }
-            } else if (event.button == 2) {
+            } else if (ev.button == 2) {
                 if (amount > 0) {
                     item.system.ammo = Number(amount) - 1;
                 }
@@ -293,12 +293,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             } else {
                 item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
             }
-            if (event.button == 0) {
+            if (ev.button == 0) {
                 if (item.system.curShots >= 0 && item.system.curShots < item.system.shots && item.system.ammo > 0) {
                     item.system.curShots = Number(item.system.curShots) + 1;
                     item.system.ammo = Number(item.system.ammo) - 1;
                 }
-            } else if (event.button == 2) {
+            } else if (ev.button == 2) {
                 if (item.system.curShots > 0) {
                     item.system.curShots = Number(item.system.curShots) - 1;
                     item.system.ammo = Number(item.system.ammo) + 1;
@@ -339,11 +339,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
           }
           let amount = item.system.oxygenCurrent;
-          if (event.button == 0) {
+          if (ev.button == 0) {
             if (amount < item.system.oxygenMax) {
               item.system.oxygenCurrent = Number(amount) + 1;
             }
-          } else if (event.button == 2) {
+          } else if (ev.button == 2) {
             if (amount > 0) {
               item.system.oxygenCurrent = Number(amount) - 1;
             }
