@@ -1,15 +1,15 @@
-import { getThemeColor } from "./utils/get-theme-color.js";
-import { chatOutput } from "./utils/chat-output.js";
-import { selectClass } from "./character-creator/select-class.js";
-import { rollLoadout } from "./character-creator/roll-loadout.js";
-import { MOTIVATION_TABLE } from "./config/default-contractor-motivation.js";
+import { getThemeColor } from "../utils/get-theme-color.js";
+import { chatOutput } from "../utils/chat-output.js";
+import { ClassSelectorApp } from "../character-creator/select-class.js";
+import { rollLoadout } from "../character-creator/roll-loadout.js";
+import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
 
 export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     static get defaultOptions() {
         var options = {
             classes: ["mosh", "sheet", "actor", "creature"],
-            template: "modules/mosh-greybearded-qol/templates/contractor-sheet.html",
+            template: "modules/mosh-greybearded-qol/templates/sheets/contractor-sheet.html",
             width: 700,
             height: 650,
             tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "character" }]
@@ -436,10 +436,10 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
    * @param {Actor} actor - The actor to update
    */
   async _rollContractorMotivation(actor) {
-    const roll = new Roll("1d100");
+    const roll = new Roll("1d100z");
     await roll.evaluate();
 
-    const rolledValue = roll.total % 100;
+    const rolledValue = roll.total;
     const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
 
     if (!result) {
@@ -471,7 +471,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   async _rollContractorLoadout(actor) {
-    const selectedClass = await selectClass(actor, false);
+    const selectedClass = await ClassSelectorApp.wait({ actor, applyStats: false });
     if (selectedClass) await rollLoadout(actor, selectedClass, {
       rollCredits: false,
       clearItems: true

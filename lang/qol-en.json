@@ -1,11 +1,195 @@
 {
-  "MoshQoL.GenericContractor": "Generic Contractor",
-  "MoshQoL.UniqueContractor": "Unique Contractor",
-  "MoshQoL.ContractorRole": "Profession",
-  "MoshQoL.BaseSalary": "Base Salary",
-  "MoshQoL.Motivation": "Motivation",
-  "MoshQoL.EnterMotivation": "What drives the Contractor.",
-  "MoshQoL.HiddenMotivation": "Secret Motivation (GM only)",
-  "MoshQoL.EnterHiddenMotivation": "Only visible to GM",
-  "MoshQoL.LoyaltyRolled": "Loyalty Rolled"
+  "MoshQoL": {
+    "Common": {
+      "Bonus": "Bonus",
+      "Cancel": "Cancel",
+      "Confirm": "Confirm",
+      "Dice": "Dice",
+      "Faces": "Faces",
+      "RemainingPoints": "Remaining Points",
+      "Reset": "Reset",
+      "ResetToDefault": "Reset to Default",
+      "SaveChanges": "Save Changes"
+    },
+    "Errors": {
+      "NoActorProvided": "No actor provided."
+    },
+    "Attributes": {
+      "Body": "Body",
+      "Fear": "Fear",
+      "Sanity": "Sanity"
+    },
+    "Sheets": {
+      "Contractor": "Contractor Sheet",
+      "Stash": "Stash Sheet"
+    },
+    "Status": {
+      "BrokenArmor": "Broken Armor"
+    },
+    "Settings": {
+      "ConvertStress": {
+        "Formula": {
+          "Hint": "Fallback dice formula used to convert stress (useful for homebrew macros).",
+          "Name": "Stress Conversion Formula"
+        },
+        "MinStressConversion": {
+          "Hint": "If enabled, stress conversion is capped at 0 instead of minimum stress.",
+          "Name": "Convert Minimum Stress"
+        },
+        "NoSanitySave": {
+          "Hint": "If enabled, stress will be converted without a sanity save.",
+          "Name": "No Sanity Save"
+        },
+        "NoStressRelieve": {
+          "Hint": "If enabled, stress will not be reset to minimum after stress conversion.",
+          "Name": "No Stress Relieve"
+        }
+      },
+      "EnableCharacterCreator": {
+        "Hint": "If enabled, replaces the old character creation macro with the new QoL version.",
+        "Name": "Enable QoL Character Creator"
+      },
+      "EnableShipCrits": {
+        "Hint": "If enabled, ship crit button appears and the 0e crit logic activates.",
+        "Name": "Enable 0e Ship Crits"
+      },
+      "ShoreLeaveEditor": {
+        "Hint": "Customize the tiers used in the simple shore leave system.",
+        "Label": "Edit Shore Leave...",
+        "Name": "Edit Shore Leave Tiers"
+      },
+      "ShoreLeaveTiers": {
+        "Name": "Shore Leave Tier Definitions"
+      },
+      "SimpleShoreLeave": {
+        "DisableFlavor": {
+          "Hint": "Disable the randomized flavor of shore leave activities.",
+          "Name": "Disable shore leave flavor"
+        },
+        "RandomFlavor": {
+          "Hint": "Enhance simple shore leave with random, flavored activities.",
+          "Name": "Flavored shore leave activities"
+        }
+      },
+      "ThemeColor": {
+        "Hint": "If set, this will override the player colors.",
+        "Name": "Global Theme Color"
+      },
+      "ThemeColorOverride": {
+        "Hint": "If set, this will override the default color for this user.",
+        "Name": "Player Theme Color"
+      }
+    },
+    "ShoreLeave": {
+      "ConvertedStress": "Converted Stress",
+      "DistributeStressConversion": "Distribute Stress Conversion",
+      "Editor": {
+        "Description": "Edit stress conversion and pricing formulas for each shore leave tier.",
+        "ResetSuccess": "Shore Leave tiers reset to defaults.",
+        "Title": "Shore Leave Tier Configuration",
+        "UpdateSuccess": "Shore Leave tiers updated."
+      },
+      "InvalidTier": "Invalid tier selected.",
+      "NoActorForStressConversion": "No actor available for stress conversion.",
+      "ParticipateNow": "Participate Now",
+      "Price": "Price",
+      "PriceFormula": "Price Formula",
+      "RerollFlavor": "Reroll Flavor",
+      "RollPrice": "Roll Price",
+      "SelectTier": "Select Shore Leave Tier",
+      "StressConversion": "Stress Conversion",
+      "Title": "Shore Leave"
+    },
+    "CharacterCreator": {
+      "Chat": {
+        "ClassSelected": {
+          "Content": "{actorName} chose a class: <label class='counter'>{className}</label>",
+          "Title": "Class Selected"
+        },
+        "HealthRolled": {
+          "Title": "Health Rolled"
+        },
+        "SkillsSelected": {
+          "Title": "Skills Selected"
+        }
+      },
+      "Dialog": {
+        "AlreadyCompleted": {
+          "Content": "<strong>{actorName}</strong> has already completed character creation.<br>Do you want to reset and start over?",
+          "Title": "Character Already Completed"
+        },
+        "Warning": {
+          "ChooseAction": "Please choose an action:",
+          "MarkCompleted": "Mark Completed",
+          "NoValidData": "No valid character creator data found for <strong>{actorName}</strong>!",
+          "Overwrite": "Overwrite",
+          "OverwriteRisk": "Proceeding might <strong><span style='color: #f55;'>overwrite</span></strong> an existing character.",
+          "Title": "Character Creator: Warning"
+        }
+      },
+      "Loadout": {
+        "Categories": {
+          "Armor": "Armor",
+          "Items": "Items",
+          "Weapons": "Weapons"
+        },
+        "StartingCredits": "Starting Credits",
+        "Title": "Loadout Rolled"
+      },
+      "Notifications": {
+        "AlreadyCompleted": "Character creation already completed.",
+        "AttributeSelectionAborted": "Attribute selection aborted:",
+        "AttributeSelectionCancelled": "Attribute selection cancelled.",
+        "Cancelled": "Character creation cancelled.",
+        "ClassSelectionCancelled": "Class selection cancelled.",
+        "ClassUuidInvalid": "Class UUID invalid. Please reselect.",
+        "Completed": "{actorName} has completed character creation.",
+        "MarkedCompleted": "{actorName} has been marked as completed manually.",
+        "NoClassUuid": "No class UUID found. Please select a class.",
+        "Reset": "Character creation for {actorName} has been reset.",
+        "SkillSelectionCancelled": "Skill selection cancelled."
+      },
+      "SelectAttributes": {
+        "MustSelectOnePerSet": "You must select one attribute per set.",
+        "Title": "Select Attributes"
+      },
+      "SelectClass": {
+        "AllSaves": "All Saves",
+        "AllStats": "All Stats",
+        "AnySave": "Any Save",
+        "AnyStat": "Any Stat",
+        "ChooseOne": "Choose 1: {label}",
+        "DefaultSkills": "Default Skills",
+        "FailedToLoadClassData": "Failed to load class data.",
+        "NoAttributes": "No attributes.",
+        "NoDescription": "No description available.",
+        "NoTraumaSpecified": "No trauma specified.",
+        "OrOption": "Option {index}",
+        "ShowDescription": "Show Description",
+        "ShowSkills": "Show Skills",
+        "Title": "Select Your Class",
+        "Wounds": "Wounds"
+      },
+      "SelectSkills": {
+        "DependencyNeedsSkill": "{skillName} needs this skill to remain selected.",
+        "Title": "Select Skills",
+        "UnknownOrOption": "Unknown OR Option"
+      },
+      "Skills": {
+        "Expert": "Expert",
+        "LinkedSkills": "Linked Skills",
+        "Master": "Master",
+        "Trained": "Trained"
+      }
+    },
+    "BaseSalary": "Base Salary",
+    "ContractorRole": "Profession",
+    "EnterHiddenMotivation": "Only visible to GM",
+    "EnterMotivation": "What drives the Contractor.",
+    "GenericContractor": "Generic Contractor",
+    "HiddenMotivation": "Secret Motivation (GM only)",
+    "LoyaltyRolled": "Loyalty Rolled",
+    "Motivation": "Motivation",
+    "UniqueContractor": "Unique Contractor"
+  }
 }

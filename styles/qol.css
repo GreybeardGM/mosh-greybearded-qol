@@ -309,6 +309,65 @@
   font-size: 0.75rem;
 }
 
+.application.class-selection .window-content {
+  position: relative;
+}
+
+.greybeardqol .class-view-toggle-wrap {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  z-index: 5;
+}
+
+.greybeardqol .class-view-toggle {
+  margin: 0;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  color: var(--color-text);
+}
+
+.greybeardqol .class-view-toggle.active {
+  border-color: var(--theme-color);
+}
+
+.greybeardqol .class-skill-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.greybeardqol .class-skill-option-card {
+  gap: 0.25rem;
+  padding: 0.4rem;
+}
+
+.greybeardqol .class-skill-option-card h4 {
+  font-size: 0.7rem;
+  margin: 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: Monospace;
+}
+
+.greybeardqol .class-skill-list {
+  margin: 0;
+  padding-left: 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.75rem;
+}
+
+.greybeardqol .class-skill-linked-heading {
+  margin: 0;
+  text-align: left;
+  font-size: 0.7rem;
+  color: var(--theme-color);
+  font-family: Monospace;
+}
+
 .greybeardqol .skill-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

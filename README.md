@@ -44,6 +44,12 @@
   - Shore Leave helper
   - Stress conversion helper
   - Apply damage helper
+  - Zero-max `z` modifier for zero-based rolls (e.g. `1d10z`, `1d100z`)
+
+## Version
+
+- Current module version: `0.7.0`
+- Verified for Foundry VTT: `13.351`
 
 ## Compatibility
 

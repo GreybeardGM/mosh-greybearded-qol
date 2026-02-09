@@ -42,7 +42,7 @@ export async function chatOutput({
 
   // Prepare HTML via template
   const themeColor = getThemeColor();
-  const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/chat-output.html", {
+  const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/ui/chat-output.html", {
     actor,
     title,
     subtitle,

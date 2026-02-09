@@ -1,31 +1,36 @@
 import { chatOutput } from "../utils/chat-output.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
-import { selectClass } from "./select-class.js";
-import { selectAttributes } from "./select-attributes.js";
-import { selectSkills } from "./select-skills.js";
+import { ClassSelectorApp } from "./select-class.js";
+import { AttributeSelectorApp } from "./select-attributes.js";
+import { SkillSelectorApp } from "./select-skills.js";
 import { rollLoadout } from "./roll-loadout.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
-    ui.notifications.error("No actor provided.");
+    ui.notifications.error(game.i18n.localize("MoshQoL.Errors.NoActorProvided"));
     return;
   }
   // ✅ Check if character is already completed
   if (checkCompleted(actor)) {
     if (game.user.isGM) {
-      const resetConfirm = await Dialog.confirm({
-        title: "Character Already Completed",
-        content: `<p><strong>${actor.name}</strong> has already completed character creation.<br>Do you want to reset and start over?</p>`
+      const resetConfirm = await foundry.applications.api.DialogV2.wait({
+        window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Title") },
+        content: `<p>${game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name })}</p>`,
+        buttons: [
+          { label: game.i18n.localize("MoshQoL.Common.Reset"), icon: "fa-solid fa-rotate-left", action: "reset" },
+          { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
+        ],
+        default: "cancel"
       });
-      if (resetConfirm) {
+      if (resetConfirm === "reset") {
         await reset(actor);
-        ui.notifications.info(`Character creation for ${actor.name} has been reset.`);
+        ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.Reset", { actorName: actor.name }));
       } else {
-        ui.notifications.warn("Character creation cancelled.");
+        ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.Cancelled"));
         return;
       }
     } else {
-      ui.notifications.warn("Character creation already completed.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AlreadyCompleted"));
       return;
     }
   }
@@ -33,40 +38,40 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 1: Check if actor is marked "ready"
   if (!checkReady(actor)) {
     const content = `
-      <p>No valid character creator data found for <strong>${actor.name}</strong>!</p>
-      <p>Proceeding might <strong><span style="color: #f55;">overwrite</span></strong> an existing character.</p>
-      <p>Please choose an action:</p>
+      <p>${game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name })}</p>
+      <p>${game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk")}</p>
+      <p>${game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction")}</p>
     `;
   
-    const choice = await Dialog.wait({
-      title: "Character Creator: Warning",
+    const choice = await foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.Title") },
       content,
-      buttons: {
-        overwrite: {
-          label: "Overwrite",
-          icon: `<i class="fa fa-exclamation-triangle" style="color: #f50;"></i>`,
-          callback: () => "overwrite"
+      buttons: [
+        {
+          label: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.Overwrite"),
+          icon: "fa-solid fa-triangle-exclamation",
+          action: "overwrite"
         },
-        markComplete: {
-          label: "Mark Completed",
-          icon: `<i class="fa fa-check-circle" style="color: green;"></i>`,
-          callback: () => "complete"
+        {
+          label: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.MarkCompleted"),
+          icon: "fa-solid fa-check-circle",
+          action: "complete"
         },
-        cancel: {
-          label: "Cancel",
-          icon: `<i class="fa fa-times" style="color: red;"></i>`,
-          callback: () => null
+        {
+          label: game.i18n.localize("MoshQoL.Common.Cancel"),
+          icon: "fa-solid fa-xmark",
+          action: "cancel"
         }
-      },
+      ],
       default: "cancel"
     });
   
     if (choice === "cancel") {
-      ui.notifications.warn("Character creation cancelled.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.Cancelled"));
       return;
     } else if (choice === "complete") {
       await setCompleted(actor, true);
-      ui.notifications.info(`${actor.name} has been marked as completed manually.`);
+      ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.MarkedCompleted", { actorName: actor.name }));
       return;
     } else if (choice === "overwrite") {
       await setReady(actor, true); // mark as ready and proceed
@@ -162,24 +167,24 @@ export async function startCharacterCreation(actor) {
     if (classUUID) {
       selectedClass = await fromUuid(classUUID);
       if (!selectedClass) {
-        ui.notifications.warn("Class UUID invalid. Please reselect.");
+        ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.ClassUuidInvalid"));
       }
     } else {
-      ui.notifications.warn("No class UUID found. Please select a class.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.NoClassUuid"));
     }
   }
   // If nothing was loaded -> selection dialog
   if (!selectedClass) {
     console.log("📚 Selecting class...");
-    selectedClass = await selectClass(actor);
+    selectedClass = await ClassSelectorApp.wait({ actor });
     if (!selectedClass) {
-      ui.notifications.warn("Class selection cancelled.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.ClassSelectionCancelled"));
       return;
     }
     await chatOutput({
-      title: "Class Selected",
+      title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.ClassSelected.Title"),
       subtitle: actor.name,
-      content: `${actor.name} chose a class: <label class="counter">${selectedClass.name}</label>`,
+      content: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name, className: selectedClass.name }),
       image: selectedClass?.img || "",
       icon: "fa-user"
     });
@@ -191,11 +196,11 @@ export async function startCharacterCreation(actor) {
     const choices = selectedClass.system?.selected_adjustment?.choose_stat || [];
     if (choices.length > 0) {
       try {
-        const adjustments = await selectAttributes(actor, choices);
-        if (!adjustments) return ui.notifications.warn("Attribute selection cancelled.");
+        const adjustments = await AttributeSelectorApp.wait({ actor, attributeChoices: choices });
+        if (!adjustments) return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionCancelled"));
       } catch (err) {
-        console.warn("Attribute selection aborted:", err);
-        return ui.notifications.warn("Attribute selection cancelled.");
+        console.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionAborted"), err);
+        return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionCancelled"));
       }
     }
     await completeStep(actor, "selectedAttributes");
@@ -217,7 +222,7 @@ export async function startCharacterCreation(actor) {
   
     await chatOutput({
       actor,
-      title: "Health Rolled",
+      title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.HealthRolled.Title"),
       subtitle: actor.name,
       icon: "fa-heart-pulse",
       content: `<span class="counter">${total}</span> HP`
@@ -228,19 +233,24 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 7: Skill selection
   if (!checkStep(actor, "selectedSkills")) {
-    const adjustments = await selectSkills(actor, selectedClass);
+    const adjustments = await SkillSelectorApp.wait({ actor, selectedClass });
     if (!adjustments || adjustments.length === 0) {
-      return ui.notifications.warn("Skill selection cancelled.");
+      return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.SkillSelectionCancelled"));
     }
 
     await chatOutput({
       actor,
-      title: "Skills Selected",
+      title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.SkillsSelected.Title"),
       subtitle: actor.name,
       icon: "fa-sitemap",
       content: `
           ${adjustments
-            .map(i => `<p><img src="${i.img}" style="height:2.5em; vertical-align:middle; margin-right:0.4em;"> ${i.name}</p>`)
+            .map(i => `
+              <div style="display:flex; align-items:center; gap:0.5em; margin:0.2em 0;">
+                <img src="${i.img}" style="height:2.5em; flex:0 0 auto;">
+                <span style="flex:1; white-space:nowrap;">${i.name}</span>
+              </div>
+            `)
             .join("")}
         `
     });
@@ -261,6 +271,6 @@ export async function startCharacterCreation(actor) {
      
   // ✅ Final Step: Mark character creation as completed
   await setCompleted(actor, true);
-  ui.notifications.info(`${actor.name} has completed character creation.`);
+  ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.Completed", { actorName: actor.name }));
 
 }

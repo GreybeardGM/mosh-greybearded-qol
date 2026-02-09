@@ -1,0 +1,23 @@
+<div class="or-option-row card-grid" style="--col-count: {{orOptions.length}}; --theme-color: {{themeColor}};">
+  {{#each orOptions}}
+    <div class="card dialog-card interactive or-option" data-action="selectOrOption" data-option="{{this.id}}">
+      <h3>{{this.name}}</h3>
+      <p class="counter">
+        {{#if this.trained}}{{this.trained}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</span>{{/if}}
+        {{#if this.expert}}{{this.expert}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</span>{{/if}}
+        {{#if this.master}}{{this.master}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Master"}}</span>{{/if}}
+      </p>
+      {{#if this.skills.length}}
+        <p><strong>{{localize "MoshQoL.CharacterCreator.Skills.LinkedSkills"}}:</strong></p>
+        <div class="or-option-skill-pills">
+          {{#each this.skills}}
+            <div class="pill or-option-skill-pill">
+              <img src="{{this.img}}" alt="{{this.name}}" />
+              <span>{{this.name}}</span>
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+  {{/each}}
+</div>

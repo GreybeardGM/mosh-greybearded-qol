@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.0] - 2026-02-09
+### Added
+- Zero-max `z` die modifier for zero-based results and min/max styling (including support for `1d100z` rolls).
+
+### Improvements
+- Localization expanded across Shore Leave and Character Creator (templates, dialogs, notifications, and chat output), with English i18n keys structured for easier maintenance.
+- Performance improvements for item loading and lookup flows.
+- Better runtime efficiency in theme color resolution and skill selection prep.
+- Character Creator: Option groups can now use their contained default skills.
+
 ## [0.6.7] - 2025-11-13
 ### Hotfix
 - Fixed issue with the skill selector.
