@@ -5,148 +5,6 @@ import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
 
 export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
-
-    _getContractorStats() {
-      const stats = this.actor?.system?.stats ?? {};
-      return Object.entries(stats)
-        .filter(([, value]) => value && typeof value === "object" && Number.isFinite(Number(value.value)))
-        .map(([key, value]) => ({
-          key,
-          label: value.rollLabel || value.label || key.charAt(0).toUpperCase() + key.slice(1),
-          value: Number(value.value) || 0,
-          mod: Number(value.mod) || 0
-        }));
-    }
-
-    async _chooseContractorAttribute() {
-      const stats = this._getContractorStats();
-      if (!stats.length) return null;
-
-      const options = stats
-        .map(stat => `<option value="${stat.key}">${stat.label} (${stat.value + stat.mod})</option>`)
-        .join("");
-
-      const content = `<form><div class="form-group"><label>${game.i18n.localize("Mosh.Attribute")}</label><select name="attribute">${options}</select></div></form>`;
-
-      if (foundry.applications?.api?.DialogV2?.wait) {
-        const result = await foundry.applications.api.DialogV2.wait({
-          window: { title: game.i18n.localize("Mosh.ChooseAttribute") || "Choose Attribute" },
-          content,
-          buttons: [
-            {
-              action: "roll",
-              label: game.i18n.localize("Mosh.Roll") || "Roll",
-              callback: (event, button, dialog) => dialog.querySelector("select[name='attribute']")?.value
-            },
-            { action: "cancel", label: game.i18n.localize("Cancel") }
-          ]
-        });
-        return result || null;
-      }
-
-      const result = await Dialog.wait({
-        title: game.i18n.localize("Mosh.ChooseAttribute") || "Choose Attribute",
-        content,
-        buttons: {
-          roll: {
-            icon: "<i class='fas fa-dice-d20'></i>",
-            label: game.i18n.localize("Mosh.Roll") || "Roll",
-            callback: html => html.find("select[name='attribute']").val()
-          },
-          cancel: {
-            icon: "<i class='fas fa-times'></i>",
-            label: game.i18n.localize("Cancel")
-          }
-        },
-        default: "roll"
-      });
-      return result || null;
-    }
-
-    async _contractorRollCheck({
-      rollString = "1d100",
-      aimFor = "low",
-      attribute = null,
-      skill = "none",
-      skillValue = 0,
-      weapon = null,
-      overrideDamageRollString = null
-    } = {}) {
-      const actor = this.actor;
-      let rollAttribute = attribute;
-
-      if (!rollAttribute && skill !== "none") {
-        rollAttribute = await this._chooseContractorAttribute();
-        if (!rollAttribute) return null;
-      }
-
-      if (rollAttribute === "damage") {
-        const damageFormula = overrideDamageRollString || weapon?.system?.damage;
-        if (!damageFormula) return null;
-
-        const parsedDamage = actor.parseRollString(damageFormula, "high");
-        const roll = await new Roll(parsedDamage).evaluate();
-
-        await chatOutput({
-          actor,
-          title: weapon?.name || game.i18n.localize("Mosh.Damage"),
-          subtitle: actor.name,
-          image: weapon?.img || actor.img,
-          content: `<p>You inflict <strong>${roll.total}</strong> damage.</p>`,
-          roll
-        });
-        return roll;
-      }
-
-      if (!rollAttribute) return null;
-      const stat = actor.system.stats?.[rollAttribute];
-      if (!stat) return null;
-
-      if (weapon?.system?.useAmmo) {
-        const requiredShots = Number(weapon.system.shotsPerFire || 0);
-        const currentShots = Number(weapon.system.curShots || 0);
-        if (requiredShots > currentShots) {
-          ui.notifications.warn(game.i18n.localize("Mosh.NotEnoughAmmo") || "Not enough ammo loaded.");
-          return null;
-        }
-        weapon.system.curShots = currentShots - requiredShots;
-        await actor.updateEmbeddedDocuments("Item", [weapon]);
-      }
-
-      const rollTarget = Number(stat.value || 0) + Number(stat.mod || 0) + Number(skillValue || 0);
-      const parsedRoll = actor.parseRollString(rollString, aimFor);
-      const roll = await new Roll(parsedRoll).evaluate();
-
-      const comparison = aimFor === "high" || aimFor === "high-equal"
-        ? (aimFor === "high" ? ">" : ">=")
-        : (aimFor === "low-equal" ? "<=" : "<");
-
-      const parsedRollResult = actor.parseRollResult(rollString, roll, true, true, rollTarget, comparison, "");
-
-      let content = `<p><strong>${stat.rollLabel || stat.label || (rollAttribute.charAt(0).toUpperCase() + rollAttribute.slice(1))}</strong>: ${parsedRollResult.total} vs ${rollTarget}</p>`;
-      if (skill !== "none") {
-        content += `<p>${skill}: ${Number(skillValue) >= 0 ? "+" : ""}${skillValue}</p>`;
-      }
-
-      if (weapon && parsedRollResult.success) {
-        const damageFormula = overrideDamageRollString || weapon.system.damage;
-        if (damageFormula) {
-          const parsedDamage = actor.parseRollString(damageFormula, "high");
-          content += `<p>${game.i18n.localize("Mosh.Damage")}: [[${parsedDamage}]]</p>`;
-        }
-      }
-
-      await chatOutput({
-        actor,
-        title: weapon?.name || (stat.rollLabel || stat.label || (rollAttribute.charAt(0).toUpperCase() + rollAttribute.slice(1))),
-        subtitle: parsedRollResult.success ? (game.i18n.localize("Mosh.Success") || "Success") : (game.i18n.localize("Mosh.Failure") || "Failure"),
-        image: weapon?.img || actor.img,
-        content,
-        roll
-      });
-
-      return parsedRollResult;
-    }
     /** @override */
     static get defaultOptions() {
         var options = {
@@ -331,7 +189,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         html.find('.stat-roll').click(ev => {
             const div = $(ev.currentTarget);
             const statName = div.data("key");
-            this._contractorRollCheck({ attribute: statName, aimFor: "low" });
+            this.actor.rollCheck(null, 'low', statName, null, null, null);
         });
         
         // ITEMS
@@ -364,12 +222,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             var item;
             item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
 
-            this._contractorRollCheck({
-              attribute: null,
-              aimFor: "low",
-              skill: item.name,
-              skillValue: item.system.bonus
-            });
+            this.actor.rollCheck(null, null, null, item.name, item.system.bonus, null);
         });
 
         html.on('mousedown', '.treatment-button', async ev => {
@@ -466,7 +319,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             } else {
                 item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
             }
-            this._contractorRollCheck({ attribute: "combat", aimFor: "low", weapon: item });
+            this.actor.rollCheck(null, 'low', 'combat', null, null, item);
         });
 
         // Rollable Damage
@@ -478,7 +331,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             } else {
                 item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
             }
-            this._contractorRollCheck({ attribute: "damage", weapon: item });
+            this.actor.rollCheck(null, null, 'damage', null, null, item);
         });
 
         //increase ammo
