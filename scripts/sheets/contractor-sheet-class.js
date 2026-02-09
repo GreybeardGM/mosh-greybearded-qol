@@ -126,17 +126,20 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             }
         }
 
-        const cover = actorData.system.stats?.armor?.cover || "";
+        const existingArmor = actorData.system.stats?.armor ?? {};
+        const cover = existingArmor.cover ?? "";
         
         // Assign and return
         actorData.abilities = abilities;
         actorData.weapons = weapons;
         actorData.armors = armors;
         actorData.gear = gear;
+        actorData.system.stats = actorData.system.stats ?? {};
         actorData.system.stats.armor = {
+            ...existingArmor,
             mod: armorPoints,
-            cover: cover,
-            damageReduction: damageReduction
+            damageReduction: damageReduction,
+            cover: cover
         };
     }
 
