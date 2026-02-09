@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.7.0] - 2026-02-08
+## [0.7.0] - 2026-02-09
 ### Added
-- Custom dice terms `dX` (0–9) and `dH` (0–99) with zero-based results and min/max styling.
+- Zero-max `z` die modifier for zero-based results and min/max styling (including support for `1d100z` rolls).
 
 ### Improvements
 - Localization expanded across Shore Leave and Character Creator (templates, dialogs, notifications, and chat output), with English i18n keys structured for easier maintenance.
