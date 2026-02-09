@@ -2,11 +2,56 @@
   <div class="card-grid" style="--col-count: {{gridColumns}};">
     {{#each classes}}
       <div class="card dialog-card interactive class-card" data-action="selectClass" data-class-id="{{this.id}}">
-        <img src="{{this.img}}" alt="{{this.name}}">
+        {{#unless ../showSkillView}}
+          <img src="{{this.img}}" alt="{{this.name}}">
+        {{/unless}}
         <h3>{{this.name}}</h3>
         <div class="attributes-container">{{{this.attributes}}}</div>
         <p class="trauma-response">{{this.trauma}}</p>
-        <p class="description">{{this.description}}</p>
+        {{#if ../showSkillView}}
+          <div class="class-skill-view">
+            <div class="card class-skill-option-card">
+              <h4>{{this.skillView.defaultSkills.name}}</h4>
+              <p class="counter">
+                {{#if this.skillView.defaultSkills.trained}}{{this.skillView.defaultSkills.trained}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</span>{{/if}}
+                {{#if this.skillView.defaultSkills.expert}}{{this.skillView.defaultSkills.expert}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</span>{{/if}}
+                {{#if this.skillView.defaultSkills.master}}{{this.skillView.defaultSkills.master}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Master"}}</span>{{/if}}
+              </p>
+              {{#if this.skillView.defaultSkills.skills.length}}
+                <div class="or-option-skill-pills">
+                  {{#each this.skillView.defaultSkills.skills}}
+                    <div class="pill or-option-skill-pill">
+                      <img src="{{this.img}}" alt="{{this.name}}" />
+                      <span>{{this.name}}</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{/if}}
+            </div>
+            {{#each this.skillView.orOptions}}
+              <div class="card class-skill-option-card">
+                <h4>{{this.name}}</h4>
+                <p class="counter">
+                  {{#if this.trained}}{{this.trained}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</span>{{/if}}
+                  {{#if this.expert}}{{this.expert}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</span>{{/if}}
+                  {{#if this.master}}{{this.master}} <span class="bonus">{{localize "MoshQoL.CharacterCreator.Skills.Master"}}</span>{{/if}}
+                </p>
+                {{#if this.skills.length}}
+                  <div class="or-option-skill-pills">
+                    {{#each this.skills}}
+                      <div class="pill or-option-skill-pill">
+                        <img src="{{this.img}}" alt="{{this.name}}" />
+                        <span>{{this.name}}</span>
+                      </div>
+                    {{/each}}
+                  </div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="description">{{this.description}}</p>
+        {{/if}}
       </div>
     {{/each}}
   </div>
