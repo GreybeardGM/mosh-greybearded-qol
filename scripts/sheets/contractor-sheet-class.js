@@ -153,10 +153,16 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         actorData.system.xp.value = Number(actorData.system.xp.value ?? 0);
         const xpMax = Number(actorData.system.xp.max ?? 10);
         actorData.system.xp.max = xpMax;
+        actorData.system.xp.selectedSkill = actorData.system.xp.selectedSkill ?? "";
         actorData.xpPips = Array.from({ length: xpMax }, (_, idx) => ({
             index: idx,
             active: idx < actorData.system.xp.value
         }));
+        if (!actorData.system.xp.html) {
+            actorData.system.xp.html = actorData.xpPips
+                .map(pip => `<span class="pip ${pip.active ? "active" : ""}">•</span>`)
+                .join("");
+        }
 
         actorData.system.stats = actorData.system.stats ?? {};
         actorData.system.stats.armor = {
@@ -241,12 +247,17 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         html.on('mousedown', '.char-pip-button', async ev => {
             ev.preventDefault();
-            const pipIndex = Number(ev.currentTarget.dataset.index ?? 0);
             const currentValue = Number(this.actor.system?.xp?.value ?? 0);
+            const maxValue = Number(ev.currentTarget.dataset.max ?? this.actor.system?.xp?.max ?? 10);
             let nextValue = currentValue;
 
             if (ev.button === 0) {
-                nextValue = pipIndex + 1;
+                if (ev.currentTarget.dataset.index !== undefined) {
+                    const pipIndex = Number(ev.currentTarget.dataset.index ?? 0);
+                    nextValue = pipIndex + 1;
+                } else {
+                    nextValue = Math.min(maxValue, currentValue + 1);
+                }
             } else if (ev.button === 2) {
                 nextValue = Math.max(0, currentValue - 1);
             }
@@ -278,7 +289,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             await this.actor.updateEmbeddedDocuments('Item', [item]);
         });
 
-        html.on('mousedown', '.severity-button', async ev => {
+        html.on('mousedown', '.severity, .severity-button', async ev => {
             ev.preventDefault();
             const li = ev.currentTarget.closest(".item");
             if (!li?.dataset?.itemId) return;

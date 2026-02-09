@@ -135,16 +135,7 @@
       	{{/if}}
       {{/if}}
 
-      <div class="contractor-xpblock">
-        <div class="resource-label">{{ localize 'Mosh.XP' }}</div>
-        <div class="contractor-xp-pips">
-          {{#each xpPips as |pip|}}
-          <button type="button" class="char-pip-button {{#if pip.active}}active{{/if}}" data-index="{{pip.index}}">•</button>
-          {{/each}}
-          <span class="darkGreyText">{{system.xp.value}}/{{system.xp.max}}</span>
-        </div>
-      </div>
-      
+ 
     </div>
     <div class="creature-abilities">
       <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" style="height:auto; width:100%;" />
@@ -192,24 +183,26 @@
       {{editor system.biography target="system.biography" button=true owner=owner editable=true}}
     </div>
     
-    {{!-- Skills Tab --}}
+    {{!-- Owned Skills Tab --}}
     <div class="tab items" data-group="primary" data-tab="skills">
-      <ol class="items-list">
+      <!-- SKILLS -->
+      <ol class="items-list" style="margin-bottom : 10px;">
         <li class="item flexrow item-header">
           <div class="item-image"></div>
-          <div class="skill-stat" style="flex-grow: 2;">{{ localize 'Mosh.Name' }}</div>
-          <div class="skill-stat">{{ localize 'Mosh.Bonus' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.SkillName' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.SkillRank' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.SkillBonus' }}</div>
           <div class="item-controls">
             <a class="item-control skill-create" title="{{ localize 'Mosh.CreateSkill' }}" data-type="skill"><i class="fas fa-plus"></i> {{ localize 'Mosh.Add' }}</a>
           </div>
         </li>
-        {{#each skills as |skill|}}
+        {{#each skills as |skill id|}}
         <li class="item flexrow dropitem" data-item-id="{{skill._id}}">
-          <div class="item-image"><img src="{{skill.img}}" title="{{skill.name}}" width="24" height="24" /></div>
-          <div class="skill-name skill-roll list-roll" style="flex-grow: 2;">{{skill.name}}</div>
+          <div class="item-image"><img src="{{skill.img}}" title="{{skill.name}}" width="24" height="24"/></div>
+          <div class="skill-name skill-roll list-roll">{{skill.name}}</div>
+          <div class="skill-stat">{{skill.system.rank}}</div>
           <div class="skill-stat">{{skill.system.bonus}}</div>
           <div class="item-controls">
-            <a class="item-control skill-roll" title="{{ localize 'Mosh.Roll' }}"><i class="fas fa-dice-d20"></i></a>
             <a class="item-control skill-edit" title="{{ localize 'Mosh.EditSkill' }}"><i class="fas fa-edit"></i></a>
             <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteSkill' }}"><i class="fas fa-trash"></i></a>
           </div>
@@ -217,21 +210,44 @@
         {{/each}}
       </ol>
 
+      {{#if system.settings.firstEdition}}
+      <!-- XP -->
+      <div class ="skill_training_frame" style="margin-bottom : 10px;">
+        <div class="grid grid-3col" style="grid-template-columns: 90px auto 283px ;">
+          <div class="skill-stat" style="position: relative; top: 6px;"><strong>{{ localize 'Mosh.SkillTraining' }}</strong></div>
+          <textarea name="system.xp.selectedSkill" rows="2" class="textarea-input-grey" type="text" data-target="system.xp.selectedSkill" placeholder="" style="height: 30px; margin: 0; position: relative; top: 50%; -ms-transform: translateY(-50%); transform: translateY(-50%); background: white; color: black;">{{system.xp.selectedSkill}}</textarea>
+          <div class="char-pip-button list-roll flex" style="position: relative; top: -7px;" data-key="xp" data-label="XP" data-max="{{system.xp.max}}" data-min="0">{{{system.xp.html}}}</div>
+        </div>
+      </div>
+      {{/if}}
+
       {{#if conditions.length}}
+      <div class="seperatorLine"></div>
+      <!-- Conditions -->
       <ol class="items-list">
         <li class="item flexrow item-header">
           <div class="item-image"></div>
-          <div class="skill-stat" style="flex-grow: 1.8;">{{ localize 'Mosh.Conditions' }}</div>
-          <div class="skill-stat">{{ localize 'Mosh.Treatment' }}</div>
+          <div class="skill-stat">{{ localize 'Mosh.Condition' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Severity' }}</div>
-          <div class="item-controls"></div>
+          <div class="skill-stat">{{ localize 'Mosh.Treatment' }}</div>
+          <div class="item-controls">
+            <a class="item-control item-create" title="{{ localize 'Mosh.CreateCondition' }}" data-type="condition"><i class="fas fa-plus"></i> {{ localize 'Mosh.Add' }}</a>
+          </div>
         </li>
-        {{#each conditions as |condition|}}
+        {{#each conditions as |condition id|}}
         <li class="item flexrow dropitem" data-item-id="{{condition._id}}">
-          <div class="item-image"><img src="{{condition.img}}" title="{{condition.name}}" width="24" height="24" /></div>
-          <div class="skill-name list-roll description-roll" style="flex-grow: 1.8;">{{condition.name}}</div>
-          <div class="skill-stat treatment-button list-roll">{{condition.system.treatment.value}}/{{condition.system.treatment.max}}</div>
-          <div class="skill-stat severity-button list-roll">{{condition.system.severity}}</div>
+          <div class="item-image"><img src="{{condition.img}}" title="{{condition.name}}" width="24" height="24"/></div>
+          <div class="skill-name description-roll list-roll">{{condition.name}}</div>
+          <div class="skill-stat list-roll severity">{{condition.system.severity}}</div>
+          <div class="skill-stat">
+            <div class="treatment-button list-roll flex" style="margin: 0; position: relative; top: 50%; -ms-transform: translateY(-50%); transform: translateY(-50%);" data-key="condition" data-label="condition" data-max="{{condition.system.treatment.max}}" data-min="0">
+              {{#if condition.system.treatment.html}}
+              {{{condition.system.treatment.html}}}
+              {{else}}
+              {{condition.system.treatment.value}}/{{condition.system.treatment.max}}
+              {{/if}}
+            </div>
+          </div>
           <div class="item-controls">
             <a class="item-control item-edit" title="{{ localize 'Mosh.EditCondition' }}"><i class="fas fa-edit"></i></a>
             <a class="item-control item-delete" title="{{ localize 'Mosh.DeleteCondition' }}"><i class="fas fa-trash"></i></a>
