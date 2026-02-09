@@ -58,6 +58,9 @@ function registerZeroMaxModifier() {
         configurable: true,
         enumerable: totalDescriptor.enumerable ?? false,
         get() {
+          const usesZeroMax = Array.isArray(this.modifiers) && this.modifiers.includes("z");
+          if (!usesZeroMax) return originalGetTotal.call(this);
+
           if (!Array.isArray(this.results)) return originalGetTotal.call(this);
           return this.results.reduce((sum, result) => {
             if (!result?.active) return sum;
