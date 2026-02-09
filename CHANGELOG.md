@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.1] - YYYY-MM-DD
+### Improvements
+- Upgraded the Contractor sheet with a dedicated Skills tab.
+
 ## [0.7.0] - 2026-02-09
 ### Added
 - Zero-max `z` die modifier for zero-based results and min/max styling (including support for `1d100z` rolls).
