@@ -219,10 +219,10 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         html.find('.skill-roll').click(ev => {
             const li = ev.currentTarget.closest(".item");
-            const skill = this.actor.getEmbeddedDocument("Item", li.dataset.itemId);
-            if (!skill) return;
+            var item;
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
 
-            this.actor.rollCheck(null, 'low', skill.name, null, null, null);
+            this.actor.rollCheck(null, null, null, item.name, item.system.bonus, null);
         });
 
         html.on('mousedown', '.treatment-button', async ev => {
@@ -230,9 +230,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             const li = ev.currentTarget.closest(".item");
             if (!li?.dataset?.itemId) return;
 
-            const item = game.release.generation >= 12
-                ? foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId))
-                : duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+            var item;
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
 
             const treatment = item.system.treatment ?? {};
             const current = Number(treatment.value ?? 0);
@@ -254,9 +253,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             const li = ev.currentTarget.closest(".item");
             if (!li?.dataset?.itemId) return;
 
-            const item = game.release.generation >= 12
-                ? foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId))
-                : duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+            var item;
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
 
             const severity = Number(item.system.severity ?? 0);
             const maxSeverity = Number(item.system.maxSeverity ?? 4);
