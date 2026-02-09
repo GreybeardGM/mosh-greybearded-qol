@@ -107,9 +107,39 @@ function registerZeroMaxModifier() {
   if (!Die) return;
 
   Die.MODIFIERS = Die.MODIFIERS || {};
-  if (Die.MODIFIERS.z) return;
 
-  Die.MODIFIERS.z = "zeroMax";
+  if (!Die.prototype._zeroMaxPatchedLabel) {
+    const originalGetResultLabel = Die.prototype.getResultLabel;
+    Die.prototype.getResultLabel = function (result) {
+      if (result?._zeroMaxApplied) return "0";
+      return originalGetResultLabel.call(this, result);
+    };
+    Die.prototype._zeroMaxPatchedLabel = true;
+  }
+
+  if (!Die.prototype._zeroMaxPatchedTotal) {
+    const totalDescriptor = Object.getOwnPropertyDescriptor(Die.prototype, "total");
+    if (totalDescriptor?.get) {
+      const originalGetTotal = totalDescriptor.get;
+      Object.defineProperty(Die.prototype, "total", {
+        configurable: true,
+        enumerable: totalDescriptor.enumerable ?? false,
+        get() {
+          if (!Array.isArray(this.results)) return originalGetTotal.call(this);
+          return this.results.reduce((sum, result) => {
+            if (!result?.active) return sum;
+            const value = result._zeroMaxApplied ? 0 : Number(result.result);
+            return Number.isFinite(value) ? sum + value : sum;
+          }, 0);
+        }
+      });
+      Die.prototype._zeroMaxPatchedTotal = true;
+    }
+  }
+
+  if (!Die.MODIFIERS.z) Die.MODIFIERS.z = "zeroMax";
+  if (Die.prototype._zeroMaxPatchedModifier) return;
+
   Die.prototype.zeroMax = function () {
     const max = Number(this.faces);
     if (!Number.isFinite(max) || max <= 0) return false;
@@ -117,10 +147,13 @@ function registerZeroMaxModifier() {
     let changed = false;
     for (const result of this.results) {
       if (!result?.active || result.result !== max) continue;
-      result.result = 0;
+      result._zeroMaxApplied = true;
       changed = true;
     }
 
+    if (changed) this._total = this.total;
     return changed;
   };
+
+  Die.prototype._zeroMaxPatchedModifier = true;
 }
