@@ -95,8 +95,32 @@ export function registerDiceTerms() {
     Hooks.once("setup", registerDiceTerms);
     return;
   }
+  registerZeroMaxModifier();
   CONFIG.Dice.terms.x = dXDie;
   CONFIG.Dice.terms.h = dHDie;
   CONFIG.Dice.terms.t = dTDie;
   CONFIG.Dice.terms.v = dVDie;
+}
+
+function registerZeroMaxModifier() {
+  const Die = foundry?.dice?.terms?.Die;
+  if (!Die) return;
+
+  Die.MODIFIERS = Die.MODIFIERS || {};
+  if (Die.MODIFIERS.z) return;
+
+  Die.MODIFIERS.z = "zeroMax";
+  Die.prototype.zeroMax = function () {
+    const max = Number(this.faces);
+    if (!Number.isFinite(max) || max <= 0) return false;
+
+    let changed = false;
+    for (const result of this.results) {
+      if (!result?.active || result.result !== max) continue;
+      result.result = 0;
+      changed = true;
+    }
+
+    return changed;
+  };
 }
