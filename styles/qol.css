@@ -324,6 +324,7 @@
   margin: 0;
   padding: 0.35rem 0.8rem;
   font-size: 0.75rem;
+  color: var(--color-text);
 }
 
 .greybeardqol .class-view-toggle.active {
@@ -346,6 +347,7 @@
   margin: 0;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
+  font-family: Monospace;
 }
 
 .greybeardqol .class-skill-list {
@@ -363,6 +365,7 @@
   text-align: left;
   font-size: 0.7rem;
   color: var(--theme-color);
+  font-family: Monospace;
 }
 
 .greybeardqol .skill-columns {
