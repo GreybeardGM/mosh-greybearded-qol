@@ -149,21 +149,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         actorData.skills = skills;
         actorData.conditions = conditions;
 
-        actorData.system.xp = actorData.system.xp ?? {};
-        actorData.system.xp.value = Number(actorData.system.xp.value ?? 0);
-        const xpMax = Number(actorData.system.xp.max ?? 10);
-        actorData.system.xp.max = xpMax;
-        actorData.system.xp.selectedSkill = actorData.system.xp.selectedSkill ?? "";
-        actorData.xpPips = Array.from({ length: xpMax }, (_, idx) => ({
-            index: idx,
-            active: idx < actorData.system.xp.value
-        }));
-        if (!actorData.system.xp.html) {
-            actorData.system.xp.html = actorData.xpPips
-                .map(pip => `<span class="pip ${pip.active ? "active" : ""}">•</span>`)
-                .join("");
-        }
-
         actorData.system.stats = actorData.system.stats ?? {};
         actorData.system.stats.armor = {
             ...existingArmor,
@@ -237,32 +222,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             const skill = this.actor.getEmbeddedDocument("Item", li.dataset.itemId);
             if (!skill) return;
 
-            if (typeof this.actor.rollSkill === "function") {
-                this.actor.rollSkill(skill);
-                return;
-            }
-
             this.actor.rollCheck(null, 'low', skill.name, null, null, null);
-        });
-
-        html.on('mousedown', '.char-pip-button', async ev => {
-            ev.preventDefault();
-            const currentValue = Number(this.actor.system?.xp?.value ?? 0);
-            const maxValue = Number(ev.currentTarget.dataset.max ?? this.actor.system?.xp?.max ?? 10);
-            let nextValue = currentValue;
-
-            if (ev.button === 0) {
-                if (ev.currentTarget.dataset.index !== undefined) {
-                    const pipIndex = Number(ev.currentTarget.dataset.index ?? 0);
-                    nextValue = pipIndex + 1;
-                } else {
-                    nextValue = Math.min(maxValue, currentValue + 1);
-                }
-            } else if (ev.button === 2) {
-                nextValue = Math.max(0, currentValue - 1);
-            }
-
-            await this.actor.update({ "system.xp.value": nextValue });
         });
 
         html.on('mousedown', '.treatment-button', async ev => {
