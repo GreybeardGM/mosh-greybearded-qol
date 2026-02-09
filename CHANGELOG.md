@@ -10,6 +10,10 @@
 - Better runtime efficiency in theme color resolution and skill selection prep.
 - Character Creator: Option groups can now use their contained default skills.
 
+## [0.6.7] - 2025-11-13
+### Hotfix
+- Fixed issue with the skill selector.
+
 ## [0.6.6] - 2025-11-06
 ### Added
 - Armor Broken Status Effect  

@@ -169,7 +169,7 @@
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 999px;
-  padding: 0.25rem 1rem;
+  padding: 0.15rem 0.75rem;
   position: relative;
 }
 
@@ -220,6 +220,7 @@
 
 .greybeardqol .or-option-row .or-option {
   width: 100%;
+  justify-content: space-between;
 }
 
 .greybeardqol .or-option-skill-pills {
@@ -231,7 +232,6 @@
 
 .greybeardqol .or-option-skill-pill {
   gap: 0.5rem;
-  padding: 0.25rem 0.6rem;
 }
 
 .greybeardqol .or-option-skill-pill span {
