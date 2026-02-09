@@ -348,12 +348,14 @@
   color: var(--color-text);
 }
 
-.greybeardqol .class-skill-option-card .counter {
-  font-size: 0.85rem;
-}
-
-.greybeardqol .class-skill-option-card .or-option-skill-pills {
-  justify-content: flex-start;
+.greybeardqol .class-skill-list {
+  margin: 0;
+  padding-left: 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.75rem;
 }
 
 .greybeardqol .skill-columns {
