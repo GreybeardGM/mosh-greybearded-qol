@@ -44,7 +44,7 @@
   - Shore Leave helper
   - Stress conversion helper
   - Apply damage helper
-  - Custom dice terms: `dX` (0–9), `dH` (00/10/…/90), and `dT` (0–9)
+  - Dice modifier: `z` turns the maximum face of each die into `0` (e.g. `3d4z`)
 
 ## Compatibility
 
