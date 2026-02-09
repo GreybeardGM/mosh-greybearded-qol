@@ -8,6 +8,29 @@ function normalizeCaps(text) {
   return lowered.charAt(0).toUpperCase() + lowered.slice(1);
 }
 
+const toSkillId = value => String(value ?? "").split(".").pop();
+
+function resolveSkillsFromReferences(references, { skillByUuid, skillMap }) {
+  const unique = new Map();
+
+  for (const ref of references) {
+    const rawRef = typeof ref === "string" ? ref : ref?.uuid || ref?.id;
+    if (!rawRef) continue;
+
+    const skill = skillByUuid.get(rawRef) || skillMap.get(toSkillId(rawRef));
+    if (!skill) continue;
+
+    unique.set(skill.id, {
+      id: skill.id,
+      uuid: skill.uuid,
+      name: skill.name,
+      img: skill.img || "icons/svg/d20-grey.svg"
+    });
+  }
+
+  return [...unique.values()];
+}
+
 export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "character-creator-select-class",
@@ -27,7 +50,8 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       closeOnSubmit: true
     },
     actions: {
-      selectClass: this._onSelectClass
+      selectClass: this._onSelectClass,
+      toggleSkillView: this._onToggleSkillView
     }
   };
 
@@ -37,6 +61,9 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     },
     confirm: {
       template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+    },
+    viewToggle: {
+      template: "modules/mosh-greybearded-qol/templates/character-creator/select-class-view-toggle.html"
     }
   };
 
@@ -65,7 +92,13 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const stats = ["strength", "speed", "intellect", "combat"];
     const saves = ["sanity", "fear", "body"];
 
-    const sortedClasses = await loadAllItemsByType("class");
+    const [sortedClasses, allSkills] = await Promise.all([
+      loadAllItemsByType("class"),
+      loadAllItemsByType("skill")
+    ]);
+
+    const skillMap = new Map(allSkills.map(s => [s.id, s]));
+    const skillByUuid = new Map(allSkills.map(s => [s.uuid, s]));
 
     const classes = sortedClasses.map(cls => {
       const description = stripHtml(cls.system.description || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoDescription"));
@@ -105,6 +138,33 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         }
       }
 
+      const baseAnd = selected.choose_skill_and || {};
+      const toNum = value => {
+        if (value === "" || value === null || value === undefined) return 0;
+        const number = Number(value);
+        return Number.isFinite(number) ? number : 0;
+      };
+
+      const toSkillPoints = source => ({
+        trained: toNum(source.trained) + toNum(source.expert_full_set) + toNum(source.master_full_set),
+        expert: toNum(source.expert) + toNum(source.expert_full_set) + toNum(source.master_full_set),
+        master: toNum(source.master) + toNum(source.master_full_set)
+      });
+
+      const defaultSkills = {
+        id: `${cls.id}-default`,
+        name: game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.DefaultSkills"),
+        ...toSkillPoints(baseAnd),
+        skills: resolveSkillsFromReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
+      };
+
+      const orOptions = (selected.choose_skill_or || []).flat().map((option, index) => ({
+        id: `${cls.id}-or-${index}`,
+        name: option.name || game.i18n.format("MoshQoL.CharacterCreator.SelectClass.OrOption", { index: index + 1 }),
+        ...toSkillPoints(option),
+        skills: resolveSkillsFromReferences(option.from_list || [], { skillByUuid, skillMap })
+      }));
+
       return {
         id: cls.id,
         uuid: cls.uuid,
@@ -112,7 +172,11 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         img: cls.img || "icons/svg/mystery-man.svg",
         trauma,
         description,
-        attributes: attr.join("<br>") || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoAttributes")
+        attributes: attr.join("<br>") || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoAttributes"),
+        skillView: {
+          defaultSkills,
+          orOptions
+        }
       };
     });
 
@@ -135,6 +199,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this.gridColumns = gridColumns;
     this.themeColor = getThemeColor();
     this._selectedClassId = null;
+    this._showSkillView = false;
   }
 
   _getElementRoot() {
@@ -165,6 +230,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       themeColor: this.themeColor,
       gridColumns: this.gridColumns,
       classes: this.classes,
+      showSkillView: this._showSkillView,
       confirmLocked: !this._selectedClassId
     };
   }
@@ -190,6 +256,11 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!classId || classId === this._selectedClassId) return;
     this._selectedClassId = classId;
     this._updateSelectionUi();
+  }
+
+  static _onToggleSkillView() {
+    this._showSkillView = !this._showSkillView;
+    this.render();
   }
 
   static async _onSubmit() {
