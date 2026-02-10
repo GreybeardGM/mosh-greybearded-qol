@@ -39,7 +39,7 @@
             <td class="crew-roster-name">{{entry.name}}</td>
             <td class="crew-roster-job">{{entry.job}}</td>
             <td>
-              <label class="crew-roster-switch" title="Toggle active status">
+              <div class="crew-roster-switch" title="Toggle active status">
                 <input
                   type="checkbox"
                   data-action="toggleActive"
@@ -47,8 +47,7 @@
                   data-uuid="{{entry.uuid}}"
                   {{#if entry.active}}checked{{/if}}
                 />
-                <span>Active</span>
-              </label>
+              </div>
             </td>
             <td>
               <button

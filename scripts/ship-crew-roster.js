@@ -263,6 +263,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   static async _onToggleActive(event, target) {
     event?.preventDefault();
+    event?.stopPropagation();
     if (!this.actor) return;
 
     const tab = target?.dataset?.tab;
