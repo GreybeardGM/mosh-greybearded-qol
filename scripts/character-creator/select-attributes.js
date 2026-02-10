@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -61,14 +62,12 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     this._selectedBySet = new Map();
   }
 
-  _getElementRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
+  _getRoot() {
+    return getAppRoot(this.element);
   }
 
   _updateSelectionUi() {
-    const root = this._getElementRoot();
+    const root = this._getRoot();
     if (!root) return;
 
     root.querySelectorAll(".attribute-set").forEach(set => {
@@ -100,15 +99,10 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
   _onRender(context, options) {
     super._onRender(context, options);
 
-    const root = this._getElementRoot();
+    const root = this._getRoot();
     if (!root) return;
 
-    const wrapper = root.closest(".app");
-    if (wrapper) {
-      wrapper.style.width = "auto";
-      wrapper.style.maxWidth = "95vw";
-      wrapper.style.margin = "0 auto";
-    }
+    applyAppWrapperLayout(root, { width: "auto" });
 
     this._updateSelectionUi();
   }
@@ -140,22 +134,20 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
       return;
     }
 
+    const updates = {};
     for (const { attr, mod } of selections) {
-      const current = foundry.utils.getProperty(this.actor.system, `stats.${attr}.value`) || 0;
-      await this.actor.update({ [`system.stats.${attr}.value`]: current + mod });
+      const path = `stats.${attr}.value`;
+      const current = foundry.utils.getProperty(this.actor.system, path) || 0;
+      updates[`system.${path}`] = current + mod;
     }
 
-    this._resolveOnce(selections);
+    await this.actor.update(updates);
+    resolveAppOnce(this, selections);
   }
 
   async close(options = {}) {
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }

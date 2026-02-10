@@ -1,12 +1,12 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillId } from "./utils.js";
+import { stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from "./utils.js";
+import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import {
   cacheSkillTreeDom,
   attachSkillCardImageListeners,
   cleanupSkillTreeApp,
   drawSkillLines,
-  getAppRoot,
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
@@ -119,30 +119,16 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
     const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(toSkillId));
 
-    const fullSetExpert = baseAnd.expert_full_set || 0;
-    const fullSetMaster = baseAnd.master_full_set || 0;
-
-    const basePoints = {
-      trained: (baseAnd.trained || 0) + fullSetExpert + fullSetMaster,
-      expert: (baseAnd.expert || 0) + fullSetExpert + fullSetMaster,
-      master: (baseAnd.master || 0) + fullSetMaster
-    };
-
-    const toNum = v => {
-      if (v === "" || v === null || v === undefined) return 0;
-      const n = Number(v);
-      return Number.isFinite(n) ? n : 0;
-    };
-    const add = (...vals) => vals.map(toNum).reduce((a, b) => a + b, 0);
+    const basePoints = toSkillPointBundle(baseAnd);
 
     const orOptions = baseOr.flat().map((opt, i) => {
       const name = opt.name ?? `Option ${i + 1}`;
       return {
         id: `or-${i}`,
         name,
-        trained: add(opt.trained, opt.expert_full_set, opt.master_full_set),
-        expert: add(opt.expert, opt.expert_full_set, opt.master_full_set),
-        master: add(opt.master, opt.master_full_set),
+        trained: sumSkillPointFields(opt.trained, opt.expert_full_set, opt.master_full_set),
+        expert: sumSkillPointFields(opt.expert, opt.expert_full_set, opt.master_full_set),
+        master: sumSkillPointFields(opt.master, opt.master_full_set),
         skills: resolveOrOptionSkills(opt, { skillByUuid, skillMap, optionName: name })
       };
     });
@@ -357,12 +343,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const root = this._getRoot();
     if (!root) return;
 
-    const wrapper = root.closest(".app");
-    if (wrapper) {
-      wrapper.style.width = "1200px";
-      wrapper.style.maxWidth = "95vw";
-      wrapper.style.margin = "0 auto";
-    }
+    applyAppWrapperLayout(root, { width: "1200px" });
 
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
@@ -485,18 +466,13 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       await this.actor.createEmbeddedDocuments("Item", validItems);
     }
 
-    this._resolveOnce(validItems.length > 0 ? validItems : null);
+    resolveAppOnce(this, validItems.length > 0 ? validItems : null);
   }
 
   async close(options = {}) {
     cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds"] });
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }
