@@ -5,6 +5,7 @@ import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
 
 export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
+
     /** @override */
     static get defaultOptions() {
         var options = {
@@ -96,6 +97,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         const weapons = [];
         const armors = [];
         const gear = [];
+        const skills = [];
+        const conditions = [];
         let armorPoints = 0;
         let damageReduction = 0;
     
@@ -123,20 +126,36 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
                     item.ranges.medium = 0;
                 }
                 weapons.push(i);
+
+            } else if (i.type === 'skill') {
+                skills.push(i);
+
+            } else if (i.type === 'condition') {
+                item.treatment = item.treatment ?? {};
+                item.treatment.value = Number(item.treatment.value ?? 0);
+                item.treatment.max = Number(item.treatment.max ?? 0);
+                item.severity = Number(item.severity ?? 0);
+                conditions.push(i);
             }
         }
 
-        const cover = actorData.system.stats?.armor?.cover || "";
+        const existingArmor = actorData.system.stats?.armor ?? {};
+        const cover = existingArmor.cover ?? "";
         
         // Assign and return
         actorData.abilities = abilities;
         actorData.weapons = weapons;
         actorData.armors = armors;
         actorData.gear = gear;
+        actorData.skills = skills;
+        actorData.conditions = conditions;
+
+        actorData.system.stats = actorData.system.stats ?? {};
         actorData.system.stats.armor = {
+            ...existingArmor,
             mod: armorPoints,
-            cover: cover,
-            damageReduction: damageReduction
+            damageReduction: damageReduction,
+            cover: cover
         };
     }
 
@@ -171,12 +190,13 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         html.find('.stat-roll').click(ev => {
             const div = $(ev.currentTarget);
             const statName = div.data("key");
-            this.actor.rollCheck(null, 'low', statName, null, null, null);
+            this.actor.rollCheck("1d100", "low", statName, null, null, null);
         });
         
         // ITEMS
         // Add Inventory Item
         html.find('.item-create').click(this._onItemCreate.bind(this));        
+        html.find('.skill-create').click(this._onItemCreate.bind(this));
         
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
@@ -192,6 +212,65 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           item.sheet.render(true);
         });
 
+        html.find('.skill-edit').click(ev => {
+            const li = $(ev.currentTarget).parents(".item");
+            const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
+            item.sheet.render(true);
+        });
+
+        html.find('.skill-roll').click(ev => {
+            const li = ev.currentTarget.closest(".item");
+            var item;
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+
+            this.actor.rollCheck("1d100", "low", null, item.name, item.system.bonus, null);
+        });
+
+        html.on('mousedown', '.treatment-button', async ev => {
+            ev.preventDefault();
+            const li = ev.currentTarget.closest(".item");
+            if (!li?.dataset?.itemId) return;
+
+            var item;
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+
+            const treatment = item.system.treatment ?? {};
+            const current = Number(treatment.value ?? 0);
+            const max = Number(treatment.max ?? 0);
+            let next = current;
+
+            if (ev.button === 0) {
+                next = Math.min(max, current + 1);
+            } else if (ev.button === 2) {
+                next = Math.max(0, current - 1);
+            }
+
+            item.system.treatment = { ...treatment, value: next, max };
+            await this.actor.updateEmbeddedDocuments('Item', [item]);
+        });
+
+        html.on('mousedown', '.severity, .severity-button', async ev => {
+            ev.preventDefault();
+            const li = ev.currentTarget.closest(".item");
+            if (!li?.dataset?.itemId) return;
+
+            var item;
+            item = foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
+
+            const severity = Number(item.system.severity ?? 0);
+            const maxSeverity = Number(item.system.maxSeverity ?? 4);
+            let nextSeverity = severity;
+
+            if (ev.button === 0) {
+                nextSeverity = Math.min(maxSeverity, severity + 1);
+            } else if (ev.button === 2) {
+                nextSeverity = Math.max(0, severity - 1);
+            }
+
+            item.system.severity = nextSeverity;
+            await this.actor.updateEmbeddedDocuments('Item', [item]);
+        });
+
         //Quantity adjuster
         html.on('mousedown', '.item-quantity', ev => {
           const li = ev.currentTarget.closest(".item");
@@ -204,9 +283,9 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           }
           let amount = item.system.quantity;
     
-          if (event.button == 0) {
+          if (ev.button == 0) {
             item.system.quantity = Number(amount) + 1;
-          } else if (event.button == 2) {
+          } else if (ev.button == 2) {
             item.system.quantity = Number(amount) - 1;
           }
     
@@ -241,7 +320,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             } else {
                 item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
             }
-            this.actor.rollCheck(null, 'low', 'combat', null, null, item);
+            this.actor.rollCheck("1d100", "low", "combat", null, null, item);
         });
 
         // Rollable Damage
@@ -253,7 +332,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             } else {
                 item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
             }
-            this.actor.rollCheck(null, null, 'damage', null, null, item);
+            this.actor.rollCheck(null, null, "damage", null, null, item);
         });
 
         //increase ammo
@@ -268,11 +347,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             }
             let amount = item.system.ammo;
             //increase ammo
-            if (event.button == 0) {
+            if (ev.button == 0) {
                 if (amount >= 0) {
                     item.system.ammo = Number(amount) + 1;
                 }
-            } else if (event.button == 2) {
+            } else if (ev.button == 2) {
                 if (amount > 0) {
                     item.system.ammo = Number(amount) - 1;
                 }
@@ -290,12 +369,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             } else {
                 item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
             }
-            if (event.button == 0) {
+            if (ev.button == 0) {
                 if (item.system.curShots >= 0 && item.system.curShots < item.system.shots && item.system.ammo > 0) {
                     item.system.curShots = Number(item.system.curShots) + 1;
                     item.system.ammo = Number(item.system.ammo) - 1;
                 }
-            } else if (event.button == 2) {
+            } else if (ev.button == 2) {
                 if (item.system.curShots > 0) {
                     item.system.curShots = Number(item.system.curShots) - 1;
                     item.system.ammo = Number(item.system.ammo) + 1;
@@ -336,11 +415,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             item = duplicate(this.actor.getEmbeddedDocument("Item", li.dataset.itemId));
           }
           let amount = item.system.oxygenCurrent;
-          if (event.button == 0) {
+          if (ev.button == 0) {
             if (amount < item.system.oxygenMax) {
               item.system.oxygenCurrent = Number(amount) + 1;
             }
-          } else if (event.button == 2) {
+          } else if (ev.button == 2) {
             if (amount > 0) {
               item.system.oxygenCurrent = Number(amount) - 1;
             }

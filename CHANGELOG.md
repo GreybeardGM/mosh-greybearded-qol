@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.1] - 2026-02-10
+### Improvements
+- Upgraded the Contractor sheet with a dedicated Skills tab.
+- Patched creature and contractor skill-roll attribute selection (`chooseAttribute`) to use a custom dialog template and list active creature attributes.
+
 ## [0.7.0] - 2026-02-09
 ### Added
 - Zero-max `z` die modifier for zero-based results and min/max styling (including support for `1d100z` rolls).
