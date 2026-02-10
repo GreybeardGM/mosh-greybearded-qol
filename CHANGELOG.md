@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.2] - TBD
+### Added
+- Ship Sheet Crew Roster for tracking active player characters, active contractors, and active auxiliary craft.
+- Skill Training tool that opens the QoL Generator skill tree to add a new skill to a character.
+
+### Improvements
+- Crew Roster workflow foundation added; additional functionality is still work in progress.
+
 ## [0.7.1] - 2026-02-10
 ### Improvements
 - Upgraded the Contractor sheet with a dedicated Skills tab.
