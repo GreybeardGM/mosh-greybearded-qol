@@ -6,6 +6,7 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+      contentClasses: ["greybeardqol", "qol-shore-leave-editor"],
       resizable: true
     },
     position: {

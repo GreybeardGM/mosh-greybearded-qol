@@ -38,7 +38,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     tag: "form",
     window: {
       title: "MoshQoL.CharacterCreator.SelectClass.Title",
-      contentClasses: ["greybeardqol", "class-selection"],
+      contentClasses: ["greybeardqol", "qol-class-selection"],
       resizable: false
     },
     position: {

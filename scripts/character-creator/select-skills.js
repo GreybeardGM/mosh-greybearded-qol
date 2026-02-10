@@ -47,7 +47,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     tag: "form",
     window: {
       title: "MoshQoL.CharacterCreator.SelectSkills.Title",
-      contentClasses: ["greybeardqol", "skill-selection"],
+      contentClasses: ["greybeardqol", "qol-skill-selection"],
       resizable: false
     },
     position: {
