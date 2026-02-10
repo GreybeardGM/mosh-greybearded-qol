@@ -4,7 +4,6 @@ import { normalizeName } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import {
   applyInitialAvailabilityLock,
-  attachSkillCardImageListeners,
   cacheSkillTreeDom,
   cleanupSkillTreeApp,
   drawSkillLines,
@@ -91,7 +90,6 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     this._pendingChangedSkillIds = null;
     this._linePathCache = new Map();
     this._lineKeyBySkill = new Map();
-    this._needsLineGeometryRebuild = true;
 
     this._selectedSkillIds = new Set();
     this._selectedNewSkillId = null;
@@ -120,8 +118,8 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     });
   }
 
-  _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
-    scheduleSkillLineDraw(this, { rebuild, changedSkillIds });
+  _scheduleDrawLines({ changedSkillIds = null } = {}) {
+    scheduleSkillLineDraw(this, { changedSkillIds });
   }
 
   _drawLines(changedSkillIds = null) {
@@ -149,8 +147,6 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
     this._applyInitialAvailabilityLock();
-
-    attachSkillCardImageListeners(root, () => this._scheduleDrawLines({ rebuild: true }));
 
     this._updateConfirmState();
     scheduleInitialSkillTreeDraw(this);
