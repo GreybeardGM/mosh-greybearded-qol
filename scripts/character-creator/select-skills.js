@@ -4,7 +4,6 @@ import { stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from ".
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import {
   cacheSkillTreeDom,
-  attachSkillCardImageListeners,
   cleanupSkillTreeApp,
   drawSkillLines,
   scheduleInitialSkillTreeDraw,
@@ -157,7 +156,6 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this._dom = null;
     this._linePathCache = new Map();
     this._lineKeyBySkill = new Map();
-    this._needsLineGeometryRebuild = true;
     this._prevSelectedSkills = new Set();
     this._pendingChangedSkillIds = null;
     this._selectedSkillIds = new Set();
@@ -211,8 +209,8 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     return (skill?.system?.prerequisite_ids || []).map(toSkillId);
   }
 
-  _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
-    scheduleSkillLineDraw(this, { rebuild, changedSkillIds });
+  _scheduleDrawLines({ changedSkillIds = null } = {}) {
+    scheduleSkillLineDraw(this, { changedSkillIds });
   }
 
   _drawLines(changedSkillIds = null) {
@@ -347,8 +345,6 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
-
-    attachSkillCardImageListeners(root, () => this._scheduleDrawLines({ rebuild: true }));
 
     this._updateUi();
     scheduleInitialSkillTreeDraw(this);

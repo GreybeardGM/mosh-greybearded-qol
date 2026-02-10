@@ -1,3 +1,5 @@
+import { markSkillTreePerf, measureSkillTreePerf } from "./perf-debug.js";
+
 export function rebuildSkillLineGeometry({
   svg,
   sortedSkills,
@@ -7,6 +9,8 @@ export function rebuildSkillLineGeometry({
   lineKeyBySkill,
   buildLineMeta = () => ({})
 }) {
+  markSkillTreePerf("skilltree:geometry:start");
+
   linePathCache.clear();
   lineKeyBySkill.clear();
   svg.innerHTML = "";
@@ -58,6 +62,9 @@ export function rebuildSkillLineGeometry({
   }
 
   svg.appendChild(frag);
+
+  markSkillTreePerf("skilltree:geometry:end");
+  measureSkillTreePerf("skilltree:geometry", "skilltree:geometry:start", "skilltree:geometry:end");
 }
 
 export function updateSkillLineHighlights({
@@ -68,6 +75,8 @@ export function updateSkillLineHighlights({
   selectedSkillIds,
   isHighlighted
 }) {
+  markSkillTreePerf("skilltree:highlight:start");
+
   const keysToUpdate = new Set();
   const updateAll = rebuiltGeometry || !changedSkillIds || changedSkillIds.size === 0;
 
@@ -92,4 +101,7 @@ export function updateSkillLineHighlights({
     line.path.setAttribute("stroke-width", highlighted ? "3" : "2");
     line.isHighlighted = highlighted;
   }
+
+  markSkillTreePerf("skilltree:highlight:end");
+  measureSkillTreePerf("skilltree:highlight", "skilltree:highlight:start", "skilltree:highlight:end");
 }
