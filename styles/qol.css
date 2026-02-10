@@ -49,11 +49,11 @@
   color: #777;
 }
 
-.application.skill-selection .window-content {
+.greybeardqol.qol-skill-selection .window-content {
   overflow-y: auto;
   max-height: 85vh;
 }
-.greybeardqol.training-selection .training-intro {
+.greybeardqol.qol-training-selection .training-intro {
   margin: 0 0 0.75rem;
   text-align: center;
   font-style: italic;
@@ -261,40 +261,40 @@
   justify-content: center; 
 }
 
-.shore-leave-config fieldset {
+.greybeardqol .qol-shore-leave-config fieldset {
   margin-bottom: 1em;
   border: 1px solid #666;
   border-radius: 6px;
 }
 
-.shore-leave-config legend {
+.greybeardqol .qol-shore-leave-config legend {
   font-weight: bold;
 }
 
-.shore-leave-config .form-group {
+.greybeardqol .qol-shore-leave-config .form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 0.1em;
 }
 
-.shore-leave-config .form-group label {
+.greybeardqol .qol-shore-leave-config .form-group label {
   font-size: 0.9em;
   margin-bottom: 0.25em;
 }
 
-.shore-leave-config .inline-row {
+.greybeardqol .qol-shore-leave-config .inline-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5em;
   align-items: center;
 }
 
-.shore-leave-config input[type="number"],
-.shore-leave-config input[type="text"] {
+.greybeardqol .qol-shore-leave-config input[type="number"],
+.greybeardqol .qol-shore-leave-config input[type="text"] {
   width: 5em;
 }
 
-.shore-leave-config .form-footer {
+.greybeardqol .qol-shore-leave-config .form-footer {
   display: flex;
   justify-content: space-between;
   margin-top: 1em;
@@ -317,7 +317,7 @@
   font-size: 0.75rem;
 }
 
-.application.class-selection .window-content {
+.greybeardqol.qol-class-selection .window-content {
   position: relative;
 }
 

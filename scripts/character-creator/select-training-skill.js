@@ -20,7 +20,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     tag: "form",
     window: {
       title: "Training",
-      contentClasses: ["greybeardqol", "skill-selection", "training-selection"],
+      contentClasses: ["greybeardqol", "qol-skill-selection", "qol-training-selection"],
       resizable: false
     },
     position: {
