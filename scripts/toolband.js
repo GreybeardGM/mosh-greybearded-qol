@@ -2,6 +2,7 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { applyDamage } from "./utils/apply-damage.js";
+import { TrainingSkillSelectorApp } from "./training/select-training-skill.js";
 
 const CLS = "toolband";
 
@@ -47,6 +48,14 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
         case "shore-leave":
           return game.moshGreybeardQol.SimpleShoreLeave.wait({ actor });
+
+        case "training": {
+          if (!actor) return;
+          const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
+          if (!trainedSkill) return;
+          ui.notifications?.info?.(`${actor.name} learned ${trainedSkill.name}.`);
+          return sheet.render(false);
+        }
 
         case "mark-ready":
           await setReady(actor);
@@ -180,6 +189,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
         });
         btns.push({ id: "shore-leave",    icon: "fas fa-umbrella-beach", label: "Shore Leave" });
       }
+      btns.push({ id: "training",      icon: "fa-solid fa-dumbbell", label: "Training" });
       // GM-Unterkategorie …
       if (isGM) {
         if (!ready && !completed) {
