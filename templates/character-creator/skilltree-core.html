@@ -1,0 +1,36 @@
+<div class="skill-area-wrapper" style="--theme-color: {{themeColor}};">
+  <svg id="skill-arrows" class="skill-arrow-overlay"></svg>
+  <div class="skill-columns">
+    {{#each (array 'trained' 'expert' 'master') as |rank|}}
+      <div class="skill-column">
+        <div class="remaining-points">
+          {{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}}
+          {{#if ../showPointCounters}}
+            [ <span class="point-count" data-rank="{{rank}}">0</span> ]
+          {{/if}}
+        </div>
+        <div class="pill-list">
+          {{#each ../sortedSkills}}
+            {{#if (eq this.rank rank)}}
+              <div
+                class="pill interactive skill-card
+                  {{#if (eq ../../defaultSkillMode 'id')}}
+                    {{#if (includes ../../defaultSkillValues this.id)}}default-skill selected locked{{/if}}
+                  {{else}}
+                    {{#if (includes ../../defaultSkillValues this.nameLower)}}default-skill selected locked{{/if}}
+                  {{/if}}"
+                data-action="toggleSkill"
+                data-rank="{{this.rank}}"
+                data-uuid="{{this.uuid}}"
+                data-skill-id="{{this.id}}"
+                title="{{stripHtml this.system.description}}">
+                <img src="{{this.img}}" alt="{{this.name}}" />
+                <span>{{this.name}}</span>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>

@@ -1,7 +1,16 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { stripHtml, toSkillId } from "./utils.js";
-import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
+import {
+  cacheSkillTreeDom,
+  attachSkillCardImageListeners,
+  cleanupSkillTreeApp,
+  drawSkillLines,
+  getAppRoot,
+  scheduleInitialSkillTreeDraw,
+  scheduleSkillLineDraw,
+  selectedSkillIdsFromDom
+} from "./skill-selector-shared.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -62,7 +71,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       template: "modules/mosh-greybearded-qol/templates/character-creator/select-skills-options.html"
     },
     skilltree: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-skills-skilltree.html"
+      template: "modules/mosh-greybearded-qol/templates/character-creator/skilltree-core.html"
     },
     confirm: {
       template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
@@ -100,6 +109,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       _id: skill.id,
       uuid: skill.uuid,
       name: skill.name,
+      nameLower: String(skill.name || "").trim().toLowerCase(),
       img: skill.img,
       system: skill.system,
       rank: String(skill?.system?.rank ?? "").toLowerCase()
@@ -170,37 +180,17 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _getRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
+    return getAppRoot(this.element);
   }
 
   _cacheDomReferences(root) {
-    const skillCards = Array.from(root.querySelectorAll(".skill-card"));
-    const skillCardById = new Map(skillCards.map(el => [el.dataset.skillId, el]));
-    const skillCardsByRank = new Map();
-    for (const el of skillCards) {
-      const rank = el.dataset.rank;
-      if (!skillCardsByRank.has(rank)) skillCardsByRank.set(rank, []);
-      skillCardsByRank.get(rank).push(el);
-    }
-
-    this._dom = {
-      root,
-      svg: root.querySelector("#skill-arrows"),
-      confirm: root.querySelector("#confirm-button"),
-      orOptions: Array.from(root.querySelectorAll(".or-option")),
-      pointCounts: Array.from(root.querySelectorAll(".point-count")),
-      skillCards,
-      skillCardById,
-      skillCardsByRank
-    };
+    this._dom = cacheSkillTreeDom(root, { includeOrOptions: true, includePointCounts: true });
   }
 
   _initializeSelectionStateFromDom() {
     if (this._selectedSkillIds.size > 0) return;
     const cards = this._dom?.skillCards ?? [];
-    this._selectedSkillIds = new Set(cards.filter(el => el.classList.contains("selected")).map(el => el.dataset.skillId));
+    this._selectedSkillIds = selectedSkillIdsFromDom(cards);
   }
 
   _collectAvailabilityAffectedSkillIds(seedSkillIds) {
@@ -236,50 +226,16 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
-    if (rebuild) this._needsLineGeometryRebuild = true;
-    if (changedSkillIds?.size) {
-      if (!this._pendingChangedSkillIds) this._pendingChangedSkillIds = new Set();
-      for (const skillId of changedSkillIds) this._pendingChangedSkillIds.add(skillId);
-    }
-    if (this._lineDrawFrame) cancelAnimationFrame(this._lineDrawFrame);
-    this._lineDrawFrame = requestAnimationFrame(() => {
-      this._lineDrawFrame = null;
-      this._drawLines(this._pendingChangedSkillIds);
-      this._pendingChangedSkillIds = null;
-    });
+    scheduleSkillLineDraw(this, { rebuild, changedSkillIds });
   }
 
   _drawLines(changedSkillIds = null) {
-    const cachedRoot = this._dom?.root;
-    const svg = this._dom?.svg;
-    if (!cachedRoot || !svg) return;
-
     const selected = this._selectedSkillIds;
 
-    let rebuiltGeometry = false;
-    if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
-      rebuildSkillLineGeometry({
-        svg,
-        sortedSkills: this.sortedSkills,
-        skillCardById: this._dom.skillCardById,
-        toSkillId,
-        linePathCache: this._linePathCache,
-        lineKeyBySkill: this._lineKeyBySkill,
-        buildLineMeta: skill => ({
-          highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
-        })
-      });
-
-      this._needsLineGeometryRebuild = false;
-      rebuiltGeometry = true;
-    }
-
-    updateSkillLineHighlights({
-      rebuiltGeometry,
-      changedSkillIds,
-      linePathCache: this._linePathCache,
-      lineKeyBySkill: this._lineKeyBySkill,
-      selectedSkillIds: selected,
+    drawSkillLines(this, changedSkillIds, {
+      buildLineMeta: skill => ({
+        highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
+      }),
       isHighlighted: line => line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId)
     });
   }
@@ -386,7 +342,9 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       actor: this.actor,
       selectedClass: this.selectedClass,
       sortedSkills: this.sortedSkills,
-      granted: [...this.granted],
+      defaultSkillMode: "id",
+      defaultSkillValues: [...this.granted],
+      showPointCounters: true,
       basePoints: this.basePoints,
       orOptions: this.orOptions,
       confirmLocked: true
@@ -409,13 +367,10 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
 
-    root.querySelectorAll(".skill-card img").forEach(img => {
-      if (img.complete) return;
-      img.addEventListener("load", () => this._scheduleDrawLines({ rebuild: true }), { once: true });
-    });
+    attachSkillCardImageListeners(root, () => this._scheduleDrawLines({ rebuild: true }));
 
     this._updateUi();
-    this._scheduleDrawLines({ rebuild: true });
+    scheduleInitialSkillTreeDraw(this);
   }
 
   static _onToggleSkill(event, target) {
@@ -534,17 +489,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async close(options = {}) {
-    if (this._lineDrawFrame) {
-      cancelAnimationFrame(this._lineDrawFrame);
-      this._lineDrawFrame = null;
-    }
-    this._dom = null;
-    this._linePathCache.clear();
-    this._lineKeyBySkill.clear();
-    this._prevSelectedSkills.clear();
-    this._pendingChangedSkillIds = null;
-    this._orOptionById.clear();
-    this._currentOrLockedSkillIds.clear();
+    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds"] });
     this._resolveOnce(null);
     return super.close(options);
   }
