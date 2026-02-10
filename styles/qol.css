@@ -385,6 +385,51 @@
 .greybeardqol .skill-card {
   padding-right: 2.5rem;
 }
+
+@media (max-width: 980px), (max-height: 760px) {
+  .greybeardqol .skill-columns {
+    gap: 10%;
+  }
+
+  .greybeardqol .pill {
+    padding: 0.12rem 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  .greybeardqol .pill img {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .greybeardqol .remaining-points {
+    font-size: 1.05rem;
+    margin: 0.5rem 0;
+    padding: 0.35rem 0.45rem;
+  }
+}
+
+@media (max-width: 780px), (max-height: 640px) {
+  .greybeardqol .skill-columns {
+    gap: 6%;
+  }
+
+  .greybeardqol .pill {
+    padding: 0.1rem 0.45rem;
+    font-size: 0.75rem;
+  }
+
+  .greybeardqol .pill img {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .greybeardqol .remaining-points {
+    font-size: 0.95rem;
+    margin: 0.35rem 0;
+    padding: 0.28rem 0.4rem;
+  }
+}
+
 .greybeardqol .skill-area-wrapper {
   position: relative;
 }
