@@ -1,7 +1,16 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeName, toSkillId } from "./utils.js";
-import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
+import { normalizeName } from "./utils.js";
+import {
+  applyInitialAvailabilityLock,
+  attachSkillCardImageListeners,
+  cacheSkillTreeDom,
+  cleanupSkillTreeApp,
+  drawSkillLines,
+  getAppRoot,
+  scheduleSkillLineDraw,
+  selectedSkillIdsFromDom
+} from "./skill-selector-shared.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -30,7 +39,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static PARTS = {
     main: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-training-skill.html"
+      template: "modules/mosh-greybearded-qol/templates/character-creator/skilltree-core.html"
     },
     confirm: {
       template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
@@ -89,83 +98,33 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   _getRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
+    return getAppRoot(this.element);
   }
 
   _cacheDomReferences(root) {
-    const skillCards = Array.from(root.querySelectorAll(".skill-card"));
-    const skillCardById = new Map(skillCards.map(el => [el.dataset.skillId, el]));
-
-    this._dom = {
-      root,
-      cards: skillCards,
-      skillCardById,
-      svg: root.querySelector("#skill-arrows"),
-      confirm: root.querySelector("#confirm-button")
-    };
+    this._dom = cacheSkillTreeDom(root);
   }
 
   _initializeSelectionStateFromDom() {
-    const cards = this._dom?.cards ?? [];
-    this._selectedSkillIds = new Set(cards.filter(el => el.classList.contains("selected")).map(el => el.dataset.skillId));
+    const cards = this._dom?.skillCards ?? [];
+    this._selectedSkillIds = selectedSkillIdsFromDom(cards);
     this._prevSelectedSkills = new Set(this._selectedSkillIds);
   }
 
   _applyInitialAvailabilityLock() {
-    for (const card of this._dom?.cards ?? []) {
-      if (card.classList.contains("default-skill")) continue;
-
-      const skill = this._skillById.get(card.dataset.skillId);
-      const prereqIds = (skill?.system?.prerequisite_ids || []).map(toSkillId);
-      const isUnlocked = prereqIds.length === 0 || prereqIds.some(id => this._selectedSkillIds.has(id));
-
-      if (!isUnlocked) {
-        card.classList.add("locked");
-      }
-    }
-  }
-
-  _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
-    if (rebuild) this._needsLineGeometryRebuild = true;
-    if (changedSkillIds?.size) {
-      if (!this._pendingChangedSkillIds) this._pendingChangedSkillIds = new Set();
-      for (const skillId of changedSkillIds) this._pendingChangedSkillIds.add(skillId);
-    }
-    if (this._lineDrawFrame) cancelAnimationFrame(this._lineDrawFrame);
-    this._lineDrawFrame = requestAnimationFrame(() => {
-      this._lineDrawFrame = null;
-      this._drawLines(this._pendingChangedSkillIds);
-      this._pendingChangedSkillIds = null;
+    applyInitialAvailabilityLock({
+      cards: this._dom?.skillCards ?? [],
+      skillById: this._skillById,
+      selectedSkillIds: this._selectedSkillIds
     });
   }
 
+  _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
+    scheduleSkillLineDraw(this, { rebuild, changedSkillIds });
+  }
+
   _drawLines(changedSkillIds = null) {
-    const svg = this._dom?.svg;
-    if (!svg) return;
-
-    let rebuiltGeometry = false;
-    if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
-      rebuildSkillLineGeometry({
-        svg,
-        sortedSkills: this.sortedSkills,
-        skillCardById: this._dom.skillCardById,
-        toSkillId,
-        linePathCache: this._linePathCache,
-        lineKeyBySkill: this._lineKeyBySkill
-      });
-
-      this._needsLineGeometryRebuild = false;
-      rebuiltGeometry = true;
-    }
-
-    updateSkillLineHighlights({
-      rebuiltGeometry,
-      changedSkillIds,
-      linePathCache: this._linePathCache,
-      lineKeyBySkill: this._lineKeyBySkill,
-      selectedSkillIds: this._selectedSkillIds,
+    drawSkillLines(this, changedSkillIds, {
       isHighlighted: line => this._selectedSkillIds.has(line.skillId) && this._selectedSkillIds.has(line.prereqId)
     });
   }
@@ -173,7 +132,9 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   async _prepareContext() {
     return {
       sortedSkills: this.sortedSkills,
-      ownedSkillNames: this.ownedSkillNames,
+      defaultSkillMode: "nameLower",
+      defaultSkillValues: [...this.ownedSkillNames],
+      showPointCounters: false,
       themeColor: getThemeColor(),
       confirmLocked: true
     };
@@ -188,10 +149,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     this._initializeSelectionStateFromDom();
     this._applyInitialAvailabilityLock();
 
-    root.querySelectorAll(".skill-card img").forEach(img => {
-      if (img.complete) return;
-      img.addEventListener("load", () => this._scheduleDrawLines({ rebuild: true }), { once: true });
-    });
+    attachSkillCardImageListeners(root, () => this._scheduleDrawLines({ rebuild: true }));
 
     this._updateConfirmState();
     this._scheduleDrawLines({ rebuild: true });
@@ -215,7 +173,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     const changed = new Set();
     const isSelected = target.classList.contains("selected");
 
-    for (const card of this._dom.cards) {
+    for (const card of this._dom.skillCards) {
       if (card.classList.contains("default-skill")) continue;
       if (card.classList.contains("selected")) changed.add(card.dataset.skillId);
       card.classList.remove("selected");
@@ -243,7 +201,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     const confirm = this._dom?.confirm;
     if (!confirm || confirm.classList.contains("locked")) return;
 
-    const selectedCard = this._dom.cards.find(el => el.dataset.skillId === this._selectedNewSkillId);
+    const selectedCard = this._dom.skillCards.find(el => el.dataset.skillId === this._selectedNewSkillId);
     const selectedUuid = selectedCard?.dataset?.uuid;
     if (!selectedUuid) {
       this._resolveOnce(null);
@@ -265,15 +223,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   async close(options = {}) {
-    if (this._lineDrawFrame) {
-      cancelAnimationFrame(this._lineDrawFrame);
-      this._lineDrawFrame = null;
-    }
-    this._dom = null;
-    this._linePathCache.clear();
-    this._lineKeyBySkill.clear();
-    this._skillById.clear();
-    this._pendingChangedSkillIds = null;
+    cleanupSkillTreeApp(this, { clearCollections: ["_skillById"] });
     this._resolveOnce(null);
     return super.close(options);
   }
