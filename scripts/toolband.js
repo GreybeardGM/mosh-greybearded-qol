@@ -3,6 +3,7 @@ import { checkReady, checkCompleted, setReady, setCompleted } from "./character-
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { applyDamage } from "./utils/apply-damage.js";
 import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
+import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 
 const CLS = "toolband";
 
@@ -42,6 +43,10 @@ export function upsertToolband(sheet, html, ctx = {}) {
       switch (btn.dataset.action) {
         case "ship-crit":
           return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+
+        case "ship-crew-roster":
+          if (!actor) return;
+          return new ShipCrewRosterApp({ actor }).render(true);
 
         case "roll-character":
           return game.moshGreybeardQol.startCharacterCreation(actor);
@@ -226,6 +231,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
       if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
         btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Critical Hit" });
       }
+      btns.push({ id: "ship-crew-roster", icon: "fa-solid fa-users", label: "Crew Roster" });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — GM-spezifische Ship-Buttons hier ergänzen
