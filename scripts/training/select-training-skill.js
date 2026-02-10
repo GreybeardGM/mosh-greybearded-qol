@@ -112,6 +112,20 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     this._prevSelectedSkills = new Set(this._selectedSkillIds);
   }
 
+  _applyInitialAvailabilityLock() {
+    for (const card of this._dom?.cards ?? []) {
+      if (card.classList.contains("default-skill")) continue;
+
+      const skill = this.sortedSkills.find(entry => entry.id === card.dataset.skillId);
+      const prereqIds = (skill?.system?.prerequisite_ids || []).map(toSkillId);
+      const isUnlocked = prereqIds.length === 0 || prereqIds.some(id => this._selectedSkillIds.has(id));
+
+      if (!isUnlocked) {
+        card.classList.add("locked");
+      }
+    }
+  }
+
   _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
     if (rebuild) this._needsLineGeometryRebuild = true;
     if (this._lineDrawFrame) cancelAnimationFrame(this._lineDrawFrame);
@@ -221,6 +235,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
+    this._applyInitialAvailabilityLock();
 
     root.querySelectorAll(".skill-card img").forEach(img => {
       if (img.complete) return;
@@ -244,7 +259,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   static async _onToggleSkill(event, target) {
     const skillId = target?.dataset?.skillId;
     if (!skillId) return;
-    if (target.classList.contains("default-skill")) return;
+    if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
 
     const changed = new Set();
     const isSelected = target.classList.contains("selected");
