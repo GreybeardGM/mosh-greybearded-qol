@@ -1,0 +1,33 @@
+<form class="mosh creature-stat-pick">
+  <div class="macro_window" style="padding-left: 8px;">
+    <div class="macro_desc"><h4>{{ localize "Mosh.SelectAStat" }}</h4>
+      {{ localize "Mosh.ChooseTheStatForSkillCheck" }}<em>{{ localize "Mosh.GivingYouAHigherNumber"}}</em>
+    </div>
+  </div>
+
+  {{#if attributes.length}}
+    {{#each attributes as |attr|}}
+    <label for="{{attr.id}}">
+      <div class="macro_window" style="vertical-align: middle; padding-left: 3px;">
+        <div class="grid grid-3col" style="align-items: center; grid-template-columns: 20px 60px auto">
+          <input type="radio" id="{{attr.id}}" name="stat" value="{{attr.key}}" {{#if @first}}checked="checked"{{/if}}>
+          <div class="macro_img" style="padding-top: 5px; padding-left: 0px; padding-right: 0px; padding-bottom: 5px;"><img src="{{attr.icon}}" style="border:none"/></div>
+          <div class="macro_desc" style="display: table;">
+            <span style="display: table-cell; vertical-align: middle;">
+              <strong>{{attr.label}}:</strong> {{attr.example}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </label>
+    {{/each}}
+  {{else}}
+    <div class="macro_window" style="padding-left: 8px;">
+      <div class="macro_desc">No active creature attributes found.</div>
+    </div>
+  {{/if}}
+
+  {{#if showRollTypePrompt}}
+    <div class="macro_prompt">{{ localize "Mosh.SelectYourRollType" }}</div>
+  {{/if}}
+</form>

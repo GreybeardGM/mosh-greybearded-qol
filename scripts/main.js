@@ -10,6 +10,7 @@ import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
 import { setReady } from "./character-creator/progress.js";
+import "./patches/creature-skillfix.js";
 
 // Needs to be here to check for
 let StashSheet;
