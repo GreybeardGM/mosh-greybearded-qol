@@ -1,9 +1,9 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
+import { stripHtml, toSkillId } from "./utils.js";
+import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-const toSkillId = value => String(value ?? "").split(".").pop();
 
 function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = game.i18n.localize("MoshQoL.CharacterCreator.SelectSkills.UnknownOrOption") }) {
   const candidates = Array.isArray(option?.from_list) ? option.from_list : [];
@@ -78,12 +78,11 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static async _prepareData({ actor, selectedClass }) {
-    const stripHtml = html => String(html ?? "").replace(/<[^>]*>/g, "").trim();
     const getSkillDependencies = skills => {
       const map = new Map();
       for (const skill of skills) {
         for (const prereq of skill.system.prerequisite_ids || []) {
-          const prereqId = prereq.split(".").pop();
+          const prereqId = toSkillId(prereq);
           if (!map.has(prereqId)) map.set(prereqId, new Set());
           map.get(prereqId).add(skill.id);
         }
@@ -108,7 +107,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
     const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
-    const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(uuid => uuid.split(".").pop()));
+    const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(toSkillId));
 
     const fullSetExpert = baseAnd.expert_full_set || 0;
     const fullSetMaster = baseAnd.master_full_set || 0;
@@ -209,8 +208,9 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const affected = new Set(seedSkillIds);
     const queue = [...seedSkillIds];
-    while (queue.length) {
-      const skillId = queue.shift();
+    let queueIndex = 0;
+    while (queueIndex < queue.length) {
+      const skillId = queue[queueIndex++];
       const dependents = this.dependencies.get(skillId);
       if (!dependents) continue;
       for (const dependentId of dependents) {
@@ -224,9 +224,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _selectedSkills() {
-    if (this._selectedSkillIds instanceof Set) return new Set(this._selectedSkillIds);
-    const cards = this._dom?.skillCards ?? [];
-    return new Set(cards.filter(el => el.classList.contains("selected")).map(el => el.dataset.skillId));
+    return new Set(this._selectedSkillIds);
   }
 
   _isSkillSelected(skillId) {
@@ -234,7 +232,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _getPrereqIds(skill) {
-    return (skill?.system?.prerequisite_ids || []).map(prereq => prereq.split(".").pop());
+    return (skill?.system?.prerequisite_ids || []).map(toSkillId);
   }
 
   _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
@@ -252,9 +250,6 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _drawLines(changedSkillIds = null) {
-    const root = this._getRoot();
-    if (root) this._cacheDomReferences(root);
-
     const cachedRoot = this._dom?.root;
     const svg = this._dom?.svg;
     if (!cachedRoot || !svg) return;
@@ -263,82 +258,30 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     let rebuiltGeometry = false;
     if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
-      this._linePathCache.clear();
-      this._lineKeyBySkill.clear();
-      svg.innerHTML = "";
+      rebuildSkillLineGeometry({
+        svg,
+        sortedSkills: this.sortedSkills,
+        skillCardById: this._dom.skillCardById,
+        toSkillId,
+        linePathCache: this._linePathCache,
+        lineKeyBySkill: this._lineKeyBySkill,
+        buildLineMeta: skill => ({
+          highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
+        })
+      });
 
-      // Reuse the centralized DOM cache to keep draw geometry in sync with one source of truth.
-      const parentRect = svg.getBoundingClientRect();
-      const frag = document.createDocumentFragment();
-
-      for (const skill of this.sortedSkills) {
-        const prereqIds = (skill.system.prerequisite_ids || []).map(p => p.split(".").pop());
-        for (const prereqId of prereqIds) {
-          const fromEl = this._dom.skillCardById.get(prereqId);
-          const toEl = this._dom.skillCardById.get(skill.id);
-          if (!fromEl || !toEl) continue;
-
-          const rect1 = fromEl.getBoundingClientRect();
-          const rect2 = toEl.getBoundingClientRect();
-
-          const relX1 = rect1.left + rect1.width - parentRect.left;
-          const relY1 = rect1.top + rect1.height / 2 - parentRect.top;
-          const relX2 = rect2.left - parentRect.left;
-          const relY2 = rect2.top + rect2.height / 2 - parentRect.top;
-
-          const deltaX = Math.abs(relX2 - relX1) / 2;
-          const pathData = `M ${relX1},${relY1} C ${relX1 + deltaX},${relY1} ${relX2 - deltaX},${relY2} ${relX2},${relY2}`;
-
-          const key = `${prereqId}->${skill.id}`;
-          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          path.setAttribute("d", pathData);
-          path.setAttribute("fill", "none");
-          path.setAttribute("stroke", "var(--color-border)");
-          path.setAttribute("stroke-width", "2");
-          frag.appendChild(path);
-
-          this._linePathCache.set(key, {
-            path,
-            prereqId,
-            skillId: skill.id,
-            highlightable: skill.system.rank === "expert" || skill.system.rank === "master",
-            isHighlighted: false
-          });
-
-          if (!this._lineKeyBySkill.has(prereqId)) this._lineKeyBySkill.set(prereqId, new Set());
-          if (!this._lineKeyBySkill.has(skill.id)) this._lineKeyBySkill.set(skill.id, new Set());
-          this._lineKeyBySkill.get(prereqId).add(key);
-          this._lineKeyBySkill.get(skill.id).add(key);
-        }
-      }
-
-      svg.appendChild(frag);
       this._needsLineGeometryRebuild = false;
       rebuiltGeometry = true;
     }
 
-    const keysToUpdate = new Set();
-    const updateAll = rebuiltGeometry || !changedSkillIds || changedSkillIds.size === 0;
-    if (updateAll) {
-      for (const key of this._linePathCache.keys()) keysToUpdate.add(key);
-    } else {
-      for (const skillId of changedSkillIds) {
-        const keys = this._lineKeyBySkill.get(skillId);
-        if (!keys) continue;
-        for (const key of keys) keysToUpdate.add(key);
-      }
-    }
-
-    for (const key of keysToUpdate) {
-      const line = this._linePathCache.get(key);
-      if (!line) continue;
-      const highlighted = line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId);
-      if (line.isHighlighted === highlighted) continue;
-
-      line.path.setAttribute("stroke", highlighted ? "var(--theme-color)" : "var(--color-border)");
-      line.path.setAttribute("stroke-width", highlighted ? "3" : "2");
-      line.isHighlighted = highlighted;
-    }
+    updateSkillLineHighlights({
+      rebuiltGeometry,
+      changedSkillIds,
+      linePathCache: this._linePathCache,
+      lineKeyBySkill: this._lineKeyBySkill,
+      selectedSkillIds: selected,
+      isHighlighted: line => line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId)
+    });
   }
 
   _updateSkillAvailability(selectedSkillIds, { affectedSkillIds = null, affectedRanks = null } = {}) {
@@ -378,7 +321,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       }
 
       const skill = this.skillMap.get(skillId);
-      const prereqs = (skill?.system?.prerequisite_ids || []).map(p => p.split(".").pop());
+      const prereqs = (skill?.system?.prerequisite_ids || []).map(toSkillId);
       const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkillIds.has(id));
       if (unlocked) {
         el.classList.remove("locked");

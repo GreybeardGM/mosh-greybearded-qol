@@ -1,10 +1,9 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
+import { normalizeName, toSkillId } from "./utils.js";
+import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-const toSkillId = value => String(value ?? "").split(".").pop();
-const normalizeName = value => String(value ?? "").trim().toLowerCase();
 
 export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -31,7 +30,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static PARTS = {
     main: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/training-select-skill.html"
+      template: "modules/mosh-greybearded-qol/templates/character-creator/select-training-skill.html"
     },
     confirm: {
       template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
@@ -75,9 +74,11 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     this._resolved = false;
 
     this.sortedSkills = sortedSkills;
+    this._skillById = new Map(sortedSkills.map(skill => [skill.id, skill]));
     this.ownedSkillNames = ownedSkillNames;
     this._dom = null;
     this._lineDrawFrame = null;
+    this._pendingChangedSkillIds = null;
     this._linePathCache = new Map();
     this._lineKeyBySkill = new Map();
     this._needsLineGeometryRebuild = true;
@@ -116,7 +117,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     for (const card of this._dom?.cards ?? []) {
       if (card.classList.contains("default-skill")) continue;
 
-      const skill = this.sortedSkills.find(entry => entry.id === card.dataset.skillId);
+      const skill = this._skillById.get(card.dataset.skillId);
       const prereqIds = (skill?.system?.prerequisite_ids || []).map(toSkillId);
       const isUnlocked = prereqIds.length === 0 || prereqIds.some(id => this._selectedSkillIds.has(id));
 
@@ -128,95 +129,45 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   _scheduleDrawLines({ rebuild = false, changedSkillIds = null } = {}) {
     if (rebuild) this._needsLineGeometryRebuild = true;
+    if (changedSkillIds?.size) {
+      if (!this._pendingChangedSkillIds) this._pendingChangedSkillIds = new Set();
+      for (const skillId of changedSkillIds) this._pendingChangedSkillIds.add(skillId);
+    }
     if (this._lineDrawFrame) cancelAnimationFrame(this._lineDrawFrame);
     this._lineDrawFrame = requestAnimationFrame(() => {
       this._lineDrawFrame = null;
-      this._drawLines(changedSkillIds);
+      this._drawLines(this._pendingChangedSkillIds);
+      this._pendingChangedSkillIds = null;
     });
   }
 
   _drawLines(changedSkillIds = null) {
-    const root = this._getRoot();
-    if (root) this._cacheDomReferences(root);
-
     const svg = this._dom?.svg;
     if (!svg) return;
 
     let rebuiltGeometry = false;
     if (this._needsLineGeometryRebuild || this._linePathCache.size === 0) {
-      this._linePathCache.clear();
-      this._lineKeyBySkill.clear();
-      svg.innerHTML = "";
+      rebuildSkillLineGeometry({
+        svg,
+        sortedSkills: this.sortedSkills,
+        skillCardById: this._dom.skillCardById,
+        toSkillId,
+        linePathCache: this._linePathCache,
+        lineKeyBySkill: this._lineKeyBySkill
+      });
 
-      const parentRect = svg.getBoundingClientRect();
-      const frag = document.createDocumentFragment();
-
-      for (const skill of this.sortedSkills) {
-        const prereqIds = (skill.system?.prerequisite_ids || []).map(toSkillId);
-        for (const prereqId of prereqIds) {
-          const fromEl = this._dom.skillCardById.get(prereqId);
-          const toEl = this._dom.skillCardById.get(skill.id);
-          if (!fromEl || !toEl) continue;
-
-          const rect1 = fromEl.getBoundingClientRect();
-          const rect2 = toEl.getBoundingClientRect();
-
-          const relX1 = rect1.left + rect1.width - parentRect.left;
-          const relY1 = rect1.top + rect1.height / 2 - parentRect.top;
-          const relX2 = rect2.left - parentRect.left;
-          const relY2 = rect2.top + rect2.height / 2 - parentRect.top;
-
-          const deltaX = Math.abs(relX2 - relX1) / 2;
-          const pathData = `M ${relX1},${relY1} C ${relX1 + deltaX},${relY1} ${relX2 - deltaX},${relY2} ${relX2},${relY2}`;
-
-          const key = `${prereqId}->${skill.id}`;
-          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          path.setAttribute("d", pathData);
-          path.setAttribute("fill", "none");
-          path.setAttribute("stroke", "var(--color-border)");
-          path.setAttribute("stroke-width", "2");
-          frag.appendChild(path);
-
-          this._linePathCache.set(key, {
-            path,
-            prereqId,
-            skillId: skill.id,
-            isHighlighted: false
-          });
-
-          if (!this._lineKeyBySkill.has(prereqId)) this._lineKeyBySkill.set(prereqId, new Set());
-          if (!this._lineKeyBySkill.has(skill.id)) this._lineKeyBySkill.set(skill.id, new Set());
-          this._lineKeyBySkill.get(prereqId).add(key);
-          this._lineKeyBySkill.get(skill.id).add(key);
-        }
-      }
-
-      svg.appendChild(frag);
       this._needsLineGeometryRebuild = false;
       rebuiltGeometry = true;
     }
 
-    const keysToUpdate = new Set();
-    const updateAll = rebuiltGeometry || !changedSkillIds || changedSkillIds.size === 0;
-    if (updateAll) {
-      for (const key of this._linePathCache.keys()) keysToUpdate.add(key);
-    } else {
-      for (const skillId of changedSkillIds) {
-        const keys = this._lineKeyBySkill.get(skillId);
-        if (!keys) continue;
-        for (const key of keys) keysToUpdate.add(key);
-      }
-    }
-
-    for (const key of keysToUpdate) {
-      const line = this._linePathCache.get(key);
-      if (!line) continue;
-      const highlighted = this._selectedSkillIds.has(line.skillId) && this._selectedSkillIds.has(line.prereqId);
-      if (highlighted === line.isHighlighted) continue;
-      line.path.setAttribute("stroke", highlighted ? "var(--theme-color)" : "var(--color-border)");
-      line.path.setAttribute("stroke-width", highlighted ? "3" : "2");
-      line.isHighlighted = highlighted;
-    }
+    updateSkillLineHighlights({
+      rebuiltGeometry,
+      changedSkillIds,
+      linePathCache: this._linePathCache,
+      lineKeyBySkill: this._lineKeyBySkill,
+      selectedSkillIds: this._selectedSkillIds,
+      isHighlighted: line => this._selectedSkillIds.has(line.skillId) && this._selectedSkillIds.has(line.prereqId)
+    });
   }
 
   async _prepareContext() {
@@ -321,6 +272,8 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     this._dom = null;
     this._linePathCache.clear();
     this._lineKeyBySkill.clear();
+    this._skillById.clear();
+    this._pendingChangedSkillIds = null;
     this._resolveOnce(null);
     return super.close(options);
   }
