@@ -2,7 +2,7 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { applyDamage } from "./utils/apply-damage.js";
-import { TrainingSkillSelectorApp } from "./training/select-training-skill.js";
+import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
 
 const CLS = "toolband";
 

@@ -1,5 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
+import { stripHtml, toSkillId } from "./utils.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -8,7 +9,6 @@ function normalizeCaps(text) {
   return lowered.charAt(0).toUpperCase() + lowered.slice(1);
 }
 
-const toSkillId = value => String(value ?? "").split(".").pop();
 
 function resolveSkillsFromReferences(references, { skillByUuid, skillMap }) {
   const unique = new Map();
@@ -82,7 +82,6 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static async _prepareData() {
-    const stripHtml = html => String(html ?? "").replace(/<[^>]*>/g, "").trim();
     const formatAttribute = (value, label) => {
       if (!Number.isFinite(value) || value === 0) return null;
       const prefix = value > 0 ? "+" : "";
