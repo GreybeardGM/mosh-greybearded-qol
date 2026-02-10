@@ -54,10 +54,10 @@ export function applyInitialAvailabilityLock({ cards = [], skillById, selectedSk
   }
 }
 
-export function scheduleSkillLineDraw(app, { rebuild = false, changedSkillIds = null } = {}) {
+export function scheduleSkillLineDraw(app, { changedSkillIds = null } = {}) {
   if (!app?._dom) return;
   skillTreePerfDebugHintOnce();
-  if (rebuild) app._needsLineGeometryRebuild = true;
+
   if (changedSkillIds?.size) {
     if (!app._pendingChangedSkillIds) app._pendingChangedSkillIds = new Set();
     for (const skillId of changedSkillIds) app._pendingChangedSkillIds.add(skillId);
@@ -83,7 +83,7 @@ export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = nu
   if (!svg) return;
 
   let rebuiltGeometry = false;
-  if (app._needsLineGeometryRebuild || app._linePathCache.size === 0) {
+  if (app._linePathCache.size === 0) {
     rebuildSkillLineGeometry({
       svg,
       sortedSkills: app.sortedSkills,
@@ -94,7 +94,6 @@ export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = nu
       buildLineMeta: buildLineMeta ?? EMPTY_LINE_META
     });
 
-    app._needsLineGeometryRebuild = false;
     rebuiltGeometry = true;
   }
 
@@ -117,27 +116,8 @@ export function scheduleInitialSkillTreeDraw(app) {
   // Einmalig nach dem ersten Layout-Pass zeichnen, damit Geometrie stabil ist.
   requestAnimationFrame(() => {
     if (!app?._dom) return;
-    scheduleSkillLineDraw(app, { rebuild: true });
+    scheduleSkillLineDraw(app);
   });
-}
-
-export function attachSkillCardImageListeners(root, onImageLoad) {
-  if (!root || typeof onImageLoad !== "function") return;
-  let rebuildScheduled = false;
-
-  const queueSingleRebuild = () => {
-    if (rebuildScheduled) return;
-    rebuildScheduled = true;
-    requestAnimationFrame(() => {
-      rebuildScheduled = false;
-      onImageLoad();
-    });
-  };
-
-  for (const img of root.querySelectorAll(".skill-card img")) {
-    if (img.complete) continue;
-    img.addEventListener("load", queueSingleRebuild, { once: true });
-  }
 }
 
 export function cleanupSkillTreeApp(app, { clearCollections = [] } = {}) {
