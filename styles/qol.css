@@ -40,11 +40,13 @@
 }
 
 .greybeardqol .locked.selected {
-  opacity: 0.9;
+  border-color: var(--color-border);
+  color: var(--color-text);
 }
 
 .greybeardqol .locked:not(.selected) {
-  opacity: 0.4;
+  border-color: #444;
+  color: #777;
 }
 
 .application.skill-selection .window-content {
