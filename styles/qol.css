@@ -500,6 +500,10 @@
 }
 
 /* Ship Crew Roster */
+.greybeardqol.crew-roster {
+  --theme-color: #f50;
+}
+
 .greybeardqol.crew-roster .crew-roster-app {
   display: flex;
   flex-direction: column;
@@ -507,21 +511,29 @@
   height: 100%;
 }
 
-.greybeardqol.crew-roster .crew-roster-card {
-  gap: 0.75rem;
-  height: 100%;
-}
-
 .greybeardqol.crew-roster .crew-roster-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-header .icon {
+.greybeardqol.crew-roster .crew-roster-header-icon {
   width: 3rem;
   height: 3rem;
   border-radius: 0.35rem;
   object-fit: cover;
+}
+
+.greybeardqol.crew-roster .crew-roster-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.greybeardqol.crew-roster .crew-roster-subtitle {
+  font-style: italic;
+  color: var(--theme-color);
 }
 
 .greybeardqol.crew-roster .crew-roster-tabs {
@@ -534,6 +546,14 @@
   padding: 0.25rem 0.4rem;
   border: 1px solid var(--color-border);
   border-radius: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+
+.greybeardqol.crew-roster .crew-roster-tab:hover,
+.greybeardqol.crew-roster .crew-roster-tab:focus-visible {
+  border-color: var(--theme-color);
 }
 
 .greybeardqol.crew-roster .crew-roster-tab.is-active {
@@ -562,7 +582,6 @@
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
   vertical-align: middle;
 }
-
 
 .greybeardqol.crew-roster .crew-roster-row {
   cursor: pointer;

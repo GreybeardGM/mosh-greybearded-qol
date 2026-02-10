@@ -87,11 +87,11 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   static DEFAULT_OPTIONS = {
     id: "ship-crew-roster",
-    classes: ["greybeardqol", "crew-roster"],
     tag: "section",
     window: {
       resizable: true,
-      title: "Crew Roster"
+      title: "Crew Roster",
+      contentClasses: ["greybeardqol", "crew-roster"]
     },
     position: {
       width: 680,
@@ -155,9 +155,11 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
     root.removeEventListener("click", this._onRowClick);
+    root.removeEventListener("keydown", this._onTabKeydown);
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
     root.addEventListener("click", this._onRowClick);
+    root.addEventListener("keydown", this._onTabKeydown);
   }
 
   _onClose(options) {
@@ -166,6 +168,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       root.removeEventListener("dragover", this._onDragOver);
       root.removeEventListener("drop", this._boundDrop);
       root.removeEventListener("click", this._onRowClick);
+      root.removeEventListener("keydown", this._onTabKeydown);
     }
 
     return super._onClose(options);
@@ -176,13 +179,24 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   };
 
   _onRowClick = async (event) => {
-    const control = event.target.closest("button, input, label");
+    const control = event.target.closest("button, input, label, .crew-roster-tab");
     if (control) return;
 
     const row = event.target.closest(".crew-roster-row[data-action='openEntry']");
     if (!row) return;
 
     await this.constructor._onOpenEntry(event, row);
+  };
+
+
+  _onTabKeydown = (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    const tab = event.target.closest(".crew-roster-tab[data-action='setTab']");
+    if (!tab) return;
+
+    event.preventDefault();
+    this.constructor._onSetTab(event, tab);
   };
 
   async _onDrop(event) {
