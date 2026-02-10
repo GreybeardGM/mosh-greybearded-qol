@@ -1,4 +1,5 @@
 <div class="skill-area-wrapper" style="--theme-color: {{themeColor}};">
+  <svg id="skill-arrows" class="skill-arrow-overlay"></svg>
   <div class="skill-columns">
     {{#each (array 'trained' 'expert' 'master') as |rank|}}
       <div class="skill-column">
@@ -6,7 +7,7 @@
         <div class="pill-list">
           {{#each ../sortedSkills}}
             {{#if (eq this.rank rank)}}
-              <div class="pill interactive skill-card {{#if (includes ../../ownedSkillIds this._id)}}default-skill selected locked{{/if}}"
+              <div class="pill interactive skill-card {{#if (includes ../../ownedSkillNames this.nameLower)}}default-skill selected locked{{/if}}"
                 data-action="toggleSkill"
                 data-rank="{{this.rank}}"
                 data-uuid="{{this.uuid}}"
