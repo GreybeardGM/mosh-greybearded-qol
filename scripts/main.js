@@ -28,6 +28,7 @@ function getSheetKind(sheet) {
   return "unknown";
 }
 
+
 // Register all the stuff
 Hooks.once("ready", () => {
   
@@ -81,6 +82,7 @@ Hooks.once("ready", () => {
     CONFIG.statusEffects.push(customStatus);
   }
   
+
   // Debug Check
   console.log("✅ MoSh Greybearded QoL loaded");  
 });

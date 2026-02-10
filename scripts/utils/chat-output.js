@@ -55,8 +55,14 @@ export async function chatOutput({
 
   // Send to chat
   if (roll instanceof Roll) {
-    return roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: html });
-  } else {
-    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: html });
+    return roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      flavor: html
+    });
   }
+
+  return ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: html
+  });
 }
