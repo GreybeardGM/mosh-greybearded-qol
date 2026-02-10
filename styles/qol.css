@@ -499,11 +499,6 @@
   box-shadow: 0 0 8px var(--theme-color) !important;
 }
 
-/* Ship Crew Roster */
-.greybeardqol.crew-roster {
-  --theme-color: #f50;
-}
-
 .greybeardqol.crew-roster .crew-roster-app {
   display: flex;
   flex-direction: column;
@@ -515,37 +510,37 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0.5rem;
 }
 
 .greybeardqol.crew-roster .crew-roster-header-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.35rem;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 0.5rem;
   object-fit: cover;
 }
 
 .greybeardqol.crew-roster .crew-roster-title {
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 .greybeardqol.crew-roster .crew-roster-subtitle {
   font-style: italic;
   color: var(--theme-color);
+  font-size: 1.2rem;
 }
 
 .greybeardqol.crew-roster .crew-roster-tabs {
   display: flex;
-  gap: 0.5rem;
+  justify-content: end;
 }
 
 .greybeardqol.crew-roster .crew-roster-tab {
   flex: 1;
   padding: 0.25rem 0.4rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.4rem;
+  border-radius: 0.4rem 0.4rem 0 0;
   cursor: pointer;
   user-select: none;
   text-align: center;
@@ -553,12 +548,14 @@
 
 .greybeardqol.crew-roster .crew-roster-tab:hover,
 .greybeardqol.crew-roster .crew-roster-tab:focus-visible {
-  border-color: var(--theme-color);
+  text-shadow: 0 0 6px var(--theme-color);
 }
 
 .greybeardqol.crew-roster .crew-roster-tab.is-active {
-  border-color: var(--theme-color);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--theme-color) 70%, transparent);
+  border-bottom: 0;
+  color: var(--theme-color);
+  zoom: 1.05;
+  flex: 1.05;
 }
 
 .greybeardqol.crew-roster .crew-roster-table-wrap {
@@ -579,7 +576,6 @@
 
 .greybeardqol.crew-roster .crew-roster-row td {
   padding: 0.35rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
   vertical-align: middle;
 }
 
@@ -596,8 +592,8 @@
 }
 
 .greybeardqol.crew-roster .crew-roster-portrait {
-  width: 2rem;
-  height: 2rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 0.35rem;
   object-fit: cover;
 }
@@ -620,6 +616,9 @@
 
 .greybeardqol.crew-roster .crew-roster-switch input {
   margin: 0;
+  &:after{
+    color: var(--theme-color);
+  }
 }
 
 .greybeardqol.crew-roster .crew-roster-remove {
