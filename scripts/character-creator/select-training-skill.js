@@ -8,6 +8,7 @@ import {
   cleanupSkillTreeApp,
   drawSkillLines,
   getAppRoot,
+  scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
 } from "./skill-selector-shared.js";
@@ -152,7 +153,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     attachSkillCardImageListeners(root, () => this._scheduleDrawLines({ rebuild: true }));
 
     this._updateConfirmState();
-    this._scheduleDrawLines({ rebuild: true });
+    scheduleInitialSkillTreeDraw(this);
   }
 
   _updateConfirmState() {

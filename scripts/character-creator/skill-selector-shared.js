@@ -104,6 +104,15 @@ export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = nu
 }
 
 
+
+export function scheduleInitialSkillTreeDraw(app) {
+  // Einmalig nach dem ersten Layout-Pass zeichnen, damit Geometrie stabil ist.
+  requestAnimationFrame(() => {
+    if (!app?._dom) return;
+    scheduleSkillLineDraw(app, { rebuild: true });
+  });
+}
+
 export function attachSkillCardImageListeners(root, onImageLoad) {
   if (!root || typeof onImageLoad !== "function") return;
   for (const img of root.querySelectorAll(".skill-card img")) {
