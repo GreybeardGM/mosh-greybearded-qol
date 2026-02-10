@@ -40,11 +40,17 @@
   - Add a button to trigger critical ship damage on demand
   - Escalate crits to the next level if needed
 
+- 📋 **Ship Crew Roster**
+  - Adds a crew roster to the Ship Sheet
+  - Track active player characters, active contractors, and active auxiliary craft
+  - Additional roster functionality is work in progress
+
 - ⚙️ **Utility Tools**
   - Theme color customization via CSS variables
   - Shore Leave helper
   - Stress conversion helper
   - Apply damage helper
+  - Skill Training tool (opens the QoL Generator skill tree to add a new skill to a character)
   - Zero-max `z` modifier for zero-based rolls (e.g. `1d10z`, `1d100z`)
 
 ## Version
