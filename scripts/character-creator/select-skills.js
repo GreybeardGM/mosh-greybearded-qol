@@ -218,7 +218,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     drawSkillLines(this, changedSkillIds, {
       buildLineMeta: skill => ({
-        highlightable: skill.system.rank === "expert" || skill.system.rank === "master"
+        highlightable: skill.rank === "expert" || skill.rank === "master"
       }),
       isHighlighted: line => line.highlightable && selected.has(line.skillId) && selected.has(line.prereqId)
     });
