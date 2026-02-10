@@ -23,8 +23,8 @@
     "styles/qol.css"
   ],
   "url": "https://github.com/GreybeardGM/mosh-greybearded-qol",
-  "manifest": "https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json",
-  "download": "https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/heads/main.zip",
+  "manifest": "https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/dev/module.json",
+  "download": "https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/heads/dev.zip",
   "relationships": {
     "systems": [{
       "id": "mosh",
