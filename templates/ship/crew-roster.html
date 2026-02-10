@@ -1,70 +1,75 @@
-<section class="crew-roster-app" data-ship="{{actorName}}">
-  <header class="crew-roster-header">
-    <p><strong>{{actorName}}</strong> Crew Roster</p>
-    <p class="crew-roster-hint">Drag & drop actors anywhere into this window to add them.</p>
-  </header>
+<section class="crew-roster-app" data-ship="{{actorName}}" style="--theme-color: {{themeColor}}">
+  <div class="card chat-card crew-roster-card">
+    <header class="header crew-roster-header">
+      <img class="icon" src="{{actorImg}}" alt="{{actorName}} portrait" />
+      <div class="header-text">
+        <div class="title">Crew Roster</div>
+        <div class="subtitle">{{actorName}}</div>
+      </div>
+    </header>
 
-  <nav class="crew-roster-tabs" aria-label="Crew Roster Tabs">
-    {{#each tabs as |tab|}}
-      <button
-        type="button"
-        class="crew-roster-tab {{#if (eq ../activeTab tab.id)}}is-active{{/if}}"
-        data-action="setTab"
-        data-tab="{{tab.id}}"
-      >
-        {{tab.label}}
-      </button>
-    {{/each}}
-  </nav>
+    <nav class="crew-roster-tabs" aria-label="Crew Roster Tabs">
+      {{#each tabs as |tab|}}
+        <button
+          type="button"
+          class="crew-roster-tab {{#if (eq ../activeTab tab.id)}}is-active{{/if}}"
+          data-action="setTab"
+          data-tab="{{tab.id}}"
+        >
+          {{tab.label}}
+        </button>
+      {{/each}}
+    </nav>
 
-  <div class="crew-roster-table-wrap">
-    <table class="crew-roster-table">
-      <thead>
-        <tr>
-          <th>Portrait</th>
-          <th>Name</th>
-          <th>Job</th>
-          <th>Active</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each (lookup entries activeTab) as |entry|}}
-          <tr class="crew-roster-row {{#unless entry.active}}is-inactive{{/unless}}">
-            <td><img src="{{entry.img}}" alt="{{entry.name}} portrait" class="crew-roster-portrait" /></td>
-            <td class="crew-roster-name">{{entry.name}}</td>
-            <td class="crew-roster-job">{{entry.job}}</td>
-            <td>
-              <label class="crew-roster-switch" title="Toggle active status">
-                <input
-                  type="checkbox"
-                  data-action="toggleActive"
+    <div class="crew-roster-table-wrap">
+      <table class="crew-roster-table">
+        <thead>
+          <tr>
+            <th>Portrait</th>
+            <th>Name</th>
+            <th>Job</th>
+            <th>Active</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each (lookup entries activeTab) as |entry|}}
+            <tr class="crew-roster-row {{#unless entry.active}}is-inactive{{/unless}}" data-action="openEntry" data-uuid="{{entry.uuid}}">
+              <td><img src="{{entry.img}}" alt="{{entry.name}} portrait" class="crew-roster-portrait" /></td>
+              <td class="crew-roster-name">{{entry.name}}</td>
+              <td class="crew-roster-job">{{entry.job}}</td>
+              <td>
+                <label class="crew-roster-switch" title="Toggle active status">
+                  <input
+                    type="checkbox"
+                    data-action="toggleActive"
+                    data-tab="{{../activeTab}}"
+                    data-uuid="{{entry.uuid}}"
+                    {{#if entry.active}}checked{{/if}}
+                  />
+                  <span>Active</span>
+                </label>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="crew-roster-remove"
+                  data-action="removeEntry"
                   data-tab="{{../activeTab}}"
                   data-uuid="{{entry.uuid}}"
-                  {{#if entry.active}}checked{{/if}}
-                />
-                <span>Active</span>
-              </label>
-            </td>
-            <td>
-              <button
-                type="button"
-                class="crew-roster-remove"
-                data-action="removeEntry"
-                data-tab="{{../activeTab}}"
-                data-uuid="{{entry.uuid}}"
-                title="Remove from roster"
-              >
-                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-              </button>
-            </td>
-          </tr>
-        {{else}}
-          <tr>
-            <td class="crew-roster-empty" colspan="5">No entries in this tab yet.</td>
-          </tr>
-        {{/each}}
-      </tbody>
-    </table>
+                  title="Remove from roster"
+                >
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          {{else}}
+            <tr>
+              <td class="crew-roster-empty" colspan="5">No entries in this tab yet.</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
