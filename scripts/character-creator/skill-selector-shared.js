@@ -111,9 +111,20 @@ export function scheduleInitialSkillTreeDraw(app) {
 
 export function attachSkillCardImageListeners(root, onImageLoad) {
   if (!root || typeof onImageLoad !== "function") return;
+  let rebuildScheduled = false;
+
+  const queueSingleRebuild = () => {
+    if (rebuildScheduled) return;
+    rebuildScheduled = true;
+    requestAnimationFrame(() => {
+      rebuildScheduled = false;
+      onImageLoad();
+    });
+  };
+
   for (const img of root.querySelectorAll(".skill-card img")) {
     if (img.complete) continue;
-    img.addEventListener("load", onImageLoad, { once: true });
+    img.addEventListener("load", queueSingleRebuild, { once: true });
   }
 }
 
