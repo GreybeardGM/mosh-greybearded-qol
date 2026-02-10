@@ -34,6 +34,7 @@
   - Enhanced creature sheet type for managing contractors
   - Setup generic contractors and upgrade them as needed
   - Roll loadout from any class in the game
+  - Patched creature/contractor skill rolls to present creature attributes from active stats
  
 - 🚀 **0e Ship Crits**
   - Add a button to trigger critical ship damage on demand
@@ -48,7 +49,7 @@
 
 ## Version
 
-- Current module version: `0.7.0`
+- Current module version: `0.7.1`
 - Verified for Foundry VTT: `13.351`
 
 ## Compatibility
