@@ -1,0 +1,28 @@
+<p class="training-intro">
+  Select exactly one new skill for training. Existing character skills are locked.
+</p>
+
+<div class="skill-area-wrapper" style="--theme-color: {{themeColor}};">
+  <div class="skill-columns">
+    {{#each (array 'trained' 'expert' 'master') as |rank|}}
+      <div class="skill-column">
+        <div class="remaining-points">{{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}}</div>
+        <div class="pill-list">
+          {{#each ../sortedSkills}}
+            {{#if (eq this.rank rank)}}
+              <div class="pill interactive skill-card {{#if (includes ../../ownedSkillIds this._id)}}default-skill selected locked{{/if}}"
+                data-action="toggleSkill"
+                data-rank="{{this.rank}}"
+                data-uuid="{{this.uuid}}"
+                data-skill-id="{{this.id}}"
+                title="{{stripHtml this.system.description}}">
+                <img src="{{this.img}}" alt="{{this.name}}" />
+                <span>{{this.name}}</span>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>
