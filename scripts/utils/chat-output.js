@@ -60,8 +60,14 @@ export async function chatOutput({
   };
 
   if (roll instanceof Roll) {
-    messageData.rolls = [roll];
+    return roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      flavor: html
+    });
   }
 
-  return ChatMessage.implementation.create(messageData);
+  return ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: html
+  });
 }
