@@ -610,12 +610,14 @@
 .greybeardqol.crew-roster .crew-roster-switch {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
 }
 
 .greybeardqol.crew-roster .crew-roster-switch input {
   margin: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--theme-color);
+  cursor: pointer;
   &:after{
     color: var(--theme-color);
   }
