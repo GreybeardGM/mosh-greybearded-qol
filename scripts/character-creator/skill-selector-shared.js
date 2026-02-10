@@ -1,11 +1,7 @@
 import { toSkillId } from "./utils.js";
 import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
 
-export function getAppRoot(element) {
-  if (element instanceof HTMLElement) return element;
-  if (element?.[0] instanceof HTMLElement) return element[0];
-  return null;
-}
+const EMPTY_LINE_META = () => ({});
 
 export function cacheSkillTreeDom(root, { includeOrOptions = false, includePointCounts = false } = {}) {
   const skillCards = Array.from(root.querySelectorAll(".skill-card"));
@@ -86,7 +82,7 @@ export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = nu
       toSkillId,
       linePathCache: app._linePathCache,
       lineKeyBySkill: app._lineKeyBySkill,
-      buildLineMeta
+      buildLineMeta: buildLineMeta ?? EMPTY_LINE_META
     });
 
     app._needsLineGeometryRebuild = false;

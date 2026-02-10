@@ -1,6 +1,7 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillId } from "./utils.js";
+import { stripHtml, toSkillId, toSkillPointBundle } from "./utils.js";
+import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -138,29 +139,18 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       }
 
       const baseAnd = selected.choose_skill_and || {};
-      const toNum = value => {
-        if (value === "" || value === null || value === undefined) return 0;
-        const number = Number(value);
-        return Number.isFinite(number) ? number : 0;
-      };
-
-      const toSkillPoints = source => ({
-        trained: toNum(source.trained) + toNum(source.expert_full_set) + toNum(source.master_full_set),
-        expert: toNum(source.expert) + toNum(source.expert_full_set) + toNum(source.master_full_set),
-        master: toNum(source.master) + toNum(source.master_full_set)
-      });
 
       const defaultSkills = {
         id: `${cls.id}-default`,
         name: game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.DefaultSkills"),
-        ...toSkillPoints(baseAnd),
+        ...toSkillPointBundle(baseAnd),
         skills: resolveSkillsFromReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
       };
 
       const orOptions = (selected.choose_skill_or || []).flat().map((option, index) => ({
         id: `${cls.id}-or-${index}`,
         name: option.name || game.i18n.format("MoshQoL.CharacterCreator.SelectClass.OrOption", { index: index + 1 }),
-        ...toSkillPoints(option),
+        ...toSkillPointBundle(option),
         skills: resolveSkillsFromReferences(option.from_list || [], { skillByUuid, skillMap })
       }));
 
@@ -201,14 +191,12 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this._showSkillView = false;
   }
 
-  _getElementRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
+  _getRoot() {
+    return getAppRoot(this.element);
   }
 
   _updateSelectionUi() {
-    const root = this._getElementRoot();
+    const root = this._getRoot();
     if (!root) return;
 
     root.querySelectorAll(".class-card").forEach(card => {
@@ -237,15 +225,10 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   _onRender(context, options) {
     super._onRender(context, options);
 
-    const root = this._getElementRoot();
+    const root = this._getRoot();
     if (!root) return;
 
-    const wrapper = root.closest(".app");
-    if (wrapper) {
-      wrapper.style.width = "auto";
-      wrapper.style.maxWidth = "95vw";
-      wrapper.style.margin = "0 auto";
-    }
+    applyAppWrapperLayout(root, { width: "auto" });
 
     this._updateSelectionUi();
   }
@@ -293,17 +276,12 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     }
 
     await this.actor.update(updates);
-    this._resolveOnce(classItem);
+    resolveAppOnce(this, classItem);
   }
 
   async close(options = {}) {
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }

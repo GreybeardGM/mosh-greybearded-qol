@@ -1,13 +1,13 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeName } from "./utils.js";
+import { getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import {
   applyInitialAvailabilityLock,
   attachSkillCardImageListeners,
   cacheSkillTreeDom,
   cleanupSkillTreeApp,
   drawSkillLines,
-  getAppRoot,
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
@@ -205,14 +205,14 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     const selectedCard = this._dom.skillCards.find(el => el.dataset.skillId === this._selectedNewSkillId);
     const selectedUuid = selectedCard?.dataset?.uuid;
     if (!selectedUuid) {
-      this._resolveOnce(null);
+      resolveAppOnce(this, null);
       return;
     }
 
     const selectedItem = await fromUuid(selectedUuid);
     if (!selectedItem || selectedItem.type !== "skill") {
       ui.notifications?.warn("Selected training skill could not be loaded.");
-      this._resolveOnce(null);
+      resolveAppOnce(this, null);
       return;
     }
 
@@ -220,18 +220,13 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     delete itemData._id;
 
     const [created] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
-    this._resolveOnce(created ?? null);
+    resolveAppOnce(this, created ?? null);
   }
 
   async close(options = {}) {
     cleanupSkillTreeApp(this, { clearCollections: ["_skillById"] });
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }
