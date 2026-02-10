@@ -658,13 +658,11 @@
 }
 
 .greybeardqol.crew-roster .crew-roster-switch input {
-  margin: 0;
-  width: 1.15rem;
-  height: 1.15rem;
   accent-color: var(--theme-color);
   cursor: pointer;
   &:after{
     color: var(--theme-color);
+    font-size: 1.6rem;
   }
 }
 
