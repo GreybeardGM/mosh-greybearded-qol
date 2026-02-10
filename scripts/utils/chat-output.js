@@ -53,10 +53,15 @@ export async function chatOutput({
     themeColor
   });
 
-  // Send to chat
+  // Send to chat (Foundry V13)
+  const messageData = {
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: html
+  };
+
   if (roll instanceof Roll) {
-    return roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: html });
-  } else {
-    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: html });
+    messageData.rolls = [roll];
   }
+
+  return ChatMessage.implementation.create(messageData);
 }
