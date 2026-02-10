@@ -1,5 +1,6 @@
 import { toSkillId } from "./utils.js";
 import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
+import { markSkillTreePerf, measureSkillTreePerf, skillTreePerfDebugHintOnce } from "./perf-debug.js";
 
 const EMPTY_LINE_META = () => ({});
 
@@ -55,6 +56,7 @@ export function applyInitialAvailabilityLock({ cards = [], skillById, selectedSk
 
 export function scheduleSkillLineDraw(app, { rebuild = false, changedSkillIds = null } = {}) {
   if (!app?._dom) return;
+  skillTreePerfDebugHintOnce();
   if (rebuild) app._needsLineGeometryRebuild = true;
   if (changedSkillIds?.size) {
     if (!app._pendingChangedSkillIds) app._pendingChangedSkillIds = new Set();
@@ -63,13 +65,20 @@ export function scheduleSkillLineDraw(app, { rebuild = false, changedSkillIds = 
 
   if (app._lineDrawFrame) return;
   app._lineDrawFrame = requestAnimationFrame(() => {
+    markSkillTreePerf("skilltree:drawFrame:start");
+
     app._lineDrawFrame = null;
     app._drawLines(app._pendingChangedSkillIds);
     app._pendingChangedSkillIds = null;
+
+    markSkillTreePerf("skilltree:drawFrame:end");
+    measureSkillTreePerf("skilltree:drawFrame", "skilltree:drawFrame:start", "skilltree:drawFrame:end");
   });
 }
 
 export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = null, isHighlighted } = {}) {
+  markSkillTreePerf("skilltree:drawLines:start");
+
   const svg = app._dom?.svg;
   if (!svg) return;
 
@@ -97,6 +106,9 @@ export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = nu
     selectedSkillIds: app._selectedSkillIds,
     isHighlighted
   });
+
+  markSkillTreePerf("skilltree:drawLines:end");
+  measureSkillTreePerf("skilltree:drawLines", "skilltree:drawLines:start", "skilltree:drawLines:end");
 }
 
 
@@ -111,9 +123,20 @@ export function scheduleInitialSkillTreeDraw(app) {
 
 export function attachSkillCardImageListeners(root, onImageLoad) {
   if (!root || typeof onImageLoad !== "function") return;
+  let rebuildScheduled = false;
+
+  const queueSingleRebuild = () => {
+    if (rebuildScheduled) return;
+    rebuildScheduled = true;
+    requestAnimationFrame(() => {
+      rebuildScheduled = false;
+      onImageLoad();
+    });
+  };
+
   for (const img of root.querySelectorAll(".skill-card img")) {
     if (img.complete) continue;
-    img.addEventListener("load", onImageLoad, { once: true });
+    img.addEventListener("load", queueSingleRebuild, { once: true });
   }
 }
 
