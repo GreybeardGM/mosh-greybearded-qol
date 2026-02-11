@@ -67,6 +67,20 @@ function getJobLabel(actor) {
   return "";
 }
 
+function getSalaryLabel(actor) {
+  if (!actor) return "";
+
+  const rawSalary = actor.system?.contractor?.baseSalary;
+  if (rawSalary === undefined || rawSalary === null || rawSalary === "") return "";
+
+  const numericSalary = typeof rawSalary === "number"
+    ? rawSalary
+    : Number.parseInt(String(rawSalary).replace(/[^\d.-]/g, ""), 10);
+
+  if (!Number.isFinite(numericSalary)) return "";
+  return `${(numericSalary / 1000).toFixed(1)} kcr`;
+}
+
 function sortEntries(entries) {
   return entries.sort((left, right) => {
     if (left.active !== right.active) {
@@ -142,6 +156,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           active: rosterEntry.active,
           name: actor.name,
           job: getJobLabel(actor),
+          salary: getSalaryLabel(actor),
           img: actor.img
         });
       }
