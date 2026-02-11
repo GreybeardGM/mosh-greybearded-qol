@@ -1,11 +1,12 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
+  static DEFAULT_OPTIONS = {
     id: "shore-leave-tier-editor",
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+      contentClasses: ["greybeardqol", "qol-shore-leave-editor"],
       resizable: true
     },
     position: {
@@ -20,7 +21,7 @@ export class ShoreLeaveTierEditor extends HandlebarsApplicationMixin(Application
     actions: {
       resetDefaults: this._onResetDefaults
     }
-  });
+  };
 
   static PARTS = {
     form: {

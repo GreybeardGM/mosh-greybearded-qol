@@ -2,6 +2,8 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { applyDamage } from "./utils/apply-damage.js";
+import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
+import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 
 const CLS = "toolband";
 
@@ -42,11 +44,23 @@ export function upsertToolband(sheet, html, ctx = {}) {
         case "ship-crit":
           return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
 
+        case "ship-crew-roster":
+          if (!actor) return;
+          return new ShipCrewRosterApp({ actor }).render(true);
+
         case "roll-character":
           return game.moshGreybeardQol.startCharacterCreation(actor);
 
         case "shore-leave":
           return game.moshGreybeardQol.SimpleShoreLeave.wait({ actor });
+
+        case "training": {
+          if (!actor) return;
+          const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
+          if (!trainedSkill) return;
+          ui.notifications?.info?.(`${actor.name} learned ${trainedSkill.name}.`);
+          return sheet.render(false);
+        }
 
         case "mark-ready":
           await setReady(actor);
@@ -180,6 +194,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
         });
         btns.push({ id: "shore-leave",    icon: "fas fa-umbrella-beach", label: "Shore Leave" });
       }
+      btns.push({ id: "training",      icon: "fa-solid fa-dumbbell", label: "Training" });
       // GM-Unterkategorie …
       if (isGM) {
         if (!ready && !completed) {
@@ -216,6 +231,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
       if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
         btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Critical Hit" });
       }
+      btns.push({ id: "ship-crew-roster", icon: "fa-solid fa-users", label: "Crew Roster" });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — GM-spezifische Ship-Buttons hier ergänzen

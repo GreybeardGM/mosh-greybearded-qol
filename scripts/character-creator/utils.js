@@ -45,37 +45,58 @@ export function getSkillSortOrder() {
   ];
 }
 
+export const toSkillId = value => String(value ?? "").split(".").pop();
+
+export const normalizeName = value => String(value ?? "").trim().toLowerCase();
+
+export const stripHtml = html => String(html ?? "").replace(/<[^>]*>/g, "").trim();
+
 export function drawCurvedPath(fromEl, toEl, svg) {
-    const rect1 = fromEl.getBoundingClientRect();
-    const rect2 = toEl.getBoundingClientRect();
-    const parentRect = svg.parentElement.getBoundingClientRect();
+  const rect1 = fromEl.getBoundingClientRect();
+  const rect2 = toEl.getBoundingClientRect();
+  const parentRect = svg.parentElement.getBoundingClientRect();
 
-    const x1 = rect1.left + rect1.width;
-    const y1 = rect1.top + rect1.height / 2;
-    const x2 = rect2.left;
-    const y2 = rect2.top + rect2.height / 2;
+  const x1 = rect1.left + rect1.width;
+  const y1 = rect1.top + rect1.height / 2;
+  const x2 = rect2.left;
+  const y2 = rect2.top + rect2.height / 2;
 
-    const relX1 = x1 - parentRect.left;
-    const relY1 = y1 - parentRect.top;
-    const relX2 = x2 - parentRect.left;
-    const relY2 = y2 - parentRect.top;
+  const relX1 = x1 - parentRect.left;
+  const relY1 = y1 - parentRect.top;
+  const relX2 = x2 - parentRect.left;
+  const relY2 = y2 - parentRect.top;
 
-    // Horizontal S-curve: control points push horizontally outward
-    const deltaX = Math.abs(relX2 - relX1) / 2;
-    const c1x = relX1 + deltaX;
-    const c1y = relY1;
-    const c2x = relX2 - deltaX;
-    const c2y = relY2;
+  // Horizontal S-curve: control points push horizontally outward
+  const deltaX = Math.abs(relX2 - relX1) / 2;
+  const c1x = relX1 + deltaX;
+  const c1y = relY1;
+  const c2x = relX2 - deltaX;
+  const c2y = relY2;
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`);
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", "#333");
-    path.setAttribute("stroke-width", "2");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", `M ${relX1},${relY1} C ${c1x},${c1y} ${c2x},${c2y} ${relX2},${relY2}`);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "#333");
+  path.setAttribute("stroke-width", "2");
 
-    svg.appendChild(path);
+  svg.appendChild(path);
 }
 
-export function stripHtml(html) {
-    return html.replace(/<[^>]*>/g, '').trim();
+
+export function toNumberOrZero(value) {
+  if (value === "" || value === null || value === undefined) return 0;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+export function toSkillPointBundle(source = {}) {
+  return {
+    trained: toNumberOrZero(source.trained) + toNumberOrZero(source.expert_full_set) + toNumberOrZero(source.master_full_set),
+    expert: toNumberOrZero(source.expert) + toNumberOrZero(source.expert_full_set) + toNumberOrZero(source.master_full_set),
+    master: toNumberOrZero(source.master) + toNumberOrZero(source.master_full_set)
+  };
+}
+
+export function sumSkillPointFields(...values) {
+  return values.reduce((sum, value) => sum + toNumberOrZero(value), 0);
 }
