@@ -627,6 +627,19 @@
   vertical-align: middle;
 }
 
+
+.greybeardqol.crew-roster .crew-roster-col-portrait,
+.greybeardqol.crew-roster .crew-roster-col-active,
+.greybeardqol.crew-roster .crew-roster-col-remove {
+  width: 3.7rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-col-portrait,
+.greybeardqol.crew-roster .crew-roster-col-active,
+.greybeardqol.crew-roster .crew-roster-col-remove {
+  text-align: center;
+}
+
 .greybeardqol.crew-roster .crew-roster-divider-row td {
   padding: 0.4rem 0.35rem 0.15rem;
 }
@@ -657,18 +670,35 @@
   object-fit: cover;
 }
 
+.greybeardqol.crew-roster .crew-roster-name-cell {
+  line-height: 1.2;
+}
+
 .greybeardqol.crew-roster .crew-roster-name {
   font-weight: 600;
 }
 
 .greybeardqol.crew-roster .crew-roster-job {
-  opacity: 0.9;
-  font-size: 0.9em;
+  opacity: 0.7;
+  font-size: 0.78em;
+  font-style: italic;
+}
+
+.greybeardqol.crew-roster .crew-roster-salary-head,
+.greybeardqol.crew-roster .crew-roster-salary {
+  text-align: right;
+}
+
+.greybeardqol.crew-roster .crew-roster-salary {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .greybeardqol.crew-roster .crew-roster-switch {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .greybeardqol.crew-roster .crew-roster-switch input {
@@ -684,6 +714,10 @@
   border: 0;
   background: transparent;
   color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .greybeardqol.crew-roster .crew-roster-empty {

@@ -24,11 +24,11 @@
     <table class="crew-roster-table">
       <thead>
         <tr>
-          <th>Portrait</th>
+          <th class="crew-roster-col-portrait">Portrait</th>
           <th>Name</th>
-          <th>Job</th>
-          <th>Active</th>
-          <th></th>
+          <th class="crew-roster-salary-head">Salary</th>
+          <th class="crew-roster-col-active">Active</th>
+          <th class="crew-roster-col-remove"></th>
         </tr>
       </thead>
       <tbody>
@@ -41,10 +41,13 @@
             </tr>
           {{/if}}
           <tr class="crew-roster-row {{#unless entry.active}}is-inactive{{/unless}}">
-            <td><img src="{{entry.img}}" alt="{{entry.name}} portrait" class="crew-roster-portrait crew-roster-open-entry" data-action="openEntry" data-uuid="{{entry.uuid}}" /></td>
-            <td class="crew-roster-name crew-roster-open-entry" data-action="openEntry" data-uuid="{{entry.uuid}}">{{entry.name}}</td>
-            <td class="crew-roster-job">{{entry.job}}</td>
-            <td>
+            <td class="crew-roster-col-portrait"><img src="{{entry.img}}" alt="{{entry.name}} portrait" class="crew-roster-portrait crew-roster-open-entry" data-action="openEntry" data-uuid="{{entry.uuid}}" /></td>
+            <td class="crew-roster-name-cell crew-roster-open-entry" data-action="openEntry" data-uuid="{{entry.uuid}}">
+              <div class="crew-roster-name">{{entry.name}}</div>
+              <div class="crew-roster-job">{{entry.job}}</div>
+            </td>
+            <td class="crew-roster-salary">{{entry.salary}}</td>
+            <td class="crew-roster-col-active">
               <div class="crew-roster-switch" title="Toggle active status">
                 <input
                   type="checkbox"
@@ -55,7 +58,7 @@
                 />
               </div>
             </td>
-            <td>
+            <td class="crew-roster-col-remove">
               <button
                 type="button"
                 class="crew-roster-remove"
