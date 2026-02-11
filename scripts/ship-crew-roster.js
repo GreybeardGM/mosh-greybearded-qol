@@ -53,7 +53,7 @@ function getJobLabel(actor) {
   if (actor.type === "character") {
     const classValue = actor.system?.class?.value || "";
     const rankValue = actor.system?.rank?.value || "";
-    return [classValue, rankValue].filter(Boolean).join(" ");
+    return [classValue, rankValue].filter(Boolean).join(", ");
   }
 
   if (actor.type === "creature") {
@@ -75,6 +75,23 @@ function sortEntries(entries) {
 
     return left.name.localeCompare(right.name, undefined, { sensitivity: "base" });
   });
+}
+
+function addInactiveDivider(entries) {
+  let seenActive = false;
+
+  for (const entry of entries) {
+    if (entry.active) {
+      seenActive = true;
+      entry.showInactiveDivider = false;
+      continue;
+    }
+
+    entry.showInactiveDivider = seenActive;
+    seenActive = false;
+  }
+
+  return entries;
 }
 
 export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -130,6 +147,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       }
 
       sortEntries(entries[tab]);
+      addInactiveDivider(entries[tab]);
     }
 
     return {
@@ -154,12 +172,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
-    root.removeEventListener("click", this._onRowClick);
-    root.removeEventListener("keydown", this._onTabKeydown);
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
-    root.addEventListener("click", this._onRowClick);
-    root.addEventListener("keydown", this._onTabKeydown);
   }
 
   _onClose(options) {
@@ -167,8 +181,6 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (root) {
       root.removeEventListener("dragover", this._onDragOver);
       root.removeEventListener("drop", this._boundDrop);
-      root.removeEventListener("click", this._onRowClick);
-      root.removeEventListener("keydown", this._onTabKeydown);
     }
 
     return super._onClose(options);
@@ -176,27 +188,6 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   _onDragOver = (event) => {
     event.preventDefault();
-  };
-
-  _onRowClick = async (event) => {
-    const control = event.target.closest("button, input, label, .crew-roster-tab");
-    if (control) return;
-
-    const row = event.target.closest(".crew-roster-row[data-action='openEntry']");
-    if (!row) return;
-
-    await this.constructor._onOpenEntry(event, row);
-  };
-
-
-  _onTabKeydown = (event) => {
-    if (event.key !== "Enter" && event.key !== " ") return;
-
-    const tab = event.target.closest(".crew-roster-tab[data-action='setTab']");
-    if (!tab) return;
-
-    event.preventDefault();
-    this.constructor._onSetTab(event, tab);
   };
 
   async _onDrop(event) {

@@ -581,7 +581,11 @@
 }
 
 .greybeardqol.crew-roster .crew-roster-tab {
+  appearance: none;
+  background: transparent;
   flex: 1;
+  color: inherit;
+  font: inherit;
   padding: 0.25rem 0.4rem;
   border: 1px solid var(--color-border);
   border-radius: 0.4rem 0.4rem 0 0;
@@ -623,12 +627,23 @@
   vertical-align: middle;
 }
 
-.greybeardqol.crew-roster .crew-roster-row {
-  cursor: pointer;
+.greybeardqol.crew-roster .crew-roster-divider-row td {
+  padding: 0.4rem 0.35rem 0.15rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-row:hover td {
-  background: color-mix(in srgb, var(--theme-color) 8%, transparent);
+.greybeardqol.crew-roster .crew-roster-divider {
+  border-top: 1px solid color-mix(in srgb, var(--theme-color) 45%, var(--color-border));
+  color: color-mix(in srgb, var(--theme-color) 70%, var(--color-text));
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+  padding-top: 0.3rem;
+  text-transform: uppercase;
+}
+
+.greybeardqol.crew-roster .crew-roster-open-entry {
+  cursor: pointer;
 }
 
 .greybeardqol.crew-roster .crew-roster-row.is-inactive {
