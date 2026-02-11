@@ -657,13 +657,27 @@
   object-fit: cover;
 }
 
+.greybeardqol.crew-roster .crew-roster-name-cell {
+  line-height: 1.2;
+}
+
 .greybeardqol.crew-roster .crew-roster-name {
   font-weight: 600;
 }
 
 .greybeardqol.crew-roster .crew-roster-job {
   opacity: 0.9;
-  font-size: 0.9em;
+  font-size: 0.85em;
+}
+
+.greybeardqol.crew-roster .crew-roster-salary-head,
+.greybeardqol.crew-roster .crew-roster-salary {
+  text-align: right;
+}
+
+.greybeardqol.crew-roster .crew-roster-salary {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .greybeardqol.crew-roster .crew-roster-switch {
