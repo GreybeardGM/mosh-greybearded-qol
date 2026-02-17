@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Improvements
+- Contractor promotion now only sets the essential flags (`isNamed`, `loyalty.enabled`), and loyalty rolls also enable the loyalty flag automatically.
+
 ## [0.7.2] - 2026-02-11
 ### Added
 - Ship Sheet Crew Roster for tracking active player characters, active contractors, and active auxiliary craft.
