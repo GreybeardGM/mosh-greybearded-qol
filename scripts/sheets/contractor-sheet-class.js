@@ -56,6 +56,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
+
            
       if (actorData.system.settings == null) actorData.system.settings = {};
       actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
@@ -535,7 +536,10 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     await roll.evaluate();
     const total = roll.total;
   
-    await actor.update({ "system.stats.loyalty.value": total });
+    await actor.update({
+      "system.stats.loyalty.value": total,
+      "system.stats.loyalty.enabled": true
+    });
   
     await chatOutput({
       actor,
