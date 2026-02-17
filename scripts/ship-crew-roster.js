@@ -3,7 +3,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const MODULE_ID = "mosh-greybearded-qol";
 const FLAG_KEY = "crewRoster";
-const TABS = ["character", "creature", "ship", "misc"];
+const TABS = ["character", "creature", "ship"];
 
 function normalizeEntry(entry) {
   if (typeof entry === "string") {
@@ -44,7 +44,7 @@ function getBucketByType(type) {
   if (type === "character") return "character";
   if (type === "creature") return "creature";
   if (type === "ship") return "ship";
-  return "misc";
+  return null;
 }
 
 function getJobLabel(actor) {
@@ -143,13 +143,25 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   };
 
   async _prepareContext() {
-    const roster = normalizeRoster(this.actor?.getFlag(MODULE_ID, FLAG_KEY));
-    const entries = { character: [], creature: [], ship: [], misc: [] };
+    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
+    const roster = normalizeRoster(sourceRoster);
+    const entries = { character: [], creature: [], ship: [] };
+    const hasLegacyTabs = Object.keys(sourceRoster).some((tab) => !TABS.includes(tab) && Array.isArray(sourceRoster[tab]) && sourceRoster[tab].length > 0);
+    let rosterChanged = hasLegacyTabs;
 
     for (const tab of TABS) {
       for (const rosterEntry of roster[tab]) {
         const actor = await fromUuid(rosterEntry.uuid);
-        if (!actor || actor.documentName !== "Actor") continue;
+        if (!actor || actor.documentName !== "Actor") {
+          rosterChanged = true;
+          continue;
+        }
+
+        const mappedTab = getBucketByType(actor.type);
+        if (!mappedTab || mappedTab !== tab) {
+          rosterChanged = true;
+          continue;
+        }
 
         entries[tab].push({
           uuid: rosterEntry.uuid,
@@ -165,17 +177,27 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       addInactiveDivider(entries[tab]);
     }
 
+    if (rosterChanged && this.actor) {
+      const cleanedRoster = Object.fromEntries(
+        TABS.map((tab) => [tab, entries[tab].map(({ uuid, active }) => ({ uuid, active }))])
+      );
+      await this.actor.setFlag(MODULE_ID, FLAG_KEY, cleanedRoster);
+    }
+
+    const tabs = [
+      { id: "character", label: "Player Characters" },
+      { id: "creature", label: "Contractors" },
+      { id: "ship", label: "Auxiliary Craft" }
+    ];
+
     return {
       actorName: this.actor?.name ?? "Ship",
       actorImg: this.actor?.img ?? "icons/svg/mystery-man.svg",
       themeColor: getThemeColor(),
       activeTab: this._activeTab,
-      tabs: [
-        { id: "character", label: "Player Characters" },
-        { id: "creature", label: "Contractors" },
-        { id: "ship", label: "Auxiliary Craft" },
-        { id: "misc", label: "Misc" }
-      ],
+      activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? "entries",
+      showSalaryColumn: this._activeTab === "creature",
+      tabs,
       entries
     };
   }
@@ -219,6 +241,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (!droppedActor || droppedActor.documentName !== "Actor") return;
 
     const bucket = getBucketByType(droppedActor.type);
+    if (!bucket) return;
+
     const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
 
     for (const tab of TABS) {

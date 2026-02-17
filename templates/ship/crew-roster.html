@@ -26,7 +26,9 @@
         <tr>
           <th class="crew-roster-col-portrait">Portrait</th>
           <th>Name</th>
+          {{#if showSalaryColumn}}
           <th class="crew-roster-salary-head">Salary</th>
+          {{/if}}
           <th class="crew-roster-col-active">Active</th>
           <th class="crew-roster-col-remove"></th>
         </tr>
@@ -35,7 +37,7 @@
         {{#each (lookup entries activeTab) as |entry|}}
           {{#if entry.showInactiveDivider}}
             <tr class="crew-roster-divider-row" aria-hidden="true">
-              <td colspan="5">
+              <td colspan="{{#if ../showSalaryColumn}}5{{else}}4{{/if}}">
                 <div class="crew-roster-divider">Inactive Crew</div>
               </td>
             </tr>
@@ -46,7 +48,9 @@
               <div class="crew-roster-name">{{entry.name}}</div>
               <div class="crew-roster-job">{{entry.job}}</div>
             </td>
+            {{#if ../showSalaryColumn}}
             <td class="crew-roster-salary">{{entry.salary}}</td>
+            {{/if}}
             <td class="crew-roster-col-active">
               <div class="crew-roster-switch" title="Toggle active status">
                 <input
@@ -73,7 +77,7 @@
           </tr>
         {{else}}
           <tr>
-            <td class="crew-roster-empty" colspan="5">No entries in this tab yet.</td>
+            <td class="crew-roster-empty" colspan="{{#if showSalaryColumn}}5{{else}}4{{/if}}">No {{activeTabLabel}} in this roster yet. Drag and drop new {{activeTabLabel}} into this tab to add them.</td>
           </tr>
         {{/each}}
       </tbody>
