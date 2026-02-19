@@ -68,17 +68,23 @@ function getJobLabel(actor) {
 }
 
 function getSalaryLabel(actor) {
-  if (!actor) return "";
+  const numericSalary = getNumericSalary(actor);
+  if (!Number.isFinite(numericSalary)) return "";
+  return `${(numericSalary / 1000).toFixed(1)} kcr`;
+}
+
+function getNumericSalary(actor) {
+  if (!actor) return null;
 
   const rawSalary = actor.system?.contractor?.baseSalary;
-  if (rawSalary === undefined || rawSalary === null || rawSalary === "") return "";
+  if (rawSalary === undefined || rawSalary === null || rawSalary === "") return null;
 
   const numericSalary = typeof rawSalary === "number"
     ? rawSalary
     : Number.parseInt(String(rawSalary).replace(/[^\d.-]/g, ""), 10);
 
-  if (!Number.isFinite(numericSalary)) return "";
-  return `${(numericSalary / 1000).toFixed(1)} kcr`;
+  if (!Number.isFinite(numericSalary)) return null;
+  return numericSalary;
 }
 
 function sortEntries(entries) {
@@ -146,6 +152,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
     const roster = normalizeRoster(sourceRoster);
     const entries = { character: [], creature: [], ship: [] };
+    const summary = { activeCrewCount: 0, totalSalary: 0 };
     const hasLegacyTabs = Object.keys(sourceRoster).some((tab) => !TABS.includes(tab) && Array.isArray(sourceRoster[tab]) && sourceRoster[tab].length > 0);
     let rosterChanged = hasLegacyTabs;
 
@@ -169,12 +176,23 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           name: actor.name,
           job: getJobLabel(actor),
           salary: getSalaryLabel(actor),
+          salaryValue: getNumericSalary(actor),
           img: actor.img
         });
       }
 
       sortEntries(entries[tab]);
       addInactiveDivider(entries[tab]);
+
+      if (tab === "character" || tab === "creature") {
+        for (const entry of entries[tab]) {
+          if (!entry.active) continue;
+          summary.activeCrewCount += 1;
+          if (Number.isFinite(entry.salaryValue)) {
+            summary.totalSalary += entry.salaryValue;
+          }
+        }
+      }
     }
 
     if (rosterChanged && this.actor) {
@@ -197,6 +215,10 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       activeTab: this._activeTab,
       activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? "entries",
       showSalaryColumn: this._activeTab === "creature",
+      summary: {
+        activeCrewCount: summary.activeCrewCount,
+        totalSalary: `${(summary.totalSalary / 1000).toFixed(1)} kcr`
+      },
       tabs,
       entries
     };

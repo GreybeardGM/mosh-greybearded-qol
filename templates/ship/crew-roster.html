@@ -81,6 +81,16 @@
           </tr>
         {{/each}}
       </tbody>
+      <tfoot>
+        <tr class="crew-roster-summary-row">
+          <td colspan="{{#if showSalaryColumn}}5{{else}}4{{/if}}">
+            <div class="crew-roster-summary">
+              <span><strong>Active Crew:</strong> {{summary.activeCrewCount}}</span>
+              <span><strong>Total Salaries:</strong> {{summary.totalSalary}}</span>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
     </table>
   </div>
 </section>
