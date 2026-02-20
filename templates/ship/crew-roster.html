@@ -26,8 +26,11 @@
         <tr>
           <th class="crew-roster-col-portrait">Portrait</th>
           <th>Name</th>
-          {{#if showSalaryColumn}}
+          {{#if showContractorColumns}}
           <th class="crew-roster-salary-head">Salary</th>
+          {{/if}}
+          {{#if showContractorColumns}}
+          <th class="crew-roster-hazard-head">Hazard Pay</th>
           {{/if}}
           <th class="crew-roster-col-active">Active</th>
           <th class="crew-roster-col-remove"></th>
@@ -37,7 +40,7 @@
         {{#each (lookup entries activeTab) as |entry|}}
           {{#if entry.showInactiveDivider}}
             <tr class="crew-roster-divider-row" aria-hidden="true">
-              <td colspan="{{#if ../showSalaryColumn}}5{{else}}4{{/if}}">
+              <td colspan="{{../tableColumnCount}}">
                 <div class="crew-roster-divider">Inactive Crew</div>
               </td>
             </tr>
@@ -48,8 +51,24 @@
               <div class="crew-roster-name">{{entry.name}}</div>
               <div class="crew-roster-job">{{entry.job}}</div>
             </td>
-            {{#if ../showSalaryColumn}}
+            {{#if ../showContractorColumns}}
             <td class="crew-roster-salary">{{entry.salary}}</td>
+            {{/if}}
+            {{#if ../showContractorColumns}}
+            <td class="crew-roster-hazard">
+              <input
+                type="number"
+                class="crew-roster-hazard-input"
+                min="0"
+                max="10"
+                step="1"
+                inputmode="numeric"
+                data-tab="{{../activeTab}}"
+                data-uuid="{{entry.uuid}}"
+                value="{{entry.hazardPayDisplay}}"
+                placeholder="-"
+              />
+            </td>
             {{/if}}
             <td class="crew-roster-col-active">
               <div class="crew-roster-switch" title="Toggle active status">
@@ -77,16 +96,17 @@
           </tr>
         {{else}}
           <tr>
-            <td class="crew-roster-empty" colspan="{{#if showSalaryColumn}}5{{else}}4{{/if}}">No {{activeTabLabel}} in this roster yet. Drag and drop new {{activeTabLabel}} into this tab to add them.</td>
+            <td class="crew-roster-empty" colspan="{{tableColumnCount}}">No {{activeTabLabel}} in this roster yet. Drag and drop new {{activeTabLabel}} into this tab to add them.</td>
           </tr>
         {{/each}}
       </tbody>
       <tfoot>
         <tr class="crew-roster-summary-row">
-          <td colspan="{{#if showSalaryColumn}}5{{else}}4{{/if}}">
+          <td colspan="{{tableColumnCount}}">
             <div class="crew-roster-summary">
               <span><strong>Active Crew:</strong> {{summary.activeCrewCount}}</span>
               <span><strong>Total Salaries:</strong> {{summary.totalSalary}}</span>
+              <span><strong>Total Hazard Pay:</strong> {{summary.totalHazardPay}}</span>
             </div>
           </td>
         </tr>

@@ -247,6 +247,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "stash": {
       // Nutzer-Buttons
+      btns.push({ id: "ship-crew-roster", icon: "fa-solid fa-users", label: "Crew Roster" });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Stash-GM-Aktionen hier ergänzen
