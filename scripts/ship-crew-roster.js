@@ -7,17 +7,28 @@ const TABS = ["character", "creature", "ship"];
 
 function normalizeEntry(entry) {
   if (typeof entry === "string") {
-    return { uuid: entry, active: true };
+    return { uuid: entry, active: true, hazardPay: null };
   }
 
   if (!entry || typeof entry !== "object" || typeof entry.uuid !== "string") {
     return null;
   }
 
+  const parsedHazardPay = Number.parseInt(entry.hazardPay, 10);
+  const hazardPay = Number.isInteger(parsedHazardPay) && parsedHazardPay >= 0 && parsedHazardPay <= 10
+    ? parsedHazardPay
+    : null;
+
   return {
     uuid: entry.uuid,
-    active: entry.active !== false
+    active: entry.active !== false,
+    hazardPay
   };
+}
+
+function normalizeHazardPayValue(value) {
+  const normalized = normalizeEntry({ uuid: "_", hazardPay: value });
+  return normalized?.hazardPay ?? null;
 }
 
 function normalizeRoster(roster = {}) {
@@ -120,6 +131,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this.actor = options.actor ?? null;
     this._activeTab = "character";
     this._boundDrop = this._onDrop.bind(this);
+    this._boundHazardPayChange = this._onHazardPayChange.bind(this);
   }
 
   static DEFAULT_OPTIONS = {
@@ -152,7 +164,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
     const roster = normalizeRoster(sourceRoster);
     const entries = { character: [], creature: [], ship: [] };
-    const summary = { activeCrewCount: 0, totalSalary: 0 };
+    const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
     const hasLegacyTabs = Object.keys(sourceRoster).some((tab) => !TABS.includes(tab) && Array.isArray(sourceRoster[tab]) && sourceRoster[tab].length > 0);
     let rosterChanged = hasLegacyTabs;
 
@@ -173,6 +185,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
         entries[tab].push({
           uuid: rosterEntry.uuid,
           active: rosterEntry.active,
+          hazardPay: rosterEntry.hazardPay,
+          hazardPayDisplay: Number.isInteger(rosterEntry.hazardPay) ? String(rosterEntry.hazardPay) : "",
           name: actor.name,
           job: getJobLabel(actor),
           salary: getSalaryLabel(actor),
@@ -193,11 +207,19 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           }
         }
       }
+
+      if (tab === "creature") {
+        for (const entry of entries[tab]) {
+          if (!Number.isFinite(entry.salaryValue)) continue;
+          if (!Number.isInteger(entry.hazardPay)) continue;
+          summary.totalHazardPay += entry.salaryValue * entry.hazardPay;
+        }
+      }
     }
 
     if (rosterChanged && this.actor) {
       const cleanedRoster = Object.fromEntries(
-        TABS.map((tab) => [tab, entries[tab].map(({ uuid, active }) => ({ uuid, active }))])
+        TABS.map((tab) => [tab, entries[tab].map(({ uuid, active, hazardPay }) => ({ uuid, active, hazardPay }))])
       );
       await this.actor.setFlag(MODULE_ID, FLAG_KEY, cleanedRoster);
     }
@@ -214,10 +236,12 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       themeColor: getThemeColor(),
       activeTab: this._activeTab,
       activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? "entries",
-      showSalaryColumn: this._activeTab === "creature",
+      showContractorColumns: this._activeTab === "creature",
+      tableColumnCount: this._activeTab === "creature" ? 6 : 4,
       summary: {
         activeCrewCount: summary.activeCrewCount,
-        totalSalary: `${(summary.totalSalary / 1000).toFixed(1)} kcr`
+        totalSalary: `${(summary.totalSalary / 1000).toFixed(1)} kcr`,
+        totalHazardPay: `${(summary.totalHazardPay / 1000).toFixed(1)} kcr`
       },
       tabs,
       entries
@@ -231,8 +255,10 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
+    root.removeEventListener("change", this._boundHazardPayChange);
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
+    root.addEventListener("change", this._boundHazardPayChange);
   }
 
   _onClose(options) {
@@ -240,6 +266,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (root) {
       root.removeEventListener("dragover", this._onDragOver);
       root.removeEventListener("drop", this._boundDrop);
+      root.removeEventListener("change", this._boundHazardPayChange);
     }
 
     return super._onClose(options);
@@ -271,10 +298,37 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       roster[tab] = roster[tab].filter((entry) => entry.uuid !== droppedActor.uuid);
     }
 
-    roster[bucket].push({ uuid: droppedActor.uuid, active: true });
+    roster[bucket].push({ uuid: droppedActor.uuid, active: true, hazardPay: null });
     await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
     this._activeTab = bucket;
     this.render(true);
+  }
+
+  async _onHazardPayChange(event) {
+    if (!this.actor) return;
+
+    const input = event?.target;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!input.classList.contains("crew-roster-hazard-input")) return;
+
+    const tab = input.dataset.tab;
+    const uuid = input.dataset.uuid;
+    if (!tab || !uuid || !TABS.includes(tab)) return;
+
+    const hazardPay = normalizeHazardPayValue(input.value);
+    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+    roster[tab] = roster[tab].map((entry) => {
+      if (entry.uuid !== uuid) return entry;
+      return { ...entry, hazardPay };
+    });
+
+    await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
+
+    if (input.value !== "" && hazardPay === null) {
+      input.value = "";
+    } else if (hazardPay !== null) {
+      input.value = String(hazardPay);
+    }
   }
 
   static async _onSetTab(event, target) {

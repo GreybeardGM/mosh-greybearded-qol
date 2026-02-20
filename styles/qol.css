@@ -693,6 +693,17 @@
   white-space: nowrap;
 }
 
+.greybeardqol.crew-roster .crew-roster-hazard-head,
+.greybeardqol.crew-roster .crew-roster-hazard {
+  text-align: center;
+  width: 5.2rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-hazard-input {
+  width: 4.2rem;
+  text-align: center;
+}
+
 .greybeardqol.crew-roster .crew-roster-switch {
   display: flex;
   align-items: center;
