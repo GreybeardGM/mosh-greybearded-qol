@@ -1,3 +1,5 @@
+import { formatCurrency } from "../utils/normalization.js";
+
 export function defineStashSheet(BaseSheet) {
   return class StashSheet extends BaseSheet {
     static get defaultOptions() {
@@ -45,14 +47,14 @@ export function defineStashSheet(BaseSheet) {
           this.value = raw;
           // Und zeitverzögert formatieren
           setTimeout(() => {
-            this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+            this.value = formatCurrency(raw);
           }, 10);
         });
 
         // Initial format currency fields
         html.find(".currency-input").each(function () {
           const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
-          this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+          this.value = formatCurrency(raw);
         });
 
     }
