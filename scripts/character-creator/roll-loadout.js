@@ -1,4 +1,5 @@
 import { chatOutput } from "../utils/chat-output.js";
+import { formatCurrency } from "../utils/normalization.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;
@@ -104,7 +105,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     await creditRoll.evaluate();
     const startingCredits = creditRoll.total;
     await actor.update({ system: { credits: { value: startingCredits } } });
-    itemSummary += `<br><strong>${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:</strong> <label class="counter">${startingCredits}</label> cr`;
+    itemSummary += `<br><strong>${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:</strong> <label class="counter">${formatCurrency(startingCredits)}</label>`;
   }
   
   await chatOutput({

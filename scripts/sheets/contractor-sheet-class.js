@@ -1,5 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
+import { formatCurrency } from "../utils/normalization.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
@@ -182,7 +183,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             this.value = raw;
             // Und zeitverzögert formatieren
             setTimeout(() => {
-              this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+              this.value = formatCurrency(raw);
             }, 1);
           });
 
@@ -449,7 +450,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // Initial format currency fields
         html.find(".currency-input").each(function () {
           const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
-          this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
+          this.value = formatCurrency(raw);
         });
 
     }

@@ -1,4 +1,5 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { formatCurrency } from "./utils/normalization.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const MODULE_ID = "mosh-greybearded-qol";
@@ -79,7 +80,7 @@ function getJobLabel(actor) {
 function getSalaryLabel(actor) {
   const numericSalary = getNumericSalary(actor);
   if (!Number.isFinite(numericSalary)) return "";
-  return `${(numericSalary / 1000).toFixed(1)} kcr`;
+  return formatCurrency(numericSalary);
 }
 
 function getNumericSalary(actor) {
@@ -242,8 +243,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       tableColumnCount: this._activeTab === "creature" ? 6 : 4,
       summary: {
         activeCrewCount: summary.activeCrewCount,
-        totalSalary: `${(summary.totalSalary / 1000).toFixed(1)} kcr`,
-        totalHazardPay: `${(summary.totalHazardPay / 1000).toFixed(1)} kcr`
+        totalSalary: formatCurrency(summary.totalSalary),
+        totalHazardPay: formatCurrency(summary.totalHazardPay)
       },
       tabs,
       entries
