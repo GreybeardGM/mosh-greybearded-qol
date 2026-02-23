@@ -1,6 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from "./utils.js";
+import { normalizeText, stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import {
   cacheSkillTreeDom,
@@ -34,7 +34,7 @@ function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = gam
       uuid: skill.uuid,
       name: skill.name,
       img: skill.img || "icons/svg/d20-grey.svg",
-      rank: String(skill?.system?.rank ?? "").toLowerCase()
+      rank: normalizeText(skill?.system?.rank)
     });
   }
 
@@ -108,10 +108,10 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       _id: skill.id,
       uuid: skill.uuid,
       name: skill.name,
-      nameLower: String(skill.name || "").trim().toLowerCase(),
+      nameLower: normalizeText(skill.name),
       img: skill.img,
       system: skill.system,
-      rank: String(skill?.system?.rank ?? "").toLowerCase()
+      rank: normalizeText(skill?.system?.rank)
     }));
 
     const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};

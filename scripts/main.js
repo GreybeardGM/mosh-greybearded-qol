@@ -9,6 +9,7 @@ import { upsertToolband, removeToolband } from "./toolband.js";
 import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
+import { capitalize, normalizeNumber, stripHtml } from "./utils/normalization.js";
 import { setReady } from "./character-creator/progress.js";
 import "./patches/creature-skillfix.js";
 
@@ -34,16 +35,14 @@ Hooks.once("ready", () => {
   
   Handlebars.registerHelper("eq", (a, b) => a === b);  
   Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
-  Handlebars.registerHelper("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
+  Handlebars.registerHelper("capitalize", str => capitalize(str));
   Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
   Handlebars.registerHelper("includes", function (collection, value) {
     if (Array.isArray(collection)) return collection.includes(value);
     if (collection instanceof Set) return collection.has(value);
     return false;
   });
-  Handlebars.registerHelper("stripHtml", (text) => {
-    return typeof text === "string" ? text.replace(/<[^>]*>/g, "").trim() : "";
-  });
+  Handlebars.registerHelper("stripHtml", (text) => stripHtml(text));
   
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
@@ -307,8 +306,8 @@ Hooks.on("getSceneControlButtons", (controls) => {
       });
 
       if (!data) return;
-      const damage = Math.trunc(Number(data.damage));
-      if (!Number.isFinite(damage) || damage <= 0) {
+      const damage = normalizeNumber(data.damage, { fallback: null, min: 1 });
+      if (damage === null) {
         ui.notifications.warn("Please enter a positive damage value.");
         return;
       }

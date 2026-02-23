@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { normalizeNumber } from "../utils/normalization.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -54,7 +55,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     this._resolved = false;
 
     this.attributeSets = attributeChoices.map(choice => ({
-      modification: parseInt(choice.modification, 10) || 0,
+      modification: normalizeNumber(choice.modification, { fallback: 0 }),
       stats: choice.stats
     }));
 
@@ -125,7 +126,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
       if (!attr) return null;
       return {
         attr,
-        mod: parseInt(set.modification, 10) || 0
+        mod: normalizeNumber(set.modification, { fallback: 0 })
       };
     }).filter(Boolean);
 

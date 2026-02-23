@@ -1,6 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeName } from "./utils.js";
+import { normalizeText } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import {
   applyInitialAvailabilityLock,
@@ -61,16 +61,16 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
       _id: skill.id,
       uuid: skill.uuid,
       name: skill.name,
-      nameLower: normalizeName(skill.name),
+      nameLower: normalizeText(skill.name),
       img: skill.img,
-      rank: String(skill?.system?.rank ?? "").toLowerCase(),
+      rank: normalizeText(skill?.system?.rank),
       system: skill.system
     }));
 
     const ownedSkillNames = new Set(
       actor.items
         .filter(item => item.type === "skill")
-        .map(item => normalizeName(item.name))
+        .map(item => normalizeText(item.name))
     );
 
     return { sortedSkills, ownedSkillNames };

@@ -1,3 +1,5 @@
+import { normalizeNumber, normalizeText, stripHtml } from "../utils/normalization.js";
+
 export function getSkillSortOrder() {
   return [
     "Linguistics",
@@ -47,14 +49,11 @@ export function getSkillSortOrder() {
 
 export const toSkillId = value => String(value ?? "").split(".").pop();
 
-export const normalizeName = value => String(value ?? "").trim().toLowerCase();
-
-export const stripHtml = html => String(html ?? "").replace(/<[^>]*>/g, "").trim();
+export { normalizeText, stripHtml };
 
 export function toNumberOrZero(value) {
   if (value === "" || value === null || value === undefined) return 0;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : 0;
+  return normalizeNumber(value, { fallback: 0 });
 }
 
 export function toSkillPointBundle(source = {}) {
