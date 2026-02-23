@@ -31,12 +31,16 @@ export function normalizeKeepToken(keep) {
   return null;
 }
 
-export function formatCurrency(value, { locale = game?.i18n?.lang } = {}) {
+export function parseCurrencyValue(value, { fallback = 0 } = {}) {
   const numericValue = typeof value === "number"
     ? Math.trunc(value)
     : Number.parseInt(String(value ?? "").replace(/[^\d-]/g, ""), 10);
 
-  if (!Number.isFinite(numericValue)) return `0 cr`;
+  return Number.isFinite(numericValue) ? numericValue : fallback;
+}
+
+export function formatCurrency(value, { locale = game?.i18n?.lang } = {}) {
+  const numericValue = parseCurrencyValue(value);
 
   const absoluteValue = Math.abs(numericValue);
   const sign = numericValue < 0 ? "-" : "";

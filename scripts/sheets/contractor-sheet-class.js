@@ -1,6 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { formatCurrency } from "../utils/normalization.js";
+import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
@@ -22,8 +22,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
     async _updateObject(event, formData) {
         const salaryPath = "system.contractor.baseSalary";
-        if (formData[salaryPath]) {
-            formData[salaryPath] = parseInt(formData[salaryPath].replace(/\D/g, ""), 10) || 0;
+        if (salaryPath in formData) {
+            formData[salaryPath] = parseCurrencyValue(formData[salaryPath]);
         }
 
         const actor = this.object;
@@ -173,12 +173,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         html.find(".currency-input")
           .on("focus", function () {
             // Bei Fokus: Nur die Zahl zeigen
-            const val = this.value.replace(/\D/g, "");
-            this.value = val;
+            const raw = parseCurrencyValue(this.value);
+            this.value = String(raw);
           })
           .on("blur", function () {
             // Aufbereiten
-            const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+            const raw = parseCurrencyValue(this.value);
             // Setze echten Wert (für Speicherung)
             this.value = raw;
             // Und zeitverzögert formatieren
@@ -449,7 +449,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         // Initial format currency fields
         html.find(".currency-input").each(function () {
-          const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+          const raw = parseCurrencyValue(this.value);
           this.value = formatCurrency(raw);
         });
 
