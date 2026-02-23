@@ -55,7 +55,7 @@
 
 ## Version
 
-- Current module version: `0.7.2`
+- Current module version: `0.7.3`
 - Verified for Foundry VTT: `13.351`
 
 ## Compatibility
