@@ -5,6 +5,12 @@ const MODULE_ID = "mosh-greybearded-qol";
 const FLAG_KEY = "crewRoster";
 const TABS = ["character", "creature", "ship"];
 
+function normalizeHazardPayValue(value) {
+  const parsedHazardPay = Number.parseInt(value, 10);
+  if (!Number.isInteger(parsedHazardPay)) return null;
+  return parsedHazardPay;
+}
+
 function normalizeEntry(entry) {
   if (typeof entry === "string") {
     return { uuid: entry, active: true, hazardPay: null };
@@ -14,21 +20,13 @@ function normalizeEntry(entry) {
     return null;
   }
 
-  const parsedHazardPay = Number.parseInt(entry.hazardPay, 10);
-  const hazardPay = Number.isInteger(parsedHazardPay) && parsedHazardPay >= 0 && parsedHazardPay <= 10
-    ? parsedHazardPay
-    : null;
+  const hazardPay = normalizeHazardPayValue(entry.hazardPay);
 
   return {
     uuid: entry.uuid,
     active: entry.active !== false,
     hazardPay
   };
-}
-
-function normalizeHazardPayValue(value) {
-  const normalized = normalizeEntry({ uuid: "_", hazardPay: value });
-  return normalized?.hazardPay ?? null;
 }
 
 function normalizeRoster(roster = {}) {
@@ -131,12 +129,11 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this.actor = options.actor ?? null;
     this._activeTab = "character";
     this._boundDrop = this._onDrop.bind(this);
-    this._boundHazardPayChange = this._onHazardPayChange.bind(this);
   }
 
   static DEFAULT_OPTIONS = {
     id: "ship-crew-roster",
-    tag: "section",
+    tag: "form",
     window: {
       resizable: true,
       title: "Crew Roster",
@@ -145,6 +142,11 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     position: {
       width: 680,
       height: 640
+    },
+    form: {
+      handler: this._onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
     },
     actions: {
       setTab: this._onSetTab,
@@ -255,10 +257,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
-    root.removeEventListener("change", this._boundHazardPayChange);
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
-    root.addEventListener("change", this._boundHazardPayChange);
   }
 
   _onClose(options) {
@@ -266,7 +266,6 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (root) {
       root.removeEventListener("dragover", this._onDragOver);
       root.removeEventListener("drop", this._boundDrop);
-      root.removeEventListener("change", this._boundHazardPayChange);
     }
 
     return super._onClose(options);
@@ -304,31 +303,64 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this.render(true);
   }
 
-  async _onHazardPayChange(event) {
+  static async _onSubmit(event, form, formData) {
     if (!this.actor) return;
 
-    const input = event?.target;
-    if (!(input instanceof HTMLInputElement)) return;
-    if (!input.classList.contains("crew-roster-hazard-input")) return;
+    const submitted = formData?.object ?? {};
+    const hazardPayUpdates = new Map();
 
-    const tab = input.dataset.tab;
-    const uuid = input.dataset.uuid;
-    if (!tab || !uuid || !TABS.includes(tab)) return;
+    for (const [key, value] of Object.entries(submitted)) {
+      const [root, tab, ...uuidParts] = key.split(".");
+      if (root !== "hazardPay") continue;
+      if (!TABS.includes(tab)) continue;
 
-    const hazardPay = normalizeHazardPayValue(input.value);
+      const uuid = uuidParts.join(".");
+      if (!uuid) continue;
+
+      const normalizedHazardPay = normalizeHazardPayValue(value);
+
+      if (!hazardPayUpdates.has(tab)) {
+        hazardPayUpdates.set(tab, new Map());
+      }
+
+      hazardPayUpdates.get(tab).set(uuid, normalizedHazardPay);
+
+      if (form instanceof HTMLFormElement) {
+        const input = form.elements.namedItem(key);
+        if (input instanceof HTMLInputElement) {
+          const sanitizedValue = normalizedHazardPay === null ? "" : String(normalizedHazardPay);
+          if (input.value !== sanitizedValue) {
+            input.value = sanitizedValue;
+          }
+        }
+      }
+    }
+
+    if (!hazardPayUpdates.size) return;
+
     const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
-    roster[tab] = roster[tab].map((entry) => {
-      if (entry.uuid !== uuid) return entry;
-      return { ...entry, hazardPay };
-    });
+    let hasChanges = false;
+
+    for (const tab of TABS) {
+      const tabUpdates = hazardPayUpdates.get(tab);
+      if (!tabUpdates?.size) continue;
+
+      roster[tab] = roster[tab].map((entry) => {
+        if (!tabUpdates.has(entry.uuid)) return entry;
+
+        const nextHazardPay = tabUpdates.get(entry.uuid);
+        if (entry.hazardPay === nextHazardPay) return entry;
+
+        hasChanges = true;
+        return { ...entry, hazardPay: nextHazardPay };
+      });
+    }
+
+
+    if (!hasChanges) return;
 
     await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
-
-    if (input.value !== "" && hazardPay === null) {
-      input.value = "";
-    } else if (hazardPay !== null) {
-      input.value = String(hazardPay);
-    }
+    this.render(true);
   }
 
   static async _onSetTab(event, target) {

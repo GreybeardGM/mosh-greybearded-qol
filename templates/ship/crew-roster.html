@@ -59,12 +59,9 @@
               <input
                 type="number"
                 class="crew-roster-hazard-input"
-                min="0"
-                max="10"
+                name="hazardPay.{{../activeTab}}.{{entry.uuid}}"
                 step="1"
                 inputmode="numeric"
-                data-tab="{{../activeTab}}"
-                data-uuid="{{entry.uuid}}"
                 value="{{entry.hazardPayDisplay}}"
                 placeholder="-"
               />
