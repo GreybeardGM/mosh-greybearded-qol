@@ -1,4 +1,4 @@
-import { formatCurrency } from "../utils/normalization.js";
+import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
 
 export function defineStashSheet(BaseSheet) {
   return class StashSheet extends BaseSheet {
@@ -16,6 +16,15 @@ export function defineStashSheet(BaseSheet) {
           }
         ]
       });
+    }
+
+    async _updateObject(event, formData) {
+      const creditsPath = "system.credits.value";
+      if (creditsPath in formData) {
+        formData[creditsPath] = parseCurrencyValue(formData[creditsPath]);
+      }
+
+      return super._updateObject(event, formData);
     }
 
     get title() {
@@ -37,12 +46,12 @@ export function defineStashSheet(BaseSheet) {
       html.find(".currency-input")
         .on("focus", function () {
           // Bei Fokus: Nur die Zahl zeigen
-          const val = this.value.replace(/\D/g, "");
-          this.value = val;
+          const raw = parseCurrencyValue(this.value);
+          this.value = String(raw);
         })
         .on("blur", function () {
           // Aufbereiten
-          const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
+          const raw = parseCurrencyValue(this.value);
           // Setze echten Wert (für Speicherung)
           this.value = raw;
           // Und zeitverzögert formatieren
@@ -51,12 +60,11 @@ export function defineStashSheet(BaseSheet) {
           }, 10);
         });
 
-        // Initial format currency fields
-        html.find(".currency-input").each(function () {
-          const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
-          this.value = formatCurrency(raw);
-        });
-
+      // Initial format currency fields
+      html.find(".currency-input").each(function () {
+        const raw = parseCurrencyValue(this.value);
+        this.value = formatCurrency(raw);
+      });
     }
   };
 }
