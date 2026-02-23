@@ -1,3 +1,5 @@
+import { normalizeNumber } from "./normalization.js";
+
 // apply-damage-with-hits.js
 import { chatOutput } from "./chat-output.js";
 
@@ -26,16 +28,17 @@ export async function applyDamage(actorLike, damage) {
     });
   
     // Abbruch per X oder leere/ungültige Eingabe → nichts tun
-    if (!data || !Number.isFinite(Number(data.damage)) || Number(data.damage) <= 0) return;
-  
-    damage = Math.trunc(Number(data.damage));
+    const parsedDamage = normalizeNumber(data?.damage, { fallback: null, min: 1 });
+    if (parsedDamage === null) return;
+
+    damage = parsedDamage;
   }
 
   const sys     = actor.system ?? {};
-  const hpMax   = toInt(sys.health?.max, 0);
-  let   hp      = toInt(sys.health?.value, 0);
-  let   hits    = toInt(sys.hits?.value, 0);
-  const hitsMax = toInt(sys.hits?.max, Number.MAX_SAFE_INTEGER);
+  const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
+  let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
+  let   hits    = normalizeNumber(sys.hits?.value, { fallback: 0 });
+  const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
 
   if (hpMax <= 0) throw new Error("applyDamageWithHits: hpMax <= 0 – Actor-Daten prüfen.");
 
@@ -89,9 +92,4 @@ async function resolveActorLike(actorLike) {
   if (typeof actorLike === "string") return game.actors?.get(actorLike) ?? null;
   if (actorLike.document?.actor instanceof Actor) return actorLike.document.actor;
   return null;
-}
-
-function toInt(v, fb = 0) {
-  const n = Number(v);
-  return Number.isFinite(n) ? Math.trunc(n) : fb;
 }

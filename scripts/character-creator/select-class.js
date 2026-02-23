@@ -1,14 +1,10 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { stripHtml, toSkillId, toSkillPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-function normalizeCaps(text) {
-  const lowered = text.toLowerCase().trim();
-  return lowered.charAt(0).toUpperCase() + lowered.slice(1);
-}
 
 
 function resolveSkillsFromReferences(references, { skillByUuid, skillMap }) {
@@ -102,7 +98,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const classes = sortedClasses.map(cls => {
       const description = stripHtml(cls.system.description || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoDescription"));
-      const trauma = normalizeCaps(stripHtml(cls.system.trauma_response || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoTraumaSpecified")));
+      const trauma = capitalize(stripHtml(cls.system.trauma_response || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoTraumaSpecified")), { lowerRest: true });
       const base = cls.system.base_adjustment || {};
       const selected = cls.system.selected_adjustment || {};
       const attr = [];
@@ -115,7 +111,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         } else {
           for (const stat of group) {
             const value = base[stat] || 0;
-            const formatted = formatAttribute(value, stat.charAt(0).toUpperCase() + stat.slice(1));
+            const formatted = formatAttribute(value, capitalize(stat));
             if (formatted) attr.push(formatted);
           }
         }
@@ -132,8 +128,8 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
             ? game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.AnyStat")
             : isAllSaves
               ? game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.AnySave")
-              : choice.stats.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(", ");
-          const mod = parseInt(choice.modification, 10) || 0;
+              : choice.stats.map(s => capitalize(s)).join(", ");
+          const mod = normalizeNumber(choice.modification, { fallback: 0 });
           attr.push(formatAttribute(mod, game.i18n.format("MoshQoL.CharacterCreator.SelectClass.ChooseOne", { label })));
         }
       }
@@ -256,7 +252,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       "system.class.value": classItem.name,
       "system.class.uuid": classItem.uuid,
       "system.other.stressdesc.value": classItem.system.trauma_response
-        ? normalizeCaps(classItem.system.trauma_response)
+        ? capitalize(classItem.system.trauma_response, { lowerRest: true })
         : ""
     };
 
@@ -264,7 +260,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const base = classItem.system.base_adjustment || {};
       const allStats = ["strength", "speed", "intellect", "combat", "sanity", "fear", "body"];
       for (const stat of allStats) {
-        const val = parseInt(base[stat], 10);
+        const val = normalizeNumber(base[stat], { fallback: Number.NaN });
         if (!isNaN(val) && val !== 0) {
           updates[`system.stats.${stat}.value`] = (foundry.utils.getProperty(this.actor.system, `stats.${stat}.value`) || 0) + val;
         }
