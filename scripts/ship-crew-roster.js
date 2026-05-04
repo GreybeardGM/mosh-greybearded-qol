@@ -130,7 +130,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this.actor = options.actor ?? null;
     this._activeTab = "character";
     this._boundDrop = this._onDrop.bind(this);
-    this._boundHazardInput = this._onHazardInput.bind(this);
+    this._boundHazardChange = this._onHazardChange.bind(this);
   }
 
   static DEFAULT_OPTIONS = {
@@ -260,10 +260,10 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
-    root.removeEventListener("input", this._boundHazardInput);
+    root.removeEventListener("change", this._boundHazardChange);
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
-    root.addEventListener("input", this._boundHazardInput);
+    root.addEventListener("change", this._boundHazardChange);
   }
 
   _onClose(options) {
@@ -271,7 +271,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (root) {
       root.removeEventListener("dragover", this._onDragOver);
       root.removeEventListener("drop", this._boundDrop);
-      root.removeEventListener("input", this._boundHazardInput);
+      root.removeEventListener("change", this._boundHazardChange);
     }
 
     return super._onClose(options);
@@ -281,7 +281,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     event.preventDefault();
   };
 
-  _onHazardInput(event) {
+  _onHazardChange(event) {
     const target = event?.target;
     if (!(target instanceof HTMLInputElement)) return;
     if (!target.classList.contains("crew-roster-hazard-input")) return;
