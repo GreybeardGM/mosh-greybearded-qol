@@ -508,6 +508,18 @@
 .greybeardqol .creature-header-grid {
   flex-grow: 1;
 }
+
+/* Stash Sheet currency overlay: keep visible on dark header areas */
+.mosh.sheet.actor.stash .currency-field {
+  position: relative;
+}
+
+.mosh.sheet.actor.stash .currency-field .currency-display {
+  color: #111;
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  z-index: 1;
+}
   
 .greybeardqol .sheet-body {
   height: auto;
