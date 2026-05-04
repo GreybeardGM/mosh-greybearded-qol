@@ -40,44 +40,36 @@ export function parseCurrencyValue(value, { fallback = 0 } = {}) {
   const rawInput = String(value ?? "").trim();
   if (!rawInput) return fallback;
 
-  const lowerInput = rawInput.toLowerCase();
-  let multiplier = 1;
+  const numberMatch = rawInput.match(/^[\s]*([+-]?[\d.,]+)[\s]*([kmg])?/i);
+  if (!numberMatch) return fallback;
 
-  if (/\bg\s*cr\b|\bgcr\b/.test(lowerInput)) {
-    multiplier = 1_000_000_000;
-  } else if (/\bm\s*cr\b|\bmcr\b/.test(lowerInput)) {
-    multiplier = 1_000_000;
-  } else if (/\bk\s*cr\b|\bkcr\b/.test(lowerInput)) {
-    multiplier = 1_000;
-  }
+  const numericChunk = numberMatch[1] ?? "";
+  const suffix = (numberMatch[2] ?? "").toLowerCase();
 
-  const sign = lowerInput.includes("-") ? -1 : 1;
-  const cleaned = lowerInput.replace(/[^\d.,]/g, "");
-  if (!cleaned) return fallback;
+  const lastComma = numericChunk.lastIndexOf(",");
+  const lastDot = numericChunk.lastIndexOf(".");
+  const decimalIndex = Math.max(lastComma, lastDot);
 
-  // Without suffixes, treat separators as thousands grouping only.
-  // This prevents values like "324.971 cr" from being parsed as 324.971.
   let normalized;
-  if (multiplier === 1) {
-    normalized = cleaned.replace(/[.,]/g, "");
+  if (decimalIndex >= 0) {
+    const integerPart = numericChunk.slice(0, decimalIndex).replace(/[.,]/g, "");
+    const fractionPart = numericChunk.slice(decimalIndex + 1).replace(/[.,]/g, "");
+    normalized = `${integerPart || "0"}.${fractionPart}`;
   } else {
-    const lastComma = cleaned.lastIndexOf(",");
-    const lastDot = cleaned.lastIndexOf(".");
-    const decimalIndex = Math.max(lastComma, lastDot);
-
-    if (decimalIndex >= 0) {
-      const integerPart = cleaned.slice(0, decimalIndex).replace(/[.,]/g, "");
-      const fractionPart = cleaned.slice(decimalIndex + 1).replace(/[.,]/g, "");
-      normalized = `${integerPart || "0"}.${fractionPart}`;
-    } else {
-      normalized = cleaned.replace(/[.,]/g, "");
-    }
+    normalized = numericChunk.replace(/[.,]/g, "");
   }
 
   const parsed = Number.parseFloat(normalized);
   if (!Number.isFinite(parsed)) return fallback;
 
-  return Math.trunc(sign * parsed * multiplier);
+  const multipliers = {
+    k: 1_000,
+    m: 1_000_000,
+    g: 1_000_000_000
+  };
+  const multiplier = multipliers[suffix] ?? 1;
+
+  return Math.trunc(parsed * multiplier);
 }
 
 export function formatCurrency(value, { locale = game?.i18n?.lang } = {}) {
