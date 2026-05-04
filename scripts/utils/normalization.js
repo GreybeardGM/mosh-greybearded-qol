@@ -32,11 +32,52 @@ export function normalizeKeepToken(keep) {
 }
 
 export function parseCurrencyValue(value, { fallback = 0 } = {}) {
-  const numericValue = typeof value === "number"
-    ? Math.trunc(value)
-    : Number.parseInt(String(value ?? "").replace(/[^\d-]/g, ""), 10);
+  if (typeof value === "number") {
+    const numericValue = Math.trunc(value);
+    return Number.isFinite(numericValue) ? numericValue : fallback;
+  }
 
-  return Number.isFinite(numericValue) ? numericValue : fallback;
+  const rawInput = String(value ?? "").trim();
+  if (!rawInput) return fallback;
+
+  const lowerInput = rawInput.toLowerCase();
+  let multiplier = 1;
+
+  if (/\bg\s*cr\b|\bgcr\b/.test(lowerInput)) {
+    multiplier = 1_000_000_000;
+  } else if (/\bm\s*cr\b|\bmcr\b/.test(lowerInput)) {
+    multiplier = 1_000_000;
+  } else if (/\bk\s*cr\b|\bkcr\b/.test(lowerInput)) {
+    multiplier = 1_000;
+  }
+
+  const sign = lowerInput.includes("-") ? -1 : 1;
+  const cleaned = lowerInput.replace(/[^\d.,]/g, "");
+  if (!cleaned) return fallback;
+
+  // Without suffixes, treat separators as thousands grouping only.
+  // This prevents values like "324.971 cr" from being parsed as 324.971.
+  let normalized;
+  if (multiplier === 1) {
+    normalized = cleaned.replace(/[.,]/g, "");
+  } else {
+    const lastComma = cleaned.lastIndexOf(",");
+    const lastDot = cleaned.lastIndexOf(".");
+    const decimalIndex = Math.max(lastComma, lastDot);
+
+    if (decimalIndex >= 0) {
+      const integerPart = cleaned.slice(0, decimalIndex).replace(/[.,]/g, "");
+      const fractionPart = cleaned.slice(decimalIndex + 1).replace(/[.,]/g, "");
+      normalized = `${integerPart || "0"}.${fractionPart}`;
+    } else {
+      normalized = cleaned.replace(/[.,]/g, "");
+    }
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  if (!Number.isFinite(parsed)) return fallback;
+
+  return Math.trunc(sign * parsed * multiplier);
 }
 
 export function formatCurrency(value, { locale = game?.i18n?.lang } = {}) {
