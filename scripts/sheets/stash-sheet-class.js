@@ -42,28 +42,44 @@ export function defineStashSheet(BaseSheet) {
       // Everything below here is only needed if the sheet is editable
       if (!this.options.editable) return;
 
-      // Salary Display
+            // Currency display/edit separation
+      const showDisplay = (input) => {
+        const raw = parseCurrencyValue(input.value);
+        input.value = String(raw);
+        const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
+        if (display) {
+          display.textContent = formatCurrency(raw);
+          display.style.display = "flex";
+        }
+        input.style.visibility = "hidden";
+      };
+
+      const showInput = (input) => {
+        const raw = parseCurrencyValue(input.value);
+        input.value = String(raw);
+        const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
+        if (display) display.style.display = "none";
+        input.style.visibility = "visible";
+      };
+
+      html.find("[data-currency-display]").on("click", function () {
+        const input = this.closest(".currency-field")?.querySelector(".currency-input");
+        if (!input) return;
+        showInput(input);
+        input.focus();
+        input.select();
+      });
+
       html.find(".currency-input")
         .on("focus", function () {
-          // Bei Fokus: Nur die Zahl zeigen
-          const raw = parseCurrencyValue(this.value);
-          this.value = String(raw);
+          showInput(this);
         })
         .on("blur", function () {
-          // Aufbereiten
-          const raw = parseCurrencyValue(this.value);
-          // Setze echten Wert (für Speicherung)
-          this.value = raw;
-          // Und zeitverzögert formatieren
-          setTimeout(() => {
-            this.value = formatCurrency(raw);
-          }, 10);
+          showDisplay(this);
         });
-
-      // Initial format currency fields
+      // Initial display state
       html.find(".currency-input").each(function () {
-        const raw = parseCurrencyValue(this.value);
-        this.value = formatCurrency(raw);
+        showDisplay(this);
       });
     }
   };

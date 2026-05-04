@@ -55,17 +55,23 @@ export function parseCurrencyValue(value, { fallback = 0 } = {}) {
   const cleaned = lowerInput.replace(/[^\d.,]/g, "");
   if (!cleaned) return fallback;
 
-  const lastComma = cleaned.lastIndexOf(",");
-  const lastDot = cleaned.lastIndexOf(".");
-  const decimalIndex = Math.max(lastComma, lastDot);
-
+  // Without suffixes, treat separators as thousands grouping only.
+  // This prevents values like "324.971 cr" from being parsed as 324.971.
   let normalized;
-  if (decimalIndex >= 0) {
-    const integerPart = cleaned.slice(0, decimalIndex).replace(/[.,]/g, "");
-    const fractionPart = cleaned.slice(decimalIndex + 1).replace(/[.,]/g, "");
-    normalized = `${integerPart || "0"}.${fractionPart}`;
-  } else {
+  if (multiplier === 1) {
     normalized = cleaned.replace(/[.,]/g, "");
+  } else {
+    const lastComma = cleaned.lastIndexOf(",");
+    const lastDot = cleaned.lastIndexOf(".");
+    const decimalIndex = Math.max(lastComma, lastDot);
+
+    if (decimalIndex >= 0) {
+      const integerPart = cleaned.slice(0, decimalIndex).replace(/[.,]/g, "");
+      const fractionPart = cleaned.slice(decimalIndex + 1).replace(/[.,]/g, "");
+      normalized = `${integerPart || "0"}.${fractionPart}`;
+    } else {
+      normalized = cleaned.replace(/[.,]/g, "");
+    }
   }
 
   const parsed = Number.parseFloat(normalized);
