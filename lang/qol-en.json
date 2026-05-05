@@ -12,7 +12,9 @@
       "SaveChanges": "Save Changes"
     },
     "Errors": {
-      "NoActorProvided": "No actor provided."
+      "NoActorProvided": "No actor provided.",
+      "NoCharacterAssigned": "No character assigned.",
+      "UnknownAction": "Unknown action: {action}"
     },
     "Attributes": {
       "Body": "Body",
