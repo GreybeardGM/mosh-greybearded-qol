@@ -16,13 +16,13 @@ import "./patches/creature-skillfix.js";
 // Needs to be here to check for
 let StashSheet;
 
-/** Ermittelt einen stabilen Sheet-„Kind“-Identifier für die Toolbar-Logik */
+/** Resolve a stable sheet "kind" identifier for toolbar behavior. */
 function getSheetKind(sheet) {
   const actor = sheet?.actor;
-  // Konkrete Klassen zuerst prüfen
+  // Check explicit sheet classes first.
   if (sheet instanceof QoLContractorSheet) return "contractor";
   if (StashSheet && sheet instanceof StashSheet) return "stash";
-  // Generisch über Actor-Typ
+  // Fallback: infer from actor type.
   if (actor?.type === "ship") return "ship";
   if (actor?.type === "character") return "character";
   if (actor?.type === "creature") return "creature";
@@ -181,7 +181,7 @@ Hooks.once("init", () => {
     restricted: true
   });
 
-  // ✅ Enable MoSh QoL Character Creator
+  // Enable MoSh QoL Character Creator.
   game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
     name: "MoshQoL.Settings.EnableCharacterCreator.Name",
     hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
@@ -191,7 +191,7 @@ Hooks.once("init", () => {
     default: true
   });
   
-  // ✅ Enable Ship Crits (default: false)
+  // Enable Ship Crits (default: false).
   game.settings.register("mosh-greybearded-qol", "enableShipCrits", {
     name: "MoshQoL.Settings.EnableShipCrits.Name",
     hint: "MoshQoL.Settings.EnableShipCrits.Hint",
@@ -219,7 +219,10 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
       if (!action) return;
 
       const actor = game.user.character;
-      if (!actor) { ui.notifications.warn("No character assigned."); return; }
+      if (!actor) {
+        ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoCharacterAssigned"));
+        return;
+      }
 
       switch (action) {
         case "convertStress":
@@ -232,7 +235,7 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
           await game.moshGreybeardQol.triggerShipCrit(...args);
           break;
         default:
-          ui.notifications.warn(`Unknown action: ${action}`);
+          ui.notifications.warn(game.i18n.format("MoshQoL.Errors.UnknownAction", { action }));
       }
     }, { once: true });
   }
@@ -244,9 +247,9 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   const isGM = game.user.isGM;
   const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
   if ( !isGM && !isOwner ) return;
-  // Nur Sheet-Typ ermitteln und an die Helfer-Funktion durchreichen.
+  // Resolve the sheet kind and pass it to the helper.
   const kind = getSheetKind(sheet);
-  // upsert immer aufrufen; die Entscheidung über Sichtbarkeit/Buttons trifft später die Helfer-Funktion
+  // Always call upsert; helper logic decides visibility and available buttons.
   try {
     upsertToolband(sheet, html, { kind, isGM });
   } catch (e) {
@@ -256,22 +259,22 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 
 // Prepare fresh characters for Character Creation
 Hooks.on("createActor", async (actor, options, userId) => {
-  // Nur für Charaktere
+  // Character actors only.
   if (actor.type !== "character") return;
 
-  // Flag setzen
+  // Set the ready flag.
   await setReady(actor);
 });
 
-// Toolband aufräumen
+// Clean up toolband.
 Hooks.on("closeActorSheet", (sheet) => {
   try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
 
 /**
- * Fügt das Apply-Damage-Tool robust in die Token-Controls ein.
- * Foundry V13 (laut module.json minimum/verified) nutzt `controls` und `tools` als Record/Object.
- * Array-Formen werden nur als defensive Kompatibilität für ungewöhnliche/custom Hook-Payloads mitgeführt.
+ * Robustly insert the apply-damage tool into token controls.
+ * Foundry V13 (per module.json minimum/verified) uses `controls` and `tools` as Record/Object values.
+ * Array forms remain as defensive compatibility for unusual/custom hook payloads.
  */
 function insertApplyDamageTool(tokenControls, toolDef) {
   if (!tokenControls) return;
