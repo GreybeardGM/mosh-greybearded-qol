@@ -303,24 +303,20 @@ Hooks.on("getSceneControlButtons", (controls) => {
       });
 
       if (!data) return;
-      const damage = normalizeNumber(data.damage, { fallback: null, min: 1 });
-      if (damage === null) {
-        ui.notifications.warn("Please enter a positive damage value.");
-        return;
-      }
+      const damageInput = data.damage;
 
       let applied = 0;
       for (const t of selected) {
         const actorLike = t?.actor ?? t;
         if (!actorLike) continue;
         try {
-          await game.moshGreybeardQol.applyDamage(actorLike, damage);
+          await game.moshGreybeardQol.applyDamage(actorLike, damageInput);
           applied++;
         } catch (err) {
           console.error("applyDamage failed for", t, err);
         }
       }
-      ui.notifications.info(`Applied ${damage} damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
+      ui.notifications.info(`Applied damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
     }
   };
 
