@@ -432,12 +432,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             });
         }
 
-        // Initial format currency fields
-        html.find(".currency-input").each(function () {
-          const raw = parseCurrencyValue(this.value);
-          this.value = formatCurrency(raw);
-        });
-
     }
 
     /* -------------------------------------------- */
