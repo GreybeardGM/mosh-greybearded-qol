@@ -1,7 +1,6 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
-import { applyDamage } from "./utils/apply-damage.js";
 import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 
@@ -74,7 +73,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
         case "apply-damage":
           if (!actor) return;
-          await applyDamage(actor);
+          await game.moshGreybeardQol.applyDamage(actor);
           return;
         
         case "armor-broken": {
