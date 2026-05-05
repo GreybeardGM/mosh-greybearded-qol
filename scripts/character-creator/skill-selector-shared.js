@@ -1,6 +1,5 @@
 import { toSkillId } from "./utils.js";
 import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
-import { markSkillTreePerf, measureSkillTreePerf, skillTreePerfDebugHintOnce } from "./perf-debug.js";
 
 const EMPTY_LINE_META = () => ({});
 
@@ -56,8 +55,6 @@ export function applyInitialAvailabilityLock({ cards = [], skillById, selectedSk
 
 export function scheduleSkillLineDraw(app, { changedSkillIds = null } = {}) {
   if (!app?._dom) return;
-  skillTreePerfDebugHintOnce();
-
   if (changedSkillIds?.size) {
     if (!app._pendingChangedSkillIds) app._pendingChangedSkillIds = new Set();
     for (const skillId of changedSkillIds) app._pendingChangedSkillIds.add(skillId);
@@ -65,20 +62,14 @@ export function scheduleSkillLineDraw(app, { changedSkillIds = null } = {}) {
 
   if (app._lineDrawFrame) return;
   app._lineDrawFrame = requestAnimationFrame(() => {
-    markSkillTreePerf("skilltree:drawFrame:start");
-
     app._lineDrawFrame = null;
     app._drawLines(app._pendingChangedSkillIds);
     app._pendingChangedSkillIds = null;
 
-    markSkillTreePerf("skilltree:drawFrame:end");
-    measureSkillTreePerf("skilltree:drawFrame", "skilltree:drawFrame:start", "skilltree:drawFrame:end");
   });
 }
 
 export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = null, isHighlighted } = {}) {
-  markSkillTreePerf("skilltree:drawLines:start");
-
   const svg = app._dom?.svg;
   if (!svg) return;
 
@@ -106,8 +97,6 @@ export function drawSkillLines(app, changedSkillIds = null, { buildLineMeta = nu
     isHighlighted
   });
 
-  markSkillTreePerf("skilltree:drawLines:end");
-  measureSkillTreePerf("skilltree:drawLines", "skilltree:drawLines:start", "skilltree:drawLines:end");
 }
 
 

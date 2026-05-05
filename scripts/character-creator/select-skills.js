@@ -25,7 +25,7 @@ function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = gam
     const skill = byUuid || skillMap.get(toSkillId(rawRef));
 
     if (!skill) {
-      console.debug(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`);
+      console.warn(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`);
       continue;
     }
 
