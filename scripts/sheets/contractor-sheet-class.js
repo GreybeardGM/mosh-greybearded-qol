@@ -479,7 +479,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         const element = event.currentTarget;
         const dataset = element.dataset;
 
-        console.log(super.getData());
 
         if (dataset.roll) {
             let roll = new Roll(dataset.roll, this.actor.system);

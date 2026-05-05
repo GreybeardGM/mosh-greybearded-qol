@@ -80,8 +80,6 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 2: Clean slate – delete items
   if (!checkStep(actor, "preparation")) {
-    console.log("🧹 Resetting actor sheet for fresh creation...");
-  
     await actor.update({
       system: {
         class: { value: "", uuid: "" },
@@ -102,8 +100,6 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 3: Roll stats + saves
   if (!checkStep(actor, "rolledAttributes")) {
-    console.log("🎲 Rolling base stats and saves...");
-
     const attributes = ["strength", "speed", "intellect", "combat"];
     const saves = ["sanity", "fear", "body"];
 
@@ -162,7 +158,6 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 4: Class selection
   let selectedClass = null;
   if (checkStep(actor, "selectedClass")) {
-    console.log("📚 Loading previously selected class...");
     const classUUID = actor.system.class.uuid;
     if (classUUID) {
       selectedClass = await fromUuid(classUUID);
@@ -175,7 +170,6 @@ export async function startCharacterCreation(actor) {
   }
   // If nothing was loaded -> selection dialog
   if (!selectedClass) {
-    console.log("📚 Selecting class...");
     selectedClass = await ClassSelectorApp.wait({ actor });
     if (!selectedClass) {
       ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.ClassSelectionCancelled"));
@@ -208,8 +202,6 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 6: Roll Health
   if (!checkStep(actor, "rolledHealth")) {
-    console.log("❤️ Rolling health...");
-  
     const formula = `1d10 + 10`;
     const roll = new Roll(formula);
     await roll.evaluate();

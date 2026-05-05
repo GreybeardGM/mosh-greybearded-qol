@@ -82,8 +82,6 @@ Hooks.once("ready", () => {
   }
   
 
-  // Debug Check
-  console.log("✅ MoSh Greybearded QoL loaded");  
 });
 
 // Settings
@@ -263,7 +261,6 @@ Hooks.on("createActor", async (actor, options, userId) => {
 
   // Flag setzen
   await setReady(actor);
-  console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
 });
 
 // Toolband aufräumen
