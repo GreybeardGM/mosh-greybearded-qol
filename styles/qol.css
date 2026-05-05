@@ -517,7 +517,10 @@
 .greybeardqol .currency-display {
   position: absolute;
   inset: 0;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   cursor: text;
 }
 
