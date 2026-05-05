@@ -268,6 +268,24 @@ Hooks.on("closeActorSheet", (sheet) => {
   try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
 
+/**
+ * Fügt das Apply-Damage-Tool robust in die Token-Controls ein.
+ * Foundry V13 (laut module.json minimum/verified) nutzt `controls` und `tools` als Record/Object.
+ * Array-Formen werden nur als defensive Kompatibilität für ungewöhnliche/custom Hook-Payloads mitgeführt.
+ */
+function insertApplyDamageTool(tokenControls, toolDef) {
+  if (!tokenControls) return;
+
+  if (Array.isArray(tokenControls.tools)) {
+    tokenControls.tools.push(toolDef);
+    return;
+  }
+
+  tokenControls.tools = tokenControls.tools ?? {};
+  const order = Object.keys(tokenControls.tools).length;
+  tokenControls.tools.applyDamage = { ...toolDef, order };
+}
+
 // register token damage tool
 Hooks.on("getSceneControlButtons", (controls) => {
   // Normalize: get the Token controls whether `controls` is Array or Object
@@ -320,13 +338,5 @@ Hooks.on("getSceneControlButtons", (controls) => {
     }
   };
 
-  // Insert tool whether `tools` is an Array or an Object
-  if (Array.isArray(tokenControls.tools)) {
-    tokenControls.tools.push(toolDef);
-  } else {
-    // Object-shaped tools (older or customized setups)
-    tokenControls.tools = tokenControls.tools ?? {};
-    const order = Object.keys(tokenControls.tools).length;
-    tokenControls.tools.applyDamage = { ...toolDef, order };
-  }
+  insertApplyDamageTool(tokenControls, toolDef);
 });
