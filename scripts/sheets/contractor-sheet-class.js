@@ -176,7 +176,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
           const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
           if (display) {
             display.textContent = formatCurrency(raw);
-            display.style.display = "flex";
           }
           input.style.visibility = "hidden";
         };
