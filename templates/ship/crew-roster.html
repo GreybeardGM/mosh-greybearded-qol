@@ -2,12 +2,12 @@
   <header class="crew-roster-header">
     <img class="crew-roster-header-icon" src="{{actorImg}}" alt="{{actorName}} portrait" />
     <div class="crew-roster-header-text">
-      <div class="crew-roster-title">Crew Roster</div>
+      <div class="crew-roster-title">{{localize "MoshQoL.CrewRoster.Title"}}</div>
       <div class="crew-roster-subtitle">{{actorName}}</div>
     </div>
   </header>
 
-  <nav class="crew-roster-tabs" aria-label="Crew Roster Tabs">
+  <nav class="crew-roster-tabs">
     {{#each tabs as |tab|}}
       <button
         type="button"
@@ -24,15 +24,15 @@
     <table class="crew-roster-table">
       <thead>
         <tr>
-          <th class="crew-roster-col-portrait">Portrait</th>
-          <th>Name</th>
+          <th class="crew-roster-col-portrait">{{localize "MoshQoL.CrewRoster.Table.Portrait"}}</th>
+          <th>{{localize "MoshQoL.CrewRoster.Table.Name"}}</th>
           {{#if showContractorColumns}}
-          <th class="crew-roster-salary-head">Salary</th>
+          <th class="crew-roster-salary-head">{{localize "MoshQoL.CrewRoster.Table.Salary"}}</th>
           {{/if}}
           {{#if showContractorColumns}}
-          <th class="crew-roster-hazard-head">Hazard Pay</th>
+          <th class="crew-roster-hazard-head">{{localize "MoshQoL.CrewRoster.Table.HazardPay"}}</th>
           {{/if}}
-          <th class="crew-roster-col-active">Active</th>
+          <th class="crew-roster-col-active">{{localize "MoshQoL.CrewRoster.Table.Active"}}</th>
           <th class="crew-roster-col-remove"></th>
         </tr>
       </thead>
@@ -41,7 +41,7 @@
           {{#if entry.showInactiveDivider}}
             <tr class="crew-roster-divider-row" aria-hidden="true">
               <td colspan="{{../tableColumnCount}}">
-                <div class="crew-roster-divider">Inactive Crew</div>
+                <div class="crew-roster-divider">{{localize "MoshQoL.CrewRoster.Table.InactiveCrew"}}</div>
               </td>
             </tr>
           {{/if}}
@@ -68,7 +68,7 @@
             </td>
             {{/if}}
             <td class="crew-roster-col-active">
-              <div class="crew-roster-switch" title="Toggle active status">
+              <div class="crew-roster-switch" title="{{localize "MoshQoL.CrewRoster.Actions.ToggleActive"}}">
                 <input
                   type="checkbox"
                   data-action="toggleActive"
@@ -85,7 +85,7 @@
                 data-action="removeEntry"
                 data-tab="{{../activeTab}}"
                 data-uuid="{{entry.uuid}}"
-                title="Remove from roster"
+                title="{{localize "MoshQoL.CrewRoster.Actions.RemoveEntry"}}"
               >
                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
               </button>
@@ -93,7 +93,7 @@
           </tr>
         {{else}}
           <tr>
-            <td class="crew-roster-empty" colspan="{{tableColumnCount}}">No {{activeTabLabel}} in this roster yet. Drag and drop new {{activeTabLabel}} into this tab to add them.</td>
+            <td class="crew-roster-empty" colspan="{{tableColumnCount}}">{{localize "MoshQoL.CrewRoster.Table.EmptyState" tabLabel=activeTabLabel}}</td>
           </tr>
         {{/each}}
       </tbody>
@@ -101,9 +101,9 @@
         <tr class="crew-roster-summary-row">
           <td colspan="{{tableColumnCount}}">
             <div class="crew-roster-summary">
-              <span><strong>Active Crew:</strong> {{summary.activeCrewCount}}</span>
-              <span><strong>Total Salaries:</strong> {{summary.totalSalary}}</span>
-              <span><strong>Total Hazard Pay:</strong> {{summary.totalHazardPay}}</span>
+              <span><strong>{{localize "MoshQoL.CrewRoster.Summary.ActiveCrew"}}:</strong> {{summary.activeCrewCount}}</span>
+              <span><strong>{{localize "MoshQoL.CrewRoster.Summary.TotalSalaries"}}:</strong> {{summary.totalSalary}}</span>
+              <span><strong>{{localize "MoshQoL.CrewRoster.Summary.TotalHazardPay"}}:</strong> {{summary.totalHazardPay}}</span>
             </div>
           </td>
         </tr>

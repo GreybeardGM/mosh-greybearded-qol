@@ -138,7 +138,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     tag: "form",
     window: {
       resizable: true,
-      title: "Crew Roster",
+      title: "MoshQoL.CrewRoster.Title",
       contentClasses: ["greybeardqol", "crew-roster"]
     },
     position: {
@@ -230,17 +230,17 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     }
 
     const tabs = [
-      { id: "character", label: "Player Characters" },
-      { id: "creature", label: "Contractors" },
-      { id: "ship", label: "Auxiliary Craft" }
+      { id: "character", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Character") },
+      { id: "creature", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Creature") },
+      { id: "ship", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Ship") }
     ];
 
     return {
-      actorName: this.actor?.name ?? "Ship",
+      actorName: this.actor?.name ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.ActorName"),
       actorImg: this.actor?.img ?? "icons/svg/mystery-man.svg",
       themeColor: getThemeColor(),
       activeTab: this._activeTab,
-      activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? "entries",
+      activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.Entries"),
       showContractorColumns: this._activeTab === "creature",
       tableColumnCount: this._activeTab === "creature" ? 6 : 4,
       summary: {
