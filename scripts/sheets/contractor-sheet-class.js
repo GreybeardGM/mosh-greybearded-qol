@@ -1,6 +1,7 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+import { parseCurrencyValue } from "../utils/normalization.js";
+import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
@@ -169,43 +170,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
-        // Currency display/edit separation
-        const showDisplay = (input) => {
-          const raw = parseCurrencyValue(input.value);
-          input.value = String(raw);
-          const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
-          if (display) {
-            display.textContent = formatCurrency(raw);
-          }
-          input.style.visibility = "hidden";
-        };
-
-        const showInput = (input) => {
-          const raw = parseCurrencyValue(input.value);
-          input.value = String(raw);
-          const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
-          if (display) display.style.display = "none";
-          input.style.visibility = "visible";
-        };
-
-        html.find("[data-currency-display]").on("click", function () {
-          const input = this.closest(".currency-field")?.querySelector(".currency-input");
-          if (!input) return;
-          showInput(input);
-          input.focus();
-          input.select();
-        });
-
-        html.find(".currency-input")
-          .on("focus", function () {
-            showInput(this);
-          })
-          .on("blur", function () {
-            showDisplay(this);
-          })
-          .each(function () {
-            showDisplay(this);
-          });
+        attachCurrencyFieldHandlers(html);
 
         // Attribute Rolls
         // Rollable Attribute
