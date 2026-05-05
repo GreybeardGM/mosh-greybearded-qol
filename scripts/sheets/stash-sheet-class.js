@@ -1,4 +1,5 @@
-import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+import { parseCurrencyValue } from "../utils/normalization.js";
+import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 
 export function defineStashSheet(BaseSheet) {
   return class StashSheet extends BaseSheet {
@@ -42,45 +43,8 @@ export function defineStashSheet(BaseSheet) {
       // Everything below here is only needed if the sheet is editable
       if (!this.options.editable) return;
 
-            // Currency display/edit separation
-      const showDisplay = (input) => {
-        const raw = parseCurrencyValue(input.value);
-        input.value = String(raw);
-        const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
-        if (display) {
-          display.textContent = formatCurrency(raw);
-          display.style.display = "flex";
-        }
-        input.style.visibility = "hidden";
-      };
+            attachCurrencyFieldHandlers(html);
 
-      const showInput = (input) => {
-        const raw = parseCurrencyValue(input.value);
-        input.value = String(raw);
-        const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
-        if (display) display.style.display = "none";
-        input.style.visibility = "visible";
-      };
-
-      html.find("[data-currency-display]").on("click", function () {
-        const input = this.closest(".currency-field")?.querySelector(".currency-input");
-        if (!input) return;
-        showInput(input);
-        input.focus();
-        input.select();
-      });
-
-      html.find(".currency-input")
-        .on("focus", function () {
-          showInput(this);
-        })
-        .on("blur", function () {
-          showDisplay(this);
-        });
-      // Initial display state
-      html.find(".currency-input").each(function () {
-        showDisplay(this);
-      });
     }
   };
 }
