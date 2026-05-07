@@ -56,9 +56,9 @@
         "Name": "0e-Schiffskrits aktivieren"
       },
       "ShoreLeaveEditor": {
-        "Hint": "Passe die Stufen an, die im einfachen Shore-Leave-System verwendet werden.",
-        "Label": "Shore Leave bearbeiten...",
-        "Name": "Shore-Leave-Stufen bearbeiten"
+        "Hint": "Konfiguriere Shore-Leave-Regeln, Stressumwandlung und Stufenformeln in einem Dialog.",
+        "Label": "Shore Leave konfigurieren...",
+        "Name": "Shore Leave konfigurieren"
       },
       "ShoreLeaveTiers": {
         "Name": "Definitionen der Shore-Leave-Stufen"
@@ -86,16 +86,22 @@
         "Label": "Toolbar konfigurieren...",
         "Name": "Toolbar konfigurieren",
         "SettingName": "Toolbar-Konfiguration"
+      },
+      "ShoreLeaveConfig": {
+        "SettingName": "Shore-Leave-Konfiguration"
       }
     },
     "ShoreLeave": {
       "ConvertedStress": "Umgewandelter Stress",
       "DistributeStressConversion": "Stressumwandlung verteilen",
       "Editor": {
-        "Description": "Bearbeite Stressumwandlungs- und Preisformeln für jede Shore-Leave-Stufe.",
-        "ResetSuccess": "Shore-Leave-Stufen auf Standardwerte zurückgesetzt.",
-        "Title": "Konfiguration der Shore-Leave-Stufen",
-        "UpdateSuccess": "Shore-Leave-Stufen aktualisiert."
+        "Description": "Bearbeite Shore-Leave-Regeln, Stressumwandlung und Preisformeln an einer Stelle.",
+        "ResetSuccess": "Shore-Leave-Konfiguration auf Standardwerte zurückgesetzt.",
+        "Title": "Shore-Leave-Konfiguration",
+        "UpdateSuccess": "Shore-Leave-Konfiguration aktualisiert.",
+        "GeneralTitle": "Allgemeines Shore Leave",
+        "StressTitle": "Stressumwandlung",
+        "TiersTitle": "Stufenformeln"
       },
       "InvalidTier": "Ungültige Stufe ausgewählt.",
       "NoActorForStressConversion": "Kein Akteur für die Stressumwandlung verfügbar.",

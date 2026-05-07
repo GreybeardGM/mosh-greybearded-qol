@@ -2,7 +2,57 @@
   <h2>{{localize "MoshQoL.ShoreLeave.Editor.Title"}}</h2>
   <p>{{localize "MoshQoL.ShoreLeave.Editor.Description"}}</p>
 
-  <div class="form-group">
+  <section class="card shore-leave-config-section">
+    <h3>{{localize "MoshQoL.ShoreLeave.Editor.GeneralTitle"}}</h3>
+
+    <label class="pill interactive shore-leave-config-row">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="shoreLeave.simpleShoreLeave.randomFlavor" {{checked options.simpleShoreLeave.randomFlavor}}>
+    </label>
+  </section>
+
+  <section class="card shore-leave-config-section">
+    <h3>{{localize "MoshQoL.ShoreLeave.Editor.StressTitle"}}</h3>
+
+    <div class="form-group shore-leave-formula-row">
+      <label for="shore-leave-convert-formula">
+        <strong>{{localize "MoshQoL.Settings.ConvertStress.Formula.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ConvertStress.Formula.Hint"}}</small>
+      </label>
+      <input id="shore-leave-convert-formula" type="text" name="shoreLeave.convertStress.formula" value="{{options.convertStress.formula}}">
+    </div>
+
+    <label class="pill interactive shore-leave-config-row">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ConvertStress.NoSanitySave.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ConvertStress.NoSanitySave.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="shoreLeave.convertStress.noSanitySave" {{checked options.convertStress.noSanitySave}}>
+    </label>
+
+    <label class="pill interactive shore-leave-config-row">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ConvertStress.NoStressRelieve.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ConvertStress.NoStressRelieve.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="shoreLeave.convertStress.noStressRelieve" {{checked options.convertStress.noStressRelieve}}>
+    </label>
+
+    <label class="pill interactive shore-leave-config-row">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ConvertStress.MinStressConversion.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ConvertStress.MinStressConversion.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="shoreLeave.convertStress.minStressConversion" {{checked options.convertStress.minStressConversion}}>
+    </label>
+  </section>
+
+  <section class="card shore-leave-config-section">
+    <h3>{{localize "MoshQoL.ShoreLeave.Editor.TiersTitle"}}</h3>
+
     {{#each tiers as |tier i|}}
     <fieldset>
       <legend>{{tier.label}} ({{tier.tier}})</legend>
@@ -39,10 +89,10 @@
       </div>
     </fieldset>
     {{/each}}
-  </div>
+  </section>
 
   <footer class="form-footer">
-    <button type="submit" class="dialog-button default">{{localize "MoshQoL.Common.SaveChanges"}}</button>
     <button type="button" class="dialog-button" data-action="resetDefaults">{{localize "MoshQoL.Common.ResetToDefault"}}</button>
+    <button type="submit" class="dialog-button default">{{localize "MoshQoL.Common.SaveChanges"}}</button>
   </footer>
 </div>

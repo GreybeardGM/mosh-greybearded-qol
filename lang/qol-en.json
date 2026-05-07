@@ -56,9 +56,9 @@
         "Name": "Enable 0e Ship Crits"
       },
       "ShoreLeaveEditor": {
-        "Hint": "Customize the tiers used in the simple shore leave system.",
-        "Label": "Edit Shore Leave...",
-        "Name": "Edit Shore Leave Tiers"
+        "Hint": "Configure shore leave rules, stress conversion behavior, and tier formulas in one dialog.",
+        "Label": "Configure Shore Leave...",
+        "Name": "Configure Shore Leave"
       },
       "ShoreLeaveTiers": {
         "Name": "Shore Leave Tier Definitions"
@@ -86,16 +86,22 @@
         "Label": "Configure Toolbar...",
         "Name": "Configure Toolbar",
         "SettingName": "Toolbar Configuration"
+      },
+      "ShoreLeaveConfig": {
+        "SettingName": "Shore Leave Configuration"
       }
     },
     "ShoreLeave": {
       "ConvertedStress": "Converted Stress",
       "DistributeStressConversion": "Distribute Stress Conversion",
       "Editor": {
-        "Description": "Edit stress conversion and pricing formulas for each shore leave tier.",
-        "ResetSuccess": "Shore Leave tiers reset to defaults.",
-        "Title": "Shore Leave Tier Configuration",
-        "UpdateSuccess": "Shore Leave tiers updated."
+        "Description": "Edit shore leave rules, stress conversion behavior, and pricing formulas in one place.",
+        "ResetSuccess": "Shore Leave configuration reset to defaults.",
+        "Title": "Shore Leave Configuration",
+        "UpdateSuccess": "Shore Leave configuration updated.",
+        "GeneralTitle": "General Shore Leave",
+        "StressTitle": "Stress Conversion",
+        "TiersTitle": "Tier Formulas"
       },
       "InvalidTier": "Invalid tier selected.",
       "NoActorForStressConversion": "No actor available for stress conversion.",

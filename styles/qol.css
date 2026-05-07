@@ -246,6 +246,11 @@
 }
 
 /* Shore Leave Stuff */
+.greybeardqol.qol-shore-leave-editor .window-content {
+  overflow-y: auto;
+  max-height: 85vh;
+}
+
 .greybeardqol .flavor-description {
   min-height: 7.2rem; 
   font-size: 0.8rem; 
@@ -260,10 +265,32 @@
   justify-content: center; 
 }
 
+.greybeardqol .qol-shore-leave-config {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.greybeardqol .qol-shore-leave-config p {
+  margin: 0;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.greybeardqol .qol-shore-leave-config h2,
+.greybeardqol .qol-shore-leave-config h3 {
+  text-align: center;
+  padding-bottom: 0.35rem;
+}
+
 .greybeardqol .qol-shore-leave-config fieldset {
   margin-bottom: 1em;
   border: 1px solid #666;
   border-radius: 6px;
+}
+
+.greybeardqol .qol-shore-leave-config fieldset:last-child {
+  margin-bottom: 0;
 }
 
 .greybeardqol .qol-shore-leave-config legend {
@@ -281,11 +308,41 @@
   margin-bottom: 0.25em;
 }
 
-.greybeardqol .qol-shore-leave-config .inline-row {
+.greybeardqol .qol-shore-leave-config small {
+  display: block;
+  font-size: 0.8em;
+  font-weight: normal;
+  opacity: 0.75;
+}
+
+.greybeardqol .qol-shore-leave-config .inline-row,
+.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5em;
   align-items: center;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-config-section {
+  gap: 0.75rem;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-config-row > span {
+  flex: 1;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-formula-row {
+  gap: 0.4rem;
+}
+
+.greybeardqol .qol-shore-leave-config input[type="checkbox"] {
+  accent-color: var(--theme-color);
+  cursor: pointer;
 }
 
 .greybeardqol .qol-shore-leave-config input[type="number"],
@@ -293,9 +350,14 @@
   width: 5em;
 }
 
+.greybeardqol .qol-shore-leave-config .shore-leave-formula-row input[type="text"] {
+  width: 100%;
+}
+
 .greybeardqol .qol-shore-leave-config .form-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 0.5rem;
   margin-top: 1em;
 }
 

@@ -1,13 +1,21 @@
 import { QoLContractorSheet } from "./sheets/contractor-sheet-class.js";
 import { defineStashSheet } from "./sheets/stash-sheet-class.js";
 import { convertStress } from "./shore-leave/convert-stress.js";
-import { ShoreLeaveTierEditor } from "./shore-leave/edit-shore-leave-tiers.js";
+import {
+  SHORE_LEAVE_CONFIG_SETTING,
+  ShoreLeaveConfigApp,
+  getDefaultShoreLeaveConfig
+} from "./shore-leave/shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./settings/toolband-config.js";
 import {
   LEGACY_SHIP_CRITS_SETTING,
   SHIP_CRITS_MIGRATION_SETTING,
   migrateLegacyShipCritToolbandConfig
 } from "./migration/toolband.js";
+import {
+  SHORE_LEAVE_CONFIG_MIGRATION_SETTING,
+  migrateLegacyShoreLeaveConfig
+} from "./migration/shore-leave.js";
 import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./shore-leave/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
@@ -118,7 +126,7 @@ Hooks.once("init", () => {
     name: "MoshQoL.Settings.ConvertStress.NoSanitySave.Name",
     hint: "MoshQoL.Settings.ConvertStress.NoSanitySave.Hint",
     scope: "world",
-    config: true,
+    config: false,
     default: false,
     type: Boolean
   });
@@ -127,7 +135,7 @@ Hooks.once("init", () => {
     name: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Name",
     hint: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Hint",
     scope: "world",
-    config: true,
+    config: false,
     default: false,
     type: Boolean
   });
@@ -136,7 +144,7 @@ Hooks.once("init", () => {
     name: "MoshQoL.Settings.ConvertStress.MinStressConversion.Name",
     hint: "MoshQoL.Settings.ConvertStress.MinStressConversion.Hint",
     scope: "world",
-    config: true,
+    config: false,
     default: false,
     type: Boolean
   });
@@ -145,7 +153,7 @@ Hooks.once("init", () => {
     name: "MoshQoL.Settings.ConvertStress.Formula.Name",
     hint: "MoshQoL.Settings.ConvertStress.Formula.Hint",
     scope: "world",
-    config: true,
+    config: false,
     default: "1d5",
     type: String
   });
@@ -155,7 +163,7 @@ Hooks.once("init", () => {
     name: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Name",
     hint: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Hint",
     scope: "world",
-    config: true,
+    config: false,
     default: true,
     type: Boolean
   });
@@ -169,6 +177,15 @@ Hooks.once("init", () => {
     type: Boolean
   });
   
+
+  game.settings.register("mosh-greybearded-qol", SHORE_LEAVE_CONFIG_SETTING, {
+    name: "MoshQoL.Settings.ShoreLeaveConfig.SettingName",
+    scope: "world",
+    config: false,
+    type: Object,
+    default: getDefaultShoreLeaveConfig()
+  });
+
   // Config Shore Leave Tiers
   game.settings.register("mosh-greybearded-qol", "shoreLeaveTiers", {
     name: "MoshQoL.Settings.ShoreLeaveTiers.Name",
@@ -183,7 +200,7 @@ Hooks.once("init", () => {
     label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
     hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
     icon: "fas fa-edit",
-    type: ShoreLeaveTierEditor,
+    type: ShoreLeaveConfigApp,
     restricted: true
   });
 
@@ -231,11 +248,22 @@ Hooks.once("init", () => {
     type: Boolean,
     default: false
   });
+
+  game.settings.register("mosh-greybearded-qol", SHORE_LEAVE_CONFIG_MIGRATION_SETTING, {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
 });
 
 Hooks.once("ready", () => {
   migrateLegacyShipCritToolbandConfig().catch((error) => {
     console.error("[MoSh QoL] Failed to migrate legacy ship crit setting", error);
+  });
+
+  migrateLegacyShoreLeaveConfig().catch((error) => {
+    console.error("[MoSh QoL] Failed to migrate legacy shore leave settings", error);
   });
 });
 

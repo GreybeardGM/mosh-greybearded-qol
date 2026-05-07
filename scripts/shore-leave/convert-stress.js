@@ -1,15 +1,17 @@
 import { StressDistributionApp } from "./stress-distribution.js";
 import { chatOutput } from "../utils/chat-output.js";
+import { getNormalizedShoreLeaveConfig } from "./shore-leave-config.js";
 
 export async function convertStress(actor, formula, options = {}) {
   // Fallback Actor
   actor = actor || game.user.character;
   if (!actor) return ui.notifications.warn(game.i18n.localize("MoshQoL.ShoreLeave.NoActorForStressConversion"));
 
-  formula = formula ?? game.settings.get("mosh-greybearded-qol", "convertStress.formula");
-  const noSanitySave = options.noSanitySave ?? game.settings.get("mosh-greybearded-qol", "convertStress.noSanitySave");
-  const noStressRelieve = options.noStressRelieve ?? game.settings.get("mosh-greybearded-qol", "convertStress.noStressRelieve");
-  const minStressConversion = options.minStressConversion ?? game.settings.get("mosh-greybearded-qol", "convertStress.minStressConversion");
+  const shoreLeaveConfig = getNormalizedShoreLeaveConfig();
+  formula = formula ?? shoreLeaveConfig.convertStress.formula;
+  const noSanitySave = options.noSanitySave ?? shoreLeaveConfig.convertStress.noSanitySave;
+  const noStressRelieve = options.noStressRelieve ?? shoreLeaveConfig.convertStress.noStressRelieve;
+  const minStressConversion = options.minStressConversion ?? shoreLeaveConfig.convertStress.minStressConversion;
   
   const stress = actor.system.other.stress;
   const currentStress = stress?.value ?? 0;

@@ -2,6 +2,7 @@ import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { getNormalizedShoreLeaveConfig } from "./shore-leave-config.js";
 import { toRollFormula } from "../utils/to-roll-formula.js";
 import { toRollString } from "../utils/to-roll-string.js";
 
@@ -61,8 +62,9 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     this._resolved = false;
     this._selectedTier = null;
 
+    const shoreLeaveConfig = getNormalizedShoreLeaveConfig();
     const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
-    this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor"));
+    this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? shoreLeaveConfig.simpleShoreLeave.randomFlavor);
     this.themeColor = getThemeColor();
     this.tiers = this._loadTiers();
     this.tierById = new Map(this.tiers.map(tier => [tier.tier, tier]));
