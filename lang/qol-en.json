@@ -80,6 +80,12 @@
       "ThemeColorOverride": {
         "Hint": "If set, this will override the default color for this user.",
         "Name": "Player Theme Color"
+      },
+      "ToolbandConfig": {
+        "Hint": "Choose which QoL toolbar buttons are available on tech and ship sheets.",
+        "Label": "Configure Toolbar...",
+        "Name": "Configure Toolbar",
+        "SettingName": "Toolbar Configuration"
       }
     },
     "ShoreLeave": {
@@ -222,6 +228,25 @@
     "HiddenMotivation": "Secret Motivation (GM only)",
     "LoyaltyRolled": "Loyalty Rolled",
     "Motivation": "Motivation",
-    "UniqueContractor": "Unique Contractor"
+    "UniqueContractor": "Unique Contractor",
+    "Toolbar": {
+      "Buttons": {
+        "ApplyDamage": "Apply Damage",
+        "ArmorBroken": "Armor Broken",
+        "ShoreLeave": "Shore Leave",
+        "Training": "Training",
+        "CrewRoster": "Crew Roster",
+        "ShipCrit": "Ship Crit"
+      },
+      "Config": {
+        "Description": "Toggle the buttons that the QoL toolbar may show for tech and ship sheets. Buttons that do not apply to the current sheet type remain hidden.",
+        "ResetSuccess": "Toolbar configuration reset to defaults.",
+        "UpdateSuccess": "Toolbar configuration updated."
+      },
+      "Scopes": {
+        "Tech": "Tech",
+        "Ship": "Ships"
+      }
+    }
   }
 }

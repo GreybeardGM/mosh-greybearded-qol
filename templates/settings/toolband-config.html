@@ -1,0 +1,33 @@
+<div class="toolband-config-app">
+  <p class="toolband-config-description">{{description}}</p>
+
+  <div class="toolband-config-grid">
+    {{#each scopes as |scope|}}
+      <section class="card toolband-config-scope">
+        <h3>{{scope.label}}</h3>
+        <div class="pill-list">
+          {{#each scope.buttons as |button|}}
+            <label class="pill interactive toolband-config-row">
+              <span class="toolband-config-label">
+                <i class="{{button.icon}}" aria-hidden="true"></i>
+                <span>{{button.labelText}}</span>
+              </span>
+              <input type="checkbox" name="toolband.{{scope.id}}.{{button.settingKey}}" {{checked button.checked}}>
+            </label>
+          {{/each}}
+        </div>
+      </section>
+    {{/each}}
+  </div>
+
+  <footer class="toolband-config-actions">
+    <button type="button" data-action="resetDefaults">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.ResetToDefault"}}
+    </button>
+    <button type="submit">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.SaveChanges"}}
+    </button>
+  </footer>
+</div>
