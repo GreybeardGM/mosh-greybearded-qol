@@ -80,6 +80,12 @@
       "ThemeColorOverride": {
         "Hint": "Wenn gesetzt, überschreibt dies die Standardfarbe für diesen Benutzer.",
         "Name": "Spieler-Themenfarbe"
+      },
+      "ToolbandConfig": {
+        "Hint": "Wähle aus, welche QoL-Toolbar-Buttons auf Tech- und Schiffsbögen verfügbar sind.",
+        "Label": "Toolbar konfigurieren...",
+        "Name": "Toolbar konfigurieren",
+        "SettingName": "Toolbar-Konfiguration"
       }
     },
     "ShoreLeave": {
@@ -222,6 +228,25 @@
     "HiddenMotivation": "Geheime Motivation (nur SL)",
     "LoyaltyRolled": "Loyalität gewürfelt",
     "Motivation": "Motivation",
-    "UniqueContractor": "Einzigartiger Contractor"
+    "UniqueContractor": "Einzigartiger Contractor",
+    "Toolbar": {
+      "Buttons": {
+        "ApplyDamage": "Apply Damage",
+        "ArmorBroken": "Armor Broken",
+        "ShoreLeave": "Shore Leave",
+        "Training": "Training",
+        "CrewRoster": "Crew Roster",
+        "ShipCrit": "Schiffskrit"
+      },
+      "Config": {
+        "Description": "Schalte die Buttons frei, die die QoL-Toolbar für Tech- und Schiffsbögen anzeigen darf. Buttons, die nicht zum aktuellen Bogentyp passen, bleiben verborgen.",
+        "ResetSuccess": "Toolbar-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Toolbar-Konfiguration aktualisiert."
+      },
+      "Scopes": {
+        "Tech": "Tech",
+        "Ship": "Schiffe"
+      }
+    }
   }
 }

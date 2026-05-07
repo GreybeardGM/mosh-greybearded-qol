@@ -2,6 +2,12 @@ import { QoLContractorSheet } from "./sheets/contractor-sheet-class.js";
 import { defineStashSheet } from "./sheets/stash-sheet-class.js";
 import { convertStress } from "./shore-leave/convert-stress.js";
 import { ShoreLeaveTierEditor } from "./shore-leave/edit-shore-leave-tiers.js";
+import { ToolbandConfigApp, getDefaultToolbandConfig } from "./settings/toolband-config.js";
+import {
+  LEGACY_SHIP_CRITS_SETTING,
+  SHIP_CRITS_MIGRATION_SETTING,
+  migrateLegacyShipCritToolbandConfig
+} from "./migration/toolband.js";
 import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./shore-leave/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
@@ -181,6 +187,24 @@ Hooks.once("init", () => {
     restricted: true
   });
 
+  // Configure Toolband buttons.
+  game.settings.register("mosh-greybearded-qol", "toolbandConfig", {
+    name: "MoshQoL.Settings.ToolbandConfig.SettingName",
+    scope: "world",
+    config: false,
+    type: Object,
+    default: getDefaultToolbandConfig()
+  });
+
+  game.settings.registerMenu("mosh-greybearded-qol", "toolbandConfigMenu", {
+    name: "MoshQoL.Settings.ToolbandConfig.Name",
+    label: "MoshQoL.Settings.ToolbandConfig.Label",
+    hint: "MoshQoL.Settings.ToolbandConfig.Hint",
+    icon: "fas fa-toolbox",
+    type: ToolbandConfigApp,
+    restricted: true
+  });
+
   // Enable MoSh QoL Character Creator.
   game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
     name: "MoshQoL.Settings.EnableCharacterCreator.Name",
@@ -191,14 +215,27 @@ Hooks.once("init", () => {
     default: true
   });
   
-  // Enable Ship Crits (default: false).
-  game.settings.register("mosh-greybearded-qol", "enableShipCrits", {
+  // Legacy Ship Crits setting. Hidden now; migrated into the Toolband Config on ready.
+  game.settings.register("mosh-greybearded-qol", LEGACY_SHIP_CRITS_SETTING, {
     name: "MoshQoL.Settings.EnableShipCrits.Name",
     hint: "MoshQoL.Settings.EnableShipCrits.Hint",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: false
+  });
+
+  game.settings.register("mosh-greybearded-qol", SHIP_CRITS_MIGRATION_SETTING, {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+});
+
+Hooks.once("ready", () => {
+  migrateLegacyShipCritToolbandConfig().catch((error) => {
+    console.error("[MoSh QoL] Failed to migrate legacy ship crit setting", error);
   });
 });
 
