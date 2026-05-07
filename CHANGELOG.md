@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.3] - 2026-05-07
 ### Improvements
 - Contractor promotion now only sets the essential flags (`isNamed`, `loyalty.enabled`), and loyalty rolls also enable the loyalty flag automatically.
 - Crew Roster can now also be opened from the shared Stash Sheet, so groups without their own ship still have central roster access.
