@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4] - 2026-05-07
+### Added
+- Added German localization for the module.
+
+### Changed
+- Prepared the next development version; details will be expanded before release.
+
 ## [0.7.3] - 2026-05-07
 ### Improvements
 - Contractor promotion now only sets the essential flags (`isNamed`, `loyalty.enabled`), and loyalty rolls also enable the loyalty flag automatically.

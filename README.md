@@ -55,7 +55,7 @@
 
 ## Version
 
-- Current module version: `0.7.3`
+- Current module version: `0.7.4`
 - Verified for Foundry VTT: `13.351`
 
 ## Compatibility
@@ -67,7 +67,7 @@
 ## Installation
 
 Download the latest version from [GitHub](https://github.com/GreybeardGM/mosh-greybearded-qol)  
-Or install via [manifest URL](https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json)
+Or install via [manifest URL](https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/dev/module.json)
 ## Developer Notes
 
 This module was created by **GreybeardGM** for use in long-running Mothership campaigns.  

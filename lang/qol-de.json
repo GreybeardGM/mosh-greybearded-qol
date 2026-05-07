@@ -1,0 +1,227 @@
+{
+  "MoshQoL": {
+    "Common": {
+      "Bonus": "Bonus",
+      "Cancel": "Abbrechen",
+      "Confirm": "Bestätigen",
+      "Dice": "Würfel",
+      "Faces": "Seiten",
+      "RemainingPoints": "Verbleibende Punkte",
+      "Reset": "Zurücksetzen",
+      "ResetToDefault": "Auf Standard zurücksetzen",
+      "SaveChanges": "Änderungen speichern"
+    },
+    "Errors": {
+      "NoActorProvided": "Kein Akteur angegeben.",
+      "NoCharacterAssigned": "Kein Charakter zugewiesen.",
+      "UnknownAction": "Unbekannte Aktion: {action}"
+    },
+    "Attributes": {
+      "Body": "Körper",
+      "Fear": "Angst",
+      "Sanity": "Geistige Stabilität"
+    },
+    "Sheets": {
+      "Contractor": "Contractor-Bogen",
+      "Stash": "Vorratsbogen"
+    },
+    "Status": {
+      "BrokenArmor": "Beschädigte Rüstung"
+    },
+    "Settings": {
+      "ConvertStress": {
+        "Formula": {
+          "Hint": "Fallback-Würfelformel für die Stressumwandlung (nützlich für Homebrew-Makros).",
+          "Name": "Formel für Stressumwandlung"
+        },
+        "MinStressConversion": {
+          "Hint": "Wenn aktiviert, wird die Stressumwandlung bei 0 statt beim Mindeststress begrenzt.",
+          "Name": "Mindeststress umwandeln"
+        },
+        "NoSanitySave": {
+          "Hint": "Wenn aktiviert, wird Stress ohne Sanity Save umgewandelt.",
+          "Name": "Kein Sanity Save"
+        },
+        "NoStressRelieve": {
+          "Hint": "Wenn aktiviert, wird Stress nach der Umwandlung nicht auf den Mindestwert zurückgesetzt.",
+          "Name": "Keine Stressentlastung"
+        }
+      },
+      "EnableCharacterCreator": {
+        "Hint": "Wenn aktiviert, ersetzt dies das alte Charaktererstellungs-Makro durch die neue QoL-Version.",
+        "Name": "QoL-Charaktergenerator aktivieren"
+      },
+      "EnableShipCrits": {
+        "Hint": "Wenn aktiviert, erscheint der Schiffskrit-Button und die 0e-Krit-Logik wird aktiviert.",
+        "Name": "0e-Schiffskrits aktivieren"
+      },
+      "ShoreLeaveEditor": {
+        "Hint": "Passe die Stufen an, die im einfachen Shore-Leave-System verwendet werden.",
+        "Label": "Shore Leave bearbeiten...",
+        "Name": "Shore-Leave-Stufen bearbeiten"
+      },
+      "ShoreLeaveTiers": {
+        "Name": "Definitionen der Shore-Leave-Stufen"
+      },
+      "SimpleShoreLeave": {
+        "DisableFlavor": {
+          "Hint": "Deaktiviert die zufällige Beschreibung von Shore-Leave-Aktivitäten.",
+          "Name": "Shore-Leave-Beschreibung deaktivieren"
+        },
+        "RandomFlavor": {
+          "Hint": "Erweitert einfaches Shore Leave um zufällige, stimmungsvolle Aktivitäten.",
+          "Name": "Stimmungsvolle Shore-Leave-Aktivitäten"
+        }
+      },
+      "ThemeColor": {
+        "Hint": "Wenn gesetzt, überschreibt dies die Spielerfarben.",
+        "Name": "Globale Themenfarbe"
+      },
+      "ThemeColorOverride": {
+        "Hint": "Wenn gesetzt, überschreibt dies die Standardfarbe für diesen Benutzer.",
+        "Name": "Spieler-Themenfarbe"
+      }
+    },
+    "ShoreLeave": {
+      "ConvertedStress": "Umgewandelter Stress",
+      "DistributeStressConversion": "Stressumwandlung verteilen",
+      "Editor": {
+        "Description": "Bearbeite Stressumwandlungs- und Preisformeln für jede Shore-Leave-Stufe.",
+        "ResetSuccess": "Shore-Leave-Stufen auf Standardwerte zurückgesetzt.",
+        "Title": "Konfiguration der Shore-Leave-Stufen",
+        "UpdateSuccess": "Shore-Leave-Stufen aktualisiert."
+      },
+      "InvalidTier": "Ungültige Stufe ausgewählt.",
+      "NoActorForStressConversion": "Kein Akteur für die Stressumwandlung verfügbar.",
+      "ParticipateNow": "Jetzt teilnehmen",
+      "Price": "Preis",
+      "PriceFormula": "Preisformel",
+      "RerollFlavor": "Beschreibung neu würfeln",
+      "RollPrice": "Preis würfeln",
+      "SelectTier": "Shore-Leave-Stufe auswählen",
+      "StressConversion": "Stressumwandlung",
+      "Title": "Shore Leave"
+    },
+    "CharacterCreator": {
+      "Chat": {
+        "ClassSelected": {
+          "Content": "{actorName} hat eine Klasse gewählt: <label class='counter'>{className}</label>",
+          "Title": "Klasse gewählt"
+        },
+        "HealthRolled": {
+          "Title": "Gesundheit gewürfelt"
+        },
+        "SkillsSelected": {
+          "Title": "Skills gewählt"
+        }
+      },
+      "Dialog": {
+        "AlreadyCompleted": {
+          "Content": "<strong>{actorName}</strong> hat die Charaktererstellung bereits abgeschlossen.<br>Möchtest du zurücksetzen und neu beginnen?",
+          "Title": "Charakter bereits abgeschlossen"
+        },
+        "Warning": {
+          "ChooseAction": "Bitte wähle eine Aktion:",
+          "MarkCompleted": "Als abgeschlossen markieren",
+          "NoValidData": "Keine gültigen Charaktergenerator-Daten für <strong>{actorName}</strong> gefunden!",
+          "Overwrite": "Überschreiben",
+          "OverwriteRisk": "Fortfahren könnte einen vorhandenen Charakter <strong><span style='color: #f55;'>überschreiben</span></strong>.",
+          "Title": "Charaktergenerator: Warnung"
+        }
+      },
+      "Loadout": {
+        "Categories": {
+          "Armor": "Rüstung",
+          "Items": "Gegenstände",
+          "Weapons": "Waffen"
+        },
+        "StartingCredits": "Startcredits",
+        "Title": "Ausrüstung gewürfelt"
+      },
+      "Notifications": {
+        "AlreadyCompleted": "Charaktererstellung bereits abgeschlossen.",
+        "AttributeSelectionAborted": "Attributauswahl abgebrochen:",
+        "AttributeSelectionCancelled": "Attributauswahl abgebrochen.",
+        "Cancelled": "Charaktererstellung abgebrochen.",
+        "ClassSelectionCancelled": "Klassenauswahl abgebrochen.",
+        "ClassUuidInvalid": "Klassen-UUID ungültig. Bitte erneut auswählen.",
+        "Completed": "{actorName} hat die Charaktererstellung abgeschlossen.",
+        "MarkedCompleted": "{actorName} wurde manuell als abgeschlossen markiert.",
+        "NoClassUuid": "Keine Klassen-UUID gefunden. Bitte wähle eine Klasse aus.",
+        "Reset": "Charaktererstellung für {actorName} wurde zurückgesetzt.",
+        "SkillSelectionCancelled": "Skill-Auswahl abgebrochen."
+      },
+      "SelectAttributes": {
+        "MustSelectOnePerSet": "Du musst pro Set ein Attribut auswählen.",
+        "Title": "Attribute auswählen"
+      },
+      "SelectClass": {
+        "AllSaves": "Alle Saves",
+        "AllStats": "Alle Stats",
+        "AnySave": "Beliebiger Save",
+        "AnyStat": "Beliebiger Stat",
+        "ChooseOne": "Wähle 1: {label}",
+        "DefaultSkills": "Standard-Skills",
+        "FailedToLoadClassData": "Klassendaten konnten nicht geladen werden.",
+        "NoAttributes": "Keine Attribute.",
+        "NoDescription": "Keine Beschreibung verfügbar.",
+        "NoTraumaSpecified": "Kein Trauma angegeben.",
+        "OrOption": "Option {index}",
+        "ShowDescription": "Beschreibung anzeigen",
+        "ShowSkills": "Skills anzeigen",
+        "Title": "Wähle deine Klasse",
+        "Wounds": "Wunden"
+      },
+      "SelectSkills": {
+        "DependencyNeedsSkill": "{skillName} benötigt diesen Skill, damit die Auswahl bestehen bleibt.",
+        "Title": "Skills auswählen",
+        "UnknownOrOption": "Unbekannte ODER-Option"
+      },
+      "Skills": {
+        "Expert": "Experte",
+        "LinkedSkills": "Verknüpfte Skills",
+        "Master": "Meister",
+        "Trained": "Trainiert"
+      }
+    },
+    "CrewRoster": {
+      "Actions": {
+        "RemoveEntry": "Aus dem Roster entfernen",
+        "ToggleActive": "Aktivstatus umschalten"
+      },
+      "Fallbacks": {
+        "ActorName": "Schiff",
+        "Entries": "Einträge"
+      },
+      "Summary": {
+        "ActiveCrew": "Aktive Crew",
+        "TotalHazardPay": "Gefahrenzulage gesamt",
+        "TotalSalaries": "Gehälter gesamt"
+      },
+      "Table": {
+        "Active": "Aktiv",
+        "EmptyState": "Noch keine {tabLabel} in diesem Roster. Ziehe neue {tabLabel} per Drag-and-drop in diesen Tab, um sie hinzuzufügen.",
+        "HazardPay": "Gefahrenzulage",
+        "InactiveCrew": "Inaktive Crew",
+        "Name": "Name",
+        "Portrait": "Porträt",
+        "Salary": "Gehalt"
+      },
+      "Tabs": {
+        "Character": "Spielercharaktere",
+        "Creature": "Contractors",
+        "Ship": "Beiboote"
+      },
+      "Title": "Crew-Roster"
+    },
+    "BaseSalary": "Grundgehalt",
+    "ContractorRole": "Beruf",
+    "EnterHiddenMotivation": "Nur für die SL sichtbar",
+    "EnterMotivation": "Was treibt den Contractor an?",
+    "GenericContractor": "Generischer Contractor",
+    "HiddenMotivation": "Geheime Motivation (nur SL)",
+    "LoyaltyRolled": "Loyalität gewürfelt",
+    "Motivation": "Motivation",
+    "UniqueContractor": "Einzigartiger Contractor"
+  }
+}
