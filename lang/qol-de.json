@@ -80,6 +80,12 @@
       "ThemeColorOverride": {
         "Hint": "Wenn gesetzt, überschreibt dies die Standardfarbe für diesen Benutzer.",
         "Name": "Spieler-Themenfarbe"
+      },
+      "ToolbandConfig": {
+        "Hint": "Wähle aus, welche QoL-Toolbar-Buttons auf jedem unterstützten Bogentyp verfügbar sind.",
+        "Label": "Toolbar konfigurieren...",
+        "Name": "Toolbar konfigurieren",
+        "SettingName": "Toolbar-Konfiguration"
       }
     },
     "ShoreLeave": {
@@ -222,6 +228,28 @@
     "HiddenMotivation": "Geheime Motivation (nur SL)",
     "LoyaltyRolled": "Loyalität gewürfelt",
     "Motivation": "Motivation",
-    "UniqueContractor": "Einzigartiger Contractor"
+    "UniqueContractor": "Einzigartiger Contractor",
+    "Toolbar": {
+      "Buttons": {
+        "ApplyDamage": "Apply Damage",
+        "ArmorBroken": "Armor Broken",
+        "ShoreLeave": "Shore Leave",
+        "Training": "Training",
+        "CrewRoster": "Crew Roster",
+        "ShipCrit": "Schiffskrit"
+      },
+      "Config": {
+        "Description": "Schalte die Buttons frei, die die QoL-Toolbar je Bogentyp anzeigen darf. Es werden nur Buttons gelistet, die auf diesem Bogentyp tatsächlich vorkommen können.",
+        "ResetSuccess": "Toolbar-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Toolbar-Konfiguration aktualisiert."
+      },
+      "Scopes": {
+        "character": "Spielercharaktere",
+        "contractor": "Begleiter / Contractors",
+        "creature": "Kreaturen",
+        "ship": "Schiffe",
+        "stash": "Stash-Bögen"
+      }
+    }
   }
 }
