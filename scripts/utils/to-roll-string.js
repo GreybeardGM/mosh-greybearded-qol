@@ -1,3 +1,5 @@
+import { normalizeKeepToken } from "./normalization.js";
+
 /**
  * Converts a roll config object into a human-readable roll string.
  * @param {Object} config - The structured roll config.
@@ -14,15 +16,11 @@ export function toRollString({ dice, faces, keep, bonus, multiplier }) {
   if (dice && dice > 0 && faces && faces > 0) {
     formula += `${dice}d${faces}`;
 
-    if (keep === "+" || keep === "-") {
-      formula += ` [${keep}]`;
-    } else if (typeof keep === "string") {
-      const normalized = keep.toLowerCase();
-      if (normalized === "kh" || normalized === "h" || normalized === "high") {
-        formula += "kh";
-      } else if (normalized === "kl" || normalized === "l" || normalized === "low") {
-        formula += "kl";
-      }
+    const normalizedKeep = normalizeKeepToken(keep);
+    if (normalizedKeep === "+" || normalizedKeep === "-") {
+      formula += ` [${normalizedKeep}]`;
+    } else if (normalizedKeep) {
+      formula += normalizedKeep;
     }
   }
 

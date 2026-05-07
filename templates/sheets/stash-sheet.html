@@ -24,8 +24,12 @@
           </div>
           <div class="">
             <div class="headerinputtext">{{ localize 'Mosh.Credits' }}</div>
-            <div class="headerinputfield charname"><input name="system.credits.value" class="noborder currency-input" type="text"
-              value="{{system.credits.value}}" placeholder="" /></div>
+            <div class="headerinputfield charname">
+              <div class="currency-field">
+                <input name="system.credits.value" class="noborder currency-input" type="text" value="{{system.credits.value}}" placeholder="" />
+                <div class="currency-display stash-currency-display" data-currency-display></div>
+              </div>
+            </div>
           </div>
 
         </div>

@@ -1,11 +1,13 @@
 // scripts/utils/item-loader.js
 // Foundry VTT v13 — Item-Aggregation (Homebrew-first) + Sortierung
 
+import { normalizeText } from "./normalization.js";
+
 const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
 
 /* ---------- Helpers ---------- */
-const normType = (t) => String(t ?? "").trim().toLowerCase();
-const normName = (n) => String(n ?? "").trim().toLowerCase();
+const normType = normalizeText;
+const normName = normalizeText;
 const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
 
 /* Skill-Sortierung */

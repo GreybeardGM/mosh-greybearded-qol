@@ -1,22 +1,32 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { formatCurrency } from "./utils/normalization.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const MODULE_ID = "mosh-greybearded-qol";
 const FLAG_KEY = "crewRoster";
-const TABS = ["character", "creature", "ship", "misc"];
+const TABS = ["character", "creature", "ship"];
+
+function normalizeHazardPayValue(value) {
+  const parsedHazardPay = Number.parseInt(value, 10);
+  if (!Number.isInteger(parsedHazardPay)) return null;
+  return parsedHazardPay;
+}
 
 function normalizeEntry(entry) {
   if (typeof entry === "string") {
-    return { uuid: entry, active: true };
+    return { uuid: entry, active: true, hazardPay: null };
   }
 
   if (!entry || typeof entry !== "object" || typeof entry.uuid !== "string") {
     return null;
   }
 
+  const hazardPay = normalizeHazardPayValue(entry.hazardPay);
+
   return {
     uuid: entry.uuid,
-    active: entry.active !== false
+    active: entry.active !== false,
+    hazardPay
   };
 }
 
@@ -44,7 +54,7 @@ function getBucketByType(type) {
   if (type === "character") return "character";
   if (type === "creature") return "creature";
   if (type === "ship") return "ship";
-  return "misc";
+  return null;
 }
 
 function getJobLabel(actor) {
@@ -53,7 +63,7 @@ function getJobLabel(actor) {
   if (actor.type === "character") {
     const classValue = actor.system?.class?.value || "";
     const rankValue = actor.system?.rank?.value || "";
-    return [classValue, rankValue].filter(Boolean).join(" ");
+    return [classValue, rankValue].filter(Boolean).join(", ");
   }
 
   if (actor.type === "creature") {
@@ -67,6 +77,26 @@ function getJobLabel(actor) {
   return "";
 }
 
+function getSalaryLabel(actor) {
+  const numericSalary = getNumericSalary(actor);
+  if (!Number.isFinite(numericSalary)) return "";
+  return formatCurrency(numericSalary);
+}
+
+function getNumericSalary(actor) {
+  if (!actor) return null;
+
+  const rawSalary = actor.system?.contractor?.baseSalary;
+  if (rawSalary === undefined || rawSalary === null || rawSalary === "") return null;
+
+  const numericSalary = typeof rawSalary === "number"
+    ? rawSalary
+    : Number.parseInt(String(rawSalary).replace(/[^\d.-]/g, ""), 10);
+
+  if (!Number.isFinite(numericSalary)) return null;
+  return numericSalary;
+}
+
 function sortEntries(entries) {
   return entries.sort((left, right) => {
     if (left.active !== right.active) {
@@ -77,25 +107,48 @@ function sortEntries(entries) {
   });
 }
 
+function addInactiveDivider(entries) {
+  let seenActive = false;
+
+  for (const entry of entries) {
+    if (entry.active) {
+      seenActive = true;
+      entry.showInactiveDivider = false;
+      continue;
+    }
+
+    entry.showInactiveDivider = seenActive;
+    seenActive = false;
+  }
+
+  return entries;
+}
+
 export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
     this.actor = options.actor ?? null;
     this._activeTab = "character";
     this._boundDrop = this._onDrop.bind(this);
+    this._boundHazardChange = this._onHazardChange.bind(this);
   }
 
   static DEFAULT_OPTIONS = {
     id: "ship-crew-roster",
-    tag: "section",
+    tag: "form",
     window: {
       resizable: true,
-      title: "Crew Roster",
+      title: "MoshQoL.CrewRoster.Title",
       contentClasses: ["greybeardqol", "crew-roster"]
     },
     position: {
       width: 680,
       height: 640
+    },
+    form: {
+      handler: this._onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
     },
     actions: {
       setTab: this._onSetTab,
@@ -112,37 +165,90 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   };
 
   async _prepareContext() {
-    const roster = normalizeRoster(this.actor?.getFlag(MODULE_ID, FLAG_KEY));
-    const entries = { character: [], creature: [], ship: [], misc: [] };
+    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
+    const roster = normalizeRoster(sourceRoster);
+    const entries = { character: [], creature: [], ship: [] };
+    const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
+    const hasLegacyTabs = Object.keys(sourceRoster).some((tab) => !TABS.includes(tab) && Array.isArray(sourceRoster[tab]) && sourceRoster[tab].length > 0);
+    let rosterChanged = hasLegacyTabs;
 
     for (const tab of TABS) {
       for (const rosterEntry of roster[tab]) {
         const actor = await fromUuid(rosterEntry.uuid);
-        if (!actor || actor.documentName !== "Actor") continue;
+        if (!actor || actor.documentName !== "Actor") {
+          rosterChanged = true;
+          continue;
+        }
+
+        const mappedTab = getBucketByType(actor.type);
+        if (!mappedTab || mappedTab !== tab) {
+          rosterChanged = true;
+          continue;
+        }
 
         entries[tab].push({
           uuid: rosterEntry.uuid,
           active: rosterEntry.active,
+          hazardPay: rosterEntry.hazardPay,
+          hazardPayDisplay: Number.isInteger(rosterEntry.hazardPay) ? String(rosterEntry.hazardPay) : "",
           name: actor.name,
           job: getJobLabel(actor),
+          salary: getSalaryLabel(actor),
+          salaryValue: getNumericSalary(actor),
           img: actor.img
         });
       }
 
       sortEntries(entries[tab]);
+      addInactiveDivider(entries[tab]);
+
+      if (tab === "character" || tab === "creature") {
+        for (const entry of entries[tab]) {
+          if (!entry.active) continue;
+          summary.activeCrewCount += 1;
+          if (Number.isFinite(entry.salaryValue)) {
+            summary.totalSalary += entry.salaryValue;
+          }
+        }
+      }
+
+      if (tab === "creature") {
+        for (const entry of entries[tab]) {
+          if (!entry.active) continue;
+          if (!Number.isFinite(entry.salaryValue)) continue;
+          if (!Number.isInteger(entry.hazardPay)) continue;
+          summary.totalHazardPay += entry.salaryValue * entry.hazardPay;
+        }
+      }
     }
 
+    if (rosterChanged && this.actor) {
+      const cleanedRoster = Object.fromEntries(
+        TABS.map((tab) => [tab, entries[tab].map(({ uuid, active, hazardPay }) => ({ uuid, active, hazardPay }))])
+      );
+      await this.actor.setFlag(MODULE_ID, FLAG_KEY, cleanedRoster);
+    }
+
+    const tabs = [
+      { id: "character", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Character") },
+      { id: "creature", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Creature") },
+      { id: "ship", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Ship") }
+    ];
+
     return {
-      actorName: this.actor?.name ?? "Ship",
+      actorName: this.actor?.name ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.ActorName"),
       actorImg: this.actor?.img ?? "icons/svg/mystery-man.svg",
       themeColor: getThemeColor(),
       activeTab: this._activeTab,
-      tabs: [
-        { id: "character", label: "Player Characters" },
-        { id: "creature", label: "Contractors" },
-        { id: "ship", label: "Auxiliary Craft" },
-        { id: "misc", label: "Misc" }
-      ],
+      activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.Entries"),
+      showContractorColumns: this._activeTab === "creature",
+      tableColumnCount: this._activeTab === "creature" ? 6 : 4,
+      summary: {
+        activeCrewCount: summary.activeCrewCount,
+        totalSalary: formatCurrency(summary.totalSalary),
+        totalHazardPay: formatCurrency(summary.totalHazardPay)
+      },
+      tabs,
       entries
     };
   }
@@ -154,12 +260,10 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
-    root.removeEventListener("click", this._onRowClick);
-    root.removeEventListener("keydown", this._onTabKeydown);
+    root.removeEventListener("change", this._boundHazardChange);
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
-    root.addEventListener("click", this._onRowClick);
-    root.addEventListener("keydown", this._onTabKeydown);
+    root.addEventListener("change", this._boundHazardChange);
   }
 
   _onClose(options) {
@@ -167,8 +271,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (root) {
       root.removeEventListener("dragover", this._onDragOver);
       root.removeEventListener("drop", this._boundDrop);
-      root.removeEventListener("click", this._onRowClick);
-      root.removeEventListener("keydown", this._onTabKeydown);
+      root.removeEventListener("change", this._boundHazardChange);
     }
 
     return super._onClose(options);
@@ -178,26 +281,15 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     event.preventDefault();
   };
 
-  _onRowClick = async (event) => {
-    const control = event.target.closest("button, input, label, .crew-roster-tab");
-    if (control) return;
+  _onHazardChange(event) {
+    const target = event?.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (!target.classList.contains("crew-roster-hazard-input")) return;
 
-    const row = event.target.closest(".crew-roster-row[data-action='openEntry']");
-    if (!row) return;
-
-    await this.constructor._onOpenEntry(event, row);
-  };
-
-
-  _onTabKeydown = (event) => {
-    if (event.key !== "Enter" && event.key !== " ") return;
-
-    const tab = event.target.closest(".crew-roster-tab[data-action='setTab']");
-    if (!tab) return;
-
-    event.preventDefault();
-    this.constructor._onSetTab(event, tab);
-  };
+    if (this.element instanceof HTMLFormElement) {
+      this.element.requestSubmit();
+    }
+  }
 
   async _onDrop(event) {
     event.preventDefault();
@@ -213,15 +305,77 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (!droppedActor || droppedActor.documentName !== "Actor") return;
 
     const bucket = getBucketByType(droppedActor.type);
+    if (!bucket) return;
+
     const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
 
     for (const tab of TABS) {
       roster[tab] = roster[tab].filter((entry) => entry.uuid !== droppedActor.uuid);
     }
 
-    roster[bucket].push({ uuid: droppedActor.uuid, active: true });
+    roster[bucket].push({ uuid: droppedActor.uuid, active: true, hazardPay: null });
     await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
     this._activeTab = bucket;
+    this.render(true);
+  }
+
+  static async _onSubmit(event, form, formData) {
+    if (!this.actor) return;
+
+    const submitted = formData?.object ?? {};
+    const hazardPayUpdates = new Map();
+
+    for (const [key, value] of Object.entries(submitted)) {
+      const [root, tab, ...uuidParts] = key.split(".");
+      if (root !== "hazardPay") continue;
+      if (!TABS.includes(tab)) continue;
+
+      const uuid = uuidParts.join(".");
+      if (!uuid) continue;
+
+      const normalizedHazardPay = normalizeHazardPayValue(value);
+
+      if (!hazardPayUpdates.has(tab)) {
+        hazardPayUpdates.set(tab, new Map());
+      }
+
+      hazardPayUpdates.get(tab).set(uuid, normalizedHazardPay);
+
+      if (form instanceof HTMLFormElement) {
+        const input = form.elements.namedItem(key);
+        if (input instanceof HTMLInputElement) {
+          const sanitizedValue = normalizedHazardPay === null ? "" : String(normalizedHazardPay);
+          if (input.value !== sanitizedValue) {
+            input.value = sanitizedValue;
+          }
+        }
+      }
+    }
+
+    if (!hazardPayUpdates.size) return;
+
+    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+    let hasChanges = false;
+
+    for (const tab of TABS) {
+      const tabUpdates = hazardPayUpdates.get(tab);
+      if (!tabUpdates?.size) continue;
+
+      roster[tab] = roster[tab].map((entry) => {
+        if (!tabUpdates.has(entry.uuid)) return entry;
+
+        const nextHazardPay = tabUpdates.get(entry.uuid);
+        if (entry.hazardPay === nextHazardPay) return entry;
+
+        hasChanges = true;
+        return { ...entry, hazardPay: nextHazardPay };
+      });
+    }
+
+
+    if (!hasChanges) return;
+
+    await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
     this.render(true);
   }
 

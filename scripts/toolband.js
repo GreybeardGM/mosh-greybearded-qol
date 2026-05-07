@@ -1,7 +1,6 @@
 // modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
-import { applyDamage } from "./utils/apply-damage.js";
 import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 
@@ -74,7 +73,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
         case "apply-damage":
           if (!actor) return;
-          await applyDamage(actor);
+          await game.moshGreybeardQol.applyDamage(actor);
           return;
         
         case "armor-broken": {
@@ -108,14 +107,20 @@ export function upsertToolband(sheet, html, ctx = {}) {
          
           switch (choice) {
             case "roll":
-              await actor.update({ "system.contractor.isNamed": true });
+              await actor.update({
+                "system.contractor.isNamed": true,
+                "system.stats.loyalty.enabled": true
+              });
               if (typeof sheet._rollContractorLoyalty === "function")   await sheet._rollContractorLoyalty(actor);
               if (typeof sheet._rollContractorMotivation === "function")await sheet._rollContractorMotivation(actor);
               if (typeof sheet._rollContractorLoadout === "function")   await sheet._rollContractorLoadout(actor);
               ui.notifications.info(`${actor.name} has been promoted and fully rolled.`);
               break;
             case "manual":
-              await actor.update({ "system.contractor.isNamed": true });
+              await actor.update({
+                "system.contractor.isNamed": true,
+                "system.stats.loyalty.enabled": true
+              });
               ui.notifications.info(`${actor.name} has been promoted manually.`);
               break;
             default:
@@ -241,6 +246,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
     case "stash": {
       // Nutzer-Buttons
+      btns.push({ id: "ship-crew-roster", icon: "fa-solid fa-users", label: "Crew Roster" });
       // GM-Unterkategorie
       if (isGM) {
         // (Platzhalter) — Stash-GM-Aktionen hier ergänzen

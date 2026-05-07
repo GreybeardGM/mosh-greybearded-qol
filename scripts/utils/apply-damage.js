@@ -1,19 +1,28 @@
+import { normalizeNumber } from "./normalization.js";
+
 // apply-damage-with-hits.js
 import { chatOutput } from "./chat-output.js";
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
+ *
+ * Eingabevertrag für `damageInput`:
+ * - akzeptiert eine Zahl (z. B. 7) oder einen rohen Dialogwert (z. B. "7")
+ * - normalisiert intern genau einmal über `parseDamageInput`
+ * - bei `null`/`undefined` wird ein Dialog geöffnet
+ *
  * Nutzt Systemfelder:
  *   system.health.value / system.health.max
  *   system.hits.value   / system.hits.max
- * Wenn damage fehlt oder kein gültiger Wert ist, fragt ein Dialog danach.
  */
-export async function applyDamage(actorLike, damage) {
+export async function applyDamage(actorLike, damageInput) {
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamageWithHits: Actor nicht gefunden.");
 
-  // Falls kein gültiger Damage angegeben: über DialogV2.input abfragen
-  if (!Number.isFinite(damage) || damage <= 0) {
+  let damageRaw = damageInput;
+
+  // Falls kein Wert angegeben: über DialogV2.input abfragen
+  if (damageRaw === null || damageRaw === undefined) {
     const data = await foundry.applications.api.DialogV2.input({
       window: { title: "Apply Damage" },
       content: `
@@ -25,21 +34,26 @@ export async function applyDamage(actorLike, damage) {
       // rejectClose: false 
     });
   
-    // Abbruch per X oder leere/ungültige Eingabe → nichts tun
-    if (!data || !Number.isFinite(Number(data.damage)) || Number(data.damage) <= 0) return;
-  
-    damage = Math.trunc(Number(data.damage));
+    // Abbruch per X liefert null → nichts tun
+    if (!data) return;
+    damageRaw = data?.damage;
+  }
+
+  const damage = parseDamageInput(damageRaw);
+  if (damage === null) {
+    ui.notifications?.warn?.("Please enter a positive damage value.");
+    return;
   }
 
   const sys     = actor.system ?? {};
-  const hpMax   = toInt(sys.health?.max, 0);
-  let   hp      = toInt(sys.health?.value, 0);
-  let   hits    = toInt(sys.hits?.value, 0);
-  const hitsMax = toInt(sys.hits?.max, Number.MAX_SAFE_INTEGER);
+  const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
+  let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
+  let   hits    = normalizeNumber(sys.hits?.value, { fallback: 0 });
+  const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
 
   if (hpMax <= 0) throw new Error("applyDamageWithHits: hpMax <= 0 – Actor-Daten prüfen.");
 
-  let remaining     = Math.trunc(damage);
+  let remaining     = damage;
   let woundsGained  = 0;
 
   while ((remaining > 0) && (hits < hitsMax)) {
@@ -91,7 +105,9 @@ async function resolveActorLike(actorLike) {
   return null;
 }
 
-function toInt(v, fb = 0) {
-  const n = Number(v);
-  return Number.isFinite(n) ? Math.trunc(n) : fb;
+/** Parsen/Validieren der Schaden-Eingabe (einziger Normalisierungspfad). */
+function parseDamageInput(damageInput) {
+  const parsed = normalizeNumber(damageInput, { fallback: null, min: 1 });
+  if (parsed === null) return null;
+  return Math.trunc(parsed);
 }

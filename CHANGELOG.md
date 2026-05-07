@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.3] - 2026-05-07
+### Improvements
+- Contractor promotion now only sets the essential flags (`isNamed`, `loyalty.enabled`), and loyalty rolls also enable the loyalty flag automatically.
+- Crew Roster can now also be opened from the shared Stash Sheet, so groups without their own ship still have central roster access.
+- Contractor rows in Crew Roster now include an optional Hazard Pay field (0–10) that is stored per roster entry alongside UUID and active status.
+- Crew Roster summary now shows Total Hazard Pay (`Salary × Hazard Pay`) across all contractors, displayed in kcr.
+- Currency display was updated with an additional overlay to better safeguard values.
+- Currency parsing was improved to accept `k`, `m`, and `g` as shorthand for thousand, million, and billion.
+- General code improvements and cleanup across the module.
+
 ## [0.7.2] - 2026-02-11
 ### Added
 - Ship Sheet Crew Roster for tracking active player characters, active contractors, and active auxiliary craft.

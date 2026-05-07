@@ -1,3 +1,5 @@
+import { normalizeKeepToken } from "./normalization.js";
+
 /**
  * Converts a roll config object into a Foundry-compatible roll formula string.
  * @param {Object} config - The structured roll config.
@@ -15,16 +17,12 @@ export function toRollFormula({ dice, faces, keep, bonus, multiplier }) {
     formula += `${dice}d${faces}`;
 
     // Handle special double-roll advantage/disadvantage syntax
-    if (keep === "+" || keep === "-") {
+    const normalizedKeep = normalizeKeepToken(keep);
+    if (normalizedKeep === "+" || normalizedKeep === "-") {
       formula = `{${formula},${formula}}`;
-      formula += keep === "+" ? "kh" : "kl";
-    } else if (typeof keep === "string") {
-      const normalized = keep.toLowerCase();
-      if (normalized === "kh" || normalized === "h" || normalized === "high") {
-        formula += "kh";
-      } else if (normalized === "kl" || normalized === "l" || normalized === "low") {
-        formula += "kl";
-      }
+      formula += normalizedKeep === "+" ? "kh" : "kl";
+    } else if (normalizedKeep) {
+      formula += normalizedKeep;
     }
   }
 

@@ -1,5 +1,7 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
+import { parseCurrencyValue } from "../utils/normalization.js";
+import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
@@ -21,8 +23,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
     async _updateObject(event, formData) {
         const salaryPath = "system.contractor.baseSalary";
-        if (formData[salaryPath]) {
-            formData[salaryPath] = parseInt(formData[salaryPath].replace(/\D/g, ""), 10) || 0;
+        if (salaryPath in formData) {
+            formData[salaryPath] = parseCurrencyValue(formData[salaryPath]);
         }
 
         const actor = this.object;
@@ -56,6 +58,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
       };
+
            
       if (actorData.system.settings == null) actorData.system.settings = {};
       actorData.system.settings.hideWeight = game.settings.get("mosh", "hideWeight");
@@ -167,23 +170,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
-        // Salary Display
-        html.find(".currency-input")
-          .on("focus", function () {
-            // Bei Fokus: Nur die Zahl zeigen
-            const val = this.value.replace(/\D/g, "");
-            this.value = val;
-          })
-          .on("blur", function () {
-            // Aufbereiten
-            const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
-            // Setze echten Wert (für Speicherung)
-            this.value = raw;
-            // Und zeitverzögert formatieren
-            setTimeout(() => {
-              this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
-            }, 1);
-          });
+        attachCurrencyFieldHandlers(html);
 
         // Attribute Rolls
         // Rollable Attribute
@@ -445,12 +432,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             });
         }
 
-        // Initial format currency fields
-        html.find(".currency-input").each(function () {
-          const raw = parseInt(this.value.replace(/\D/g, ""), 10) || 0;
-          this.value = `${raw.toLocaleString(game.i18n.lang)} cr`;
-        });
-
     }
 
     /* -------------------------------------------- */
@@ -498,7 +479,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         const element = event.currentTarget;
         const dataset = element.dataset;
 
-        console.log(super.getData());
 
         if (dataset.roll) {
             let roll = new Roll(dataset.roll, this.actor.system);
@@ -535,7 +515,10 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     await roll.evaluate();
     const total = roll.total;
   
-    await actor.update({ "system.stats.loyalty.value": total });
+    await actor.update({
+      "system.stats.loyalty.value": total,
+      "system.stats.loyalty.enabled": true
+    });
   
     await chatOutput({
       actor,

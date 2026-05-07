@@ -12,7 +12,9 @@
       "SaveChanges": "Save Changes"
     },
     "Errors": {
-      "NoActorProvided": "No actor provided."
+      "NoActorProvided": "No actor provided.",
+      "NoCharacterAssigned": "No character assigned.",
+      "UnknownAction": "Unknown action: {action}"
     },
     "Attributes": {
       "Body": "Body",
@@ -181,6 +183,36 @@
         "Master": "Master",
         "Trained": "Trained"
       }
+    },
+    "CrewRoster": {
+      "Actions": {
+        "RemoveEntry": "Remove from roster",
+        "ToggleActive": "Toggle active status"
+      },
+      "Fallbacks": {
+        "ActorName": "Ship",
+        "Entries": "entries"
+      },
+      "Summary": {
+        "ActiveCrew": "Active Crew",
+        "TotalHazardPay": "Total Hazard Pay",
+        "TotalSalaries": "Total Salaries"
+      },
+      "Table": {
+        "Active": "Active",
+        "EmptyState": "No {tabLabel} in this roster yet. Drag and drop new {tabLabel} into this tab to add them.",
+        "HazardPay": "Hazard Pay",
+        "InactiveCrew": "Inactive Crew",
+        "Name": "Name",
+        "Portrait": "Portrait",
+        "Salary": "Salary"
+      },
+      "Tabs": {
+        "Character": "Player Characters",
+        "Creature": "Contractors",
+        "Ship": "Auxiliary Craft"
+      },
+      "Title": "Crew Roster"
     },
     "BaseSalary": "Base Salary",
     "ContractorRole": "Profession",

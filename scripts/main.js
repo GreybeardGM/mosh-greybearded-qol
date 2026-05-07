@@ -9,19 +9,20 @@ import { upsertToolband, removeToolband } from "./toolband.js";
 import { applyDamage } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
+import { capitalize, normalizeNumber, stripHtml } from "./utils/normalization.js";
 import { setReady } from "./character-creator/progress.js";
 import "./patches/creature-skillfix.js";
 
 // Needs to be here to check for
 let StashSheet;
 
-/** Ermittelt einen stabilen Sheet-„Kind“-Identifier für die Toolbar-Logik */
+/** Resolve a stable sheet "kind" identifier for toolbar behavior. */
 function getSheetKind(sheet) {
   const actor = sheet?.actor;
-  // Konkrete Klassen zuerst prüfen
+  // Check explicit sheet classes first.
   if (sheet instanceof QoLContractorSheet) return "contractor";
   if (StashSheet && sheet instanceof StashSheet) return "stash";
-  // Generisch über Actor-Typ
+  // Fallback: infer from actor type.
   if (actor?.type === "ship") return "ship";
   if (actor?.type === "character") return "character";
   if (actor?.type === "creature") return "creature";
@@ -34,16 +35,14 @@ Hooks.once("ready", () => {
   
   Handlebars.registerHelper("eq", (a, b) => a === b);  
   Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
-  Handlebars.registerHelper("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
+  Handlebars.registerHelper("capitalize", str => capitalize(str));
   Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
   Handlebars.registerHelper("includes", function (collection, value) {
     if (Array.isArray(collection)) return collection.includes(value);
     if (collection instanceof Set) return collection.has(value);
     return false;
   });
-  Handlebars.registerHelper("stripHtml", (text) => {
-    return typeof text === "string" ? text.replace(/<[^>]*>/g, "").trim() : "";
-  });
+  Handlebars.registerHelper("stripHtml", (text) => stripHtml(text));
   
   // Global registry for use in macros
   game.moshGreybeardQol = game.moshGreybeardQol || {};
@@ -83,8 +82,6 @@ Hooks.once("ready", () => {
   }
   
 
-  // Debug Check
-  console.log("✅ MoSh Greybearded QoL loaded");  
 });
 
 // Settings
@@ -184,7 +181,7 @@ Hooks.once("init", () => {
     restricted: true
   });
 
-  // ✅ Enable MoSh QoL Character Creator
+  // Enable MoSh QoL Character Creator.
   game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
     name: "MoshQoL.Settings.EnableCharacterCreator.Name",
     hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
@@ -194,7 +191,7 @@ Hooks.once("init", () => {
     default: true
   });
   
-  // ✅ Enable Ship Crits (default: false)
+  // Enable Ship Crits (default: false).
   game.settings.register("mosh-greybearded-qol", "enableShipCrits", {
     name: "MoshQoL.Settings.EnableShipCrits.Name",
     hint: "MoshQoL.Settings.EnableShipCrits.Hint",
@@ -222,7 +219,10 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
       if (!action) return;
 
       const actor = game.user.character;
-      if (!actor) { ui.notifications.warn("No character assigned."); return; }
+      if (!actor) {
+        ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoCharacterAssigned"));
+        return;
+      }
 
       switch (action) {
         case "convertStress":
@@ -235,7 +235,7 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
           await game.moshGreybeardQol.triggerShipCrit(...args);
           break;
         default:
-          ui.notifications.warn(`Unknown action: ${action}`);
+          ui.notifications.warn(game.i18n.format("MoshQoL.Errors.UnknownAction", { action }));
       }
     }, { once: true });
   }
@@ -247,9 +247,9 @@ Hooks.on("renderActorSheet", (sheet, html) => {
   const isGM = game.user.isGM;
   const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
   if ( !isGM && !isOwner ) return;
-  // Nur Sheet-Typ ermitteln und an die Helfer-Funktion durchreichen.
+  // Resolve the sheet kind and pass it to the helper.
   const kind = getSheetKind(sheet);
-  // upsert immer aufrufen; die Entscheidung über Sichtbarkeit/Buttons trifft später die Helfer-Funktion
+  // Always call upsert; helper logic decides visibility and available buttons.
   try {
     upsertToolband(sheet, html, { kind, isGM });
   } catch (e) {
@@ -259,18 +259,35 @@ Hooks.on("renderActorSheet", (sheet, html) => {
 
 // Prepare fresh characters for Character Creation
 Hooks.on("createActor", async (actor, options, userId) => {
-  // Nur für Charaktere
+  // Character actors only.
   if (actor.type !== "character") return;
 
-  // Flag setzen
+  // Set the ready flag.
   await setReady(actor);
-  console.log(`[MoSh QoL] setReady() gesetzt für neuen Charakter: ${actor.name}`);
 });
 
-// Toolband aufräumen
+// Clean up toolband.
 Hooks.on("closeActorSheet", (sheet) => {
   try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
+
+/**
+ * Robustly insert the apply-damage tool into token controls.
+ * Foundry V13 (per module.json minimum/verified) uses `controls` and `tools` as Record/Object values.
+ * Array forms remain as defensive compatibility for unusual/custom hook payloads.
+ */
+function insertApplyDamageTool(tokenControls, toolDef) {
+  if (!tokenControls) return;
+
+  if (Array.isArray(tokenControls.tools)) {
+    tokenControls.tools.push(toolDef);
+    return;
+  }
+
+  tokenControls.tools = tokenControls.tools ?? {};
+  const order = Object.keys(tokenControls.tools).length;
+  tokenControls.tools.applyDamage = { ...toolDef, order };
+}
 
 // register token damage tool
 Hooks.on("getSceneControlButtons", (controls) => {
@@ -307,34 +324,22 @@ Hooks.on("getSceneControlButtons", (controls) => {
       });
 
       if (!data) return;
-      const damage = Math.trunc(Number(data.damage));
-      if (!Number.isFinite(damage) || damage <= 0) {
-        ui.notifications.warn("Please enter a positive damage value.");
-        return;
-      }
+      const damageInput = data.damage;
 
       let applied = 0;
       for (const t of selected) {
         const actorLike = t?.actor ?? t;
         if (!actorLike) continue;
         try {
-          await game.moshGreybeardQol.applyDamage(actorLike, damage);
+          await game.moshGreybeardQol.applyDamage(actorLike, damageInput);
           applied++;
         } catch (err) {
           console.error("applyDamage failed for", t, err);
         }
       }
-      ui.notifications.info(`Applied ${damage} damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
+      ui.notifications.info(`Applied damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
     }
   };
 
-  // Insert tool whether `tools` is an Array or an Object
-  if (Array.isArray(tokenControls.tools)) {
-    tokenControls.tools.push(toolDef);
-  } else {
-    // Object-shaped tools (older or customized setups)
-    tokenControls.tools = tokenControls.tools ?? {};
-    const order = Object.keys(tokenControls.tools).length;
-    tokenControls.tools.applyDamage = { ...toolDef, order };
-  }
+  insertApplyDamageTool(tokenControls, toolDef);
 });
