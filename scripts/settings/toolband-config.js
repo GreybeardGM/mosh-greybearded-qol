@@ -124,8 +124,11 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     const current = getDefaultToolbandConfig();
 
     for (const scope of TOOLBAND_SCOPES) {
+      const scopeSubmission = submitted?.[scope] ?? {};
+
       for (const button of getConfigurableToolbandButtonsForScope(scope)) {
-        current[scope][button.settingKey] = Object.prototype.hasOwnProperty.call(submitted?.[scope] ?? {}, button.settingKey);
+        const value = scopeSubmission[button.settingKey];
+        current[scope][button.settingKey] = value === true || value === "true" || value === "on";
       }
     }
 
