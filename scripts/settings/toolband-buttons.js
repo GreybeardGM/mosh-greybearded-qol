@@ -1,10 +1,11 @@
-export const TOOLBAND_SCOPES = ["tech", "ship"];
+export const TOOLBAND_SCOPES = ["character", "contractor", "creature", "ship", "stash"];
 
 export const TOOLBAND_BUTTONS = [
   {
     action: "apply-damage",
     settingKey: "applyDamage",
     configurable: true,
+    scopes: ["character", "creature"],
     icon: "fas fa-heart-broken",
     label: "Apply Damage",
     labelKey: "MoshQoL.Toolbar.Buttons.ApplyDamage"
@@ -13,6 +14,7 @@ export const TOOLBAND_BUTTONS = [
     action: "armor-broken",
     settingKey: "armorBroken",
     configurable: true,
+    scopes: ["character", "contractor", "creature"],
     icon: "fa-solid fa-shield-halved",
     label: "Armor Broken",
     labelKey: "MoshQoL.Toolbar.Buttons.ArmorBroken"
@@ -21,6 +23,7 @@ export const TOOLBAND_BUTTONS = [
     action: "shore-leave",
     settingKey: "shoreLeave",
     configurable: true,
+    scopes: ["character"],
     icon: "fas fa-umbrella-beach",
     label: "Shore Leave",
     labelKey: "MoshQoL.Toolbar.Buttons.ShoreLeave"
@@ -29,6 +32,7 @@ export const TOOLBAND_BUTTONS = [
     action: "training",
     settingKey: "training",
     configurable: true,
+    scopes: ["character"],
     icon: "fa-solid fa-dumbbell",
     label: "Training",
     labelKey: "MoshQoL.Toolbar.Buttons.Training"
@@ -37,6 +41,7 @@ export const TOOLBAND_BUTTONS = [
     action: "ship-crew-roster",
     settingKey: "crewRoster",
     configurable: true,
+    scopes: ["ship", "stash"],
     icon: "fa-solid fa-users",
     label: "Crew Roster",
     labelKey: "MoshQoL.Toolbar.Buttons.CrewRoster"
@@ -89,8 +94,8 @@ export function getConfigurableToolbandButton(action) {
 }
 
 export function getToolbandButtonScopes(button) {
-  if (!button?.configurable) return [];
-  return button.scopes ?? TOOLBAND_SCOPES;
+  if (!button?.configurable || !Array.isArray(button.scopes)) return [];
+  return button.scopes;
 }
 
 export function isToolbandButtonConfigurableForScope(button, scope) {

@@ -82,7 +82,7 @@
         "Name": "Player Theme Color"
       },
       "ToolbandConfig": {
-        "Hint": "Choose which QoL toolbar buttons are available on tech and ship sheets.",
+        "Hint": "Choose which QoL toolbar buttons are available on each supported sheet type.",
         "Label": "Configure Toolbar...",
         "Name": "Configure Toolbar",
         "SettingName": "Toolbar Configuration"
@@ -239,13 +239,16 @@
         "ShipCrit": "Ship Crit"
       },
       "Config": {
-        "Description": "Toggle the buttons that the QoL toolbar may show for tech and ship sheets. Buttons that do not apply to the current sheet type remain hidden.",
+        "Description": "Toggle the buttons that the QoL toolbar may show for each sheet type. Only buttons that can actually appear on that sheet type are listed.",
         "ResetSuccess": "Toolbar configuration reset to defaults.",
         "UpdateSuccess": "Toolbar configuration updated."
       },
       "Scopes": {
-        "Tech": "Tech",
-        "Ship": "Ships"
+        "character": "Player Characters",
+        "contractor": "Companions / Contractors",
+        "creature": "Creatures",
+        "ship": "Ships",
+        "stash": "Stash Sheets"
       }
     }
   }

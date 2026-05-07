@@ -82,7 +82,7 @@
         "Name": "Spieler-Themenfarbe"
       },
       "ToolbandConfig": {
-        "Hint": "Wähle aus, welche QoL-Toolbar-Buttons auf Tech- und Schiffsbögen verfügbar sind.",
+        "Hint": "Wähle aus, welche QoL-Toolbar-Buttons auf jedem unterstützten Bogentyp verfügbar sind.",
         "Label": "Toolbar konfigurieren...",
         "Name": "Toolbar konfigurieren",
         "SettingName": "Toolbar-Konfiguration"
@@ -239,13 +239,16 @@
         "ShipCrit": "Schiffskrit"
       },
       "Config": {
-        "Description": "Schalte die Buttons frei, die die QoL-Toolbar für Tech- und Schiffsbögen anzeigen darf. Buttons, die nicht zum aktuellen Bogentyp passen, bleiben verborgen.",
+        "Description": "Schalte die Buttons frei, die die QoL-Toolbar je Bogentyp anzeigen darf. Es werden nur Buttons gelistet, die auf diesem Bogentyp tatsächlich vorkommen können.",
         "ResetSuccess": "Toolbar-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Toolbar-Konfiguration aktualisiert."
       },
       "Scopes": {
-        "Tech": "Tech",
-        "Ship": "Schiffe"
+        "character": "Spielercharaktere",
+        "contractor": "Begleiter / Contractors",
+        "creature": "Kreaturen",
+        "ship": "Schiffe",
+        "stash": "Stash-Bögen"
       }
     }
   }

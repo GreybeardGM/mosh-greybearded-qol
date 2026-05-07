@@ -43,7 +43,7 @@ export function normalizeToolbandConfig(config) {
 }
 
 export function getToolbandScope(kind) {
-  return kind === "ship" ? "ship" : "tech";
+  return TOOLBAND_SCOPES.includes(kind) ? kind : null;
 }
 
 export function getNormalizedToolbandConfig() {
@@ -97,7 +97,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     const config = getNormalizedToolbandConfig();
     const scopes = TOOLBAND_SCOPES.map((scope) => ({
       id: scope,
-      label: game.i18n.localize(`MoshQoL.Toolbar.Scopes.${scope === "tech" ? "Tech" : "Ship"}`),
+      label: game.i18n.localize(`MoshQoL.Toolbar.Scopes.${scope}`),
       buttons: getConfigurableToolbandButtonsForScope(scope).map((button) => ({
         ...button,
         checked: config[scope][button.settingKey],
