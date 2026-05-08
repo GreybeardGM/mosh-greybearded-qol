@@ -1,5 +1,4 @@
 import { normalizeNumber } from "../utils/normalization.js";
-import { applyDamage } from "./apply-damage.js";
 import { extractDamageRollFromMessageContent } from "./extract-damage-roll.js";
 
 function getApplyDamageChatButtonRoll(message) {
@@ -31,7 +30,7 @@ function isDamageRoll(roll) {
 }
 
 function createApplyDamageChatButtons(damageRoll) {
-  const panel = document.createElement("form");
+  const panel = document.createElement("div");
   panel.classList.add("greybeardqol", "apply-damage-chat-buttons");
 
   const title = document.createElement("strong");
@@ -69,42 +68,14 @@ function createApplyDamageChatButtons(damageRoll) {
   antiArmorLabel.append(antiArmorInput, antiArmorText);
 
   const applyButton = document.createElement("button");
-  applyButton.type = "submit";
-  applyButton.textContent = game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokens");
+  applyButton.type = "button";
+  applyButton.classList.add("pill", "chat-action", "interactive");
+  applyButton.dataset.action = "applyDamageSelected";
+  applyButton.dataset.args = JSON.stringify([damageRoll.total]);
+  applyButton.innerHTML = `<i class="fas fa-heart-broken"></i> ${game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokens")}`;
 
   buttonRow.append(damageLabel, antiArmorLabel, applyButton);
   panel.append(buttonRow);
-
-  panel.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const selected = canvas?.tokens?.controlled ?? [];
-    if (!selected.length) {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
-      return;
-    }
-
-    const damageInputValue = damageInput.value;
-    const antiArmor = antiArmorInput.checked;
-
-    let applied = 0;
-    for (const token of selected) {
-      const actorLike = token?.actor ?? token;
-      if (!actorLike) continue;
-      try {
-        await applyDamage(actorLike, damageInputValue, antiArmor);
-        applied++;
-      } catch (err) {
-        console.error("applyDamage failed for", token, err);
-      }
-    }
-
-    ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
-      applied,
-      total: selected.length,
-      tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
-    }));
-  });
 
   return panel;
 }

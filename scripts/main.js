@@ -269,46 +269,96 @@ Hooks.once("ready", () => {
 });
 
 
-Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
-  if (!game.user.isGM) return;
-
-  insertApplyDamageChatButtons(message, html);
-  const buttons = html.querySelectorAll(".greybeardqol .chat-action");
-  for (const button of buttons) {
-    button.addEventListener("click", async () => {
-      const action = button.dataset.action;
-      let args = [];
-      if (button.dataset.args) {
-        try {
-          args = JSON.parse(button.dataset.args);
-        } catch (error) {
-          console.warn("[MoSh QoL] Failed to parse chat action args", error);
-          args = [];
-        }
-      }
-      if (!action) return;
-
-      const actor = game.user.character;
-      if (!actor) {
-        ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoCharacterAssigned"));
-        return;
-      }
-
-      switch (action) {
-        case "convertStress":
-          await game.moshGreybeardQol.convertStress(actor, ...args);
-          break;
-        case "simpleShoreLeave":
-          await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
-          break;
-        case "triggerShipCrit":
-          await game.moshGreybeardQol.triggerShipCrit(...args);
-          break;
-        default:
-          ui.notifications.warn(game.i18n.format("MoshQoL.Errors.UnknownAction", { action }));
-      }
-    }, { once: true });
+async function applyDamageToSelectedTokens(damageInput, antiArmor) {
+  const selected = canvas?.tokens?.controlled ?? [];
+  if (!selected.length) {
+    ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
+    return;
   }
+
+  let applied = 0;
+  for (const token of selected) {
+    const actorLike = token?.actor ?? token;
+    if (!actorLike) continue;
+    try {
+      await game.moshGreybeardQol.applyDamage(actorLike, damageInput, antiArmor);
+      applied++;
+    } catch (err) {
+      console.error("applyDamage failed for", token, err);
+    }
+  }
+
+  ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
+    applied,
+    total: selected.length,
+    tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
+  }));
+}
+
+function getChatActionArgs(button) {
+  if (!button.dataset.args) return [];
+
+  try {
+    return JSON.parse(button.dataset.args);
+  } catch (error) {
+    console.warn("[MoSh QoL] Failed to parse chat action args", error);
+    return [];
+  }
+}
+
+function getRequiredChatActionActor() {
+  const actor = game.user.character;
+  if (!actor) {
+    ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoCharacterAssigned"));
+  }
+  return actor;
+}
+
+Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
+  insertApplyDamageChatButtons(message, html);
+
+  if (html.dataset.moshQolChatActionsBound) return;
+  html.dataset.moshQolChatActionsBound = "true";
+
+  html.addEventListener("click", async (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const button = target?.closest(".greybeardqol .chat-action");
+    if (!button || !html.contains(button)) return;
+
+    event.preventDefault();
+
+    const action = button.dataset.action;
+    if (!action) return;
+
+    const args = getChatActionArgs(button);
+
+    switch (action) {
+      case "applyDamageSelected": {
+        const panel = button.closest(".apply-damage-chat-buttons");
+        const damageInput = panel?.querySelector('input[name="damage"]')?.value ?? args[0];
+        const antiArmor = panel?.querySelector('input[name="antiArmor"]')?.checked ?? false;
+        await applyDamageToSelectedTokens(damageInput, antiArmor);
+        break;
+      }
+      case "convertStress": {
+        const actor = getRequiredChatActionActor();
+        if (!actor) return;
+        await game.moshGreybeardQol.convertStress(actor, ...args);
+        break;
+      }
+      case "simpleShoreLeave": {
+        const actor = getRequiredChatActionActor();
+        if (!actor) return;
+        await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
+        break;
+      }
+      case "triggerShipCrit":
+        await game.moshGreybeardQol.triggerShipCrit(...args);
+        break;
+      default:
+        ui.notifications.warn(game.i18n.format("MoshQoL.Errors.UnknownAction", { action }));
+    }
+  });
 });
 
 // Sheet Header Buttons
