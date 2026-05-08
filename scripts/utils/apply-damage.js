@@ -15,7 +15,7 @@ import { chatOutput } from "./chat-output.js";
  *   system.health.value / system.health.max
  *   system.hits.value   / system.hits.max
  */
-export async function applyDamage(actorLike, damageInput) {
+export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamageWithHits: Actor nicht gefunden.");
 
@@ -45,6 +45,8 @@ export async function applyDamage(actorLike, damageInput) {
     return;
   }
 
+  const antiArmorHit = parseAntiArmorInput(antiArmor);
+
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
@@ -53,7 +55,15 @@ export async function applyDamage(actorLike, damageInput) {
 
   if (hpMax <= 0) throw new Error("applyDamageWithHits: hpMax <= 0 – Actor-Daten prüfen.");
 
-  let remaining     = damage;
+  const armorBroken = hasArmorBrokenStatus(actor);
+  const damageReduction = normalizeNumber(sys.stats?.armor?.damageReduction, { fallback: 0, min: 0 });
+  const armorValue = normalizeNumber(sys.stats?.armor?.mod, { fallback: 0, min: 0 });
+  const armorReductionLimit = antiArmorHit || armorBroken
+    ? damageReduction
+    : Math.max(damageReduction, armorValue);
+
+  let remaining = Math.max(0, damage - armorReductionLimit);
+  const shouldBreakArmor = !antiArmorHit && !armorBroken && remaining > 0;
   let woundsGained  = 0;
 
   while ((remaining > 0) && (hits < hitsMax)) {
@@ -72,6 +82,10 @@ export async function applyDamage(actorLike, damageInput) {
     "system.health.value": hp,
     "system.hits.value": hits
   });
+
+  if (shouldBreakArmor) {
+    await setArmorBrokenStatus(actor);
+  }
 
   if (woundsGained > 0) {
     if (hits === hitsMax) {
@@ -110,4 +124,22 @@ function parseDamageInput(damageInput) {
   const parsed = normalizeNumber(damageInput, { fallback: null, min: 1 });
   if (parsed === null) return null;
   return Math.trunc(parsed);
+}
+
+/** Normalisiert das optionale Anti-Armor-Argument. */
+function parseAntiArmorInput(antiArmor) {
+  if (typeof antiArmor === "object" && antiArmor !== null) return antiArmor.antiArmor === true;
+  return antiArmor === true;
+}
+
+/** Prüft, ob der Armor-Broken-Status bereits aktiv ist. */
+function hasArmorBrokenStatus(actor) {
+  return actor?.statuses?.has("qol-broken-armor") === true;
+}
+
+/** Aktiviert den Armor-Broken-Status, sofern die Actor-API verfügbar ist. */
+async function setArmorBrokenStatus(actor) {
+  if (typeof actor?.toggleStatusEffect === "function") {
+    await actor.toggleStatusEffect("qol-broken-armor", { active: true });
+  }
 }
