@@ -82,8 +82,8 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
       resizable: true
     },
     position: {
-      width: 560,
-      height: 620
+      width: 550,
+      height: auto
     },
     form: {
       handler: this._onSubmit,
