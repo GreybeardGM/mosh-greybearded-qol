@@ -4,7 +4,7 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
-import { makeToolbandButton } from "./settings/toolband-buttons.js";
+import { makeToolbandButton } from "./codex/toolband-buttons.js";
 
 const CLS = "toolband";
 
