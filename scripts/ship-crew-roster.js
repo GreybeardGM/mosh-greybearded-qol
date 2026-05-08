@@ -138,7 +138,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     tag: "form",
     window: {
       resizable: true,
-      title: "MoshQoL.CrewRoster.Title",
+      title: "MoshQoL.Common.CrewRoster",
       contentClasses: ["greybeardqol", "crew-roster"]
     },
     position: {
@@ -230,9 +230,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     }
 
     const tabs = [
-      { id: "character", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Character") },
-      { id: "creature", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Creature") },
-      { id: "ship", label: game.i18n.localize("MoshQoL.CrewRoster.Tabs.Ship") }
+      { id: "character", label: game.i18n.localize("MoshQoL.Common.PlayerCharacters") },
+      { id: "creature", label: game.i18n.localize("MoshQoL.Common.Contractors") },
+      { id: "ship", label: game.i18n.localize("MoshQoL.Common.AuxiliaryCraft") }
     ];
 
     return {

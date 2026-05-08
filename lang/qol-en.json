@@ -9,7 +9,15 @@
       "RemainingPoints": "Remaining Points",
       "Reset": "Reset",
       "ResetToDefault": "Reset to Default",
-      "SaveChanges": "Save Changes"
+      "SaveChanges": "Save Changes",
+      "AuxiliaryCraft": "Auxiliary Craft",
+      "Contractor": "Contractor",
+      "Contractors": "Contractors",
+      "CrewRoster": "Crew Roster",
+      "PlayerCharacters": "Player Characters",
+      "ShoreLeave": "Shore Leave",
+      "ShoreLeaveConfiguration": "Shore Leave Configuration",
+      "StressConversion": "Stress Conversion"
     },
     "Errors": {
       "NoActorProvided": "No actor provided.",
@@ -86,9 +94,6 @@
         "Label": "Configure Toolbar...",
         "Name": "Configure Toolbar",
         "SettingName": "Toolbar Configuration"
-      },
-      "ShoreLeaveConfig": {
-        "SettingName": "Shore Leave Configuration"
       }
     },
     "ShoreLeave": {
@@ -97,10 +102,8 @@
       "Editor": {
         "Description": "Edit shore leave rules, stress conversion behavior, and pricing formulas in one place.",
         "ResetSuccess": "Shore Leave configuration reset to defaults.",
-        "Title": "Shore Leave Configuration",
         "UpdateSuccess": "Shore Leave configuration updated.",
         "GeneralTitle": "General Shore Leave",
-        "StressTitle": "Stress Conversion",
         "TiersTitle": "Tier Formulas"
       },
       "InvalidTier": "Invalid tier selected.",
@@ -110,9 +113,7 @@
       "PriceFormula": "Price Formula",
       "RerollFlavor": "Reroll Flavor",
       "RollPrice": "Roll Price",
-      "SelectTier": "Select Shore Leave Tier",
-      "StressConversion": "Stress Conversion",
-      "Title": "Shore Leave"
+      "SelectTier": "Select Shore Leave Tier"
     },
     "CharacterCreator": {
       "Chat": {
@@ -218,30 +219,19 @@
         "Name": "Name",
         "Portrait": "Portrait",
         "Salary": "Salary"
-      },
-      "Tabs": {
-        "Character": "Player Characters",
-        "Creature": "Contractors",
-        "Ship": "Auxiliary Craft"
-      },
-      "Title": "Crew Roster"
+      }
     },
     "BaseSalary": "Base Salary",
     "ContractorRole": "Profession",
     "EnterHiddenMotivation": "Only visible to GM",
-    "EnterMotivation": "What drives the Contractor.",
-    "GenericContractor": "Generic Contractor",
     "HiddenMotivation": "Secret Motivation (GM only)",
     "LoyaltyRolled": "Loyalty Rolled",
     "Motivation": "Motivation",
-    "UniqueContractor": "Unique Contractor",
     "Toolbar": {
       "Buttons": {
         "ApplyDamage": "Apply Damage",
         "ArmorBroken": "Armor Broken",
-        "ShoreLeave": "Shore Leave",
         "Training": "Training",
-        "CrewRoster": "Crew Roster",
         "ShipCrit": "Ship Crit"
       },
       "Config": {
@@ -250,12 +240,15 @@
         "UpdateSuccess": "Toolbar configuration updated."
       },
       "Scopes": {
-        "character": "Player Characters",
-        "contractor": "Companions / Contractors",
         "creature": "Creatures",
         "ship": "Ships",
         "stash": "Stash Sheets"
       }
+    },
+    "Contractor": {
+      "EnterMotivation": "What drives the {contractor}.",
+      "Generic": "Generic {contractor}",
+      "Unique": "Unique {contractor}"
     }
   }
 }

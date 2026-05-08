@@ -63,7 +63,7 @@ export async function convertStress(actor, formula, options = {}) {
   conversionPoints = Math.min(roll.total, conversionPoints);
   await chatOutput({
     actor,
-    title: game.i18n.localize("MoshQoL.ShoreLeave.StressConversion"),
+    title: game.i18n.localize("MoshQoL.Common.StressConversion"),
     content: `${game.i18n.localize("MoshQoL.ShoreLeave.ConvertedStress")}: <label class="counter">${conversionPoints}</label>`,
     subtitle: actor.name,
     image: actor.img,

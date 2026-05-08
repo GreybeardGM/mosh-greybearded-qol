@@ -9,7 +9,15 @@
       "RemainingPoints": "Verbleibende Punkte",
       "Reset": "Zurücksetzen",
       "ResetToDefault": "Auf Standard zurücksetzen",
-      "SaveChanges": "Änderungen speichern"
+      "SaveChanges": "Änderungen speichern",
+      "AuxiliaryCraft": "Beiboote",
+      "Contractor": "Auftragnehmer",
+      "Contractors": "Auftragnehmende",
+      "CrewRoster": "Mannschaftsliste",
+      "PlayerCharacters": "Spielercharaktere",
+      "ShoreLeave": "Shore Leave",
+      "ShoreLeaveConfiguration": "Shore-Leave-Konfiguration",
+      "StressConversion": "Stressumwandlung"
     },
     "Errors": {
       "NoActorProvided": "Kein Akteur angegeben.",
@@ -86,9 +94,6 @@
         "Label": "Toolbar konfigurieren...",
         "Name": "Toolbar konfigurieren",
         "SettingName": "Toolbar-Konfiguration"
-      },
-      "ShoreLeaveConfig": {
-        "SettingName": "Shore-Leave-Konfiguration"
       }
     },
     "ShoreLeave": {
@@ -97,10 +102,8 @@
       "Editor": {
         "Description": "Bearbeite Shore-Leave-Regeln, Stressumwandlung und Preisformeln an einer Stelle.",
         "ResetSuccess": "Shore-Leave-Konfiguration auf Standardwerte zurückgesetzt.",
-        "Title": "Shore-Leave-Konfiguration",
         "UpdateSuccess": "Shore-Leave-Konfiguration aktualisiert.",
         "GeneralTitle": "Allgemeines Shore Leave",
-        "StressTitle": "Stressumwandlung",
         "TiersTitle": "Stufenformeln"
       },
       "InvalidTier": "Ungültige Stufe ausgewählt.",
@@ -110,9 +113,7 @@
       "PriceFormula": "Preisformel",
       "RerollFlavor": "Beschreibung neu würfeln",
       "RollPrice": "Preis würfeln",
-      "SelectTier": "Shore-Leave-Stufe auswählen",
-      "StressConversion": "Stressumwandlung",
-      "Title": "Shore Leave"
+      "SelectTier": "Shore-Leave-Stufe auswählen"
     },
     "CharacterCreator": {
       "Chat": {
@@ -218,30 +219,19 @@
         "Name": "Name",
         "Portrait": "Porträt",
         "Salary": "Gehalt"
-      },
-      "Tabs": {
-        "Character": "Spielercharaktere",
-        "Creature": "auftragnehmer",
-        "Ship": "Beiboote"
-      },
-      "Title": "Mannschaftsliste"
+      }
     },
     "BaseSalary": "Grundgehalt",
     "ContractorRole": "Beruf",
     "EnterHiddenMotivation": "Nur für die SL sichtbar",
-    "EnterMotivation": "Was treibt den Auftragnehmer an?",
-    "GenericContractor": "Generischer Auftragnehmer",
     "HiddenMotivation": "Geheime Motivation (nur SL)",
     "LoyaltyRolled": "Loyalität gewürfelt",
     "Motivation": "Motivation",
-    "UniqueContractor": "Einzigartiger Auftragnehmer",
     "Toolbar": {
       "Buttons": {
         "ApplyDamage": "Apply Damage",
         "ArmorBroken": "Armor Broken",
-        "ShoreLeave": "Shore Leave",
         "Training": "Training",
-        "CrewRoster": "Crew Roster",
         "ShipCrit": "Schiffskrit"
       },
       "Config": {
@@ -250,12 +240,15 @@
         "UpdateSuccess": "Toolbar-Konfiguration aktualisiert."
       },
       "Scopes": {
-        "character": "Spielercharaktere",
-        "contractor": "Auftragnehmer",
         "creature": "Kreaturen",
         "ship": "Schiffe",
         "stash": "Stash-Bögen"
       }
+    },
+    "Contractor": {
+      "EnterMotivation": "Was treibt den {contractor} an?",
+      "Generic": "Generischer {contractor}",
+      "Unique": "Einzigartiger {contractor}"
     }
   }
 }

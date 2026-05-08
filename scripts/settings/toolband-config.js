@@ -9,6 +9,14 @@ import {
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+const TOOLBAND_SCOPE_LABEL_KEYS = {
+  character: "MoshQoL.Common.PlayerCharacters",
+  contractor: "MoshQoL.Common.Contractor",
+  creature: "MoshQoL.Toolbar.Scopes.creature",
+  ship: "MoshQoL.Toolbar.Scopes.ship",
+  stash: "MoshQoL.Toolbar.Scopes.stash"
+};
+
 export const MODULE_ID = "mosh-greybearded-qol";
 export const TOOLBAND_CONFIG_SETTING = "toolbandConfig";
 
@@ -97,7 +105,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     const config = getNormalizedToolbandConfig();
     const scopes = TOOLBAND_SCOPES.map((scope) => ({
       id: scope,
-      label: game.i18n.localize(`MoshQoL.Toolbar.Scopes.${scope}`),
+      label: game.i18n.localize(TOOLBAND_SCOPE_LABEL_KEYS[scope] ?? `MoshQoL.Toolbar.Scopes.${scope}`),
       buttons: getConfigurableToolbandButtonsForScope(scope).map((button) => ({
         ...button,
         checked: config[scope][button.settingKey],

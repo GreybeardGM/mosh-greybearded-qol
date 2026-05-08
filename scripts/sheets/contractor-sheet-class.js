@@ -72,6 +72,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
       actorData.isGM = game.user.isGM;
       actorData.themeColor = getThemeColor();
+      actorData.contractorLabel = game.i18n.localize("MoshQoL.Common.Contractor");
         
       return actorData;
     }

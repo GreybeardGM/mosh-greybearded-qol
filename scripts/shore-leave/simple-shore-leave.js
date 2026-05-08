@@ -149,7 +149,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     await chatOutput({
       actor: this.actor,
       title: entry.label,
-      subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.ShoreLeave.Title"),
+      subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.Common.ShoreLeave"),
       content: entry.flavor?.description || "",
       icon: entry.flavor?.icon || entry.icon,
       roll,
