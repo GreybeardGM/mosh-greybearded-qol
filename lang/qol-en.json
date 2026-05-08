@@ -298,8 +298,9 @@
       "WoundsSuffered": "{count} {wounds} suffered.<br>@Macro[Wound Check]",
       "WoundSingular": "wound",
       "WoundPlural": "wounds",
-      "Amount": "Damage",
-      "ApplyToSelectedTokens": "Apply to Selected"
+      "ApplyToSelectedTokens": "Apply without Anti Armor",
+      "ApplyRolledDamage": "Apply {damage} damage to selected tokens",
+      "ApplyToSelectedTokensAntiArmor": "Apply with Anti Armor"
     },
     "Chat": {
       "NoActor": "No actor available for chat output."

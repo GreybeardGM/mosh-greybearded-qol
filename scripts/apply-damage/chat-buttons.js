@@ -34,50 +34,44 @@ function createApplyDamageChatButtons(damageRoll) {
   panel.classList.add("greybeardqol", "apply-damage-chat-buttons");
 
   const title = document.createElement("strong");
-  title.textContent = game.i18n.localize("MoshQoL.Damage.ApplyDamage");
+  title.textContent = game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total });
   panel.append(title);
 
   const buttonRow = document.createElement("div");
   buttonRow.classList.add("apply-damage-chat-buttons-row");
 
-  const damageLabel = document.createElement("label");
-  damageLabel.classList.add("apply-damage-chat-buttons-field");
+  const applyRegularButton = createApplyDamageButton({
+    damage: damageRoll.total,
+    antiArmor: false,
+    icon: "fas fa-heart-broken",
+    label: game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokens")
+  });
 
-  const damageText = document.createElement("span");
-  damageText.textContent = game.i18n.localize("MoshQoL.Damage.Amount");
+  const applyAntiArmorButton = createApplyDamageButton({
+    damage: damageRoll.total,
+    antiArmor: true,
+    icon: "fas fa-shield-halved",
+    label: game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokensAntiArmor")
+  });
 
-  const damageInput = document.createElement("input");
-  damageInput.name = "damage";
-  damageInput.type = "number";
-  damageInput.min = "1";
-  damageInput.step = "1";
-  damageInput.value = String(damageRoll.total);
-
-  damageLabel.append(damageText, damageInput);
-
-  const antiArmorLabel = document.createElement("label");
-  antiArmorLabel.classList.add("apply-damage-chat-buttons-check");
-
-  const antiArmorInput = document.createElement("input");
-  antiArmorInput.name = "antiArmor";
-  antiArmorInput.type = "checkbox";
-
-  const antiArmorText = document.createElement("span");
-  antiArmorText.textContent = game.i18n.localize("MoshQoL.Damage.AntiArmor");
-
-  antiArmorLabel.append(antiArmorInput, antiArmorText);
-
-  const applyButton = document.createElement("button");
-  applyButton.type = "button";
-  applyButton.classList.add("pill", "chat-action", "interactive");
-  applyButton.dataset.action = "applyDamageSelected";
-  applyButton.dataset.args = JSON.stringify([damageRoll.total]);
-  applyButton.innerHTML = `<i class="fas fa-heart-broken"></i> ${game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokens")}`;
-
-  buttonRow.append(damageLabel, antiArmorLabel, applyButton);
+  buttonRow.append(applyRegularButton, applyAntiArmorButton);
   panel.append(buttonRow);
 
   return panel;
+}
+
+function createApplyDamageButton({ damage, antiArmor, icon, label }) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.classList.add("pill", "chat-action", "interactive");
+  button.dataset.action = "applyDamageSelected";
+  button.dataset.args = JSON.stringify([damage, antiArmor]);
+
+  const iconElement = document.createElement("i");
+  iconElement.className = icon;
+  button.append(iconElement, ` ${label}`);
+
+  return button;
 }
 
 export function insertApplyDamageChatButtons(message, html) {

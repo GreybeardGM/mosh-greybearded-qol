@@ -298,8 +298,9 @@
       "WoundsSuffered": "{count} {wounds} erlitten.<br>@Macro[Wundwurf]",
       "WoundSingular": "Wunde",
       "WoundPlural": "Wunden",
-      "Amount": "Schaden",
-      "ApplyToSelectedTokens": "Auf Auswahl anwenden"
+      "ApplyToSelectedTokens": "Ohne Rüstungsbrechend anwenden",
+      "ApplyRolledDamage": "{damage} Schaden auf ausgewählte Tokens anwenden",
+      "ApplyToSelectedTokensAntiArmor": "Mit Rüstungsbrechend anwenden"
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."
