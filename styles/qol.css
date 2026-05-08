@@ -269,6 +269,832 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+}
+
+.greybeardqol .qol-shore-leave-config p {
+  text-align: center;
+  opacity: 0.85;
+}
+
+.greybeardqol .qol-shore-leave-config fieldset {
+  margin-bottom: 1em;
+  border: 1px solid #666;
+  border-radius: 6px;
+}
+
+.greybeardqol .qol-shore-leave-config small {
+  display: block;
+  font-size: 0.8em;
+  font-weight: normal;
+  opacity: 0.75;
+}
+
+.greybeardqol .qol-shore-leave-config .inline-row,
+.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-config-row > span {
+  flex: 1;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-formula-row {
+  gap: 0.4rem;
+}
+
+.greybeardqol .qol-shore-leave-config input[type="checkbox"]::after {
+  color: var(--theme-color);
+}
+
+.greybeardqol .qol-shore-leave-config input[type="number"],
+.greybeardqol .qol-shore-leave-config input[type="text"] {
+  width: 5em;
+}
+
+.greybeardqol .qol-shore-leave-config .shore-leave-formula-row input[type="text"] {
+  width: 100%;
+}
+
+.greybeardqol .qol-shore-leave-config .form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Character Creator Stuff */
+.greybeardqol .attributes-container {
+  height: 6rem;
+  font-family: monospace;
+  text-align: left;
+  overflow: hidden;
+  font-size: 0.75rem;
+}
+
+.greybeardqol .trauma-response {
+  height: 4.5rem;
+  color: var(--theme-color);
+  font-style: italic;
+  overflow: hidden;
+  font-size: 0.75rem;
+}
+
+.greybeardqol.qol-class-selection .window-content {
+  position: relative;
+}
+
+.greybeardqol .class-view-toggle-wrap {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  z-index: 5;
+}
+
+.greybeardqol .class-view-toggle {
+  margin: 0;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  color: var(--color-text);
+}
+
+.greybeardqol .class-view-toggle.active {
+  border-color: var(--theme-color);
+}
+
+.greybeardqol .class-skill-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.greybeardqol .class-skill-option-card {
+  gap: 0.25rem;
+  padding: 0.4rem;
+}
+
+.greybeardqol .class-skill-option-card h4 {
+  font-size: 0.7rem;
+  margin: 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: Monospace;
+}
+
+.greybeardqol .class-skill-list {
+  margin: 0;
+  padding-left: 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.75rem;
+}
+
+.greybeardqol .class-skill-linked-heading {
+  margin: 0;
+  text-align: left;
+  font-size: 0.7rem;
+  color: var(--theme-color);
+  font-family: Monospace;
+}
+
+.greybeardqol .skill-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20%;
+}
+
+.greybeardqol .skill-card {
+  padding-right: 2.5rem;
+}
+
+@media (max-width: 980px), (max-height: 760px) {
+  .greybeardqol .skill-columns {
+    gap: 10%;
+  }
+
+  .greybeardqol .pill {
+    padding: 0.12rem 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  .greybeardqol .pill img {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .greybeardqol .remaining-points {
+    font-size: 1.05rem;
+    margin: 0.5rem 0;
+    padding: 0.35rem 0.45rem;
+  }
+}
+
+@media (max-width: 780px), (max-height: 640px) {
+  .greybeardqol .skill-columns {
+    gap: 6%;
+  }
+
+  .greybeardqol .pill {
+    padding: 0.1rem 0.45rem;
+    font-size: 0.75rem;
+  }
+
+  .greybeardqol .pill img {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .greybeardqol .remaining-points {
+    font-size: 0.95rem;
+    margin: 0.35rem 0;
+    padding: 0.28rem 0.4rem;
+  }
+}
+
+.greybeardqol .skill-area-wrapper {
+  position: relative;
+}
+
+.greybeardqol .skill-arrow-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Inline Overwrite */
+.greybeardqol .content-link,
+.greybeardqol .inline-roll,
+.greybeardqol .inline-result {
+  background-color: var(--color-bg-hover);
+  color: var(--theme-color);
+  border-radius: 999px;
+  padding: 1px 5px;
+}
+
+.greybeardqol .content-link:hover,
+.greybeardqol .inline-roll:hover,
+.greybeardqol .inline-result:hover {
+  text-shadow: 0 0 8px var(--theme-color);
+}
+
+/* Contractor Sheet */
+.greybeardqol.contractor {
+  color: unset;
+}
+
+.greybeardqol.contractor .editor-content {
+  min-height: 10em;
+}
+
+.greybeardqol.contractor .mainstatlabel {
+  padding: 0.5rem;
+}
+
+.greybeardqol.contractor .grid-1col {
+  margin: auto 0;
+}
+
+.greybeardqol .highlighted-input {
+  color: var(--theme-color);
+  border: none;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.greybeardqol .description-input {
+  margin-bottom: 0.5em;
+}
+
+.greybeardqol .contractor-flag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 0;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.greybeardqol .creaturedescription {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  overflow: visible;
+}
+
+.greybeardqol .creature-header-grid {
+  flex-grow: 1;
+}
+
+/* Stash Sheet currency overlay: keep visible on dark header areas */
+.greybeardqol .currency-field {
+  position: relative;
+}
+
+.greybeardqol .currency-display {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: text;
+}
+
+.greybeardqol .stash-currency-display {
+  color: #111;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  text-transform: none;
+}
+  
+.greybeardqol .sheet-body {
+  height: auto;
+}
+
+/* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
+.greybeardqol.toolband {
+  height: 0;
+  display: flex;
+  flex: 0 0 0;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 100;
+  justify-content: center;
+}
+
+.greybeardqol.toolband .toolband-btn {
+  pointer-events: auto;
+  width: 8rem;
+  margin: 1px 2px;
+  color: var(--color-text);
+  box-shadow: unset;
+  line-height: 1rem;
+  padding: 1px 0.5rem
+}
+
+.greybeardqol.toolband .toolband-btn:hover {
+  line-height: 2rem;
+}
+
+.greybeardqol.toolband .is-active {
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 8px var(--theme-color) !important;
+}
+
+.greybeardqol.crew-roster .crew-roster-app {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+}
+
+.greybeardqol.crew-roster .crew-roster-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-header-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.greybeardqol.crew-roster .crew-roster-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-subtitle {
+  font-style: italic;
+  color: var(--theme-color);
+  font-size: 1.2rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-tabs {
+  display: flex;
+  justify-content: end;
+}
+
+.greybeardqol.crew-roster .crew-roster-tab {
+  appearance: none;
+  background: transparent;
+  flex: 1;
+  color: inherit;
+  font: inherit;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem 0.4rem 0 0;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+
+.greybeardqol.crew-roster .crew-roster-tab:hover,
+.greybeardqol.crew-roster .crew-roster-tab:focus-visible {
+  text-shadow: 0 0 6px var(--theme-color);
+}
+
+.greybeardqol.crew-roster .crew-roster-tab.is-active {
+  border-bottom: 0;
+  color: var(--theme-color);
+  zoom: 1.05;
+  flex: 1.05;
+}
+
+.greybeardqol.crew-roster .crew-roster-table-wrap {
+  overflow-y: auto;
+}
+
+.greybeardqol.crew-roster .crew-roster-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.greybeardqol.crew-roster .crew-roster-table thead th {
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.8rem;
+  padding: 0.35rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-row td {
+  padding: 0.35rem;
+  vertical-align: middle;
+}
+
+
+.greybeardqol.crew-roster .crew-roster-col-portrait,
+.greybeardqol.crew-roster .crew-roster-col-active,
+.greybeardqol.crew-roster .crew-roster-col-remove {
+  width: 3.7rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-col-portrait,
+.greybeardqol.crew-roster .crew-roster-col-active,
+.greybeardqol.crew-roster .crew-roster-col-remove {
+  text-align: center;
+}
+
+.greybeardqol.crew-roster .crew-roster-divider-row td {
+  padding: 0.4rem 0.35rem 0.15rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-divider {
+  border-top: 1px solid color-mix(in srgb, var(--theme-color) 45%, var(--color-border));
+  color: color-mix(in srgb, var(--theme-color) 70%, var(--color-text));
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+  padding-top: 0.3rem;
+  text-transform: uppercase;
+}
+
+.greybeardqol.crew-roster .crew-roster-open-entry {
+  cursor: pointer;
+}
+
+.greybeardqol.crew-roster .crew-roster-row.is-inactive {
+  opacity: 0.65;
+}
+
+.greybeardqol.crew-roster .crew-roster-portrait {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.35rem;
+  object-fit: cover;
+}
+
+.greybeardqol.crew-roster .crew-roster-name-cell {
+  line-height: 1.2;
+}
+
+.greybeardqol.crew-roster .crew-roster-name {
+  font-weight: 600;
+}
+
+.greybeardqol.crew-roster .crew-roster-job {
+  opacity: 0.7;
+  font-size: 0.78em;
+  font-style: italic;
+}
+
+.greybeardqol.crew-roster .crew-roster-salary-head,
+.greybeardqol.crew-roster .crew-roster-salary {
+  text-align: right;
+}
+
+.greybeardqol.crew-roster .crew-roster-salary {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.greybeardqol.crew-roster .crew-roster-hazard-head,
+.greybeardqol.crew-roster .crew-roster-hazard {
+  text-align: center;
+  width: 5.2rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-hazard-input {
+  width: 4.2rem;
+  text-align: center;
+}
+
+.greybeardqol.crew-roster .crew-roster-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.greybeardqol.crew-roster .crew-roster-switch input {
+  accent-color: var(--theme-color);
+  cursor: pointer;
+  &:after{
+    color: var(--theme-color);
+    font-size: 1.6rem;
+  }
+}
+
+.greybeardqol.crew-roster .crew-roster-remove {
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+
+.greybeardqol.crew-roster .crew-roster-summary-row td {
+  border-top: 1px solid var(--color-border);
+  padding: 0.45rem 0.35rem;
+}
+
+.greybeardqol.crew-roster .crew-roster-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+}
+.greybeardqol.crew-roster .crew-roster-empty {
+  text-align: center;
+  opacity: 0.7;
+  padding: 0.8rem;
+}
+
+.greybeardqol.toolband-config .toolband-config-app {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.greybeardqol.toolband-config .toolband-config-description {
+  /*! margin: 0; */
+  text-align: center;
+  opacity: 0.85;
+}
+
+.greybeardqol.toolband-config .toolband-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.greybeardqol.toolband-config input[type="checkbox"]::after {
+  color: var(--theme-color);
+}
+
+.greybeardqol.toolband-config .toolband-config-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}/* Base wrapper to scope all styles to the module */
+.greybeardqol {
+  --theme-color: #f50;
+  --color-text: #ccc;
+  --color-border: #666;
+  --color-bg: #111;
+  --color-bg-hover: #222; /* fallback */
+  --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg)); /* preferred */
+  --color-counter: #fc6;
+  --color-remaining: #596;
+
+  font-family: var(--font-primary, sans-serif);
+  font-size: 0.875rem;
+  line-height: 1.2rem;
+  color: var(--color-text);
+}
+
+/* Overwrite Foundry's red underline */
+.greybeardqol h1,
+.greybeardqol h2,
+.greybeardqol h3 {
+  border-bottom: 1px solid var(--theme-color);
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* Grey-out or Highlight */
+.greybeardqol .locked {
+  pointer-events: none;
+}
+
+.greybeardqol .text-highlight {
+  color: var(--theme-color);
+}
+
+.greybeardqol .selected {
+  border-color: var(--theme-color) !important;
+  outline: 2px solid var(--theme-color);
+  outline-offset: 1px;
+}
+
+.greybeardqol .locked.selected {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.greybeardqol .locked:not(.selected) {
+  border-color: #444;
+  color: #777;
+}
+
+.greybeardqol.qol-skill-selection .window-content {
+  overflow-y: auto;
+  max-height: 85vh;
+}
+.greybeardqol.qol-training-selection .training-intro {
+  margin: 0 0 0.75rem;
+  text-align: center;
+  font-style: italic;
+}
+
+
+/* Icon/Image resizing */
+.greybeardqol .icon {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+}
+
+.greybeardqol .confirm-button {
+  width: 50%;
+  margin: 1.5rem auto 0 !important;
+  justify-content: center !important;
+  color: var(--color-text);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.greybeardqol .confirm-button:not(.locked) {
+  outline: 2px solid var(--color-border);
+  outline-offset: 1px;
+}
+
+.greybeardqol .confirm-button:hover:not(.locked) {
+  outline-color: var(--theme-color);
+  transform: scale(1.02);
+}
+
+/* Everything clickable */
+.greybeardqol .interactive {
+  cursor: pointer;
+  transition: border 0.2s ease, background-color 0.2s ease;
+}
+
+.greybeardqol .interactive:hover {
+  border-color: var(--theme-color);
+  background-color: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg));
+}
+
+/* Generic card */
+.greybeardqol .card {
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+
+/* CRT Effect */
+.greybeardqol .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.03) 4px,
+    transparent 5px,
+    transparent 6px
+  );
+  pointer-events: none;
+}
+
+/* Dialog Cards */
+.greybeardqol .dialog-card {
+  text-align: center;
+  width: 11rem;
+  margin: 0 auto;
+}
+
+.greybeardqol .dialog-card .icon {
+  font-size: 5rem;
+}
+
+.greybeardqol .card-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--col-count, 3), 1fr);
+  gap: 0.5rem;
+  margin: 0 auto;
+}
+
+/* Chat Cards */
+.greybeardqol .chat-card .header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.greybeardqol .chat-card .icon {
+  width: 3rem;
+  height: 3rem;
+  font-size: 2.5rem;
+}
+
+.greybeardqol .chat-card .title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.greybeardqol .chat-card .subtitle {
+  font-style: italic;
+  color: var(--theme-color);
+}
+
+/* Pill layout */
+.greybeardqol .pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  position: relative;
+}
+
+.greybeardqol .pill img {
+  width: 1.6rem;
+  height: 1.6rem;
+  object-fit: contain;
+}
+
+.greybeardqol .pill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Remaining points info */
+.greybeardqol .remaining-points {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0.75rem 0;
+  color: var(--color-bg); /* Inverted Colors */
+  background-color: var(--color-text);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+} 
+
+.greybeardqol .remaining-points span {
+  font-family: monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1em;
+  min-width: 2ch;
+  display: inline-block;
+  color: var(--color-remaining);
+}
+
+/* Counter for Highlighting */
+.greybeardqol .counter {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-counter);
+}
+
+.greybeardqol .counter .bonus {
+  color: var(--color-text);
+  font-weight: normal;
+}
+
+.greybeardqol .or-option-row .or-option {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.greybeardqol .or-option-skill-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.greybeardqol .or-option-skill-pill {
+  gap: 0.5rem;
+}
+
+.greybeardqol .or-option-skill-pill span {
+  white-space: nowrap;
+}
+
+/* Shore Leave Stuff */
+.greybeardqol.qol-shore-leave-editor .window-content {
+  overflow-y: auto;
+  max-height: 85vh;
+}
+
+.greybeardqol .flavor-description {
+  min-height: 7.2rem; 
+  font-size: 0.8rem; 
+  opacity: 0.8;
+}
+
+.greybeardqol .flavor-label {
+  font-weight: bold; 
+  height: 2rem; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.greybeardqol .qol-shore-leave-config {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .greybeardqol .qol-shore-leave-config p {
