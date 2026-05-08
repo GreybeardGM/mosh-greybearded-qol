@@ -730,12 +730,7 @@
 }
 
 /* Shared settings dialogs */
-.greybeardqol.qolsettings-window {
-  max-height: 85vh;
-}
-
-.greybeardqol.qolsettings-window.window-content,
-.greybeardqol.qolsettings-window .window-content {
+.greybeardqol.qolsettings-window.window-content {
   overflow-y: auto;
   max-height: 85vh;
   scrollbar-gutter: stable;
@@ -748,26 +743,15 @@
 }
 
 .greybeardqol .qolsettings p {
-  margin: 0;
   text-align: center;
   opacity: 0.85;
-}
-
-.greybeardqol .qolsettings h2 {
-  text-align: center;
-  padding-bottom: 0.35rem;
 }
 
 .greybeardqol .qolsettings-heading {
   font-size: 0.82rem;
   margin: 0;
-  border-bottom: 1px solid var(--color-border);
   color: var(--theme-color);
   font-family: Monospace;
-}
-
-.greybeardqol .qolsettings .class-skill-option-card {
-  gap: 0.5rem;
 }
 
 .greybeardqol .qolsettings-stack {
@@ -786,10 +770,6 @@
   margin-bottom: 0;
 }
 
-.greybeardqol .qolsettings legend {
-  font-weight: bold;
-}
-
 .greybeardqol .qolsettings .form-group {
   display: flex;
   flex-direction: column;
@@ -804,7 +784,6 @@
 .greybeardqol .qolsettings small {
   display: block;
   font-size: 0.8em;
-  font-weight: normal;
   opacity: 0.75;
 }
 
@@ -816,30 +795,12 @@
   align-items: center;
 }
 
-.greybeardqol .qolsettings-toggle {
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
-
 .greybeardqol .qolsettings-toggle > span {
   flex: 1;
 }
 
-.greybeardqol .qolsettings-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.greybeardqol .qolsettings-label i {
+.greybeardqol .qolsettings input[type="checkbox"]::after{
   color: var(--theme-color);
-  width: 1.25rem;
-  text-align: center;
-}
-
-.greybeardqol .qolsettings input[type="checkbox"] {
-  accent-color: var(--theme-color);
-  cursor: pointer;
 }
 
 .greybeardqol .qolsettings input[type="number"],
