@@ -1,7 +1,7 @@
-import { normalizeNumber } from "./normalization.js";
+import { normalizeNumber } from "../utils/normalization.js";
 
 // apply-damage-with-hits.js
-import { chatOutput } from "./chat-output.js";
+import { chatOutput } from "../utils/chat-output.js";
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.

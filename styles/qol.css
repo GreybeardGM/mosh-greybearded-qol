@@ -818,3 +818,40 @@
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
+
+/* GM-only apply damage chat buttons */
+.greybeardqol.apply-damage-chat-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.35rem;
+  background: var(--color-bg);
+}
+
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-field,
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-check {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.greybeardqol.apply-damage-chat-buttons input[name="damage"] {
+  width: 4rem;
+  min-width: 4rem;
+}
+
+.greybeardqol.apply-damage-chat-buttons button {
+  width: auto;
+  margin: 0;
+}
