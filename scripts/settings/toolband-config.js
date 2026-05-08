@@ -5,7 +5,7 @@ import {
   getToolbandButtonDefaultEnabled,
   getToolbandButtonLabel,
   isToolbandButtonConfigurableForScope
-} from "./toolband-buttons.js";
+} from "../codex/toolband-buttons.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
