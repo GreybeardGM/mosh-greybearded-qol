@@ -819,26 +819,43 @@
   margin-top: 0.25rem;
 }
 
-/* Apply damage chat action panel */
+/* Compact apply-damage chat controls */
 .greybeardqol.apply-damage-chat-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
-  padding: 0.45rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.35rem;
-  background: var(--color-bg);
+  margin-top: 0.35rem;
 }
 
 .greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  width: 100%;
 }
 
-.greybeardqol.apply-damage-chat-buttons button {
-  width: auto;
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-button {
+  align-items: center;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 0.25rem;
+  color: var(--color-text);
+  display: flex;
+  flex-basis: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  justify-content: center;
+  line-height: 1;
   margin: 0;
+  min-height: 1.6rem;
+  min-width: 0;
+  padding: 0.18rem 0.35rem;
+  white-space: nowrap;
+  width: auto;
+}
+
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-button.regular-damage .apply-damage-chat-button-icon {
+  font-size: 0.95rem;
+}
+
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-button.anti-armor .apply-damage-chat-button-icon {
+  font-size: 0.78rem;
 }

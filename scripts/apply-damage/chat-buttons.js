@@ -33,10 +33,6 @@ function createApplyDamageChatButtons(damageRoll) {
   const panel = document.createElement("div");
   panel.classList.add("greybeardqol", "apply-damage-chat-buttons");
 
-  const title = document.createElement("strong");
-  title.textContent = game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total });
-  panel.append(title);
-
   const buttonRow = document.createElement("div");
   buttonRow.classList.add("apply-damage-chat-buttons-row");
 
@@ -44,14 +40,18 @@ function createApplyDamageChatButtons(damageRoll) {
     damage: damageRoll.total,
     antiArmor: false,
     icon: "fas fa-heart-broken",
-    label: game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokens")
+    label: game.i18n.localize("MoshQoL.Damage.ApplyDamageShort"),
+    title: game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total }),
+    flex: 2
   });
 
   const applyAntiArmorButton = createApplyDamageButton({
     damage: damageRoll.total,
     antiArmor: true,
     icon: "fas fa-shield-halved",
-    label: game.i18n.localize("MoshQoL.Damage.ApplyToSelectedTokensAntiArmor")
+    label: game.i18n.localize("MoshQoL.Damage.ApplyAntiArmorShort"),
+    title: `${game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total })} (${game.i18n.localize("MoshQoL.Damage.AntiArmor")})`,
+    flex: 1
   });
 
   buttonRow.append(applyRegularButton, applyAntiArmorButton);
@@ -60,16 +60,25 @@ function createApplyDamageChatButtons(damageRoll) {
   return panel;
 }
 
-function createApplyDamageButton({ damage, antiArmor, icon, label }) {
+function createApplyDamageButton({ damage, antiArmor, icon, label, title, flex }) {
   const button = document.createElement("button");
   button.type = "button";
-  button.classList.add("pill", "chat-action", "interactive");
+  button.classList.add("apply-damage-chat-button", "chat-action", "interactive");
+  button.classList.add(antiArmor ? "anti-armor" : "regular-damage");
   button.dataset.action = "applyDamageSelected";
   button.dataset.args = JSON.stringify([damage, antiArmor]);
+  button.style.flexGrow = String(flex);
+  button.title = title;
+  button.setAttribute("aria-label", title);
 
   const iconElement = document.createElement("i");
   iconElement.className = icon;
-  button.append(iconElement, ` ${label}`);
+  iconElement.classList.add("apply-damage-chat-button-icon");
+
+  const labelElement = document.createElement("span");
+  labelElement.textContent = `${damage} ${label}`;
+
+  button.append(iconElement, labelElement);
 
   return button;
 }
