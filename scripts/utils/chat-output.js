@@ -12,7 +12,7 @@ export async function chatOutput({
 } = {}) {
   // Fallback actor
   actor = actor || game.user.character;
-  if (!actor) return ui.notifications.warn("No actor available for chat output.");
+  if (!actor) return ui.notifications.warn(game.i18n.localize("MoshQoL.Chat.NoActor"));
 
   // Normalize icon: if image is given, drop icon completely
   if (image) {

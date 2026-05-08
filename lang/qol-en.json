@@ -126,6 +126,11 @@
         },
         "SkillsSelected": {
           "Title": "Skills Selected"
+        },
+        "StatsRolled": {
+          "Title": "Stats Rolled",
+          "Stats": "Stats",
+          "Saves": "Saves"
         }
       },
       "Dialog": {
@@ -162,7 +167,8 @@
         "MarkedCompleted": "{actorName} has been marked as completed manually.",
         "NoClassUuid": "No class UUID found. Please select a class.",
         "Reset": "Character creation for {actorName} has been reset.",
-        "SkillSelectionCancelled": "Skill selection cancelled."
+        "SkillSelectionCancelled": "Skill selection cancelled.",
+        "TrainingSkillLoadFailed": "Selected training skill could not be loaded."
       },
       "SelectAttributes": {
         "MustSelectOnePerSet": "You must select one attribute per set.",
@@ -232,7 +238,12 @@
         "ApplyDamage": "Apply Damage",
         "ArmorBroken": "Armor Broken",
         "Training": "Training",
-        "ShipCrit": "Ship Crit"
+        "ShipCrit": "Ship Crit",
+        "RollCharacter": "Roll Character",
+        "Completed": "Completed",
+        "Ready": "Ready",
+        "Promote": "Promote",
+        "Menu": "Menu"
       },
       "Config": {
         "Description": "Toggle the buttons that the QoL toolbar may show for each sheet type. Only buttons that can actually appear on that sheet type are listed.",
@@ -248,7 +259,73 @@
     "Contractor": {
       "EnterMotivation": "What drives the {contractor}.",
       "Generic": "Generic {contractor}",
-      "Unique": "Unique {contractor}"
+      "Unique": "Unique {contractor}",
+      "Promote": {
+        "Title": "Promote Contractor",
+        "Content": "<p>How would you like to promote this contractor?</p>",
+        "Roll": "Roll Contractor",
+        "Manual": "Manual Promotion",
+        "Rolled": "{actorName} has been promoted and fully rolled.",
+        "ManualDone": "{actorName} has been promoted manually.",
+        "Cancelled": "Promotion canceled."
+      },
+      "Actions": {
+        "Title": "Contractor Actions",
+        "Content": "<p>Select a contractor option below:</p>",
+        "RollLoyalty": "Roll Loyalty",
+        "RollMotivation": "Roll Motivation",
+        "RollLoadout": "Roll Loadout"
+      },
+      "NoMatchingMotivation": "No matching motivation found."
+    },
+    "Damage": {
+      "ApplyDamage": "Apply Damage",
+      "ApplyDamageToSelectedTokens": "Apply Damage to Selected Tokens",
+      "EnterAmount": "Enter the amount of damage to apply:",
+      "EnterAmountForActor": "Enter the amount of damage to apply to <strong>{actorName}</strong>:",
+      "EnterAmountForTokens": "Enter the amount of damage to apply to <strong>{count}</strong> selected {tokens}:",
+      "AntiArmor": "Anti Armor",
+      "Apply": "Apply",
+      "NoTokensSelected": "No tokens selected.",
+      "PositiveValueRequired": "Please enter a positive damage value.",
+      "AppliedToTokens": "Applied damage to {applied}/{total} {tokens}.",
+      "TokenSingular": "token",
+      "TokenPlural": "tokens",
+      "MaximumWoundsReached": "Maximum Wounds Reached",
+      "MaximumWoundsContent": "{actorName} has reached their maximum number of wounds!<br>@Macro[Death Save]",
+      "WoundTaken": "Wound Taken",
+      "WoundsTaken": "Wounds Taken",
+      "WoundsSuffered": "{count} {wounds} suffered.<br>@Macro[Wound Check]",
+      "WoundSingular": "wound",
+      "WoundPlural": "wounds"
+    },
+    "Chat": {
+      "NoActor": "No actor available for chat output."
+    },
+    "Training": {
+      "Learned": "{actorName} learned {skillName}."
+    },
+    "Progress": {
+      "MarkedReady": "Character marked ready: {actorName}",
+      "MarkedCompleted": "Character marked completed: {actorName}"
+    },
+    "Armor": {
+      "State": "{actorName}: Armor {state}.",
+      "Broken": "broken",
+      "Intact": "intact"
+    },
+    "ShipCrit": {
+      "NoMatch": "No match for: {value}",
+      "ActorSubtitle": "{actorName} critically hit",
+      "ShipSubtitle": "Ship critically hit",
+      "Escalate": "Escalate Crit"
+    },
+    "Items": {
+      "NoItemsFound": {
+        "Title": "No Items Found",
+        "Content": "<p><strong>MoSh Greybearded QoL</strong> could not find any valid <em>{itemType}</em> items in your World Items collection or in any loaded compendium.</p><p>To ensure correct functionality, please install a compatible compendium pack or create your own items in the World Items collection.</p>",
+        "Warning": "MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World."
+      }
     }
   }
 }

@@ -59,27 +59,32 @@ export const TOOLBAND_BUTTONS = [
   {
     action: "roll-character",
     icon: "fas fa-dice-d20",
-    label: "Roll Character"
+    label: "Roll Character",
+    labelKey: "MoshQoL.Toolbar.Buttons.RollCharacter"
   },
   {
     action: "mark-complete",
     icon: "fas fa-flag-checkered",
-    label: "Completed"
+    label: "Completed",
+    labelKey: "MoshQoL.Toolbar.Buttons.Completed"
   },
   {
     action: "mark-ready",
     icon: "fas fa-check-circle",
-    label: "Ready"
+    label: "Ready",
+    labelKey: "MoshQoL.Toolbar.Buttons.Ready"
   },
   {
     action: "promote-contractor",
     icon: "fa-solid fa-user-check",
-    label: "Promote"
+    label: "Promote",
+    labelKey: "MoshQoL.Toolbar.Buttons.Promote"
   },
   {
     action: "contractor-menu",
     icon: "fa-solid fa-bars",
-    label: "Menu"
+    label: "Menu",
+    labelKey: "MoshQoL.Toolbar.Buttons.Menu"
   }
 ];
 

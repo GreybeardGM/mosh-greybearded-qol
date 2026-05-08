@@ -28,7 +28,7 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
     crit = findCrit(roll.total);
   }
 
-  if (!crit) return ui.notifications.warn(`Kein Treffer für: ${setCrit ?? roll?.total}`);
+  if (!crit) return ui.notifications.warn(game.i18n.format("MoshQoL.ShipCrit.NoMatch", { value: setCrit ?? roll?.total }));
   const next = findEscalation(crit);
   const actor = actorUUID ? await fromUuid(actorUUID) : null;
   const enrichedContent = await foundry.applications.ux.TextEditor.implementation.enrichHTML(crit.content || "", {
@@ -39,14 +39,14 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
   
   await chatOutput({
     title: crit.title,
-    subtitle: actor ? `${actor.name} critically hit` : "Ship critically hit",
+    subtitle: actor ? game.i18n.format("MoshQoL.ShipCrit.ActorSubtitle", { actorName: actor.name }) : game.i18n.localize("MoshQoL.ShipCrit.ShipSubtitle"),
     content: enrichedContent,
     icon: crit.icon,
     image: actor?.img,
     roll,
     buttons: next ? [
       {
-        label: "Escalate Crit",
+        label: game.i18n.localize("MoshQoL.ShipCrit.Escalate"),
         icon: "fa-arrow-up-right-dots",
         action: "triggerShipCrit",
         args: [next.min, actor?.uuid ?? null]
