@@ -70,12 +70,12 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ToolbandConfig.Name",
-      contentClasses: ["greybeardqol", "toolband-config"],
+      contentClasses: ["greybeardqol", "qolsettings-window"],
       resizable: true
     },
     position: {
-      width: 640,
-      height: "auto"
+      width: 560,
+      height: 620
     },
     form: {
       handler: this._onSubmit,

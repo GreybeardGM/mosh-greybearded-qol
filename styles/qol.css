@@ -246,10 +246,6 @@
 }
 
 /* Shore Leave Stuff */
-.greybeardqol.qol-shore-leave-editor .window-content {
-  overflow-y: auto;
-  max-height: 85vh;
-}
 
 .greybeardqol .flavor-description {
   min-height: 7.2rem; 
@@ -265,65 +261,6 @@
   justify-content: center; 
 }
 
-.greybeardqol .qol-shore-leave-config {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
-}
-
-.greybeardqol .qol-shore-leave-config p {
-  text-align: center;
-  opacity: 0.85;
-}
-
-.greybeardqol .qol-shore-leave-config fieldset {
-  margin-bottom: 1em;
-  border: 1px solid #666;
-  border-radius: 6px;
-}
-
-.greybeardqol .qol-shore-leave-config small {
-  display: block;
-  font-size: 0.8em;
-  font-weight: normal;
-  opacity: 0.75;
-}
-
-.greybeardqol .qol-shore-leave-config .inline-row,
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  align-items: center;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row > span {
-  flex: 1;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-formula-row {
-  gap: 0.4rem;
-}
-
-.greybeardqol .qol-shore-leave-config input[type="checkbox"]::after {
-  color: var(--theme-color);
-}
-
-.greybeardqol .qol-shore-leave-config input[type="number"],
-.greybeardqol .qol-shore-leave-config input[type="text"] {
-  width: 5em;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-formula-row input[type="text"] {
-  width: 100%;
-}
-
-.greybeardqol .qol-shore-leave-config .form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
 
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
@@ -797,34 +734,7 @@
   padding: 0.8rem;
 }
 
-.greybeardqol.toolband-config .toolband-config-app {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
-}
 
-.greybeardqol.toolband-config .toolband-config-description {
-  /*! margin: 0; */
-  text-align: center;
-  opacity: 0.85;
-}
-
-.greybeardqol.toolband-config .toolband-config-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.greybeardqol.toolband-config input[type="checkbox"]::after {
-  color: var(--theme-color);
-}
-
-.greybeardqol.toolband-config .toolband-config-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}/* Base wrapper to scope all styles to the module */
 .greybeardqol {
   --theme-color: #f50;
   --color-text: #ccc;
@@ -1072,10 +982,6 @@
 }
 
 /* Shore Leave Stuff */
-.greybeardqol.qol-shore-leave-editor .window-content {
-  overflow-y: auto;
-  max-height: 85vh;
-}
 
 .greybeardqol .flavor-description {
   min-height: 7.2rem; 
@@ -1091,101 +997,6 @@
   justify-content: center; 
 }
 
-.greybeardqol .qol-shore-leave-config {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.greybeardqol .qol-shore-leave-config p {
-  margin: 0;
-  text-align: center;
-  opacity: 0.85;
-}
-
-.greybeardqol .qol-shore-leave-config h2,
-.greybeardqol .qol-shore-leave-config h3 {
-  text-align: center;
-  padding-bottom: 0.35rem;
-}
-
-.greybeardqol .qol-shore-leave-config fieldset {
-  margin-bottom: 1em;
-  border: 1px solid #666;
-  border-radius: 6px;
-}
-
-.greybeardqol .qol-shore-leave-config fieldset:last-child {
-  margin-bottom: 0;
-}
-
-.greybeardqol .qol-shore-leave-config legend {
-  font-weight: bold;
-}
-
-.greybeardqol .qol-shore-leave-config .form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0.1em;
-}
-
-.greybeardqol .qol-shore-leave-config .form-group label {
-  font-size: 0.9em;
-  margin-bottom: 0.25em;
-}
-
-.greybeardqol .qol-shore-leave-config small {
-  display: block;
-  font-size: 0.8em;
-  font-weight: normal;
-  opacity: 0.75;
-}
-
-.greybeardqol .qol-shore-leave-config .inline-row,
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  align-items: center;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-section {
-  gap: 0.75rem;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
-  flex-wrap: nowrap;
-  gap: 0.75rem;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row > span {
-  flex: 1;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-formula-row {
-  gap: 0.4rem;
-}
-
-.greybeardqol .qol-shore-leave-config input[type="checkbox"] {
-  accent-color: var(--theme-color);
-  cursor: pointer;
-}
-
-.greybeardqol .qol-shore-leave-config input[type="number"],
-.greybeardqol .qol-shore-leave-config input[type="text"] {
-  width: 5em;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-formula-row input[type="text"] {
-  width: 100%;
-}
-
-.greybeardqol .qol-shore-leave-config .form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1em;
-}
 
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
@@ -1659,34 +1470,7 @@
   padding: 0.8rem;
 }
 
-.greybeardqol.toolband-config .toolband-config-app {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
-}
 
-.greybeardqol.toolband-config .toolband-config-description {
-  /*! margin: 0; */
-  text-align: center;
-  opacity: 0.85;
-}
-
-.greybeardqol.toolband-config .toolband-config-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.greybeardqol.toolband-config input[type="checkbox"]::after {
-  color: var(--theme-color);
-}
-
-.greybeardqol.toolband-config .toolband-config-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}/* Base wrapper to scope all styles to the module */
 .greybeardqol {
   --theme-color: #f50;
   --color-text: #ccc;
@@ -1934,10 +1718,6 @@
 }
 
 /* Shore Leave Stuff */
-.greybeardqol.qol-shore-leave-editor .window-content {
-  overflow-y: auto;
-  max-height: 85vh;
-}
 
 .greybeardqol .flavor-description {
   min-height: 7.2rem; 
@@ -1953,101 +1733,6 @@
   justify-content: center; 
 }
 
-.greybeardqol .qol-shore-leave-config {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.greybeardqol .qol-shore-leave-config p {
-  margin: 0;
-  text-align: center;
-  opacity: 0.85;
-}
-
-.greybeardqol .qol-shore-leave-config h2,
-.greybeardqol .qol-shore-leave-config h3 {
-  text-align: center;
-  padding-bottom: 0.35rem;
-}
-
-.greybeardqol .qol-shore-leave-config fieldset {
-  margin-bottom: 1em;
-  border: 1px solid #666;
-  border-radius: 6px;
-}
-
-.greybeardqol .qol-shore-leave-config fieldset:last-child {
-  margin-bottom: 0;
-}
-
-.greybeardqol .qol-shore-leave-config legend {
-  font-weight: bold;
-}
-
-.greybeardqol .qol-shore-leave-config .form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0.1em;
-}
-
-.greybeardqol .qol-shore-leave-config .form-group label {
-  font-size: 0.9em;
-  margin-bottom: 0.25em;
-}
-
-.greybeardqol .qol-shore-leave-config small {
-  display: block;
-  font-size: 0.8em;
-  font-weight: normal;
-  opacity: 0.75;
-}
-
-.greybeardqol .qol-shore-leave-config .inline-row,
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  align-items: center;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-section {
-  gap: 0.75rem;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row {
-  flex-wrap: nowrap;
-  gap: 0.75rem;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-config-row > span {
-  flex: 1;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-formula-row {
-  gap: 0.4rem;
-}
-
-.greybeardqol .qol-shore-leave-config input[type="checkbox"] {
-  accent-color: var(--theme-color);
-  cursor: pointer;
-}
-
-.greybeardqol .qol-shore-leave-config input[type="number"],
-.greybeardqol .qol-shore-leave-config input[type="text"] {
-  width: 5em;
-}
-
-.greybeardqol .qol-shore-leave-config .shore-leave-formula-row input[type="text"] {
-  width: 100%;
-}
-
-.greybeardqol .qol-shore-leave-config .form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1em;
-}
 
 /* Character Creator Stuff */
 .greybeardqol .attributes-container {
@@ -2521,62 +2206,117 @@
   padding: 0.8rem;
 }
 
-.greybeardqol.toolband-config .toolband-config-app {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Shared settings dialogs */
+.greybeardqol.qolsettings-window .window-content {
+  overflow-y: auto;
+  max-height: 85vh;
 }
 
-.greybeardqol.toolband-config .toolband-config-description {
+.greybeardqol .qolsettings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.greybeardqol .qolsettings p {
   margin: 0;
   text-align: center;
   opacity: 0.85;
 }
 
-.greybeardqol.toolband-config .toolband-config-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.greybeardqol.toolband-config .toolband-config-scope {
-  gap: 0.75rem;
-}
-
-.greybeardqol.toolband-config .toolband-config-scope h3 {
+.greybeardqol .qolsettings h2 {
   text-align: center;
   padding-bottom: 0.35rem;
 }
 
-.greybeardqol.toolband-config .toolband-config-row {
+.greybeardqol .qolsettings .class-skill-option-card {
+  gap: 0.5rem;
+}
+
+.greybeardqol .qolsettings-stack {
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
 }
 
-.greybeardqol.toolband-config .toolband-config-label {
+.greybeardqol .qolsettings fieldset {
+  margin-bottom: 0.75em;
+  border: 1px solid #666;
+  border-radius: 6px;
+}
+
+.greybeardqol .qolsettings fieldset:last-child {
+  margin-bottom: 0;
+}
+
+.greybeardqol .qolsettings legend {
+  font-weight: bold;
+}
+
+.greybeardqol .qolsettings .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.1em;
+}
+
+.greybeardqol .qolsettings .form-group label {
+  font-size: 0.9em;
+  margin-bottom: 0.25em;
+}
+
+.greybeardqol .qolsettings small {
+  display: block;
+  font-size: 0.8em;
+  font-weight: normal;
+  opacity: 0.75;
+}
+
+.greybeardqol .qolsettings .inline-row,
+.greybeardqol .qolsettings-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.greybeardqol .qolsettings-toggle {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.greybeardqol .qolsettings-toggle > span {
+  flex: 1;
+}
+
+.greybeardqol .qolsettings-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.greybeardqol.toolband-config .toolband-config-label i {
+.greybeardqol .qolsettings-label i {
   color: var(--theme-color);
   width: 1.25rem;
   text-align: center;
 }
 
-.greybeardqol.toolband-config input[type="checkbox"] {
+.greybeardqol .qolsettings input[type="checkbox"] {
   accent-color: var(--theme-color);
   cursor: pointer;
 }
 
-.greybeardqol.toolband-config .toolband-config-actions {
+.greybeardqol .qolsettings input[type="number"],
+.greybeardqol .qolsettings input[type="text"] {
+  width: 5em;
+}
+
+.greybeardqol .qolsettings .qolsettings-wide-input input[type="text"] {
+  width: 100%;
+}
+
+.greybeardqol .qolsettings .form-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-}
-
-@media (max-width: 560px) {
-  .greybeardqol.toolband-config .toolband-config-grid {
-    grid-template-columns: 1fr;
-  }
+  margin-top: 0.25rem;
 }

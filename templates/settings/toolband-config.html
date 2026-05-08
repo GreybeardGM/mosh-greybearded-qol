@@ -1,14 +1,14 @@
-<div class="toolband-config-app">
-  <p class="toolband-config-description">{{description}}</p>
+<div class="qolsettings">
+  <p>{{description}}</p>
 
-  <div class="toolband-config-grid">
+  <div class="qolsettings-stack">
     {{#each scopes as |scope|}}
-      <section class="card toolband-config-scope">
-        <h3>{{scope.label}}</h3>
+      <section class="card class-skill-option-card">
+        <h4>{{scope.label}}</h4>
         <div class="pill-list">
           {{#each scope.buttons as |button|}}
-            <label class="pill interactive toolband-config-row">
-              <span class="toolband-config-label">
+            <label class="pill interactive qolsettings-toggle">
+              <span class="qolsettings-label">
                 <i class="{{button.icon}}" aria-hidden="true"></i>
                 <span>{{button.labelText}}</span>
               </span>
@@ -20,7 +20,7 @@
     {{/each}}
   </div>
 
-  <footer class="toolband-config-actions">
+  <footer class="form-footer">
     <button type="button" data-action="resetDefaults">
       <i class="fas fa-undo" aria-hidden="true"></i>
       {{localize "MoshQoL.Common.ResetToDefault"}}

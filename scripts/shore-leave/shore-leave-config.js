@@ -48,12 +48,12 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-      contentClasses: ["greybeardqol", "qol-shore-leave-editor"],
+      contentClasses: ["greybeardqol", "qolsettings-window"],
       resizable: true
     },
     position: {
-      width: 680,
-      height: "auto"
+      width: 640,
+      height: 720
     },
     form: {
       handler: this._onSubmit,
