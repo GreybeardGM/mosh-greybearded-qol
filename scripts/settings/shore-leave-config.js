@@ -53,7 +53,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     },
     position: {
       width: 550,
-      height: auto
+      height: "auto"
     },
     form: {
       handler: this._onSubmit,
