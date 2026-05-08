@@ -179,7 +179,7 @@ Hooks.once("init", () => {
   
 
   game.settings.register("mosh-greybearded-qol", SHORE_LEAVE_CONFIG_SETTING, {
-    name: "MoshQoL.Settings.ShoreLeaveConfig.SettingName",
+    name: "MoshQoL.Common.ShoreLeaveConfiguration",
     scope: "world",
     config: false,
     type: Object,

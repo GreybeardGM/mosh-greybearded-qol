@@ -26,7 +26,7 @@ export const TOOLBAND_BUTTONS = [
     scopes: ["character"],
     icon: "fas fa-umbrella-beach",
     label: "Shore Leave",
-    labelKey: "MoshQoL.Toolbar.Buttons.ShoreLeave"
+    labelKey: "MoshQoL.Common.ShoreLeave"
   },
   {
     action: "training",
@@ -44,7 +44,7 @@ export const TOOLBAND_BUTTONS = [
     scopes: ["ship", "stash"],
     icon: "fa-solid fa-users",
     label: "Crew Roster",
-    labelKey: "MoshQoL.Toolbar.Buttons.CrewRoster"
+    labelKey: "MoshQoL.Common.CrewRoster"
   },
   {
     action: "ship-crit",
