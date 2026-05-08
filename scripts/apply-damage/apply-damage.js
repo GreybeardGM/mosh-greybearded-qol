@@ -1,6 +1,5 @@
 import { normalizeNumber } from "../utils/normalization.js";
 
-// apply-damage-with-hits.js
 import { chatOutput } from "../utils/chat-output.js";
 
 /**
@@ -14,10 +13,12 @@ import { chatOutput } from "../utils/chat-output.js";
  * Nutzt Systemfelder:
  *   system.health.value / system.health.max
  *   system.hits.value   / system.hits.max
+ *
+ * @returns {Promise<boolean>} true, wenn Schaden verarbeitet wurde; false bei Abbruch/ungültiger Eingabe.
  */
 export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   const actor = await resolveActorLike(actorLike);
-  if (!actor) throw new Error("applyDamageWithHits: Actor nicht gefunden.");
+  if (!actor) throw new Error("applyDamage: Actor nicht gefunden.");
 
   let damageRaw = damageInput;
 
@@ -29,7 +30,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
     });
 
     // Abbruch per X liefert null → nichts tun
-    if (!data) return;
+    if (!data) return false;
     damageRaw = data.damage;
     antiArmor = data.antiArmor;
   }
@@ -37,7 +38,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   const damage = parseDamageInput(damageRaw);
   if (damage === null) {
     ui.notifications?.warn?.(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
-    return;
+    return false;
   }
 
   const antiArmorHit = parseAntiArmorInput(antiArmor);
@@ -48,7 +49,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   let   hits    = normalizeNumber(sys.hits?.value, { fallback: 0 });
   const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
 
-  if (hpMax <= 0) throw new Error("applyDamageWithHits: hpMax <= 0 – Actor-Daten prüfen.");
+  if (hpMax <= 0) throw new Error("applyDamage: hpMax <= 0 – Actor-Daten prüfen.");
 
   const armorBroken = hasArmorBrokenStatus(actor);
   const damageReduction = normalizeNumber(sys.stats?.armor?.damageReduction, { fallback: 0, min: 0 });
@@ -105,6 +106,8 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
       });
     }
   }
+
+  return true;
 }
 
 /**

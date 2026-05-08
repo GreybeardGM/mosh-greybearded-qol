@@ -276,13 +276,19 @@ async function applyDamageToSelectedTokens(damageInput, antiArmor) {
     return;
   }
 
+  const damage = normalizeNumber(damageInput, { fallback: null, min: 1 });
+  if (damage === null) {
+    ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
+    return;
+  }
+
   let applied = 0;
   for (const token of selected) {
     const actorLike = token?.actor ?? token;
     if (!actorLike) continue;
     try {
-      await game.moshGreybeardQol.applyDamage(actorLike, damageInput, antiArmor);
-      applied++;
+      const didApply = await game.moshGreybeardQol.applyDamage(actorLike, damage, antiArmor);
+      if (didApply !== false) applied++;
     } catch (err) {
       console.error("applyDamage failed for", token, err);
     }
@@ -334,10 +340,7 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
 
     switch (action) {
       case "applyDamageSelected": {
-        const panel = button.closest(".apply-damage-chat-buttons");
-        const damageInput = panel?.querySelector('input[name="damage"]')?.value ?? args[0];
-        const antiArmor = panel?.querySelector('input[name="antiArmor"]')?.checked ?? false;
-        await applyDamageToSelectedTokens(damageInput, antiArmor);
+        await applyDamageToSelectedTokens(args[0], args[1] === true);
         break;
       }
       case "convertStress": {
@@ -441,25 +444,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
       });
 
       if (!data) return;
-      const damageInput = data.damage;
-      const antiArmor = data.antiArmor;
-
-      let applied = 0;
-      for (const t of selected) {
-        const actorLike = t?.actor ?? t;
-        if (!actorLike) continue;
-        try {
-          await game.moshGreybeardQol.applyDamage(actorLike, damageInput, antiArmor);
-          applied++;
-        } catch (err) {
-          console.error("applyDamage failed for", t, err);
-        }
-      }
-      ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
-        applied,
-        total: selected.length,
-        tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
-      }));
+      await applyDamageToSelectedTokens(data.damage, data.antiArmor);
     }
   };
 

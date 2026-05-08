@@ -838,19 +838,6 @@
   gap: 0.35rem;
 }
 
-.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-field,
-.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-check {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin: 0;
-}
-
-.greybeardqol.apply-damage-chat-buttons input[name="damage"] {
-  width: 4rem;
-  min-width: 4rem;
-}
-
 .greybeardqol.apply-damage-chat-buttons button {
   width: auto;
   margin: 0;
