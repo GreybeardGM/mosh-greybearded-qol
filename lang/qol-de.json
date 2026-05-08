@@ -221,20 +221,20 @@
       },
       "Tabs": {
         "Character": "Spielercharaktere",
-        "Creature": "Contractors",
+        "Creature": "auftragnehmer",
         "Ship": "Beiboote"
       },
-      "Title": "Crew-Roster"
+      "Title": "Mannschaftsliste"
     },
     "BaseSalary": "Grundgehalt",
     "ContractorRole": "Beruf",
     "EnterHiddenMotivation": "Nur für die SL sichtbar",
-    "EnterMotivation": "Was treibt den Contractor an?",
-    "GenericContractor": "Generischer Contractor",
+    "EnterMotivation": "Was treibt den Auftragnehmer an?",
+    "GenericContractor": "Generischer Auftragnehmer",
     "HiddenMotivation": "Geheime Motivation (nur SL)",
     "LoyaltyRolled": "Loyalität gewürfelt",
     "Motivation": "Motivation",
-    "UniqueContractor": "Einzigartiger Contractor",
+    "UniqueContractor": "Einzigartiger Auftragnehmer",
     "Toolbar": {
       "Buttons": {
         "ApplyDamage": "Apply Damage",
@@ -251,7 +251,7 @@
       },
       "Scopes": {
         "character": "Spielercharaktere",
-        "contractor": "Begleiter / Contractors",
+        "contractor": "Auftragnehmer",
         "creature": "Kreaturen",
         "ship": "Schiffe",
         "stash": "Stash-Bögen"
