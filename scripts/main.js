@@ -20,7 +20,8 @@ import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./codex/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
-import { applyDamage, promptDamageInput } from "./utils/apply-damage.js";
+import { applyDamage, promptDamageInput } from "./apply-damage/apply-damage.js";
+import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
 import { capitalize, normalizeNumber, stripHtml } from "./utils/normalization.js";
@@ -267,7 +268,11 @@ Hooks.once("ready", () => {
   });
 });
 
+
 Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
+  if (!game.user.isGM) return;
+
+  insertApplyDamageChatButtons(message, html);
   const buttons = html.querySelectorAll(".greybeardqol .chat-action");
   for (const button of buttons) {
     button.addEventListener("click", async () => {
@@ -369,7 +374,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     visible: game.user.isGM || game.user.isTrusted,
     button: true,
     onClick: async () => {
-      const selected = canvas.tokens.controlled;
+      const selected = canvas?.tokens?.controlled ?? [];
       if (!selected.length) {
         ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
         return;

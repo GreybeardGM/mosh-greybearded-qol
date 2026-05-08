@@ -297,7 +297,9 @@
       "WoundsTaken": "Wunden erlitten",
       "WoundsSuffered": "{count} {wounds} erlitten.<br>@Macro[Wundwurf]",
       "WoundSingular": "Wunde",
-      "WoundPlural": "Wunden"
+      "WoundPlural": "Wunden",
+      "Amount": "Schaden",
+      "ApplyToSelectedTokens": "Auf Auswahl anwenden"
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."
