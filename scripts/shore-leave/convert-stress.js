@@ -1,6 +1,6 @@
 import { StressDistributionApp } from "./stress-distribution.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { getNormalizedShoreLeaveConfig } from "./shore-leave-config.js";
+import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
 
 export async function convertStress(actor, formula, options = {}) {
   // Fallback Actor

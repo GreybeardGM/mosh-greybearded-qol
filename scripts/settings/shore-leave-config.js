@@ -67,7 +67,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/shore-leave/shore-leave-config.html"
+      template: "modules/mosh-greybearded-qol/templates/settings/shore-leave-config.html"
     }
   };
 
@@ -81,7 +81,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   static async _onResetDefaults(event) {
     event.preventDefault();
-    const module = await import("./default-shore-leave-tiers.js");
+    const module = await import("../codex/default-shore-leave-tiers.js");
 
     await Promise.all([
       game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, getDefaultShoreLeaveConfig()),

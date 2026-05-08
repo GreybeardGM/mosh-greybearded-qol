@@ -3,7 +3,7 @@ import {
   SHORE_LEAVE_CONFIG_SETTING,
   getDefaultShoreLeaveConfig,
   normalizeShoreLeaveConfig
-} from "../shore-leave/shore-leave-config.js";
+} from "../settings/shore-leave-config.js";
 
 export const SHORE_LEAVE_CONFIG_MIGRATION_SETTING = "migrations.shoreLeaveConfig";
 

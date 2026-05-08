@@ -5,7 +5,7 @@ import {
   SHORE_LEAVE_CONFIG_SETTING,
   ShoreLeaveConfigApp,
   getDefaultShoreLeaveConfig
-} from "./shore-leave/shore-leave-config.js";
+} from "./settings/shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./settings/toolband-config.js";
 import {
   LEGACY_SHIP_CRITS_SETTING,
@@ -17,7 +17,7 @@ import {
   migrateLegacyShoreLeaveConfig
 } from "./migration/shore-leave.js";
 import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
-import { SHORE_LEAVE_TIERS } from "./shore-leave/default-shore-leave-tiers.js";
+import { SHORE_LEAVE_TIERS } from "./codex/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
 import { applyDamage } from "./utils/apply-damage.js";

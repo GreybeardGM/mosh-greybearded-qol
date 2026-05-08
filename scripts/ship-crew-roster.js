@@ -160,7 +160,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   static PARTS = {
     body: {
-      template: "modules/mosh-greybearded-qol/templates/ship/crew-roster.html"
+      template: "modules/mosh-greybearded-qol/templates/dialogs/crew-roster.html"
     }
   };
 
