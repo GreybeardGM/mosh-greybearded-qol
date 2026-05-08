@@ -198,21 +198,17 @@ export async function loadAllItemsByType(itemType) {
   cacheTypeData(typeKey, sorted);
 
   if (sorted.length === 0) {
-    const msg = `
-      <p><strong>MoSh Greybearded QoL</strong> could not find any valid
-      <em>${foundry.utils.escapeHTML(String(itemType))}</em> items in your World
-      Items collection or in any loaded compendium.</p>
-      <p>To ensure correct functionality, please install a compatible compendium
-      pack or create your own items in the World Items collection.</p>
-    `.trim();
+    const msg = game.i18n.format("MoshQoL.Items.NoItemsFound.Content", {
+      itemType: foundry.utils.escapeHTML(String(itemType))
+    });
 
     try {
       await DialogV2.prompt({
-        window: { title: "No Items Found" },
+        window: { title: game.i18n.localize("MoshQoL.Items.NoItemsFound.Title") },
         content: msg
       });
     } catch (e) {
-      ui.notifications?.warn("MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World.");
+      ui.notifications?.warn(game.i18n.localize("MoshQoL.Items.NoItemsFound.Warning"));
       console.warn("[MoSh Greybearded QoL] loadAllItemsByType: No items found for type:", itemType, e);
     }
   }

@@ -24,8 +24,8 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   // Falls kein Wert angegeben: über DialogV2.input abfragen
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
-      title: "Apply Damage",
-      message: `Enter the amount of damage to apply to <strong>${actor.name}</strong>:`
+      title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
+      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: actor.name })
     });
 
     // Abbruch per X liefert null → nichts tun
@@ -36,7 +36,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
 
   const damage = parseDamageInput(damageRaw);
   if (damage === null) {
-    ui.notifications?.warn?.("Please enter a positive damage value.");
+    ui.notifications?.warn?.(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
     return;
   }
 
@@ -86,19 +86,22 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
     if (hits === hitsMax) {
       await chatOutput({
         actor,
-        title: "Maximum Wounds Reached",
+        title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
         subtitle: actor.name ?? "",
         icon: "fa-skull",
-        content: `${actor.name} has reached their maximum number of wounds!<br>@Macro[Death Save]`
+        content: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name })
       });
     } else {
       const plural = woundsGained !== 1;
       await chatOutput({
         actor,
-        title: plural ? "Wounds Taken" : "Wound Taken",
+        title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
         subtitle: actor.name ?? "",
         icon: "fa-heart-broken",
-        content: `${woundsGained} ${plural ? "wounds" : "wound"} suffered.<br>@Macro[Wound Check]`
+        content: game.i18n.format("MoshQoL.Damage.WoundsSuffered", {
+          count: woundsGained,
+          wounds: game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular")
+        })
       });
     }
   }
@@ -110,16 +113,16 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
  */
 export async function promptDamageInput({ title, message, cancel = null } = {}) {
   return foundry.applications.api.DialogV2.input({
-    window: { title: title ?? "Apply Damage" },
+    window: { title: title ?? game.i18n.localize("MoshQoL.Damage.ApplyDamage") },
     content: `
-      <p>${message ?? "Enter the amount of damage to apply:"}</p>
+      <p>${message ?? game.i18n.localize("MoshQoL.Damage.EnterAmount")}</p>
       <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
       <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
         <input name="antiArmor" type="checkbox">
-        <span>Anti Armor</span>
+        <span>${game.i18n.localize("MoshQoL.Damage.AntiArmor")}</span>
       </label>
     `,
-    ok: { label: "Apply", icon: "fa-solid fa-check" },
+    ok: { label: game.i18n.localize("MoshQoL.Damage.Apply"), icon: "fa-solid fa-check" },
     ...(cancel ? { cancel } : {})
   });
 }

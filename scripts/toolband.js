@@ -59,18 +59,18 @@ export function upsertToolband(sheet, html, ctx = {}) {
           if (!actor) return;
           const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
           if (!trainedSkill) return;
-          ui.notifications?.info?.(`${actor.name} learned ${trainedSkill.name}.`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Learned", { actorName: actor.name, skillName: trainedSkill.name }));
           return sheet.render(false);
         }
 
         case "mark-ready":
           await setReady(actor);
-          ui.notifications?.info?.(`Character marked ready: ${actor.name}`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedReady", { actorName: actor.name }));
           return sheet.render(false);
 
         case "mark-complete":
           await setCompleted(actor);
-          ui.notifications?.info?.(`Character marked completed: ${actor.name}`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedCompleted", { actorName: actor.name }));
           return sheet.render(false);
 
         case "apply-damage":
@@ -88,7 +88,10 @@ export function upsertToolband(sheet, html, ctx = {}) {
           // UI sofort spiegeln (kein re-render nötig)
           btn.classList.toggle("is-active", !isActive);
           btn.setAttribute("aria-pressed", String(!isActive));
-          ui.notifications?.info?.(`${actor.name}: Armor ${!isActive ? "broken" : "intact"}.`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {
+            actorName: actor.name,
+            state: game.i18n.localize(!isActive ? "MoshQoL.Armor.Broken" : "MoshQoL.Armor.Intact")
+          }));
           return;
         }
           
@@ -97,12 +100,12 @@ export function upsertToolband(sheet, html, ctx = {}) {
           // Guard: nur GM & nur wenn die Sheet-Methoden existieren
           if (!isGM) return;
           const choice = await foundry.applications.api.DialogV2.wait({
-            window: { title: "Promote Contractor" },
-            content: "<p>How would you like to promote this contractor?</p>",
+            window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
+            content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
             buttons: [
-              { label: "Roll Contractor",  icon: "fa-solid fa-dice",        action: "roll" },
-              { label: "Manual Promotion", icon: "fa-solid fa-user-check",  action: "manual" },
-              { label: "Cancel",           icon: "fa-solid fa-xmark",       action: "cancel" }
+              { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
+              { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
+              { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
             ],
             default: "roll"
           });
@@ -116,17 +119,17 @@ export function upsertToolband(sheet, html, ctx = {}) {
               if (typeof sheet._rollContractorLoyalty === "function")   await sheet._rollContractorLoyalty(actor);
               if (typeof sheet._rollContractorMotivation === "function")await sheet._rollContractorMotivation(actor);
               if (typeof sheet._rollContractorLoadout === "function")   await sheet._rollContractorLoadout(actor);
-              ui.notifications.info(`${actor.name} has been promoted and fully rolled.`);
+              ui.notifications.info(game.i18n.format("MoshQoL.Contractor.Promote.Rolled", { actorName: actor.name }));
               break;
             case "manual":
               await actor.update({
                 "system.contractor.isNamed": true,
                 "system.stats.loyalty.enabled": true
               });
-              ui.notifications.info(`${actor.name} has been promoted manually.`);
+              ui.notifications.info(game.i18n.format("MoshQoL.Contractor.Promote.ManualDone", { actorName: actor.name }));
               break;
             default:
-              ui.notifications.info("Promotion canceled.");
+              ui.notifications.info(game.i18n.localize("MoshQoL.Contractor.Promote.Cancelled"));
               return;
           }
           return sheet.render();
@@ -136,11 +139,11 @@ export function upsertToolband(sheet, html, ctx = {}) {
         case "contractor-menu": {
           if (!isGM) return;
           await foundry.applications.api.DialogV2.wait({
-            window: { title: "Contractor Actions" },
-            content: "<p>Select a contractor option below:</p>",
+            window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
+            content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
             buttons: [
               {
-                label: "Roll Loyalty",
+                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
                 icon: "fa-solid fa-handshake",
                 action: "loyalty",
                 callback: async () => { 
@@ -149,7 +152,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
                 }
               },
               {
-                label: "Roll Motivation",
+                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
                 icon: "fa-solid fa-fire",
                 action: "motivation",
                 callback: async () => { 
@@ -158,7 +161,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
                 }
               },
               {
-                label: "Roll Loadout",
+                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
                 icon: "fa-solid fa-boxes-stacked",
                 action: "loadout",
                 callback: async () => { 

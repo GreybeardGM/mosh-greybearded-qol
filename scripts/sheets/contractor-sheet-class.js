@@ -503,7 +503,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
 
     if (!result) {
-      ui.notifications.warn("No matching motivation found.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Contractor.NoMatchingMotivation"));
       return;
     }
 

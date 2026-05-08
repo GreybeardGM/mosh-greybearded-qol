@@ -364,24 +364,25 @@ Hooks.on("getSceneControlButtons", (controls) => {
 
   const toolDef = {
     name: "applyDamage",
-    title: "Apply Damage to Selected Tokens",
+    title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
     icon: "fa-solid fa-heart-broken",
     visible: game.user.isGM || game.user.isTrusted,
     button: true,
     onClick: async () => {
       const selected = canvas.tokens.controlled;
       if (!selected.length) {
-        ui.notifications.warn("No tokens selected.");
+        ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
         return;
       }
 
       // Ask once, apply to all
       const data = await promptDamageInput({
-        title: "Apply Damage to Selected Tokens",
-        message: `Enter the amount of damage to apply to
-          <strong>${selected.length}</strong> selected
-          ${selected.length === 1 ? "token" : "tokens"}:`,
-        cancel: { label: "Cancel", icon: "fa-solid fa-xmark" }
+        title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
+        message: game.i18n.format("MoshQoL.Damage.EnterAmountForTokens", {
+          count: selected.length,
+          tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
+        }),
+        cancel: { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark" }
       });
 
       if (!data) return;
@@ -399,7 +400,11 @@ Hooks.on("getSceneControlButtons", (controls) => {
           console.error("applyDamage failed for", t, err);
         }
       }
-      ui.notifications.info(`Applied damage to ${applied}/${selected.length} ${selected.length === 1 ? "token" : "tokens"}.`);
+      ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
+        applied,
+        total: selected.length,
+        tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
+      }));
     }
   };
 
