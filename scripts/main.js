@@ -20,7 +20,7 @@ import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./codex/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
-import { applyDamage } from "./utils/apply-damage.js";
+import { applyDamage, promptDamageInput } from "./utils/apply-damage.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
 import { capitalize, normalizeNumber, stripHtml } from "./utils/normalization.js";
@@ -376,27 +376,24 @@ Hooks.on("getSceneControlButtons", (controls) => {
       }
 
       // Ask once, apply to all
-      const data = await foundry.applications.api.DialogV2.input({
-        window: { title: "Apply Damage to Selected Tokens" },
-        content: `
-          <p>Enter the amount of damage to apply to
+      const data = await promptDamageInput({
+        title: "Apply Damage to Selected Tokens",
+        message: `Enter the amount of damage to apply to
           <strong>${selected.length}</strong> selected
-          ${selected.length === 1 ? "token" : "tokens"}:</p>
-          <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
-        `,
-        ok: { label: "Apply", icon: "fa-solid fa-check" },
+          ${selected.length === 1 ? "token" : "tokens"}:`,
         cancel: { label: "Cancel", icon: "fa-solid fa-xmark" }
       });
 
       if (!data) return;
       const damageInput = data.damage;
+      const antiArmor = data.antiArmor;
 
       let applied = 0;
       for (const t of selected) {
         const actorLike = t?.actor ?? t;
         if (!actorLike) continue;
         try {
-          await game.moshGreybeardQol.applyDamage(actorLike, damageInput);
+          await game.moshGreybeardQol.applyDamage(actorLike, damageInput, antiArmor);
           applied++;
         } catch (err) {
           console.error("applyDamage failed for", t, err);
