@@ -23,20 +23,15 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
 
   // Falls kein Wert angegeben: über DialogV2.input abfragen
   if (damageRaw === null || damageRaw === undefined) {
-    const data = await foundry.applications.api.DialogV2.input({
-      window: { title: "Apply Damage" },
-      content: `
-        <p>Enter the amount of damage to apply to <strong>${actor.name}</strong>:</p>
-        <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
-      `,
-      ok: { label: "Apply", icon: "fa-solid fa-check" },
-      // In v13 ist rejectClose standardmäßig false → X liefert null statt Exception.
-      // rejectClose: false 
+    const data = await promptDamageInput({
+      title: "Apply Damage",
+      message: `Enter the amount of damage to apply to <strong>${actor.name}</strong>:`
     });
-  
+
     // Abbruch per X liefert null → nichts tun
     if (!data) return;
-    damageRaw = data?.damage;
+    damageRaw = data.damage;
+    antiArmor = data.antiArmor;
   }
 
   const damage = parseDamageInput(damageRaw);
@@ -109,6 +104,26 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   }
 }
 
+/**
+ * Öffnet den gemeinsamen Apply-Damage-Dialog und liefert rohe Dialogwerte zurück.
+ * Die eigentliche Validierung/Normalisierung bleibt in applyDamage.
+ */
+export async function promptDamageInput({ title, message, cancel = null } = {}) {
+  return foundry.applications.api.DialogV2.input({
+    window: { title: title ?? "Apply Damage" },
+    content: `
+      <p>${message ?? "Enter the amount of damage to apply:"}</p>
+      <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
+      <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
+        <input name="antiArmor" type="checkbox">
+        <span>Anti Armor</span>
+      </label>
+    `,
+    ok: { label: "Apply", icon: "fa-solid fa-check" },
+    ...(cancel ? { cancel } : {})
+  });
+}
+
 /** Actor aus verschiedenen Eingabeformen auflösen */
 async function resolveActorLike(actorLike) {
   if (!actorLike) return null;
@@ -128,7 +143,11 @@ function parseDamageInput(damageInput) {
 
 /** Normalisiert das optionale Anti-Armor-Argument. */
 function parseAntiArmorInput(antiArmor) {
-  if (typeof antiArmor === "object" && antiArmor !== null) return antiArmor.antiArmor === true;
+  if (typeof antiArmor === "object" && antiArmor !== null) return parseAntiArmorInput(antiArmor.antiArmor);
+  if (typeof antiArmor === "string") {
+    const normalized = antiArmor.trim().toLowerCase();
+    return ["true", "on", "1", "yes"].includes(normalized);
+  }
   return antiArmor === true;
 }
 
