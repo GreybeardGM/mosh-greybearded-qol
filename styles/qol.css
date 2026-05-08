@@ -819,7 +819,7 @@
   margin-top: 0.25rem;
 }
 
-/* GM-only apply damage chat buttons */
+/* Apply damage chat action panel */
 .greybeardqol.apply-damage-chat-buttons {
   display: flex;
   flex-direction: column;
