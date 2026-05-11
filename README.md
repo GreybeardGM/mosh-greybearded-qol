@@ -15,7 +15,7 @@
     - Mark actors as "Ready" for creation
     - Automatic activation/deactivation on fresh actors
    
-- 🛡️Armor broken status effect
+- 🛡️**Armor broken status effect**
   - Status effect to show the actor's armor is damaged
 
 - 🌴 **Shore Leave Manager**
