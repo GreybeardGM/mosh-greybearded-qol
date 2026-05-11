@@ -26,6 +26,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         if (salaryPath in formData) {
             formData[salaryPath] = parseCurrencyValue(formData[salaryPath]);
         }
+        formData["system.health.value"] = 0;
         formData["system.health.max"] = 0;
 
         const actor = this.object;
