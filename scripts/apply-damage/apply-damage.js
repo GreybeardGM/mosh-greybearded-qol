@@ -50,8 +50,6 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   let   hits    = normalizeNumber(sys.hits?.value, { fallback: 0 });
   const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
 
-  if (hpMax <= 0) throw new Error("applyDamage: hpMax <= 0 – Actor-Daten prüfen.");
-
   const armorBroken = hasArmorBrokenStatus(actor);
   const damageReduction = normalizeNumber(sys.stats?.armor?.damageReduction, { fallback: 0, min: 0 });
   const armorValue = normalizeNumber(sys.stats?.armor?.mod, { fallback: 0, min: 0 });
@@ -62,6 +60,12 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   let remaining = Math.max(0, damage - armorReductionLimit);
   const shouldBreakArmor = !antiArmorHit && !armorBroken && remaining > 0;
   let woundsGained  = 0;
+
+  if ((remaining > 0) && (hpMax <= 0)) {
+    hits += 1;
+    woundsGained = 1;
+    remaining = 0;
+  }
 
   while ((remaining > 0) && (hits < hitsMax)) {
     if (remaining < hp) {
