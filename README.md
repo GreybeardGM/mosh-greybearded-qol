@@ -11,9 +11,6 @@
   - Full compendium integration with UUID-safe item handling
     - Clean fallback for non-compendium results
   - Interactive skill selection tree
-  - Full GM control via context menu:
-    - Mark actors as "Ready" for creation
-    - Automatic activation/deactivation on fresh actors
    
 - 🛡️**Armor broken status effect**
   - Status effect to show the actor's armor is damaged
