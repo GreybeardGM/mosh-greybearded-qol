@@ -5,6 +5,9 @@
 - Added German localization for the module.
 
 ### Changed
+- Damage rolls are now detected automatically and buttons are inserted so the GM can apply damage directly to the selected tokens.
+- The QoL Toolband is now freely configurable.
+- Shore Leave settings have been grouped into a new menu for better overview.
 - Prepared the next development version; details will be expanded before release.
 
 ## [0.7.3] - 2026-05-07
