@@ -19,6 +19,7 @@ import { chatOutput } from "../utils/chat-output.js";
 export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamage: Actor nicht gefunden.");
+  if (actor.type === "ship") return false;
 
   let damageRaw = damageInput;
 
