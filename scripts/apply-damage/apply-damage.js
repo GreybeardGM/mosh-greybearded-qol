@@ -1,3 +1,4 @@
+import { getArmorCoverValues } from "../codex/armor-cover.js";
 import { normalizeNumber } from "../utils/normalization.js";
 
 import { chatOutput } from "../utils/chat-output.js";
@@ -51,8 +52,11 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
 
   const armorBroken = hasArmorBrokenStatus(actor);
-  const damageReduction = normalizeNumber(sys.stats?.armor?.damageReduction, { fallback: 0, min: 0 });
-  const armorValue = normalizeNumber(sys.stats?.armor?.mod, { fallback: 0, min: 0 });
+  const coverValues = getArmorCoverValues(sys.stats?.armor?.cover);
+  const baseDamageReduction = normalizeNumber(sys.stats?.armor?.damageReduction, { fallback: 0, min: 0 });
+  const baseArmorValue = normalizeNumber(sys.stats?.armor?.mod, { fallback: 0, min: 0 });
+  const damageReduction = baseDamageReduction + coverValues.damageReduction;
+  const armorValue = baseArmorValue + coverValues.armor;
   const armorReductionLimit = antiArmorHit || armorBroken
     ? damageReduction
     : Math.max(damageReduction, armorValue);
