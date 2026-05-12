@@ -370,7 +370,7 @@ function renderWoundRolls(wound) {
 }
 
 function rollToInlineHtml(roll) {
-  const fallback = `<span class="inline-roll${selectedClass}"><i class="fas fa-dice-d10"></i> ${roll.total}</span>`;
+  const fallback = `<span class="inline-roll"><i class="fas fa-dice-d10"></i> ${roll.total}</span>`;
   const anchor = typeof roll.toAnchor === "function" ? roll.toAnchor() : null;
   if (!anchor?.outerHTML) return fallback;
 
