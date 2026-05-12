@@ -470,7 +470,7 @@ async function rollWoundDice(formula, modifier) {
   for (let i = 0; i < rollCount; i += 1) {
     try {
       const roll = new Roll(formula);
-      await roll.evaluate({ async: true });
+      await roll.evaluate();
       logApplyDamageDebug("wound die evaluated", {
         rollIndex: i + 1,
         formula,
