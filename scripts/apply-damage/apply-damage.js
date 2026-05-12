@@ -2,6 +2,7 @@ import { getArmorCoverValues } from "../codex/armor-cover.js";
 import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-config.js";
+import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
 import { chatOutput } from "../utils/chat-output.js";
 
@@ -49,7 +50,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
 
   const antiArmorHit = parseAntiArmorInput(antiArmor);
   const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
-  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata);
+  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata, getApplyDamageActorScope(actor));
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
@@ -229,8 +230,24 @@ function getWoundRollFormula(modifier = null) {
   return "1d10z";
 }
 
-function getAutomatedWoundRoll(woundMetadata) {
-  const automate = automatesWoundRoll();
+function getApplyDamageActorScope(actor) {
+  if (actor?.type === "character") return "character";
+  if (actor?.type === "creature") {
+    return isContractorActor(actor) ? "contractor" : "creature";
+  }
+  return null;
+}
+
+function isContractorActor(actor) {
+  const sheet = actor?.sheet ?? null;
+  if (sheet instanceof QoLContractorSheet) return true;
+
+  const sheetClass = actor?.getFlag?.("core", "sheetClass");
+  return typeof sheetClass === "string" && sheetClass.includes("QoLContractorSheet");
+}
+
+function getAutomatedWoundRoll(woundMetadata, actorScope) {
+  const automate = automatesWoundRoll(actorScope);
   if (!automate) return null;
   if (!woundMetadata.tableSettingKey) {
     return null;

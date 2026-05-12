@@ -96,7 +96,7 @@
         "SettingName": "Toolbar Configuration"
       },
       "ApplyDamageConfig": {
-        "Hint": "Choose how Apply Damage handles armor and wound-roll automation.",
+        "Hint": "Choose how Apply Damage handles armor and wound-roll automation per actor category.",
         "Label": "Configure Apply Damage...",
         "Name": "Configure Apply Damage",
         "SettingName": "Apply Damage Configuration",
@@ -105,8 +105,19 @@
           "Name": "Tougher Armor"
         },
         "AutomateWoundRoll": {
-          "Hint": "If enabled, Apply Damage will automatically trigger wound rolls when damage causes wounds.",
-          "Name": "Automate Wound Roll"
+          "Title": "Automate Wound Rolls",
+          "Character": {
+            "Hint": "If enabled, Apply Damage will automatically trigger wound rolls for player characters when damage causes wounds.",
+            "Name": "Player Characters"
+          },
+          "Contractor": {
+            "Hint": "If enabled, Apply Damage will automatically trigger wound rolls for contractors when damage causes wounds.",
+            "Name": "Contractors"
+          },
+          "Creature": {
+            "Hint": "If enabled, Apply Damage will automatically trigger wound rolls for creatures when damage causes wounds.",
+            "Name": "Creatures"
+          }
         }
       }
     },

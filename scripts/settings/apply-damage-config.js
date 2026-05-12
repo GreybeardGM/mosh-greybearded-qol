@@ -3,10 +3,16 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export const MODULE_ID = "mosh-greybearded-qol";
 export const APPLY_DAMAGE_CONFIG_SETTING = "applyDamageConfig";
 
+export const APPLY_DAMAGE_ACTOR_SCOPES = ["character", "contractor", "creature"];
+
 export function getDefaultApplyDamageConfig() {
   return {
     tougherArmor: false,
-    automateWoundRoll: true
+    automateWoundRoll: {
+      character: true,
+      contractor: false,
+      creature: false
+    }
   };
 }
 
@@ -17,8 +23,12 @@ export function normalizeApplyDamageConfig(config) {
     if (typeof config.tougherArmor === "boolean") {
       normalized.tougherArmor = config.tougherArmor;
     }
-    if (typeof config.automateWoundRoll === "boolean") {
-      normalized.automateWoundRoll = config.automateWoundRoll;
+    if (config.automateWoundRoll && typeof config.automateWoundRoll === "object") {
+      for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
+        if (typeof config.automateWoundRoll[scope] === "boolean") {
+          normalized.automateWoundRoll[scope] = config.automateWoundRoll[scope];
+        }
+      }
     }
   }
 
@@ -33,8 +43,8 @@ export function usesTougherArmor() {
   return getNormalizedApplyDamageConfig().tougherArmor === true;
 }
 
-export function automatesWoundRoll() {
-  return getNormalizedApplyDamageConfig().automateWoundRoll === true;
+export function automatesWoundRoll(scope = "character") {
+  return getNormalizedApplyDamageConfig().automateWoundRoll?.[scope] === true;
 }
 
 function isSubmittedCheckboxEnabled(value) {
@@ -92,8 +102,10 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     const tougherArmor = submitted.tougherArmor;
     config.tougherArmor = isSubmittedCheckboxEnabled(tougherArmor);
 
-    const automateWoundRoll = submitted.automateWoundRoll;
-    config.automateWoundRoll = isSubmittedCheckboxEnabled(automateWoundRoll);
+    const automateWoundRoll = submitted.automateWoundRoll ?? {};
+    for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
+      config.automateWoundRoll[scope] = isSubmittedCheckboxEnabled(automateWoundRoll[scope]);
+    }
 
     await game.settings.set(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, config);
     ui.notifications.info(game.i18n.localize("MoshQoL.Damage.Config.UpdateSuccess"));
