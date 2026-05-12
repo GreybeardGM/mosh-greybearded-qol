@@ -7,6 +7,14 @@ import { chatOutput } from "../utils/chat-output.js";
 
 const APPLY_DAMAGE_LOG_PREFIX = "[MoSh QoL Apply Damage]";
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
+const MOSH_WOUND_TABLE_SETTING_KEYS = new Set([
+  "table1eWoundBluntForce",
+  "table1eWoundBleeding",
+  "table1eWoundGunshot",
+  "table1eWoundFireExplosives",
+  "table1eWoundGoreMassive"
+]);
+const FOUNDRY_ID_LIKE_PATTERN = /^[A-Za-z0-9_-]{16,}$/;
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
@@ -293,7 +301,9 @@ async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
     count
   });
 
-  const table = await resolveAutomatedWoundRollTable(woundRoll.tableReference);
+  const table = await resolveAutomatedWoundRollTable(woundRoll.tableReference, {
+    tableSettingKey: woundRoll.tableSettingKey
+  });
   if (!table) {
     logApplyDamageWarning("automated wound roll aborted: rolltable could not be resolved", {
       actor: getActorLogData(actor),
@@ -345,10 +355,11 @@ async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
   return results;
 }
 
-async function resolveAutomatedWoundRollTable(tableReference) {
+async function resolveAutomatedWoundRollTable(tableReference, { tableSettingKey = null } = {}) {
   logApplyDamageDebug("resolving automated wound rolltable", {
     tableReference,
-    referenceType: typeof tableReference
+    referenceType: typeof tableReference,
+    tableSettingKey
   });
 
   if (!tableReference) {
@@ -366,6 +377,15 @@ async function resolveAutomatedWoundRollTable(tableReference) {
     return resolveTableFromUuid(reference, "automated wound uuid");
   }
 
+  const preferMoshPack = shouldPreferMoshWoundTablePack(reference, tableSettingKey);
+  if (preferMoshPack) {
+    logApplyDamageDebug("automated wound rolltable detected id-like Mosh wound table setting", {
+      reference,
+      tableSettingKey,
+      preferredPack: MOSH_ROLLTABLE_PACK
+    });
+  }
+
   const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
   if (tableByMoshDocumentId) return tableByMoshDocumentId;
 
@@ -377,8 +397,31 @@ async function resolveAutomatedWoundRollTable(tableReference) {
   });
   if (tableByWorldId) return tableByWorldId;
 
-  logApplyDamageWarning("automated wound rolltable resolve failed: no lookup matched", { tableReference });
+  const tableByName = game.tables?.getName?.(reference) ?? null;
+  logApplyDamageDebug("automated wound rolltable lookup by world table name", {
+    reference,
+    delayedForIdLikeMoshSetting: preferMoshPack,
+    found: Boolean(tableByName),
+    table: getRollTableLogData(tableByName)
+  });
+  if (tableByName) return tableByName;
+
+  const normalizedReference = reference.toLowerCase();
+  const tableByCaseInsensitiveName = game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
+  logApplyDamageDebug("automated wound rolltable lookup by case-insensitive world table name", {
+    reference,
+    delayedForIdLikeMoshSetting: preferMoshPack,
+    found: Boolean(tableByCaseInsensitiveName),
+    table: getRollTableLogData(tableByCaseInsensitiveName)
+  });
+  if (tableByCaseInsensitiveName) return tableByCaseInsensitiveName;
+
+  logApplyDamageWarning("automated wound rolltable resolve failed: no lookup matched", { tableReference, tableSettingKey });
   return null;
+}
+
+function shouldPreferMoshWoundTablePack(reference, tableSettingKey) {
+  return MOSH_WOUND_TABLE_SETTING_KEYS.has(tableSettingKey) && FOUNDRY_ID_LIKE_PATTERN.test(reference);
 }
 
 async function resolveTableFromMoshCompendium(documentId) {
