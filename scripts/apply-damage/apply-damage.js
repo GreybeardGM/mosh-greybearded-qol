@@ -653,8 +653,7 @@ function getRollTableResultLogData(result) {
     name: result.name,
     description: result.description,
     range: result.range,
-    documentCollection: result.documentCollection,
-    documentId: result.documentId
+    uuid: result.uuid
   };
 }
 
