@@ -323,8 +323,6 @@
         "ResetSuccess": "Apply Damage configuration reset to defaults.",
         "UpdateSuccess": "Apply Damage configuration updated."
       },
-      "AutomatedWoundRolls": "Automated wound rolls",
-      "WoundNumber": "Wound {number}",
       "NoWoundResult": "No matching wound result found.",
       "Advantage": "Advantage",
       "Disadvantage": "Disadvantage"

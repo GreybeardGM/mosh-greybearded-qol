@@ -202,7 +202,7 @@ function normalizeWoundMetadata(woundType, woundRollModifier) {
   return {
     woundType: type,
     woundRollModifier: modifier,
-    woundRollFormula: getWoundRollFormula(),
+    woundRollFormula: getWoundRollFormula(modifier),
     woundTypeDefinition,
     tableSettingKey: woundTypeDefinition?.tableSettingKey ?? null
   };
@@ -223,7 +223,9 @@ function normalizeWoundRollModifier(woundRollModifier) {
   return null;
 }
 
-function getWoundRollFormula() {
+function getWoundRollFormula(modifier = null) {
+  if (modifier === "advantage") return "2d10zkh";
+  if (modifier === "disadvantage") return "2d10zkl";
   return "1d10z";
 }
 
@@ -256,8 +258,8 @@ async function rollAutomatedWounds(woundRoll, count) {
 
   const results = [];
   for (let i = 0; i < count; i += 1) {
-    const rolls = await rollWoundDice(woundRoll.formula, woundRoll.modifier);
-    const selectedRoll = selectWoundRoll(rolls, woundRoll.modifier);
+    const rolls = await rollWoundDice(woundRoll.formula);
+    const selectedRoll = rolls[0];
     const tableResults = getTableResultsForRoll(table, selectedRoll.total);
 
     results.push({
@@ -326,29 +328,10 @@ async function resolveTableFromUuid(uuid) {
   }
 }
 
-async function rollWoundDice(formula, modifier) {
-  const rollCount = modifier ? 2 : 1;
-  const rolls = [];
-
-  for (let i = 0; i < rollCount; i += 1) {
-    const roll = new Roll(formula);
-    await roll.evaluate();
-    rolls.push(roll);
-  }
-
-  return rolls;
-}
-
-function selectWoundRoll(rolls, modifier) {
-  if (modifier === "advantage") {
-    return rolls.reduce((highest, roll) => roll.total > highest.total ? roll : highest, rolls[0]);
-  }
-
-  if (modifier === "disadvantage") {
-    return rolls.reduce((lowest, roll) => roll.total < lowest.total ? roll : lowest, rolls[0]);
-  }
-
-  return rolls[0];
+async function rollWoundDice(formula) {
+  const roll = new Roll(formula);
+  await roll.evaluate();
+  return [roll];
 }
 
 function getTableResultsForRoll(table, rollTotal) {
@@ -363,19 +346,16 @@ function getTableResultsForRoll(table, rollTotal) {
 async function renderAutomatedWoundResults(wounds) {
   if (!wounds.length) return "";
 
-  const title = foundry.utils.escapeHTML(game.i18n.localize("MoshQoL.Damage.AutomatedWoundRolls"));
   const entries = [];
 
-  for (let index = 0; index < wounds.length; index += 1) {
-    const wound = wounds[index];
+  for (const wound of wounds) {
     const rollHtml = renderWoundRolls(wound);
     const resultHtml = await renderTableResults(wound.tableResults);
-    const woundNumber = foundry.utils.escapeHTML(game.i18n.format("MoshQoL.Damage.WoundNumber", { number: index + 1 }));
 
-    entries.push(`<li><strong>${woundNumber}</strong>: ${rollHtml}<br>${resultHtml}</li>`);
+    entries.push(`<p>${rollHtml}<br>${resultHtml}</p>`);
   }
 
-  return `<div class="mosh-qol-automated-wounds"><strong>${title}</strong><ol>${entries.join("")}</ol></div>`;
+  return `<div class="mosh-qol-automated-wounds">${entries.join("<hr>")}</div>`;
 }
 
 function renderWoundRolls(wound) {
