@@ -523,27 +523,20 @@ function getTableResultsForRoll(table, rollTotal) {
     hasGetResultsForRoll: typeof table.getResultsForRoll === "function"
   });
 
-  if (typeof table.getResultsForRoll === "function") {
-    const results = Array.from(table.getResultsForRoll(rollTotal) ?? []);
-    logApplyDamageDebug("rolltable results from getResultsForRoll", {
-      rollTotal,
-      resultCount: results.length,
-      results: results.map(getRollTableResultLogData)
+  if (typeof table.getResultsForRoll !== "function") {
+    logApplyDamageWarning("rolltable results unavailable: getResultsForRoll is not supported", {
+      table: getRollTableLogData(table),
+      rollTotal
     });
-    return results;
+    return [];
   }
 
-  const results = Array.from(table.results ?? []).filter((result) => {
-    const [min, max] = result.range ?? [];
-    return rollTotal >= min && rollTotal <= max;
-  });
-
-  logApplyDamageDebug("rolltable results from manual range lookup", {
+  const results = Array.from(table.getResultsForRoll(rollTotal) ?? []);
+  logApplyDamageDebug("rolltable results from getResultsForRoll", {
     rollTotal,
     resultCount: results.length,
     results: results.map(getRollTableResultLogData)
   });
-
   return results;
 }
 
