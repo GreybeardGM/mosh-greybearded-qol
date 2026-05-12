@@ -5,6 +5,8 @@ import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-c
 
 import { chatOutput } from "../utils/chat-output.js";
 
+const APPLY_DAMAGE_LOG_PREFIX = "[MoSh QoL Apply Damage]";
+
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
  *
@@ -48,6 +50,13 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   const antiArmorHit = parseAntiArmorInput(antiArmor);
   const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
   const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata);
+  logApplyDamageDebug("prepared wound automation", {
+    actor: getActorLogData(actor),
+    damage,
+    antiArmor: antiArmorHit,
+    woundMetadata,
+    automatedWoundRoll
+  });
 
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
@@ -109,9 +118,30 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
     await setArmorBrokenStatus(actor);
   }
 
-  const automatedWoundResults = automatedWoundsGained > 0
-    ? await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained)
-    : [];
+  logApplyDamageDebug("damage processing complete", {
+    actor: getActorLogData(actor),
+    woundsGained,
+    automatedWoundsGained,
+    hp,
+    hits,
+    hitsMax,
+    automatedWoundRoll
+  });
+
+  let automatedWoundResults = [];
+  if (automatedWoundsGained > 0) {
+    try {
+      automatedWoundResults = await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained, { actor });
+    } catch (error) {
+      logApplyDamageError("automated wound rolls failed", {
+        actor: getActorLogData(actor),
+        woundsGained,
+        automatedWoundsGained,
+        automatedWoundRoll,
+        woundMetadata
+      }, error);
+    }
+  }
 
   if (woundsGained > 0) {
     const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
@@ -222,28 +252,81 @@ function getWoundRollFormula() {
 }
 
 function getAutomatedWoundRoll(woundMetadata) {
-  if (!automatesWoundRoll()) return null;
-  if (!woundMetadata.tableSettingKey) return null;
+  const automate = automatesWoundRoll();
+  logApplyDamageDebug("checking automated wound roll setting", {
+    automate,
+    woundMetadata
+  });
+
+  if (!automate) return null;
+  if (!woundMetadata.tableSettingKey) {
+    logApplyDamageWarning("automated wound roll skipped: missing wound table setting key", { woundMetadata });
+    return null;
+  }
 
   const tableReference = game.settings.get("mosh", woundMetadata.tableSettingKey);
-  if (!tableReference) return null;
+  logApplyDamageDebug("loaded wound table reference from mosh setting", {
+    tableSettingKey: woundMetadata.tableSettingKey,
+    tableReference,
+    referenceType: typeof tableReference
+  });
+
+  if (!tableReference) {
+    logApplyDamageWarning("automated wound roll skipped: mosh wound table setting is empty", { woundMetadata });
+    return null;
+  }
 
   return {
     tableReference,
     formula: woundMetadata.woundRollFormula,
-    modifier: woundMetadata.woundRollModifier
+    modifier: woundMetadata.woundRollModifier,
+    tableSettingKey: woundMetadata.tableSettingKey,
+    woundType: woundMetadata.woundType
   };
 }
 
-async function rollAutomatedWounds(woundRoll, count) {
+async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
+  logApplyDamageDebug("starting automated wound rolls", {
+    actor: getActorLogData(actor),
+    woundRoll,
+    count
+  });
+
   const table = await resolveRollTable(woundRoll.tableReference);
-  if (!table) return [];
+  if (!table) {
+    logApplyDamageWarning("automated wound roll aborted: rolltable could not be resolved", {
+      actor: getActorLogData(actor),
+      woundRoll
+    });
+    return [];
+  }
+
+  logApplyDamageDebug("resolved wound rolltable", {
+    actor: getActorLogData(actor),
+    table: getRollTableLogData(table)
+  });
 
   const results = [];
   for (let i = 0; i < count; i += 1) {
+    logApplyDamageDebug("rolling automated wound", {
+      actor: getActorLogData(actor),
+      woundIndex: i + 1,
+      formula: woundRoll.formula,
+      modifier: woundRoll.modifier
+    });
+
     const rolls = await rollWoundDice(woundRoll.formula, woundRoll.modifier);
     const selectedRoll = selectWoundRoll(rolls, woundRoll.modifier);
     const tableResults = getTableResultsForRoll(table, selectedRoll.total);
+
+    logApplyDamageDebug("automated wound roll result", {
+      actor: getActorLogData(actor),
+      woundIndex: i + 1,
+      rolls: rolls.map(getRollLogData),
+      selectedRoll: getRollLogData(selectedRoll),
+      tableResultCount: tableResults.length,
+      tableResults: tableResults.map(getRollTableResultLogData)
+    });
 
     results.push({
       rolls,
@@ -253,32 +336,93 @@ async function rollAutomatedWounds(woundRoll, count) {
     });
   }
 
+  logApplyDamageDebug("finished automated wound rolls", {
+    actor: getActorLogData(actor),
+    resultCount: results.length
+  });
+
   return results;
 }
 
 async function resolveRollTable(tableReference) {
-  if (!tableReference) return null;
-  if (typeof RollTable !== "undefined" && tableReference instanceof RollTable) return tableReference;
+  logApplyDamageDebug("resolving rolltable", {
+    tableReference,
+    referenceType: typeof tableReference
+  });
+
+  if (!tableReference) {
+    logApplyDamageWarning("rolltable resolve failed: empty table reference", { tableReference });
+    return null;
+  }
+
+  if (typeof RollTable !== "undefined" && tableReference instanceof RollTable) {
+    logApplyDamageDebug("rolltable resolved from RollTable instance", { table: getRollTableLogData(tableReference) });
+    return tableReference;
+  }
 
   if (typeof tableReference === "object") {
-    if (tableReference.uuid) return fromUuid(tableReference.uuid);
-    if (tableReference.id) return game.tables?.get(tableReference.id) ?? null;
-    if (tableReference.name) return game.tables?.getName(tableReference.name) ?? null;
+    if (tableReference.uuid) {
+      const table = await resolveTableFromUuid(tableReference.uuid, "object.uuid");
+      if (table) return table;
+    }
+    if (tableReference.id) {
+      const table = game.tables?.get(tableReference.id) ?? null;
+      logApplyDamageDebug("rolltable lookup by object.id", { id: tableReference.id, found: Boolean(table), table: getRollTableLogData(table) });
+      if (table) return table;
+    }
+    if (tableReference.name) {
+      const table = game.tables?.getName(tableReference.name) ?? null;
+      logApplyDamageDebug("rolltable lookup by object.name", { name: tableReference.name, found: Boolean(table), table: getRollTableLogData(table) });
+      if (table) return table;
+    }
+
+    logApplyDamageWarning("rolltable resolve failed: unsupported object reference", { tableReference });
     return null;
   }
 
   const reference = String(tableReference);
-  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) return fromUuid(reference);
+  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
+    return resolveTableFromUuid(reference, "string uuid");
+  }
 
-  const table = game.tables?.get(reference)
-    ?? game.tables?.getName(reference)
-    ?? game.tables?.find?.((candidate) => candidate.uuid === reference || candidate.id === reference || candidate.name === reference)
-    ?? null;
+  const tableById = game.tables?.get(reference) ?? null;
+  logApplyDamageDebug("rolltable lookup by id", { reference, found: Boolean(tableById), table: getRollTableLogData(tableById) });
+  if (tableById) return tableById;
 
-  if (table) return table;
-  if (reference.includes(".")) return fromUuid(reference);
+  const tableByName = game.tables?.getName(reference) ?? null;
+  logApplyDamageDebug("rolltable lookup by name", { reference, found: Boolean(tableByName), table: getRollTableLogData(tableByName) });
+  if (tableByName) return tableByName;
 
+  const tableByCollectionSearch = game.tables?.find?.((candidate) => candidate.uuid === reference || candidate.id === reference || candidate.name === reference) ?? null;
+  logApplyDamageDebug("rolltable lookup by collection search", {
+    reference,
+    found: Boolean(tableByCollectionSearch),
+    table: getRollTableLogData(tableByCollectionSearch)
+  });
+  if (tableByCollectionSearch) return tableByCollectionSearch;
+
+  if (reference.includes(".")) {
+    return resolveTableFromUuid(reference, "fallback dotted reference");
+  }
+
+  logApplyDamageWarning("rolltable resolve failed: no lookup matched", { tableReference });
   return null;
+}
+
+async function resolveTableFromUuid(uuid, source) {
+  try {
+    const table = await fromUuid(uuid);
+    logApplyDamageDebug("rolltable lookup by uuid", {
+      source,
+      uuid,
+      found: Boolean(table),
+      table: getRollTableLogData(table)
+    });
+    return table ?? null;
+  } catch (error) {
+    logApplyDamageError("rolltable lookup by uuid failed", { source, uuid }, error);
+    return null;
+  }
 }
 
 async function rollWoundDice(formula, modifier) {
@@ -286,9 +430,24 @@ async function rollWoundDice(formula, modifier) {
   const rolls = [];
 
   for (let i = 0; i < rollCount; i += 1) {
-    const roll = new Roll(formula);
-    await roll.evaluate({ async: true });
-    rolls.push(roll);
+    try {
+      const roll = new Roll(formula);
+      await roll.evaluate({ async: true });
+      logApplyDamageDebug("wound die evaluated", {
+        rollIndex: i + 1,
+        formula,
+        modifier,
+        roll: getRollLogData(roll)
+      });
+      rolls.push(roll);
+    } catch (error) {
+      logApplyDamageError("wound die evaluation failed", {
+        rollIndex: i + 1,
+        formula,
+        modifier
+      }, error);
+      throw error;
+    }
   }
 
   return rolls;
@@ -307,14 +466,34 @@ function selectWoundRoll(rolls, modifier) {
 }
 
 function getTableResultsForRoll(table, rollTotal) {
+  logApplyDamageDebug("getting rolltable results", {
+    table: getRollTableLogData(table),
+    rollTotal,
+    hasGetResultsForRoll: typeof table.getResultsForRoll === "function"
+  });
+
   if (typeof table.getResultsForRoll === "function") {
-    return Array.from(table.getResultsForRoll(rollTotal) ?? []);
+    const results = Array.from(table.getResultsForRoll(rollTotal) ?? []);
+    logApplyDamageDebug("rolltable results from getResultsForRoll", {
+      rollTotal,
+      resultCount: results.length,
+      results: results.map(getRollTableResultLogData)
+    });
+    return results;
   }
 
-  return Array.from(table.results ?? []).filter((result) => {
+  const results = Array.from(table.results ?? []).filter((result) => {
     const [min, max] = result.range ?? [];
     return rollTotal >= min && rollTotal <= max;
   });
+
+  logApplyDamageDebug("rolltable results from manual range lookup", {
+    rollTotal,
+    resultCount: results.length,
+    results: results.map(getRollTableResultLogData)
+  });
+
+  return results;
 }
 
 async function renderAutomatedWoundResults(wounds) {
@@ -371,6 +550,73 @@ async function renderTableResult(result) {
   if (typeof result.getChatText === "function") return result.getChatText();
   const text = result.text ?? result.description ?? result.name ?? "";
   return foundry.utils.escapeHTML(String(text));
+}
+
+function logApplyDamageDebug(message, data = {}) {
+  console.log(`${APPLY_DAMAGE_LOG_PREFIX} ${message}`, data);
+}
+
+function logApplyDamageWarning(message, data = {}) {
+  console.warn(`${APPLY_DAMAGE_LOG_PREFIX} ${message}`, data);
+}
+
+function logApplyDamageError(message, data = {}, error = null) {
+  console.error(`${APPLY_DAMAGE_LOG_PREFIX} ${message}`, data, error);
+}
+
+function getActorLogData(actor) {
+  if (!actor) return null;
+  return {
+    id: actor.id,
+    uuid: actor.uuid,
+    name: actor.name,
+    type: actor.type
+  };
+}
+
+function getRollTableLogData(table) {
+  if (!table) return null;
+  return {
+    id: table.id,
+    uuid: table.uuid,
+    name: table.name,
+    documentName: table.documentName,
+    resultCount: table.results?.size ?? table.results?.length ?? null
+  };
+}
+
+function getRollLogData(roll) {
+  if (!roll) return null;
+  return {
+    formula: roll.formula,
+    total: roll.total,
+    result: roll.result,
+    dice: roll.dice?.map((die) => ({
+      faces: die.faces,
+      modifiers: die.modifiers,
+      total: die.total,
+      results: die.results?.map((result) => ({
+        result: result.result,
+        active: result.active,
+        discarded: result.discarded,
+        rerolled: result.rerolled,
+        exploded: result.exploded,
+        zeroMaxApplied: result._zeroMaxApplied
+      }))
+    }))
+  };
+}
+
+function getRollTableResultLogData(result) {
+  if (!result) return null;
+  return {
+    id: result.id,
+    type: result.type,
+    text: result.text,
+    range: result.range,
+    documentCollection: result.documentCollection,
+    documentId: result.documentId
+  };
 }
 
 function parseAntiArmorInput(antiArmor) {
