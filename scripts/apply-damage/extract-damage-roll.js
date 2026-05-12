@@ -105,6 +105,9 @@ export function extractWoundEffectFromMessageContent(message) {
 }
 
 function findWoundEffectText(content) {
+  const uuidWoundEffectText = findWoundEffectTextFromUuidMarkup(content);
+  if (uuidWoundEffectText) return uuidWoundEffectText;
+
   if (typeof document !== "undefined" && typeof document.createElement === "function") {
     const wrapper = document.createElement("div");
     wrapper.innerHTML = content;
@@ -120,6 +123,26 @@ function findWoundEffectText(content) {
   }
 
   return findWoundEffectTextWithRegex(content);
+}
+
+/**
+ * ChatMessage.content can still contain Foundry's raw rich-text references when
+ * this parser runs. In that state, a wound effect looks like
+ * `@UUID[...]{Gunshot [+]}` instead of the rendered `.content-link` anchor.
+ *
+ * If this ever needs to become more defensive, keep this raw-content parser as
+ * the first pass and add a later fallback that accepts the rendered chat HTML
+ * from the render hook. That fallback should inspect the already enriched DOM for
+ * `.content-link` anchors near the Wound Effect header, then pass the anchor text
+ * through parseWoundEffectText just like this raw UUID path does.
+ */
+function findWoundEffectTextFromUuidMarkup(content) {
+  const woundEffectIndex = content.search(/<strong[^>]*>\s*Wound Effect\s*<\/strong>/i);
+  const searchContent = woundEffectIndex >= 0 ? content.slice(woundEffectIndex) : content;
+  const uuidMatch = searchContent.match(/@UUID\[[^\]]+\]\{([^}]+)\}/i);
+  if (!uuidMatch) return null;
+
+  return decodeHtmlAttribute(stripHtml(uuidMatch[1])).trim();
 }
 
 function findWoundEffectTextWithRegex(content) {
