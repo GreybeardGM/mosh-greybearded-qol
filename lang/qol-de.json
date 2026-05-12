@@ -323,8 +323,6 @@
         "ResetSuccess": "Schaden-anwenden-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Schaden-anwenden-Konfiguration aktualisiert."
       },
-      "AutomatedWoundRolls": "Automatische Wundwürfe",
-      "WoundNumber": "Wunde {number}",
       "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
       "Advantage": "Vorteil",
       "Disadvantage": "Nachteil"
