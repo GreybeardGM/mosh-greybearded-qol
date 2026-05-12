@@ -1,7 +1,11 @@
 import { normalizeNumber } from "../utils/normalization.js";
-import { extractDamageRollFromMessageContent } from "./extract-damage-roll.js";
+import {
+  extractDamageRollFromMessageContent,
+  extractWoundEffectFromMessageContent
+} from "./extract-damage-roll.js";
 
 function getApplyDamageChatButtonRoll(message) {
+  const woundEffect = extractWoundEffectFromMessageContent(message);
   const contentRoll = extractDamageRollFromMessageContent(message);
   if (contentRoll) return contentRoll;
 
@@ -15,7 +19,8 @@ function getApplyDamageChatButtonRoll(message) {
     return {
       total: Math.trunc(total),
       formula: roll.formula,
-      rollData: roll
+      rollData: roll,
+      ...woundEffect
     };
   }
 
@@ -42,7 +47,9 @@ function createApplyDamageChatButtons(damageRoll) {
     icon: "fas fa-heart-broken",
     label: game.i18n.localize("MoshQoL.Damage.ApplyDamageShort"),
     title: game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total }),
-    flex: 2
+    flex: 2,
+    woundType: damageRoll.woundType,
+    woundRollModifier: damageRoll.woundRollModifier
   });
 
   const applyAntiArmorButton = createApplyDamageButton({
@@ -51,7 +58,9 @@ function createApplyDamageChatButtons(damageRoll) {
     icon: "fas fa-shield-halved",
     label: game.i18n.localize("MoshQoL.Damage.ApplyAntiArmorShort"),
     title: `${game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total })} (${game.i18n.localize("MoshQoL.Damage.AntiArmor")})`,
-    flex: 1
+    flex: 1,
+    woundType: damageRoll.woundType,
+    woundRollModifier: damageRoll.woundRollModifier
   });
 
   buttonRow.append(applyRegularButton, applyAntiArmorButton);
@@ -60,13 +69,13 @@ function createApplyDamageChatButtons(damageRoll) {
   return panel;
 }
 
-function createApplyDamageButton({ damage, antiArmor, icon, label, title, flex }) {
+function createApplyDamageButton({ damage, antiArmor, icon, label, title, flex, woundType, woundRollModifier }) {
   const button = document.createElement("button");
   button.type = "button";
   button.classList.add("apply-damage-chat-button", "chat-action", "interactive");
   button.classList.add(antiArmor ? "anti-armor" : "regular-damage");
   button.dataset.action = "applyDamageSelected";
-  button.dataset.args = JSON.stringify([damage, antiArmor]);
+  button.dataset.args = JSON.stringify(createApplyDamageArgs({ damage, antiArmor, woundType, woundRollModifier }));
   button.style.flexGrow = String(flex);
   button.title = title;
   button.setAttribute("aria-label", title);
@@ -81,6 +90,16 @@ function createApplyDamageButton({ damage, antiArmor, icon, label, title, flex }
   button.append(iconElement, labelElement);
 
   return button;
+}
+
+function createApplyDamageArgs({ damage, antiArmor, woundType, woundRollModifier }) {
+  const args = [damage, antiArmor];
+  if (woundType) args.push(woundType);
+  if (woundRollModifier) {
+    if (!woundType) args.push(null);
+    args.push(woundRollModifier);
+  }
+  return args;
 }
 
 export function insertApplyDamageChatButtons(message, html) {

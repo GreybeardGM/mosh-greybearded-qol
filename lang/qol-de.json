@@ -96,13 +96,17 @@
         "SettingName": "Werkzeugleisten-Konfiguration"
       },
       "ApplyDamageConfig": {
-        "Hint": "Wähle aus, wie Schaden anwenden Hausregeln für stabilere Panzerung behandelt.",
+        "Hint": "Wähle aus, wie Schaden anwenden Panzerung und Wundwurf-Automatisierung behandelt.",
         "Label": "Schaden anwenden konfigurieren...",
         "Name": "Schaden anwenden konfigurieren",
         "SettingName": "Schaden-anwenden-Konfiguration",
         "TougherArmor": {
           "Hint": "Wenn aktiviert, wird Panzerung nur beschädigt, wenn nach der Panzerungsreduktion Schaden übrig bleibt. Wenn deaktiviert, wird Panzerung auch beschädigt, wenn sie den Schaden exakt auf 0 reduziert.",
           "Name": "Stabilere Panzerung"
+        },
+        "AutomateWoundRoll": {
+          "Hint": "Wenn aktiviert, löst Schaden anwenden automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+          "Name": "Wundwurf automatisieren"
         }
       }
     },

@@ -5,7 +5,8 @@ export const APPLY_DAMAGE_CONFIG_SETTING = "applyDamageConfig";
 
 export function getDefaultApplyDamageConfig() {
   return {
-    tougherArmor: false
+    tougherArmor: false,
+    automateWoundRoll: true
   };
 }
 
@@ -15,6 +16,9 @@ export function normalizeApplyDamageConfig(config) {
   if (config && typeof config === "object") {
     if (typeof config.tougherArmor === "boolean") {
       normalized.tougherArmor = config.tougherArmor;
+    }
+    if (typeof config.automateWoundRoll === "boolean") {
+      normalized.automateWoundRoll = config.automateWoundRoll;
     }
   }
 
@@ -27,6 +31,14 @@ export function getNormalizedApplyDamageConfig() {
 
 export function usesTougherArmor() {
   return getNormalizedApplyDamageConfig().tougherArmor === true;
+}
+
+export function automatesWoundRoll() {
+  return getNormalizedApplyDamageConfig().automateWoundRoll === true;
+}
+
+function isSubmittedCheckboxEnabled(value) {
+  return value === true || value === "true" || value === "on";
 }
 
 export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -78,9 +90,10 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     const config = getDefaultApplyDamageConfig();
 
     const tougherArmor = submitted.tougherArmor;
-    config.tougherArmor = tougherArmor === true
-      || tougherArmor === "true"
-      || tougherArmor === "on";
+    config.tougherArmor = isSubmittedCheckboxEnabled(tougherArmor);
+
+    const automateWoundRoll = submitted.automateWoundRoll;
+    config.automateWoundRoll = isSubmittedCheckboxEnabled(automateWoundRoll);
 
     await game.settings.set(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, config);
     ui.notifications.info(game.i18n.localize("MoshQoL.Damage.Config.UpdateSuccess"));

@@ -292,7 +292,7 @@ Hooks.once("ready", () => {
 });
 
 
-async function applyDamageToSelectedTokens(damageInput, antiArmor) {
+async function applyDamageToSelectedTokens(damageInput, antiArmor, woundType = null, woundRollModifier = null) {
   const selected = canvas?.tokens?.controlled ?? [];
   if (!selected.length) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
@@ -310,7 +310,7 @@ async function applyDamageToSelectedTokens(damageInput, antiArmor) {
     const actorLike = token?.actor ?? token;
     if (!actorLike) continue;
     try {
-      const didApply = await game.moshGreybeardQol.applyDamage(actorLike, damage, antiArmor);
+      const didApply = await game.moshGreybeardQol.applyDamage(actorLike, damage, antiArmor, woundType, woundRollModifier);
       if (didApply !== false) applied++;
     } catch (err) {
       console.error("applyDamage failed for", token, err);
@@ -363,7 +363,7 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
 
     switch (action) {
       case "applyDamageSelected": {
-        await applyDamageToSelectedTokens(args[0], args[1] === true);
+        await applyDamageToSelectedTokens(args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
         break;
       }
       case "convertStress": {
