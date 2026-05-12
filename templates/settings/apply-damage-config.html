@@ -11,13 +11,33 @@
       </span>
       <input type="checkbox" name="applyDamage.tougherArmor" {{checked config.tougherArmor}}>
     </label>
+  </section>
+
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Title"}}</h4>
 
     <label class="pill interactive qolsettings-toggle">
       <span>
-        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Name"}}</strong>
-        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Hint"}}</small>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Character.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Character.Hint"}}</small>
       </span>
-      <input type="checkbox" name="applyDamage.automateWoundRoll" {{checked config.automateWoundRoll}}>
+      <input type="checkbox" name="applyDamage.automateWoundRoll.character" {{checked config.automateWoundRoll.character}}>
+    </label>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Contractor.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Contractor.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.automateWoundRoll.contractor" {{checked config.automateWoundRoll.contractor}}>
+    </label>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Creature.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Creature.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.automateWoundRoll.creature" {{checked config.automateWoundRoll.creature}}>
     </label>
   </section>
 

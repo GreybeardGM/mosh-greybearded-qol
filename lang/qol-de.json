@@ -96,7 +96,7 @@
         "SettingName": "Werkzeugleisten-Konfiguration"
       },
       "ApplyDamageConfig": {
-        "Hint": "Wähle aus, wie Schaden anwenden Panzerung und Wundwurf-Automatisierung behandelt.",
+        "Hint": "Wähle aus, wie Schaden anwenden Panzerung und Wundwurf-Automatisierung je Akteurskategorie behandelt.",
         "Label": "Schaden anwenden konfigurieren...",
         "Name": "Schaden anwenden konfigurieren",
         "SettingName": "Schaden-anwenden-Konfiguration",
@@ -105,8 +105,19 @@
           "Name": "Stabilere Panzerung"
         },
         "AutomateWoundRoll": {
-          "Hint": "Wenn aktiviert, löst Schaden anwenden automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
-          "Name": "Wundwurf automatisieren"
+          "Title": "Wundwürfe automatisieren",
+          "Character": {
+            "Hint": "Wenn aktiviert, löst Schaden anwenden für Spielercharaktere automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+            "Name": "Spielercharaktere"
+          },
+          "Contractor": {
+            "Hint": "Wenn aktiviert, löst Schaden anwenden für Auftragnehmende automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+            "Name": "Auftragnehmende"
+          },
+          "Creature": {
+            "Hint": "Wenn aktiviert, löst Schaden anwenden für Kreaturen automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+            "Name": "Kreaturen"
+          }
         }
       }
     },
