@@ -67,45 +67,26 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
     ? damageReduction
     : Math.max(damageReduction, armorValue);
 
-  let remaining = Math.max(0, damage - armorReductionLimit);
+  const remaining = Math.max(0, damage - armorReductionLimit);
   const armorBrokenThresholdReached = usesTougherArmor()
     ? remaining > 0
     : damage >= armorReductionLimit;
   const shouldBreakArmor = !antiArmorHit && !armorBroken && armorBrokenThresholdReached;
-  let woundsGained = 0;
-  let automatedWoundsGained = 0;
-  let effectiveHits = hits;
 
-  const recordWound = () => {
-    woundsGained += 1;
-    hits += 1;
-    effectiveHits = hits;
+  const originalHp = hp;
+  const originalHits = hits;
+  const damageOutcome = calculateDamageOutcome({ hp, hpMax, hits, hitsMax, remaining });
+  hp = damageOutcome.hp;
+  hits = damageOutcome.hits;
+  const woundsGained = damageOutcome.woundsGained;
+  const automatedWoundsGained = automatedWoundRoll ? woundsGained : 0;
 
-    if (automatedWoundRoll) {
-      automatedWoundsGained += 1;
-    }
-  };
-
-  if ((remaining > 0) && (hpMax <= 0)) {
-    recordWound();
-    remaining = 0;
+  if (hp !== originalHp || hits !== originalHits) {
+    await actor.update({
+      "system.health.value": hp,
+      "system.hits.value": hits
+    });
   }
-
-  while ((remaining > 0) && (effectiveHits < hitsMax)) {
-    if (hp > 0 && remaining < hp) {
-      hp -= remaining;
-      remaining = 0;
-    } else {
-      if (hp > 0) remaining -= hp;
-      recordWound();
-      hp = hpMax;
-    }
-  }
-
-  await actor.update({
-    "system.health.value": hp,
-    "system.hits.value": hits
-  });
 
   if (shouldBreakArmor) {
     await setArmorBrokenStatus(actor);
@@ -153,6 +134,43 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   }
 
   return true;
+}
+
+
+function calculateDamageOutcome({ hp, hpMax, hits, hitsMax, remaining }) {
+  let woundsGained = 0;
+  const availableWounds = Math.max(0, hitsMax - hits);
+
+  if (remaining <= 0 || availableWounds <= 0) {
+    return { hp, hits, remaining, woundsGained };
+  }
+
+  if (hpMax <= 0) {
+    return { hp, hits: hits + 1, remaining: 0, woundsGained: 1 };
+  }
+
+  if (hp > 0) {
+    if (remaining < hp) {
+      return { hp: hp - remaining, hits, remaining: 0, woundsGained };
+    }
+
+    remaining -= hp;
+    woundsGained += 1;
+    hits += 1;
+    hp = hpMax;
+  }
+
+  const remainingWoundCapacity = Math.max(0, hitsMax - hits);
+  const extraWounds = Math.min(remainingWoundCapacity, Math.ceil(remaining / hpMax));
+
+  if (extraWounds > 0) {
+    woundsGained += extraWounds;
+    hits += extraWounds;
+    remaining = Math.max(0, remaining - (extraWounds * hpMax));
+    hp = hpMax;
+  }
+
+  return { hp, hits, remaining, woundsGained };
 }
 
 /**

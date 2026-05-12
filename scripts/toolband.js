@@ -13,6 +13,66 @@ function getRoot(sheet, html){
   return (sheet?.element?.[0]) || (html?.[0]) || null;
 }
 
+
+function addArmorBrokenButton(buttons, actor) {
+  buttons.push(makeToolbandButton("armor-broken", {
+    pressed: actor?.statuses?.has("qol-broken-armor") === true
+  }));
+}
+
+function getToolbandButtons({ actor, kind, isGM }) {
+  const buttons = [];
+
+  switch (kind) {
+    case "character": {
+      const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+      const ready = checkReady(actor);
+      const completed = checkCompleted(actor);
+
+      if (isCreatorEnabled && ready && !completed) {
+        buttons.push(makeToolbandButton("roll-character"), makeToolbandButton("mark-complete"));
+      } else {
+        buttons.push(makeToolbandButton("apply-damage"));
+        addArmorBrokenButton(buttons, actor);
+        buttons.push(makeToolbandButton("shore-leave"));
+      }
+
+      buttons.push(makeToolbandButton("training"));
+      if (isGM && !ready && !completed) buttons.push(makeToolbandButton("mark-ready"));
+      break;
+    }
+
+    case "contractor":
+      addArmorBrokenButton(buttons, actor);
+      if (isGM) {
+        buttons.push(makeToolbandButton(actor?.system?.contractor?.isNamed ? "contractor-menu" : "promote-contractor"));
+      }
+      break;
+
+    case "ship":
+      buttons.push(makeToolbandButton("ship-crit"), makeToolbandButton("ship-crew-roster"));
+      break;
+
+    case "stash":
+      buttons.push(makeToolbandButton("ship-crew-roster"));
+      break;
+
+    case "creature":
+      buttons.push(makeToolbandButton("apply-damage"));
+      addArmorBrokenButton(buttons, actor);
+      break;
+  }
+
+  return buttons;
+}
+
+function getButtonRenderSignature(buttons) {
+  if (!buttons.length) return "__placeholder__";
+  return buttons
+    .map((button) => [button.id, button.label, button.icon, button.pressed === true ? "1" : "0"].join(":"))
+    .join("|");
+}
+
 /** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
 export function upsertToolband(sheet, html, ctx = {}) {
   const { kind = "unknown", isGM = false } = ctx;
@@ -178,104 +238,16 @@ export function upsertToolband(sheet, html, ctx = {}) {
     }, { passive: false });
   }
 
-  // ---- Buttons bestimmen (nach Kategorie + GM-Unterkategorie) ----
   const actor = sheet.actor;
-  const btns = [];
-
-  switch (kind) {
-    case "character": {
-      // Nutzer-Buttons (alle Owner/Spieler) wie gehabt …
-      const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-      const ready = checkReady(actor);
-      const completed = checkCompleted(actor);
-    
-      if (isCreatorEnabled && ready && !completed) {
-        btns.push(makeToolbandButton("roll-character"));
-        btns.push(makeToolbandButton("mark-complete"));
-      } else {
-        btns.push(makeToolbandButton("apply-damage"));
-        // Toggle-Button Armor Broken
-        const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
-        btns.push(makeToolbandButton("armor-broken", { pressed: armorBroken }));
-        btns.push(makeToolbandButton("shore-leave"));
-      }
-      btns.push(makeToolbandButton("training"));
-      // GM-Unterkategorie …
-      if (isGM) {
-        if (!ready && !completed) {
-          btns.push(makeToolbandButton("mark-ready"));
-        }
-      }
-      break;
-    }
-
-    case "contractor": {
-      // Nutzer-Buttons
-      // Toggle-Button Armor Broken
-      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
-      btns.push(makeToolbandButton("armor-broken", { pressed: armorBroken }));
-      // GM-Unterkategorie
-      if (isGM) {
-        const isNamed = !!actor?.system?.contractor?.isNamed;
-        if (!isNamed) {
-          btns.push(makeToolbandButton("promote-contractor"));
-        } else {
-          btns.push(makeToolbandButton("contractor-menu"));
-        }
-      }
-      break;
-    }
-
-    case "ship": {
-      // Nutzer-Buttons
-      btns.push(makeToolbandButton("ship-crit"));
-      btns.push(makeToolbandButton("ship-crew-roster"));
-      // GM-Unterkategorie
-      if (isGM) {
-        // (Platzhalter) — GM-spezifische Ship-Buttons hier ergänzen
-      }
-      break;
-    }
-
-    case "stash": {
-      // Nutzer-Buttons
-      btns.push(makeToolbandButton("ship-crew-roster"));
-      // GM-Unterkategorie
-      if (isGM) {
-        // (Platzhalter) — Stash-GM-Aktionen hier ergänzen
-      }
-      break;
-    }
-
-    case "creature": {
-      btns.push(makeToolbandButton("apply-damage"));
-      // Toggle-Button Armor Broken
-      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
-      btns.push(makeToolbandButton("armor-broken", { pressed: armorBroken }));
-      // GM-Unterkategorie
-      if (isGM) {
-        // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
-      }
-      break;
-    }
-
-    default: {
-      // (Platzhalter) — Fallback-Actions
-      if (isGM) {
-        // (Platzhalter) — Fallback-GM-Actions
-      }
-      break;
-    }
-  }
+  const btns = getToolbandButtons({ actor, kind, isGM });
 
   // ---- Diff/Neuaufbau ----
   const toolbandConfig = getNormalizedToolbandConfig();
   const visibleBtns = btns.filter((button) => isToolbandButtonEnabledInConfig(kind, button.id, toolbandConfig));
 
-  const targetIds = visibleBtns.length ? visibleBtns.map(b => b.id) : ["__placeholder__"];
-  const currentIds = Array.from(bar.querySelectorAll(`.${CLS}-btn`)).map(n => n.dataset.action);
-  const changed = currentIds.length !== targetIds.length || currentIds.some((id, i) => id !== targetIds[i]);
-  if (!changed) return;
+  const signature = getButtonRenderSignature(visibleBtns);
+  if (bar.dataset.signature === signature) return;
+  bar.dataset.signature = signature;
 
   if (!visibleBtns.length) {
     bar.innerHTML = `<div class="${CLS}-placeholder" data-note="no-buttons">—</div>`;
