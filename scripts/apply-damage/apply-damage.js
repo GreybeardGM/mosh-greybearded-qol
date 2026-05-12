@@ -76,14 +76,12 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
 
   const recordWound = () => {
     woundsGained += 1;
-    if (automatedWoundRoll) {
-      automatedWoundsGained += 1;
-      effectiveHits += 1;
-      return;
-    }
-
     hits += 1;
     effectiveHits = hits;
+
+    if (automatedWoundRoll) {
+      automatedWoundsGained += 1;
+    }
   };
 
   if ((remaining > 0) && (hpMax <= 0)) {
@@ -111,18 +109,23 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
     await setArmorBrokenStatus(actor);
   }
 
-  if (automatedWoundsGained > 0) {
-    await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained);
-  }
+  const automatedWoundResults = automatedWoundsGained > 0
+    ? await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained)
+    : [];
 
-  if (woundsGained > 0 && !automatedWoundRoll) {
+  if (woundsGained > 0) {
+    const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
+
     if (hits === hitsMax) {
       await chatOutput({
         actor,
         title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
         subtitle: actor.name ?? "",
         icon: "fa-skull",
-        content: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name })
+        content: [
+          game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }),
+          automatedWoundContent
+        ].filter(Boolean).join("<hr>")
       });
     } else {
       const plural = woundsGained !== 1;
@@ -131,10 +134,13 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
         title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
         subtitle: actor.name ?? "",
         icon: "fa-heart-broken",
-        content: game.i18n.format("MoshQoL.Damage.WoundsSuffered", {
-          count: woundsGained,
-          wounds: game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular")
-        })
+        content: [
+          game.i18n.format("MoshQoL.Damage.WoundsSuffered", {
+            count: woundsGained,
+            wounds: game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular")
+          }),
+          automatedWoundContent
+        ].filter(Boolean).join("<hr>")
       });
     }
   }
@@ -190,7 +196,7 @@ function normalizeWoundMetadata(woundType, woundRollModifier) {
   return {
     woundType: type,
     woundRollModifier: modifier,
-    woundRollFormula: getWoundRollFormula(modifier),
+    woundRollFormula: getWoundRollFormula(),
     woundTypeDefinition,
     tableSettingKey: woundTypeDefinition?.tableSettingKey ?? null
   };
@@ -211,30 +217,160 @@ function normalizeWoundRollModifier(woundRollModifier) {
   return null;
 }
 
-function getWoundRollFormula(woundRollModifier) {
-  if (woundRollModifier === "advantage") return "1d10 [+]";
-  if (woundRollModifier === "disadvantage") return "1d10 [-]";
-  return "1d10";
+function getWoundRollFormula() {
+  return "1d10z";
 }
 
 function getAutomatedWoundRoll(woundMetadata) {
   if (!automatesWoundRoll()) return null;
   if (!woundMetadata.tableSettingKey) return null;
-  if (typeof game?.mosh?.initRollTable !== "function") return null;
 
-  const table = game.settings.get("mosh", woundMetadata.tableSettingKey);
-  if (!table) return null;
+  const tableReference = game.settings.get("mosh", woundMetadata.tableSettingKey);
+  if (!tableReference) return null;
 
   return {
-    table,
-    formula: woundMetadata.woundRollFormula
+    tableReference,
+    formula: woundMetadata.woundRollFormula,
+    modifier: woundMetadata.woundRollModifier
   };
 }
 
 async function rollAutomatedWounds(woundRoll, count) {
+  const table = await resolveRollTable(woundRoll.tableReference);
+  if (!table) return [];
+
+  const results = [];
   for (let i = 0; i < count; i += 1) {
-    await game.mosh.initRollTable(woundRoll.table, woundRoll.formula, "low", true, false, null, null);
+    const rolls = await rollWoundDice(woundRoll.formula, woundRoll.modifier);
+    const selectedRoll = selectWoundRoll(rolls, woundRoll.modifier);
+    const tableResults = getTableResultsForRoll(table, selectedRoll.total);
+
+    results.push({
+      rolls,
+      selectedRoll,
+      modifier: woundRoll.modifier,
+      tableResults
+    });
   }
+
+  return results;
+}
+
+async function resolveRollTable(tableReference) {
+  if (!tableReference) return null;
+  if (typeof RollTable !== "undefined" && tableReference instanceof RollTable) return tableReference;
+
+  if (typeof tableReference === "object") {
+    if (tableReference.uuid) return fromUuid(tableReference.uuid);
+    if (tableReference.id) return game.tables?.get(tableReference.id) ?? null;
+    if (tableReference.name) return game.tables?.getName(tableReference.name) ?? null;
+    return null;
+  }
+
+  const reference = String(tableReference);
+  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) return fromUuid(reference);
+
+  const table = game.tables?.get(reference)
+    ?? game.tables?.getName(reference)
+    ?? game.tables?.find?.((candidate) => candidate.uuid === reference || candidate.id === reference || candidate.name === reference)
+    ?? null;
+
+  if (table) return table;
+  if (reference.includes(".")) return fromUuid(reference);
+
+  return null;
+}
+
+async function rollWoundDice(formula, modifier) {
+  const rollCount = modifier ? 2 : 1;
+  const rolls = [];
+
+  for (let i = 0; i < rollCount; i += 1) {
+    const roll = new Roll(formula);
+    await roll.evaluate({ async: true });
+    rolls.push(roll);
+  }
+
+  return rolls;
+}
+
+function selectWoundRoll(rolls, modifier) {
+  if (modifier === "advantage") {
+    return rolls.reduce((highest, roll) => roll.total > highest.total ? roll : highest, rolls[0]);
+  }
+
+  if (modifier === "disadvantage") {
+    return rolls.reduce((lowest, roll) => roll.total < lowest.total ? roll : lowest, rolls[0]);
+  }
+
+  return rolls[0];
+}
+
+function getTableResultsForRoll(table, rollTotal) {
+  if (typeof table.getResultsForRoll === "function") {
+    return Array.from(table.getResultsForRoll(rollTotal) ?? []);
+  }
+
+  return Array.from(table.results ?? []).filter((result) => {
+    const [min, max] = result.range ?? [];
+    return rollTotal >= min && rollTotal <= max;
+  });
+}
+
+async function renderAutomatedWoundResults(wounds) {
+  if (!wounds.length) return "";
+
+  const title = foundry.utils.escapeHTML(game.i18n.localize("MoshQoL.Damage.AutomatedWoundRolls"));
+  const entries = [];
+
+  for (let index = 0; index < wounds.length; index += 1) {
+    const wound = wounds[index];
+    const rollHtml = renderWoundRolls(wound);
+    const resultHtml = await renderTableResults(wound.tableResults);
+    const woundNumber = foundry.utils.escapeHTML(game.i18n.format("MoshQoL.Damage.WoundNumber", { number: index + 1 }));
+
+    entries.push(`<li><strong>${woundNumber}</strong>: ${rollHtml}<br>${resultHtml}</li>`);
+  }
+
+  return `<div class="mosh-qol-automated-wounds"><strong>${title}</strong><ol>${entries.join("")}</ol></div>`;
+}
+
+function renderWoundRolls(wound) {
+  const rollAnchors = wound.rolls.map((roll) => rollToInlineHtml(roll, roll === wound.selectedRoll));
+  if (!wound.modifier) return rollAnchors[0] ?? "";
+
+  const modifierLabel = game.i18n.localize(wound.modifier === "advantage"
+    ? "MoshQoL.Damage.Advantage"
+    : "MoshQoL.Damage.Disadvantage");
+
+  return `${foundry.utils.escapeHTML(modifierLabel)}: ${rollAnchors.join(" / ")}`;
+}
+
+function rollToInlineHtml(roll, selected) {
+  const selectedClass = selected ? " selected" : "";
+  const fallback = `<span class="inline-roll${selectedClass}"><i class="fas fa-dice-d10"></i> ${roll.total}</span>`;
+  const anchor = typeof roll.toAnchor === "function" ? roll.toAnchor() : null;
+  if (!anchor?.outerHTML) return fallback;
+
+  if (selected) anchor.classList?.add?.("selected");
+  return anchor.outerHTML;
+}
+
+async function renderTableResults(results) {
+  if (!results.length) return foundry.utils.escapeHTML(game.i18n.localize("MoshQoL.Damage.NoWoundResult"));
+
+  const resultText = [];
+  for (const result of results) {
+    resultText.push(await renderTableResult(result));
+  }
+
+  return resultText.join("<br>");
+}
+
+async function renderTableResult(result) {
+  if (typeof result.getChatText === "function") return result.getChatText();
+  const text = result.text ?? result.description ?? result.name ?? "";
+  return foundry.utils.escapeHTML(String(text));
 }
 
 function parseAntiArmorInput(antiArmor) {

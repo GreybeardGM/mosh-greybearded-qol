@@ -322,7 +322,12 @@
         "GeneralTitle": "General Apply Damage",
         "ResetSuccess": "Apply Damage configuration reset to defaults.",
         "UpdateSuccess": "Apply Damage configuration updated."
-      }
+      },
+      "AutomatedWoundRolls": "Automated wound rolls",
+      "WoundNumber": "Wound {number}",
+      "NoWoundResult": "No matching wound result found.",
+      "Advantage": "Advantage",
+      "Disadvantage": "Disadvantage"
     },
     "Chat": {
       "NoActor": "No actor available for chat output."
