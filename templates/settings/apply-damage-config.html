@@ -1,0 +1,26 @@
+<div class="qolsettings">
+  <p>{{description}}</p>
+
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Damage.Config.GeneralTitle"}}</h4>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.TougherArmor.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.TougherArmor.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.tougherArmor" {{checked config.tougherArmor}}>
+    </label>
+  </section>
+
+  <footer class="form-footer">
+    <button type="button" data-action="resetDefaults">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.ResetToDefault"}}
+    </button>
+    <button type="submit">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.SaveChanges"}}
+    </button>
+  </footer>
+</div>

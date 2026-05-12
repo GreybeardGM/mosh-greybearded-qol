@@ -1,5 +1,6 @@
 import { getArmorCoverValues } from "../codex/armor-cover.js";
 import { normalizeNumber } from "../utils/normalization.js";
+import { usesTougherArmor } from "../settings/apply-damage-config.js";
 
 import { chatOutput } from "../utils/chat-output.js";
 
@@ -62,7 +63,10 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
     : Math.max(damageReduction, armorValue);
 
   let remaining = Math.max(0, damage - armorReductionLimit);
-  const shouldBreakArmor = !antiArmorHit && !armorBroken && remaining > 0;
+  const armorBrokenThresholdReached = usesTougherArmor()
+    ? remaining > 0
+    : damage >= armorReductionLimit;
+  const shouldBreakArmor = !antiArmorHit && !armorBroken && armorBrokenThresholdReached;
   let woundsGained  = 0;
 
   if ((remaining > 0) && (hpMax <= 0)) {

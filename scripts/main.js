@@ -8,6 +8,11 @@ import {
 } from "./settings/shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./settings/toolband-config.js";
 import {
+  APPLY_DAMAGE_CONFIG_SETTING,
+  ApplyDamageConfigApp,
+  getDefaultApplyDamageConfig
+} from "./settings/apply-damage-config.js";
+import {
   LEGACY_SHIP_CRITS_SETTING,
   SHIP_CRITS_MIGRATION_SETTING,
   migrateLegacyShipCritToolbandConfig
@@ -220,6 +225,24 @@ Hooks.once("init", () => {
     hint: "MoshQoL.Settings.ToolbandConfig.Hint",
     icon: "fas fa-toolbox",
     type: ToolbandConfigApp,
+    restricted: true
+  });
+
+  // Configure Apply Damage behavior.
+  game.settings.register("mosh-greybearded-qol", APPLY_DAMAGE_CONFIG_SETTING, {
+    name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
+    scope: "world",
+    config: false,
+    type: Object,
+    default: getDefaultApplyDamageConfig()
+  });
+
+  game.settings.registerMenu("mosh-greybearded-qol", "applyDamageConfigMenu", {
+    name: "MoshQoL.Settings.ApplyDamageConfig.Name",
+    label: "MoshQoL.Settings.ApplyDamageConfig.Label",
+    hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
+    icon: "fas fa-heart-broken",
+    type: ApplyDamageConfigApp,
     restricted: true
   });
 

@@ -94,6 +94,16 @@
         "Label": "Configure Toolbar...",
         "Name": "Configure Toolbar",
         "SettingName": "Toolbar Configuration"
+      },
+      "ApplyDamageConfig": {
+        "Hint": "Choose how Apply Damage handles tougher armor house rules.",
+        "Label": "Configure Apply Damage...",
+        "Name": "Configure Apply Damage",
+        "SettingName": "Apply Damage Configuration",
+        "TougherArmor": {
+          "Hint": "If enabled, armor only breaks when damage remains after armor reduction. If disabled, armor also breaks when armor reduces the damage to exactly 0.",
+          "Name": "Tougher Armor"
+        }
       }
     },
     "ShoreLeave": {
@@ -302,7 +312,13 @@
       "ApplyRolledDamage": "Apply {damage} damage to selected tokens",
       "ApplyToSelectedTokensAntiArmor": "Apply with Anti Armor",
       "ApplyDamageShort": "DMG",
-      "ApplyAntiArmorShort": "AA"
+      "ApplyAntiArmorShort": "AA",
+      "Config": {
+        "Description": "Configure how Apply Damage processes armor and damage thresholds.",
+        "GeneralTitle": "General Apply Damage",
+        "ResetSuccess": "Apply Damage configuration reset to defaults.",
+        "UpdateSuccess": "Apply Damage configuration updated."
+      }
     },
     "Chat": {
       "NoActor": "No actor available for chat output."
