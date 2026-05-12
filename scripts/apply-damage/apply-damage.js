@@ -5,16 +5,7 @@ import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-c
 
 import { chatOutput } from "../utils/chat-output.js";
 
-const APPLY_DAMAGE_LOG_PREFIX = "[MoSh QoL Apply Damage]";
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
-const MOSH_WOUND_TABLE_SETTING_KEYS = new Set([
-  "table1eWoundBluntForce",
-  "table1eWoundBleeding",
-  "table1eWoundGunshot",
-  "table1eWoundFireExplosives",
-  "table1eWoundGoreMassive"
-]);
-const FOUNDRY_ID_LIKE_PATTERN = /^[A-Za-z0-9_-]{16,}$/;
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
@@ -59,14 +50,6 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   const antiArmorHit = parseAntiArmorInput(antiArmor);
   const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
   const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata);
-  logApplyDamageDebug("prepared wound automation", {
-    actor: getActorLogData(actor),
-    damage,
-    antiArmor: antiArmorHit,
-    woundMetadata,
-    automatedWoundRoll
-  });
-
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
@@ -127,28 +110,12 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
     await setArmorBrokenStatus(actor);
   }
 
-  logApplyDamageDebug("damage processing complete", {
-    actor: getActorLogData(actor),
-    woundsGained,
-    automatedWoundsGained,
-    hp,
-    hits,
-    hitsMax,
-    automatedWoundRoll
-  });
-
   let automatedWoundResults = [];
   if (automatedWoundsGained > 0) {
     try {
-      automatedWoundResults = await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained, { actor });
-    } catch (error) {
-      logApplyDamageError("automated wound rolls failed", {
-        actor: getActorLogData(actor),
-        woundsGained,
-        automatedWoundsGained,
-        automatedWoundRoll,
-        woundMetadata
-      }, error);
+      automatedWoundResults = await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained);
+    } catch {
+      // Ignore automated wound roll failures so damage application can continue.
     }
   }
 
@@ -262,26 +229,13 @@ function getWoundRollFormula() {
 
 function getAutomatedWoundRoll(woundMetadata) {
   const automate = automatesWoundRoll();
-  logApplyDamageDebug("checking automated wound roll setting", {
-    automate,
-    woundMetadata
-  });
-
   if (!automate) return null;
   if (!woundMetadata.tableSettingKey) {
-    logApplyDamageWarning("automated wound roll skipped: missing wound table setting key", { woundMetadata });
     return null;
   }
 
   const tableReference = game.settings.get("mosh", woundMetadata.tableSettingKey);
-  logApplyDamageDebug("loaded wound table reference from mosh setting", {
-    tableSettingKey: woundMetadata.tableSettingKey,
-    tableReference,
-    referenceType: typeof tableReference
-  });
-
   if (!tableReference) {
-    logApplyDamageWarning("automated wound roll skipped: mosh wound table setting is empty", { woundMetadata });
     return null;
   }
 
@@ -294,50 +248,17 @@ function getAutomatedWoundRoll(woundMetadata) {
   };
 }
 
-async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
-  logApplyDamageDebug("starting automated wound rolls", {
-    actor: getActorLogData(actor),
-    woundRoll,
-    count
-  });
-
-  const table = await resolveAutomatedWoundRollTable(woundRoll.tableReference, {
-    tableSettingKey: woundRoll.tableSettingKey
-  });
+async function rollAutomatedWounds(woundRoll, count) {
+  const table = await resolveAutomatedWoundRollTable(woundRoll.tableReference);
   if (!table) {
-    logApplyDamageWarning("automated wound roll aborted: rolltable could not be resolved", {
-      actor: getActorLogData(actor),
-      woundRoll
-    });
     return [];
   }
 
-  logApplyDamageDebug("resolved wound rolltable", {
-    actor: getActorLogData(actor),
-    table: getRollTableLogData(table)
-  });
-
   const results = [];
   for (let i = 0; i < count; i += 1) {
-    logApplyDamageDebug("rolling automated wound", {
-      actor: getActorLogData(actor),
-      woundIndex: i + 1,
-      formula: woundRoll.formula,
-      modifier: woundRoll.modifier
-    });
-
     const rolls = await rollWoundDice(woundRoll.formula, woundRoll.modifier);
     const selectedRoll = selectWoundRoll(rolls, woundRoll.modifier);
     const tableResults = getTableResultsForRoll(table, selectedRoll.total);
-
-    logApplyDamageDebug("automated wound roll result", {
-      actor: getActorLogData(actor),
-      woundIndex: i + 1,
-      rolls: rolls.map(getRollLogData),
-      selectedRoll: getRollLogData(selectedRoll),
-      tableResultCount: tableResults.length,
-      tableResults: tableResults.map(getRollTableResultLogData)
-    });
 
     results.push({
       rolls,
@@ -347,131 +268,60 @@ async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
     });
   }
 
-  logApplyDamageDebug("finished automated wound rolls", {
-    actor: getActorLogData(actor),
-    resultCount: results.length
-  });
-
   return results;
 }
 
-async function resolveAutomatedWoundRollTable(tableReference, { tableSettingKey = null } = {}) {
-  logApplyDamageDebug("resolving automated wound rolltable", {
-    tableReference,
-    referenceType: typeof tableReference,
-    tableSettingKey
-  });
-
+async function resolveAutomatedWoundRollTable(tableReference) {
   if (!tableReference) {
-    logApplyDamageWarning("automated wound rolltable resolve failed: empty table reference", { tableReference });
     return null;
   }
 
   const reference = String(tableReference).trim();
   if (!reference) {
-    logApplyDamageWarning("automated wound rolltable resolve failed: blank table reference", { tableReference });
     return null;
   }
 
   if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
-    return resolveTableFromUuid(reference, "automated wound uuid");
-  }
-
-  const preferMoshPack = shouldPreferMoshWoundTablePack(reference, tableSettingKey);
-  if (preferMoshPack) {
-    logApplyDamageDebug("automated wound rolltable detected id-like Mosh wound table setting", {
-      reference,
-      tableSettingKey,
-      preferredPack: MOSH_ROLLTABLE_PACK
-    });
+    return resolveTableFromUuid(reference);
   }
 
   const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
   if (tableByMoshDocumentId) return tableByMoshDocumentId;
 
   const tableByWorldId = game.tables?.get(reference) ?? null;
-  logApplyDamageDebug("automated wound rolltable lookup by world table id", {
-    reference,
-    found: Boolean(tableByWorldId),
-    table: getRollTableLogData(tableByWorldId)
-  });
   if (tableByWorldId) return tableByWorldId;
 
   const tableByName = game.tables?.getName?.(reference) ?? null;
-  logApplyDamageDebug("automated wound rolltable lookup by world table name", {
-    reference,
-    delayedForIdLikeMoshSetting: preferMoshPack,
-    found: Boolean(tableByName),
-    table: getRollTableLogData(tableByName)
-  });
   if (tableByName) return tableByName;
 
   const normalizedReference = reference.toLowerCase();
   const tableByCaseInsensitiveName = game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
-  logApplyDamageDebug("automated wound rolltable lookup by case-insensitive world table name", {
-    reference,
-    delayedForIdLikeMoshSetting: preferMoshPack,
-    found: Boolean(tableByCaseInsensitiveName),
-    table: getRollTableLogData(tableByCaseInsensitiveName)
-  });
   if (tableByCaseInsensitiveName) return tableByCaseInsensitiveName;
-
-  logApplyDamageWarning("automated wound rolltable resolve failed: no lookup matched", { tableReference, tableSettingKey });
   return null;
 }
 
-function shouldPreferMoshWoundTablePack(reference, tableSettingKey) {
-  return MOSH_WOUND_TABLE_SETTING_KEYS.has(tableSettingKey) && FOUNDRY_ID_LIKE_PATTERN.test(reference);
-}
 
 async function resolveTableFromMoshCompendium(documentId) {
   const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK) ?? null;
   if (!pack || pack.documentName !== "RollTable") {
-    logApplyDamageWarning("automated wound rolltable lookup skipped: Mosh rolltable pack unavailable", {
-      documentId,
-      packCollection: MOSH_ROLLTABLE_PACK,
-      foundPack: Boolean(pack),
-      documentName: pack?.documentName ?? null
-    });
     return null;
   }
 
   try {
     const index = await pack.getIndex();
     const entry = index?.get?.(documentId) ?? null;
-    const entryUuid = entry?.uuid ?? (entry?._id ? `Compendium.${pack.collection}.${entry._id}` : null);
-
-    logApplyDamageDebug("automated wound rolltable lookup by Mosh compendium document id", {
-      documentId,
-      packCollection: pack.collection,
-      found: Boolean(entry),
-      entryName: entry?.name ?? null,
-      entryUuid
-    });
-
     if (!entry) return null;
     return pack.getDocument(documentId);
-  } catch (error) {
-    logApplyDamageError("automated wound rolltable lookup by Mosh compendium document id failed", {
-      documentId,
-      packCollection: pack.collection
-    }, error);
+  } catch {
     return null;
   }
 }
 
-async function resolveTableFromUuid(uuid, source) {
+async function resolveTableFromUuid(uuid) {
   try {
     const table = await fromUuid(uuid);
-    logApplyDamageDebug("rolltable lookup by uuid", {
-      source,
-      uuid,
-      found: Boolean(table),
-      table: getRollTableLogData(table)
-    });
     return table ?? null;
-  } catch (error) {
-    logApplyDamageError("rolltable lookup by uuid failed", { source, uuid }, error);
+  } catch {
     return null;
   }
 }
@@ -481,24 +331,9 @@ async function rollWoundDice(formula, modifier) {
   const rolls = [];
 
   for (let i = 0; i < rollCount; i += 1) {
-    try {
-      const roll = new Roll(formula);
-      await roll.evaluate();
-      logApplyDamageDebug("wound die evaluated", {
-        rollIndex: i + 1,
-        formula,
-        modifier,
-        roll: getRollLogData(roll)
-      });
-      rolls.push(roll);
-    } catch (error) {
-      logApplyDamageError("wound die evaluation failed", {
-        rollIndex: i + 1,
-        formula,
-        modifier
-      }, error);
-      throw error;
-    }
+    const roll = new Roll(formula);
+    await roll.evaluate();
+    rolls.push(roll);
   }
 
   return rolls;
@@ -517,26 +352,11 @@ function selectWoundRoll(rolls, modifier) {
 }
 
 function getTableResultsForRoll(table, rollTotal) {
-  logApplyDamageDebug("getting rolltable results", {
-    table: getRollTableLogData(table),
-    rollTotal,
-    hasGetResultsForRoll: typeof table.getResultsForRoll === "function"
-  });
-
   if (typeof table.getResultsForRoll !== "function") {
-    logApplyDamageWarning("rolltable results unavailable: getResultsForRoll is not supported", {
-      table: getRollTableLogData(table),
-      rollTotal
-    });
     return [];
   }
 
   const results = Array.from(table.getResultsForRoll(rollTotal) ?? []);
-  logApplyDamageDebug("rolltable results from getResultsForRoll", {
-    rollTotal,
-    resultCount: results.length,
-    results: results.map(getRollTableResultLogData)
-  });
   return results;
 }
 
@@ -594,73 +414,6 @@ async function renderTableResult(result) {
   if (typeof result.getHTML === "function") return await result.getHTML();
   const text = result.description ?? result.name ?? "";
   return foundry.utils.escapeHTML(String(text));
-}
-
-function logApplyDamageDebug(message, data = {}) {
-  console.log(`${APPLY_DAMAGE_LOG_PREFIX} ${message}`, data);
-}
-
-function logApplyDamageWarning(message, data = {}) {
-  console.warn(`${APPLY_DAMAGE_LOG_PREFIX} ${message}`, data);
-}
-
-function logApplyDamageError(message, data = {}, error = null) {
-  console.error(`${APPLY_DAMAGE_LOG_PREFIX} ${message}`, data, error);
-}
-
-function getActorLogData(actor) {
-  if (!actor) return null;
-  return {
-    id: actor.id,
-    uuid: actor.uuid,
-    name: actor.name,
-    type: actor.type
-  };
-}
-
-function getRollTableLogData(table) {
-  if (!table) return null;
-  return {
-    id: table.id,
-    uuid: table.uuid,
-    name: table.name,
-    documentName: table.documentName,
-    resultCount: table.results?.size ?? table.results?.length ?? null
-  };
-}
-
-function getRollLogData(roll) {
-  if (!roll) return null;
-  return {
-    formula: roll.formula,
-    total: roll.total,
-    result: roll.result,
-    dice: roll.dice?.map((die) => ({
-      faces: die.faces,
-      modifiers: die.modifiers,
-      total: die.total,
-      results: die.results?.map((result) => ({
-        result: result.result,
-        active: result.active,
-        discarded: result.discarded,
-        rerolled: result.rerolled,
-        exploded: result.exploded,
-        zeroMaxApplied: result._zeroMaxApplied
-      }))
-    }))
-  };
-}
-
-function getRollTableResultLogData(result) {
-  if (!result) return null;
-  return {
-    id: result.id,
-    type: result.type,
-    name: result.name,
-    description: result.description,
-    range: result.range,
-    uuid: result.uuid
-  };
 }
 
 function parseAntiArmorInput(antiArmor) {
