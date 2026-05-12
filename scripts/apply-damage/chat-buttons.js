@@ -1,3 +1,4 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import {
   extractDamageRollFromMessageContent,
@@ -37,6 +38,7 @@ function isDamageRoll(roll) {
 function createApplyDamageChatButtons(damageRoll) {
   const panel = document.createElement("div");
   panel.classList.add("greybeardqol", "apply-damage-chat-buttons");
+  panel.style.setProperty("--theme-color", getThemeColor());
 
   const buttonRow = document.createElement("div");
   buttonRow.classList.add("apply-damage-chat-buttons-row");

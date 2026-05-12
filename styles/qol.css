@@ -24,6 +24,15 @@
   margin: 0;
 }
 
+/* Keep horizontal rules simple inside module output */
+.greybeardqol hr {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  box-shadow: none;
+  height: 0;
+}
+
 /* Grey-out or Highlight */
 .greybeardqol .locked {
   pointer-events: none;
