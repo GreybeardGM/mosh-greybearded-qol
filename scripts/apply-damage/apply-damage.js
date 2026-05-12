@@ -585,7 +585,7 @@ async function renderTableResults(results) {
 }
 
 async function renderTableResult(result) {
-  if (typeof result.getChatText === "function") return result.getChatText();
+  if (typeof result.getHTML === "function") return await result.getHTML();
   const text = result.description ?? result.name ?? "";
   return foundry.utils.escapeHTML(String(text));
 }
