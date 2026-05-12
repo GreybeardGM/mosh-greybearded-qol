@@ -6,6 +6,7 @@ import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-c
 import { chatOutput } from "../utils/chat-output.js";
 
 const APPLY_DAMAGE_LOG_PREFIX = "[MoSh QoL Apply Damage]";
+const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
@@ -292,7 +293,7 @@ async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
     count
   });
 
-  const table = await resolveRollTable(woundRoll.tableReference);
+  const table = await resolveAutomatedWoundRollTable(woundRoll.tableReference);
   if (!table) {
     logApplyDamageWarning("automated wound roll aborted: rolltable could not be resolved", {
       actor: getActorLogData(actor),
@@ -344,107 +345,76 @@ async function rollAutomatedWounds(woundRoll, count, { actor = null } = {}) {
   return results;
 }
 
-async function resolveRollTable(tableReference) {
-  logApplyDamageDebug("resolving rolltable", {
+async function resolveAutomatedWoundRollTable(tableReference) {
+  logApplyDamageDebug("resolving automated wound rolltable", {
     tableReference,
     referenceType: typeof tableReference
   });
 
   if (!tableReference) {
-    logApplyDamageWarning("rolltable resolve failed: empty table reference", { tableReference });
+    logApplyDamageWarning("automated wound rolltable resolve failed: empty table reference", { tableReference });
     return null;
   }
 
-  if (typeof RollTable !== "undefined" && tableReference instanceof RollTable) {
-    logApplyDamageDebug("rolltable resolved from RollTable instance", { table: getRollTableLogData(tableReference) });
-    return tableReference;
-  }
-
-  if (typeof tableReference === "object") {
-    if (tableReference.uuid) {
-      const table = await resolveTableFromUuid(tableReference.uuid, "object.uuid");
-      if (table) return table;
-    }
-    if (tableReference.id) {
-      const table = game.tables?.get(tableReference.id) ?? null;
-      logApplyDamageDebug("rolltable lookup by object.id", { id: tableReference.id, found: Boolean(table), table: getRollTableLogData(table) });
-      if (table) return table;
-    }
-    if (tableReference.name) {
-      const table = game.tables?.getName(tableReference.name) ?? null;
-      logApplyDamageDebug("rolltable lookup by object.name", { name: tableReference.name, found: Boolean(table), table: getRollTableLogData(table) });
-      if (table) return table;
-    }
-
-    logApplyDamageWarning("rolltable resolve failed: unsupported object reference", { tableReference });
+  const reference = String(tableReference).trim();
+  if (!reference) {
+    logApplyDamageWarning("automated wound rolltable resolve failed: blank table reference", { tableReference });
     return null;
   }
 
-  const reference = String(tableReference);
   if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
-    return resolveTableFromUuid(reference, "string uuid");
+    return resolveTableFromUuid(reference, "automated wound uuid");
   }
 
-  const tableById = game.tables?.get(reference) ?? null;
-  logApplyDamageDebug("rolltable lookup by id", { reference, found: Boolean(tableById), table: getRollTableLogData(tableById) });
-  if (tableById) return tableById;
+  const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
+  if (tableByMoshDocumentId) return tableByMoshDocumentId;
 
-  const tableByName = game.tables?.getName(reference) ?? null;
-  logApplyDamageDebug("rolltable lookup by name", { reference, found: Boolean(tableByName), table: getRollTableLogData(tableByName) });
-  if (tableByName) return tableByName;
-
-  const tableByCollectionSearch = game.tables?.find?.((candidate) => candidate.uuid === reference || candidate.id === reference || candidate.name === reference) ?? null;
-  logApplyDamageDebug("rolltable lookup by collection search", {
+  const tableByWorldId = game.tables?.get(reference) ?? null;
+  logApplyDamageDebug("automated wound rolltable lookup by world table id", {
     reference,
-    found: Boolean(tableByCollectionSearch),
-    table: getRollTableLogData(tableByCollectionSearch)
+    found: Boolean(tableByWorldId),
+    table: getRollTableLogData(tableByWorldId)
   });
-  if (tableByCollectionSearch) return tableByCollectionSearch;
+  if (tableByWorldId) return tableByWorldId;
 
-  if (reference.includes(".")) {
-    const tableByDottedReference = await resolveTableFromUuid(reference, "fallback dotted reference");
-    if (tableByDottedReference) return tableByDottedReference;
-  }
-
-  const tableByCompendiumPack = await resolveTableFromCompendiumPacks(reference);
-  if (tableByCompendiumPack) return tableByCompendiumPack;
-
-  logApplyDamageWarning("rolltable resolve failed: no lookup matched", { tableReference });
+  logApplyDamageWarning("automated wound rolltable resolve failed: no lookup matched", { tableReference });
   return null;
 }
 
-async function resolveTableFromCompendiumPacks(reference) {
-  const packs = Array.from(game.packs ?? []).filter((pack) => pack.documentName === "RollTable");
-  const preferredPack = packs.find((pack) => pack.collection === "mosh.rolltables_1e") ?? null;
-  const orderedPacks = [
-    ...(preferredPack ? [preferredPack] : []),
-    ...packs.filter((pack) => pack !== preferredPack)
-  ];
-
-  for (const pack of orderedPacks) {
-    try {
-      const index = await pack.getIndex();
-      const entry = index?.get?.(reference) ?? null;
-
-      const entryUuid = entry?.uuid ?? (entry?._id ? `Compendium.${pack.collection}.${entry._id}` : null);
-      logApplyDamageDebug("rolltable lookup by compendium pack", {
-        reference,
-        packCollection: pack.collection,
-        found: Boolean(entry),
-        entryName: entry?.name ?? null,
-        entryUuid
-      });
-
-      if (entry) return pack.getDocument(reference);
-    } catch (error) {
-      logApplyDamageError("rolltable lookup by compendium pack failed", {
-        reference,
-        packCollection: pack.collection
-      }, error);
-    }
+async function resolveTableFromMoshCompendium(documentId) {
+  const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK) ?? null;
+  if (!pack || pack.documentName !== "RollTable") {
+    logApplyDamageWarning("automated wound rolltable lookup skipped: Mosh rolltable pack unavailable", {
+      documentId,
+      packCollection: MOSH_ROLLTABLE_PACK,
+      foundPack: Boolean(pack),
+      documentName: pack?.documentName ?? null
+    });
+    return null;
   }
 
-  return null;
+  try {
+    const index = await pack.getIndex();
+    const entry = index?.get?.(documentId) ?? null;
+    const entryUuid = entry?.uuid ?? (entry?._id ? `Compendium.${pack.collection}.${entry._id}` : null);
+
+    logApplyDamageDebug("automated wound rolltable lookup by Mosh compendium document id", {
+      documentId,
+      packCollection: pack.collection,
+      found: Boolean(entry),
+      entryName: entry?.name ?? null,
+      entryUuid
+    });
+
+    if (!entry) return null;
+    return pack.getDocument(documentId);
+  } catch (error) {
+    logApplyDamageError("automated wound rolltable lookup by Mosh compendium document id failed", {
+      documentId,
+      packCollection: pack.collection
+    }, error);
+    return null;
+  }
 }
 
 async function resolveTableFromUuid(uuid, source) {
