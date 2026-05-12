@@ -94,6 +94,16 @@
         "Label": "Werkzeugleiste konfigurieren...",
         "Name": "Werkzeugleiste konfigurieren",
         "SettingName": "Werkzeugleisten-Konfiguration"
+      },
+      "ApplyDamageConfig": {
+        "Hint": "Wähle aus, wie Schaden anwenden Hausregeln für stabilere Panzerung behandelt.",
+        "Label": "Schaden anwenden konfigurieren...",
+        "Name": "Schaden anwenden konfigurieren",
+        "SettingName": "Schaden-anwenden-Konfiguration",
+        "TougherArmor": {
+          "Hint": "Wenn aktiviert, wird Panzerung nur beschädigt, wenn nach der Panzerungsreduktion Schaden übrig bleibt. Wenn deaktiviert, wird Panzerung auch beschädigt, wenn sie den Schaden exakt auf 0 reduziert.",
+          "Name": "Stabilere Panzerung"
+        }
       }
     },
     "ShoreLeave": {
@@ -302,7 +312,13 @@
       "ApplyRolledDamage": "{damage} Schaden auf ausgewählte Tokens anwenden",
       "ApplyToSelectedTokensAntiArmor": "Mit Rüstungsbrechend anwenden",
       "ApplyDamageShort": "DMG",
-      "ApplyAntiArmorShort": "AA"
+      "ApplyAntiArmorShort": "AA",
+      "Config": {
+        "Description": "Konfiguriere, wie Schaden anwenden Panzerung und Schadensgrenzwerte verarbeitet.",
+        "GeneralTitle": "Allgemeiner Schaden",
+        "ResetSuccess": "Schaden-anwenden-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Schaden-anwenden-Konfiguration aktualisiert."
+      }
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."
