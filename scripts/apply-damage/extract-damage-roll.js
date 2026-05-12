@@ -2,10 +2,11 @@
  * Extracts the first valid damage roll embedded in a chat message's HTML content.
  *
  * Damage rolls are expected in Foundry inline roll elements with a percent-encoded
- * JSON roll payload in their `data-roll` attribute.
+ * JSON roll payload in their `data-roll` attribute. If a Mothership wound effect is
+ * present in the same message, it is attached as metadata for later application.
  *
  * @param {object} message Foundry chat message-like object.
- * @returns {{ total: number, formula: string|undefined, rollData: object } | null}
+ * @returns {{ total: number, formula: string|undefined, rollData: object, woundType?: string, woundRollModifier?: "advantage"|"disadvantage" } | null}
  */
 export function extractDamageRollFromMessageContent(message) {
   const content = message?.content;
@@ -21,7 +22,8 @@ export function extractDamageRollFromMessageContent(message) {
     return {
       total,
       formula: rollData.formula,
-      rollData
+      rollData,
+      ...extractWoundEffectFromMessageContent(message)
     };
   }
 
@@ -78,4 +80,73 @@ function isDamageRoll(rollData) {
 
   return Array.isArray(rollData?.terms)
     && rollData.terms.some((term) => term?.options?.flavor === "damage");
+}
+
+
+/**
+ * Extracts the Mothership wound effect linked in a chat message.
+ *
+ * Supported examples:
+ * - Gunshot [+] -> { woundType: "Gunshot", woundRollModifier: "advantage" }
+ * - Gunshot [-] -> { woundType: "Gunshot", woundRollModifier: "disadvantage" }
+ * - Gunshot     -> { woundType: "Gunshot" }
+ *
+ * @param {object} message Foundry chat message-like object.
+ * @returns {{ woundType?: string, woundRollModifier?: "advantage"|"disadvantage" }}
+ */
+export function extractWoundEffectFromMessageContent(message) {
+  const content = message?.content;
+  if (typeof content !== "string" || content.length === 0) return {};
+
+  const woundText = findWoundEffectText(content);
+  if (!woundText) return {};
+
+  return parseWoundEffectText(woundText);
+}
+
+function findWoundEffectText(content) {
+  if (typeof document !== "undefined" && typeof document.createElement === "function") {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = content;
+
+    const woundHeader = [...wrapper.querySelectorAll("strong")]
+      .find((element) => element.textContent?.trim().toLowerCase() === "wound effect");
+    const woundContainer = woundHeader?.parentElement ?? wrapper;
+    const woundLink = woundContainer.querySelector(".content-link");
+    if (woundLink?.textContent) return woundLink.textContent.trim();
+
+    const fallbackLink = wrapper.querySelector(".content-link");
+    return fallbackLink?.textContent?.trim() ?? null;
+  }
+
+  return findWoundEffectTextWithRegex(content);
+}
+
+function findWoundEffectTextWithRegex(content) {
+  const woundEffectIndex = content.search(/<strong[^>]*>\s*Wound Effect\s*<\/strong>/i);
+  const searchContent = woundEffectIndex >= 0 ? content.slice(woundEffectIndex) : content;
+  const linkMatch = searchContent.match(/<a\b[^>]*class=(?:["'][^"']*content-link[^"']*["'])[^>]*>([\s\S]*?)<\/a>/i)
+    ?? searchContent.match(/<a\b[^>]*class=(?:[^\s>]*\s)?content-link(?:\s[^>]*)?[^>]*>([\s\S]*?)<\/a>/i);
+  if (!linkMatch) return null;
+
+  return stripHtml(decodeHtmlAttribute(linkMatch[1])).trim();
+}
+
+function stripHtml(value) {
+  return value.replace(/<[^>]*>/g, "");
+}
+
+function parseWoundEffectText(text) {
+  const cleaned = text.replace(/\s+/g, " ").trim();
+  if (!cleaned) return {};
+
+  const modifierMatch = cleaned.match(/\[\s*([+-])\s*\]\s*$/);
+  const woundType = cleaned.replace(/\s*\[\s*[+-]\s*\]\s*$/, "").trim();
+  if (!woundType) return {};
+
+  const result = { woundType };
+  if (modifierMatch?.[1] === "+") result.woundRollModifier = "advantage";
+  if (modifierMatch?.[1] === "-") result.woundRollModifier = "disadvantage";
+
+  return result;
 }

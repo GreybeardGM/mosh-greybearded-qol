@@ -1,6 +1,7 @@
 import { getArmorCoverValues } from "../codex/armor-cover.js";
+import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
 import { normalizeNumber } from "../utils/normalization.js";
-import { usesTougherArmor } from "../settings/apply-damage-config.js";
+import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-config.js";
 
 import { chatOutput } from "../utils/chat-output.js";
 
@@ -18,7 +19,7 @@ import { chatOutput } from "../utils/chat-output.js";
  *
  * @returns {Promise<boolean>} true, wenn Schaden verarbeitet wurde; false bei Abbruch/ungültiger Eingabe.
  */
-export async function applyDamage(actorLike, damageInput, antiArmor = false) {
+export async function applyDamage(actorLike, damageInput, antiArmor = false, woundType = null, woundRollModifier = null) {
   const actor = await resolveActorLike(actorLike);
   if (!actor) throw new Error("applyDamage: Actor nicht gefunden.");
   if (actor.type === "ship") return false;
@@ -45,6 +46,8 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
   }
 
   const antiArmorHit = parseAntiArmorInput(antiArmor);
+  const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
+  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata);
 
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
@@ -67,22 +70,34 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
     ? remaining > 0
     : damage >= armorReductionLimit;
   const shouldBreakArmor = !antiArmorHit && !armorBroken && armorBrokenThresholdReached;
-  let woundsGained  = 0;
+  let woundsGained = 0;
+  let automatedWoundsGained = 0;
+  let effectiveHits = hits;
+
+  const recordWound = () => {
+    woundsGained += 1;
+    if (automatedWoundRoll) {
+      automatedWoundsGained += 1;
+      effectiveHits += 1;
+      return;
+    }
+
+    hits += 1;
+    effectiveHits = hits;
+  };
 
   if ((remaining > 0) && (hpMax <= 0)) {
-    hits += 1;
-    woundsGained = 1;
+    recordWound();
     remaining = 0;
   }
 
-  while ((remaining > 0) && (hits < hitsMax)) {
-    if (remaining < hp) {
+  while ((remaining > 0) && (effectiveHits < hitsMax)) {
+    if (hp > 0 && remaining < hp) {
       hp -= remaining;
       remaining = 0;
     } else {
-      remaining -= hp;
-      hits += 1;
-      woundsGained += 1;
+      if (hp > 0) remaining -= hp;
+      recordWound();
       hp = hpMax;
     }
   }
@@ -96,7 +111,11 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false) {
     await setArmorBrokenStatus(actor);
   }
 
-  if (woundsGained > 0) {
+  if (automatedWoundsGained > 0) {
+    await rollAutomatedWounds(automatedWoundRoll, automatedWoundsGained);
+  }
+
+  if (woundsGained > 0 && !automatedWoundRoll) {
     if (hits === hitsMax) {
       await chatOutput({
         actor,
@@ -161,6 +180,63 @@ function parseDamageInput(damageInput) {
 }
 
 /** Normalisiert das optionale Anti-Armor-Argument. */
+function normalizeWoundMetadata(woundType, woundRollModifier) {
+  const type = typeof woundType === "string" && woundType.trim().length > 0
+    ? woundType.trim()
+    : null;
+  const woundTypeDefinition = getWoundTypeDefinition(type);
+  const modifier = normalizeWoundRollModifier(woundRollModifier);
+
+  return {
+    woundType: type,
+    woundRollModifier: modifier,
+    woundRollFormula: getWoundRollFormula(modifier),
+    woundTypeDefinition,
+    tableSettingKey: woundTypeDefinition?.tableSettingKey ?? null
+  };
+}
+
+function getWoundTypeDefinition(woundType) {
+  if (!woundType) return null;
+
+  return getWoundTypeById(woundType)
+    ?? getWoundTypeBySettingKey(woundType)
+    ?? getWoundTypeByTableSettingKey(woundType)
+    ?? getWoundTypeByLabel(woundType);
+}
+
+function normalizeWoundRollModifier(woundRollModifier) {
+  if (["advantage", "+", "[+]"].includes(woundRollModifier)) return "advantage";
+  if (["disadvantage", "-", "[-]"].includes(woundRollModifier)) return "disadvantage";
+  return null;
+}
+
+function getWoundRollFormula(woundRollModifier) {
+  if (woundRollModifier === "advantage") return "1d10 [+]";
+  if (woundRollModifier === "disadvantage") return "1d10 [-]";
+  return "1d10";
+}
+
+function getAutomatedWoundRoll(woundMetadata) {
+  if (!automatesWoundRoll()) return null;
+  if (!woundMetadata.tableSettingKey) return null;
+  if (typeof game?.mosh?.initRollTable !== "function") return null;
+
+  const table = game.settings.get("mosh", woundMetadata.tableSettingKey);
+  if (!table) return null;
+
+  return {
+    table,
+    formula: woundMetadata.woundRollFormula
+  };
+}
+
+async function rollAutomatedWounds(woundRoll, count) {
+  for (let i = 0; i < count; i += 1) {
+    await game.mosh.initRollTable(woundRoll.table, woundRoll.formula, "low", true, false, null, null);
+  }
+}
+
 function parseAntiArmorInput(antiArmor) {
   if (typeof antiArmor === "object" && antiArmor !== null) return parseAntiArmorInput(antiArmor.antiArmor);
   if (typeof antiArmor === "string") {
