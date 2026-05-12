@@ -586,7 +586,7 @@ async function renderTableResults(results) {
 
 async function renderTableResult(result) {
   if (typeof result.getChatText === "function") return result.getChatText();
-  const text = result.text ?? result.description ?? result.name ?? "";
+  const text = result.description ?? result.name ?? "";
   return foundry.utils.escapeHTML(String(text));
 }
 
@@ -650,7 +650,8 @@ function getRollTableResultLogData(result) {
   return {
     id: result.id,
     type: result.type,
-    text: result.text,
+    name: result.name,
+    description: result.description,
     range: result.range,
     documentCollection: result.documentCollection,
     documentId: result.documentId
