@@ -224,8 +224,8 @@ function normalizeWoundRollModifier(woundRollModifier) {
 }
 
 function getWoundRollFormula(modifier = null) {
-  if (modifier === "advantage") return "2d10zkh";
-  if (modifier === "disadvantage") return "2d10zkl";
+  if (modifier === "advantage") return "{1d10z,1d10z}kh";
+  if (modifier === "disadvantage") return "{1d10z,1d10z}kl";
   return "1d10z";
 }
 
@@ -359,7 +359,7 @@ async function renderAutomatedWoundResults(wounds) {
 }
 
 function renderWoundRolls(wound) {
-  const rollAnchors = wound.rolls.map((roll) => rollToInlineHtml(roll, roll === wound.selectedRoll));
+  const rollAnchors = wound.rolls.map((roll) => rollToInlineHtml(roll));
   if (!wound.modifier) return rollAnchors[0] ?? "";
 
   const modifierLabel = game.i18n.localize(wound.modifier === "advantage"
@@ -369,13 +369,11 @@ function renderWoundRolls(wound) {
   return `${foundry.utils.escapeHTML(modifierLabel)}: ${rollAnchors.join(" / ")}`;
 }
 
-function rollToInlineHtml(roll, selected) {
-  const selectedClass = selected ? " selected" : "";
+function rollToInlineHtml(roll) {
   const fallback = `<span class="inline-roll${selectedClass}"><i class="fas fa-dice-d10"></i> ${roll.total}</span>`;
   const anchor = typeof roll.toAnchor === "function" ? roll.toAnchor() : null;
   if (!anchor?.outerHTML) return fallback;
 
-  if (selected) anchor.classList?.add?.("selected");
   return anchor.outerHTML;
 }
 
