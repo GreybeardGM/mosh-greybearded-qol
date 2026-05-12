@@ -402,10 +402,48 @@ async function resolveRollTable(tableReference) {
   if (tableByCollectionSearch) return tableByCollectionSearch;
 
   if (reference.includes(".")) {
-    return resolveTableFromUuid(reference, "fallback dotted reference");
+    const tableByDottedReference = await resolveTableFromUuid(reference, "fallback dotted reference");
+    if (tableByDottedReference) return tableByDottedReference;
   }
 
+  const tableByCompendiumPack = await resolveTableFromCompendiumPacks(reference);
+  if (tableByCompendiumPack) return tableByCompendiumPack;
+
   logApplyDamageWarning("rolltable resolve failed: no lookup matched", { tableReference });
+  return null;
+}
+
+async function resolveTableFromCompendiumPacks(reference) {
+  const packs = Array.from(game.packs ?? []).filter((pack) => pack.documentName === "RollTable");
+  const preferredPack = packs.find((pack) => pack.collection === "mosh.rolltables_1e") ?? null;
+  const orderedPacks = [
+    ...(preferredPack ? [preferredPack] : []),
+    ...packs.filter((pack) => pack !== preferredPack)
+  ];
+
+  for (const pack of orderedPacks) {
+    try {
+      const index = await pack.getIndex();
+      const entry = index?.get?.(reference) ?? null;
+
+      const entryUuid = entry?.uuid ?? (entry?._id ? `Compendium.${pack.collection}.${entry._id}` : null);
+      logApplyDamageDebug("rolltable lookup by compendium pack", {
+        reference,
+        packCollection: pack.collection,
+        found: Boolean(entry),
+        entryName: entry?.name ?? null,
+        entryUuid
+      });
+
+      if (entry) return pack.getDocument(reference);
+    } catch (error) {
+      logApplyDamageError("rolltable lookup by compendium pack failed", {
+        reference,
+        packCollection: pack.collection
+      }, error);
+    }
+  }
+
   return null;
 }
 
