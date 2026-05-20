@@ -447,9 +447,11 @@ Hooks.on("getSceneControlButtons", (controls) => {
     name: "applyDamage",
     title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
     icon: "fa-solid fa-heart-broken",
-    visible: game.user.isGM || game.user.isTrusted,
+    visible: game.user.isGM,
     button: true,
     onClick: async () => {
+      if (!game.user?.isGM) return;
+
       const selected = canvas?.tokens?.controlled ?? [];
       if (!selected.length) {
         ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
