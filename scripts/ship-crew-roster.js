@@ -171,10 +171,23 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
     const hasLegacyTabs = Object.keys(sourceRoster).some((tab) => !TABS.includes(tab) && Array.isArray(sourceRoster[tab]) && sourceRoster[tab].length > 0);
     let rosterChanged = hasLegacyTabs;
+    const uniqueUuids = new Set();
 
     for (const tab of TABS) {
       for (const rosterEntry of roster[tab]) {
-        const actor = await fromUuid(rosterEntry.uuid);
+        if (typeof rosterEntry.uuid !== "string" || !rosterEntry.uuid.trim()) continue;
+        uniqueUuids.add(rosterEntry.uuid);
+      }
+    }
+
+    const resolvedActors = await Promise.all(
+      Array.from(uniqueUuids, async (uuid) => [uuid, await fromUuid(uuid)])
+    );
+    const actorsByUuid = new Map(resolvedActors);
+
+    for (const tab of TABS) {
+      for (const rosterEntry of roster[tab]) {
+        const actor = actorsByUuid.get(rosterEntry.uuid);
         if (!actor || actor.documentName !== "Actor") {
           rosterChanged = true;
           continue;
