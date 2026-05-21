@@ -1,13 +1,9 @@
-import { getNormalizedApplyDamageConfig } from "../settings/apply-damage-config.js";
+import { getApplyDamageVisibilitySetting, APPLY_DAMAGE_VISIBILITY } from "./visibility.js";
 
-export const APPLY_DAMAGE_VISIBILITY = {
-  DISABLED: "disabled",
-  GM_ONLY: "gmOnly",
-  TRUSTED: "trusted",
-  EVERYONE: "everyone"
-};
-
-const VALID_TARGET_LOGICS = ["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"];
+const TARGET_LOGIC_SETTING = "applyDamageTargetLogic";
+const MODULE_ID = "mosh-greybearded-qol";
+const DEFAULT_TARGET_LOGIC = "alwaysCharacter";
+const VALID_TARGET_LOGICS = new Set(["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"]);
 
 /**
  * Apply-Damage-Policy für UI-Sichtbarkeit und Target-Auflösung.
@@ -21,78 +17,59 @@ export function canShowApplyDamageUI(user = game.user) {
   if (visibility === APPLY_DAMAGE_VISIBILITY.DISABLED) return false;
   if (user?.isGM) return true;
   if (visibility === APPLY_DAMAGE_VISIBILITY.EVERYONE) return true;
-  if (visibility === APPLY_DAMAGE_VISIBILITY.TRUSTED) return user?.isTrusted === true;
-  return false;
+  return visibility === APPLY_DAMAGE_VISIBILITY.TRUSTED && user?.isTrusted === true;
 }
 
 export function getApplyDamageTargetLogicSetting() {
-  const value = game.settings.get("mosh-greybearded-qol", "applyDamageTargetLogic");
-  return VALID_TARGET_LOGICS.includes(value) ? value : VALID_TARGET_LOGICS[0];
+  const value = game.settings.get(MODULE_ID, TARGET_LOGIC_SETTING);
+  return VALID_TARGET_LOGICS.has(value) ? value : DEFAULT_TARGET_LOGIC;
 }
 
 export async function resolveApplyDamageTargets(actorLike, context = {}) {
-  const direct = await resolveActorLike(actorLike);
+  const direct = resolveActorLike(actorLike);
   if (direct) return [direct];
 
-  const mode = getApplyDamageTargetLogicSetting();
-  const providers = {
-    character: getUserCharacterTarget(context),
-    tokenActors: getControlledTokenTargets(context)
-  };
+  const character = getUserCharacterTarget(context);
+  const tokenActors = getControlledTokenTargets(context);
 
-  const strategy = TARGET_LOGIC_STRATEGIES[mode] ?? TARGET_LOGIC_STRATEGIES.alwaysCharacter;
-  return strategy(providers);
+  switch (getApplyDamageTargetLogicSetting()) {
+    case "alwaysToken":
+      return tokenActors;
+    case "characterFirst":
+      return character ? [character] : tokenActors;
+    case "tokenFirst":
+      return tokenActors.length ? tokenActors : (character ? [character] : []);
+    case "alwaysCharacter":
+    default:
+      return character ? [character] : [];
+  }
 }
 
-function getApplyDamageVisibilitySetting() {
-  const value = getNormalizedApplyDamageConfig().visibility;
-  return Object.values(APPLY_DAMAGE_VISIBILITY).includes(value)
-    ? value
-    : APPLY_DAMAGE_VISIBILITY.GM_ONLY;
-}
-
-async function resolveActorLike(actorLike) {
+function resolveActorLike(actorLike) {
   if (!actorLike) return null;
   if (actorLike instanceof Actor) return actorLike;
   if (actorLike?.actor instanceof Actor) return actorLike.actor;
+  if (actorLike?.document?.actor instanceof Actor) return actorLike.document.actor;
   if (typeof actorLike === "string") return game.actors?.get(actorLike) ?? null;
-  if (actorLike.document?.actor instanceof Actor) return actorLike.document.actor;
   return null;
 }
 
 function getUserCharacterTarget(context) {
-  const user = context.user ?? game.user;
-  const character = user?.character;
+  const character = (context.user ?? game.user)?.character;
   return character instanceof Actor ? character : null;
 }
 
 function getControlledTokenTargets(context) {
   const controlled = context.controlledTokens ?? canvas?.tokens?.controlled ?? [];
-  const tokenActors = controlled
-    .map((token) => token?.actor ?? null)
-    .filter((actor) => actor instanceof Actor);
-  return [...new Set(tokenActors)];
-}
+  const actors = [];
+  const seen = new Set();
 
-function targetStrategyAlwaysCharacter({ character }) {
-  return character ? [character] : [];
-}
+  for (const token of controlled) {
+    const actor = token?.actor;
+    if (!(actor instanceof Actor) || seen.has(actor)) continue;
+    seen.add(actor);
+    actors.push(actor);
+  }
 
-function targetStrategyAlwaysToken({ tokenActors }) {
-  return tokenActors;
+  return actors;
 }
-
-function targetStrategyCharacterFirst({ character, tokenActors }) {
-  return character ? [character] : tokenActors;
-}
-
-function targetStrategyTokenFirst({ character, tokenActors }) {
-  return tokenActors.length ? tokenActors : (character ? [character] : []);
-}
-
-const TARGET_LOGIC_STRATEGIES = {
-  alwaysCharacter: targetStrategyAlwaysCharacter,
-  alwaysToken: targetStrategyAlwaysToken,
-  characterFirst: targetStrategyCharacterFirst,
-  tokenFirst: targetStrategyTokenFirst
-};
