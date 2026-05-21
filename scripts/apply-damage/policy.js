@@ -1,4 +1,5 @@
-import { getApplyDamageVisibilitySetting, APPLY_DAMAGE_VISIBILITY } from "./visibility.js";
+import { APPLY_DAMAGE_VISIBILITY } from "../settings/apply-damage-config.js";
+import { getApplyDamageVisibilitySetting } from "./visibility.js";
 
 const TARGET_LOGIC_SETTING = "applyDamageTargetLogic";
 const MODULE_ID = "mosh-greybearded-qol";
