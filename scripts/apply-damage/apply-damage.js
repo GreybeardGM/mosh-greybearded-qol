@@ -27,31 +27,20 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   const targets = await resolveApplyDamageTargets(actorLike);
   if (!targets.length) return false;
 
-  if (targets.length > 1) {
-    let applied = 0;
-    for (const target of targets) {
-      const didApply = await applyDamage(target, damageInput, antiArmor, woundType, woundRollModifier);
-      if (didApply) applied += 1;
-    }
-    return applied > 0;
-  }
-
-  const actor = targets[0];
-  if (actor.type === "ship") return false;
-
   let damageRaw = damageInput;
+  let antiArmorRaw = antiArmor;
 
   // Falls kein Wert angegeben: über DialogV2.input abfragen
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
-      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: actor.name })
+      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: targets[0]?.name ?? "" })
     });
 
     // Abbruch per X liefert null → nichts tun
     if (!data) return false;
     damageRaw = data.damage;
-    antiArmor = data.antiArmor;
+    antiArmorRaw = data.antiArmor;
   }
 
   const damage = parseDamageInput(damageRaw);
@@ -60,8 +49,26 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
     return false;
   }
 
-  const antiArmorHit = parseAntiArmorInput(antiArmor);
   const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
+  const normalizedPayload = {
+    damage,
+    antiArmorHit: parseAntiArmorInput(antiArmorRaw),
+    woundMetadata
+  };
+
+  let applied = 0;
+  for (const target of targets) {
+    const didApply = await applyDamageToActor(target, normalizedPayload);
+    if (didApply) applied += 1;
+  }
+
+  return applied > 0;
+}
+
+async function applyDamageToActor(actor, normalizedPayload) {
+  if (actor.type === "ship") return false;
+
+  const { damage, antiArmorHit, woundMetadata } = normalizedPayload;
   const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata, getApplyDamageActorScope(actor));
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
