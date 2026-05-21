@@ -41,7 +41,7 @@ export function registerChatActions() {
 
       switch (action) {
         case "applyDamageSelected":
-          await applyDamageToSelectedTokens(args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
+          await game.moshGreybeardQol.applyDamage(null, args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
           break;
         case "convertStress": {
           const actor = getRequiredChatActionActor();

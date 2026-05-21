@@ -23,8 +23,19 @@ const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
  * @returns {Promise<boolean>} true, wenn Schaden verarbeitet wurde; false bei Abbruch/ungültiger Eingabe.
  */
 export async function applyDamage(actorLike, damageInput, antiArmor = false, woundType = null, woundRollModifier = null) {
-  const actor = await resolveActorLike(actorLike);
-  if (!actor) throw new Error("applyDamage: Actor nicht gefunden.");
+  const targets = await resolveApplyDamageTargets(actorLike);
+  if (!targets.length) return false;
+
+  if (targets.length > 1) {
+    let applied = 0;
+    for (const target of targets) {
+      const didApply = await applyDamage(target, damageInput, antiArmor, woundType, woundRollModifier);
+      if (didApply) applied += 1;
+    }
+    return applied > 0;
+  }
+
+  const actor = targets[0];
   if (actor.type === "ship") return false;
 
   let damageRaw = damageInput;
@@ -448,4 +459,28 @@ async function setArmorBrokenStatus(actor) {
   if (typeof actor?.toggleStatusEffect === "function") {
     await actor.toggleStatusEffect("qol-broken-armor", { active: true });
   }
+}
+
+
+async function resolveApplyDamageTargets(actorLike) {
+  const direct = await resolveActorLike(actorLike);
+  if (direct) return [direct];
+
+  const mode = getApplyDamageTargetLogic();
+  const character = game.user?.character instanceof Actor ? game.user.character : null;
+  const tokenActors = (canvas?.tokens?.controlled ?? [])
+    .map((token) => token?.actor ?? null)
+    .filter((actor, index, arr) => actor instanceof Actor && arr.indexOf(actor) === index);
+
+  if (mode === "alwaysCharacter") return character ? [character] : [];
+  if (mode === "alwaysToken") return tokenActors;
+  if (mode === "characterFirst") return character ? [character] : tokenActors;
+  if (mode === "tokenFirst") return tokenActors.length ? tokenActors : (character ? [character] : []);
+  return character ? [character] : [];
+}
+
+function getApplyDamageTargetLogic() {
+  const value = game.settings.get("mosh-greybearded-qol", "applyDamageTargetLogic");
+  const valid = ["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"];
+  return valid.includes(value) ? value : "alwaysCharacter";
 }

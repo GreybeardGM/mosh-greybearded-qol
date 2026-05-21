@@ -27,6 +27,7 @@ import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
 import { applyDamage, promptDamageInput } from "./apply-damage/apply-damage.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
+import { canCurrentUserSeeApplyDamageButtons } from "./apply-damage/visibility.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
 import { capitalize, normalizeNumber, stripHtml } from "./utils/normalization.js";
@@ -237,6 +238,22 @@ Hooks.once("init", () => {
     default: getDefaultApplyDamageConfig()
   });
 
+
+  game.settings.register("mosh-greybearded-qol", "applyDamageTargetLogic", {
+    name: "MoshQoL.Settings.ApplyDamageTargetLogic.Name",
+    hint: "MoshQoL.Settings.ApplyDamageTargetLogic.Hint",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      alwaysCharacter: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.AlwaysCharacter",
+      alwaysToken: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.AlwaysToken",
+      characterFirst: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.CharacterFirst",
+      tokenFirst: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.TokenFirst"
+    },
+    default: "alwaysCharacter"
+  });
+
   game.settings.registerMenu("mosh-greybearded-qol", "applyDamageConfigMenu", {
     name: "MoshQoL.Settings.ApplyDamageConfig.Name",
     label: "MoshQoL.Settings.ApplyDamageConfig.Label",
@@ -245,6 +262,7 @@ Hooks.once("init", () => {
     type: ApplyDamageConfigApp,
     restricted: true
   });
+
 
   // Enable MoSh QoL Character Creator.
   game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
@@ -363,7 +381,8 @@ Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
 
     switch (action) {
       case "applyDamageSelected": {
-        await applyDamageToSelectedTokens(args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
+        if (!canCurrentUserSeeApplyDamageButtons()) return;
+        await game.moshGreybeardQol.applyDamage(null, args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
         break;
       }
       case "convertStress": {
@@ -447,29 +466,19 @@ Hooks.on("getSceneControlButtons", (controls) => {
     name: "applyDamage",
     title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
     icon: "fa-solid fa-heart-broken",
-    visible: game.user.isGM,
+    visible: canCurrentUserSeeApplyDamageButtons(),
     button: true,
     onClick: async () => {
-      if (!game.user?.isGM) return;
+      if (!canCurrentUserSeeApplyDamageButtons()) return;
 
-      const selected = canvas?.tokens?.controlled ?? [];
-      if (!selected.length) {
-        ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
-        return;
-      }
-
-      // Ask once, apply to all
       const data = await promptDamageInput({
-        title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
-        message: game.i18n.format("MoshQoL.Damage.EnterAmountForTokens", {
-          count: selected.length,
-          tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
-        }),
+        title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
+        message: game.i18n.localize("MoshQoL.Damage.EnterAmount"),
         cancel: { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark" }
       });
 
       if (!data) return;
-      await applyDamageToSelectedTokens(data.damage, data.antiArmor);
+      await game.moshGreybeardQol.applyDamage(null, data.damage, data.antiArmor);
     }
   };
 
