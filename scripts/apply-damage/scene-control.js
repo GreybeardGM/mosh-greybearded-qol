@@ -1,5 +1,6 @@
 import { promptDamageInput } from "./apply-damage.js";
 import { normalizeNumber } from "../utils/normalization.js";
+import { canShowApplyDamageUI } from "./policy.js";
 
 export async function applyDamageToSelectedTokens(damageInput, antiArmor, woundType = null, woundRollModifier = null) {
   const selected = canvas?.tokens?.controlled ?? [];
@@ -57,10 +58,10 @@ export function registerApplyDamageSceneControl() {
       name: "applyDamage",
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
       icon: "fa-solid fa-heart-broken",
-      visible: game.user.isGM,
+      visible: canShowApplyDamageUI(game.user),
       button: true,
       onClick: async () => {
-        if (!game.user?.isGM) return;
+        if (!canShowApplyDamageUI(game.user)) return;
 
         const selected = canvas?.tokens?.controlled ?? [];
         if (!selected.length) {

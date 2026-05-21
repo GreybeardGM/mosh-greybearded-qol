@@ -1,5 +1,5 @@
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
-import { canCurrentUserSeeApplyDamageButtons } from "./apply-damage/visibility.js";
+import { canShowApplyDamageUI } from "./apply-damage/policy.js";
 
 function getChatActionArgs(button) {
   if (!button.dataset.args) return [];
@@ -41,7 +41,7 @@ export function registerChatActions() {
 
       switch (action) {
         case "applyDamageSelected":
-          if (!canCurrentUserSeeApplyDamageButtons()) return;
+          if (!canShowApplyDamageUI(game.user)) return;
           await game.moshGreybeardQol.applyDamage(null, args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
           break;
         case "convertStress": {
