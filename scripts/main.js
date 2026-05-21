@@ -25,12 +25,12 @@ import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "./codex/default-shore-leave-tiers.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
-import { applyDamage, promptDamageInput } from "./apply-damage/apply-damage.js";
-import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
-import { canCurrentUserSeeApplyDamageButtons } from "./apply-damage/visibility.js";
+import { applyDamage } from "./apply-damage/apply-damage.js";
+import { registerChatActions } from "./chat-actions.js";
+import { registerApplyDamageSceneControl } from "./apply-damage/scene-control.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
-import { capitalize, normalizeNumber, stripHtml } from "./utils/normalization.js";
+import { capitalize, stripHtml } from "./utils/normalization.js";
 import { setReady } from "./character-creator/progress.js";
 import "./patches/creature-skillfix.js";
 
@@ -72,6 +72,9 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
   game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
   game.moshGreybeardQol.applyDamage = applyDamage;
+
+  registerChatActions();
+  registerApplyDamageSceneControl();
 
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
@@ -310,102 +313,6 @@ Hooks.once("ready", () => {
 });
 
 
-async function applyDamageToSelectedTokens(damageInput, antiArmor, woundType = null, woundRollModifier = null) {
-  const selected = canvas?.tokens?.controlled ?? [];
-  if (!selected.length) {
-    ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
-    return;
-  }
-
-  const damage = normalizeNumber(damageInput, { fallback: null, min: 1 });
-  if (damage === null) {
-    ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
-    return;
-  }
-
-  let applied = 0;
-  for (const token of selected) {
-    const actorLike = token?.actor ?? token;
-    if (!actorLike) continue;
-    try {
-      const didApply = await game.moshGreybeardQol.applyDamage(actorLike, damage, antiArmor, woundType, woundRollModifier);
-      if (didApply !== false) applied++;
-    } catch (err) {
-      console.error("applyDamage failed for", token, err);
-    }
-  }
-
-  ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
-    applied,
-    total: selected.length,
-    tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
-  }));
-}
-
-function getChatActionArgs(button) {
-  if (!button.dataset.args) return [];
-
-  try {
-    return JSON.parse(button.dataset.args);
-  } catch (error) {
-    console.warn("[MoSh QoL] Failed to parse chat action args", error);
-    return [];
-  }
-}
-
-function getRequiredChatActionActor() {
-  const actor = game.user.character;
-  if (!actor) {
-    ui.notifications.warn(game.i18n.localize("MoshQoL.Errors.NoCharacterAssigned"));
-  }
-  return actor;
-}
-
-Hooks.on("renderChatMessageHTML", (message, html /* HTMLElement */, data) => {
-  insertApplyDamageChatButtons(message, html);
-
-  if (html.dataset.moshQolChatActionsBound) return;
-  html.dataset.moshQolChatActionsBound = "true";
-
-  html.addEventListener("click", async (event) => {
-    const target = event.target instanceof Element ? event.target : null;
-    const button = target?.closest(".greybeardqol .chat-action");
-    if (!button || !html.contains(button)) return;
-
-    event.preventDefault();
-
-    const action = button.dataset.action;
-    if (!action) return;
-
-    const args = getChatActionArgs(button);
-
-    switch (action) {
-      case "applyDamageSelected": {
-        if (!canCurrentUserSeeApplyDamageButtons()) return;
-        await game.moshGreybeardQol.applyDamage(null, args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
-        break;
-      }
-      case "convertStress": {
-        const actor = getRequiredChatActionActor();
-        if (!actor) return;
-        await game.moshGreybeardQol.convertStress(actor, ...args);
-        break;
-      }
-      case "simpleShoreLeave": {
-        const actor = getRequiredChatActionActor();
-        if (!actor) return;
-        await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
-        break;
-      }
-      case "triggerShipCrit":
-        await game.moshGreybeardQol.triggerShipCrit(...args);
-        break;
-      default:
-        ui.notifications.warn(game.i18n.format("MoshQoL.Errors.UnknownAction", { action }));
-    }
-  });
-});
-
 // Sheet Header Buttons
 Hooks.on("renderActorSheet", (sheet, html) => {
   const actor = sheet.actor;
@@ -436,51 +343,3 @@ Hooks.on("closeActorSheet", (sheet) => {
   try { removeToolband(sheet); } catch (e) { console.error(e); }
 });
 
-/**
- * Robustly insert the apply-damage tool into token controls.
- * Foundry V13 (per module.json minimum/verified) uses `controls` and `tools` as Record/Object values.
- * Array forms remain as defensive compatibility for unusual/custom hook payloads.
- */
-function insertApplyDamageTool(tokenControls, toolDef) {
-  if (!tokenControls) return;
-
-  if (Array.isArray(tokenControls.tools)) {
-    tokenControls.tools.push(toolDef);
-    return;
-  }
-
-  tokenControls.tools = tokenControls.tools ?? {};
-  const order = Object.keys(tokenControls.tools).length;
-  tokenControls.tools.applyDamage = { ...toolDef, order };
-}
-
-// register token damage tool
-Hooks.on("getSceneControlButtons", (controls) => {
-  // Normalize: get the Token controls whether `controls` is Array or Object
-  const tokenControls = Array.isArray(controls)
-    ? controls.find(c => c?.name === "token")
-    : (controls?.token ?? controls?.tokens ?? null);
-  if (!tokenControls) return;
-
-  const toolDef = {
-    name: "applyDamage",
-    title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
-    icon: "fa-solid fa-heart-broken",
-    visible: canCurrentUserSeeApplyDamageButtons(),
-    button: true,
-    onClick: async () => {
-      if (!canCurrentUserSeeApplyDamageButtons()) return;
-
-      const data = await promptDamageInput({
-        title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
-        message: game.i18n.localize("MoshQoL.Damage.EnterAmount"),
-        cancel: { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark" }
-      });
-
-      if (!data) return;
-      await game.moshGreybeardQol.applyDamage(null, data.damage, data.antiArmor);
-    }
-  };
-
-  insertApplyDamageTool(tokenControls, toolDef);
-});
