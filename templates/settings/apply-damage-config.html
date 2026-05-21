@@ -13,6 +13,23 @@
     </label>
   </section>
 
+
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.ApplyDamageVisibility.Name"}}</h4>
+
+    <label class="qolsettings-field">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageVisibility.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageVisibility.Hint"}}</small>
+      </span>
+      <select name="applyDamage.visibility">
+        {{#each visibilityChoices as |choice|}}
+          <option value="{{choice.value}}" {{#if (eq ../config.visibility choice.value)}}selected{{/if}}>{{choice.label}}</option>
+        {{/each}}
+      </select>
+    </label>
+  </section>
+
   <section class="card">
     <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Title"}}</h4>
 

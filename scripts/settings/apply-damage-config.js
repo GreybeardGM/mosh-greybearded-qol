@@ -5,9 +5,17 @@ export const APPLY_DAMAGE_CONFIG_SETTING = "applyDamageConfig";
 
 export const APPLY_DAMAGE_ACTOR_SCOPES = ["character", "contractor", "creature"];
 
+export const APPLY_DAMAGE_VISIBILITY = {
+  DISABLED: "disabled",
+  GM_ONLY: "gmOnly",
+  TRUSTED: "trusted",
+  EVERYONE: "everyone"
+};
+
 export function getDefaultApplyDamageConfig() {
   return {
     tougherArmor: false,
+    visibility: APPLY_DAMAGE_VISIBILITY.GM_ONLY,
     automateWoundRoll: {
       character: true,
       contractor: false,
@@ -22,6 +30,9 @@ export function normalizeApplyDamageConfig(config) {
   if (config && typeof config === "object") {
     if (typeof config.tougherArmor === "boolean") {
       normalized.tougherArmor = config.tougherArmor;
+    }
+    if (Object.values(APPLY_DAMAGE_VISIBILITY).includes(config.visibility)) {
+      normalized.visibility = config.visibility;
     }
     if (config.automateWoundRoll && typeof config.automateWoundRoll === "object") {
       for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
@@ -83,7 +94,13 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
   async _prepareContext() {
     return {
       config: getNormalizedApplyDamageConfig(),
-      description: game.i18n.localize("MoshQoL.Damage.Config.Description")
+      description: game.i18n.localize("MoshQoL.Damage.Config.Description"),
+      visibilityChoices: [
+        { value: APPLY_DAMAGE_VISIBILITY.DISABLED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Disabled") },
+        { value: APPLY_DAMAGE_VISIBILITY.GM_ONLY, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.GMOnly") },
+        { value: APPLY_DAMAGE_VISIBILITY.TRUSTED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.TrustedPlayer") },
+        { value: APPLY_DAMAGE_VISIBILITY.EVERYONE, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Everyone") }
+      ]
     };
   }
 
@@ -101,6 +118,11 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
 
     const tougherArmor = submitted.tougherArmor;
     config.tougherArmor = isSubmittedCheckboxEnabled(tougherArmor);
+
+    const visibility = submitted.visibility;
+    config.visibility = Object.values(APPLY_DAMAGE_VISIBILITY).includes(visibility)
+      ? visibility
+      : APPLY_DAMAGE_VISIBILITY.GM_ONLY;
 
     const automateWoundRoll = submitted.automateWoundRoll ?? {};
     for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {

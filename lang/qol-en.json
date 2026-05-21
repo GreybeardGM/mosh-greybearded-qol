@@ -119,6 +119,26 @@
             "Name": "Creatures"
           }
         }
+      },
+      "ApplyDamageVisibility": {
+        "Name": "Apply Damage Button Visibility",
+        "Hint": "Choose who can see Apply Damage buttons in chat cards and token controls. Disabled hides all Apply Damage buttons.",
+        "Choices": {
+          "Disabled": "Disabled",
+          "GMOnly": "GM Only",
+          "TrustedPlayer": "Trusted Player",
+          "Everyone": "Everyone"
+        }
+      },
+      "ApplyDamageTargetLogic": {
+        "Name": "Apply Damage Target Logic",
+        "Hint": "Choose target selection when Apply Damage is called without a target actor.",
+        "Choices": {
+          "AlwaysCharacter": "Always Player Character",
+          "AlwaysToken": "Always Token",
+          "CharacterFirst": "Player Character First",
+          "TokenFirst": "Token First"
+        }
       }
     },
     "ShoreLeave": {

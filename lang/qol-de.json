@@ -119,6 +119,26 @@
             "Name": "Kreaturen"
           }
         }
+      },
+      "ApplyDamageVisibility": {
+        "Name": "Sichtbarkeit der Apply-Damage-Buttons",
+        "Hint": "Lege fest, wer Apply-Damage-Buttons in Chatkarten und Token-Steuerung sehen darf. Disabled blendet alle Apply-Damage-Buttons aus.",
+        "Choices": {
+          "Disabled": "Disabled",
+          "GMOnly": "Nur Spielleitung",
+          "TrustedPlayer": "Vertrauenswürdige Spieler",
+          "Everyone": "Alle"
+        }
+      },
+      "ApplyDamageTargetLogic": {
+        "Name": "Apply-Damage-Ziellogik",
+        "Hint": "Wähle die Zielauswahl, wenn Apply Damage ohne Zielakteur aufgerufen wird.",
+        "Choices": {
+          "AlwaysCharacter": "Immer Spielercharakter",
+          "AlwaysToken": "Immer Token",
+          "CharacterFirst": "Spielercharakter zuerst",
+          "TokenFirst": "Token zuerst"
+        }
       }
     },
     "ShoreLeave": {
