@@ -131,6 +131,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this._activeTab = "character";
     this._boundDrop = this._onDrop.bind(this);
     this._boundHazardChange = this._onHazardChange.bind(this);
+    this._pendingRosterCommit = null;
+    this._commitInFlight = null;
+    this._commitScheduled = false;
   }
 
   static DEFAULT_OPTIONS = {
@@ -290,6 +293,44 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     return super._onClose(options);
   }
 
+
+  _scheduleRosterCommit(nextRoster) {
+    if (!this.actor) return Promise.resolve(false);
+
+    this._pendingRosterCommit = normalizeRoster(nextRoster);
+
+    if (!this._commitScheduled) {
+      this._commitScheduled = true;
+      queueMicrotask(() => {
+        this._commitScheduled = false;
+
+        if (this._commitInFlight) return;
+
+        this._commitInFlight = this._flushRosterCommit();
+        this._commitInFlight.finally(() => {
+          this._commitInFlight = null;
+          if (this._pendingRosterCommit) {
+            this._scheduleRosterCommit(this._pendingRosterCommit);
+          }
+        });
+      });
+    }
+
+    if (this._commitInFlight) return this._commitInFlight;
+    return Promise.resolve(true);
+  }
+
+  async _flushRosterCommit() {
+    if (!this.actor || !this._pendingRosterCommit) return false;
+
+    const rosterToCommit = this._pendingRosterCommit;
+    this._pendingRosterCommit = null;
+
+    await this.actor.setFlag(MODULE_ID, FLAG_KEY, rosterToCommit);
+    this.render();
+    return true;
+  }
+
   _onDragOver = (event) => {
     event.preventDefault();
   };
@@ -327,9 +368,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     }
 
     roster[bucket].push({ uuid: droppedActor.uuid, active: true, hazardPay: null });
-    await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
     this._activeTab = bucket;
-    this.render(true);
+    this._scheduleRosterCommit(roster);
   }
 
   static async _onSubmit(event, form, formData) {
@@ -388,14 +428,15 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     if (!hasChanges) return;
 
-    await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
-    this.render(true);
+    await this._scheduleRosterCommit(roster);
   }
 
   static async _onSetTab(event, target) {
     event?.preventDefault();
     const tab = target?.dataset?.tab;
     if (!tab) return;
+
+    if (this._activeTab === tab) return;
 
     this._activeTab = tab;
     this.render();
@@ -411,8 +452,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
     roster[tab] = roster[tab].filter((entry) => entry.uuid !== uuid);
-    await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
-    this.render(true);
+    await this._scheduleRosterCommit(roster);
   }
 
 
@@ -444,7 +484,6 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       return { ...entry, active };
     });
 
-    await this.actor.setFlag(MODULE_ID, FLAG_KEY, roster);
-    this.render(true);
+    await this._scheduleRosterCommit(roster);
   }
 }
