@@ -51,11 +51,19 @@ export function getNormalizedApplyDamageConfig() {
 }
 
 export function usesTougherArmor() {
-  return getNormalizedApplyDamageConfig().tougherArmor === true;
+  return usesTougherArmorFromConfig(getNormalizedApplyDamageConfig());
 }
 
 export function automatesWoundRoll(scope = "character") {
-  return getNormalizedApplyDamageConfig().automateWoundRoll?.[scope] === true;
+  return automatesWoundRollFromConfig(getNormalizedApplyDamageConfig(), scope);
+}
+
+export function usesTougherArmorFromConfig(config) {
+  return config?.tougherArmor === true;
+}
+
+export function automatesWoundRollFromConfig(config, scope = "character") {
+  return config?.automateWoundRoll?.[scope] === true;
 }
 
 function isSubmittedCheckboxEnabled(value) {
