@@ -1,7 +1,7 @@
 import { getArmorCoverValues } from "../codex/armor-cover.js";
 import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
 import { normalizeNumber } from "../utils/normalization.js";
-import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-config.js";
+import { automatesWoundRollFromConfig, getNormalizedApplyDamageConfig, usesTougherArmorFromConfig } from "../settings/apply-damage-config.js";
 import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
 import { chatOutput } from "../utils/chat-output.js";
@@ -24,6 +24,7 @@ const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
  * @returns {Promise<boolean>} true, wenn Schaden verarbeitet wurde; false bei Abbruch/ungültiger Eingabe.
  */
 export async function applyDamage(actorLike, damageInput, antiArmor = false, woundType = null, woundRollModifier = null) {
+  const applyDamageConfig = getNormalizedApplyDamageConfig();
   const targets = await resolveApplyDamageTargets(actorLike);
   if (!targets.length) return false;
 
@@ -58,18 +59,18 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
 
   let applied = 0;
   for (const target of targets) {
-    const didApply = await applyDamageToActor(target, normalizedPayload);
+    const didApply = await applyDamageToActor(target, normalizedPayload, applyDamageConfig);
     if (didApply) applied += 1;
   }
 
   return applied > 0;
 }
 
-async function applyDamageToActor(actor, normalizedPayload) {
+async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = null) {
   if (actor.type === "ship") return false;
 
   const { damage, antiArmorHit, woundMetadata } = normalizedPayload;
-  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata, getApplyDamageActorScope(actor));
+  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata, getApplyDamageActorScope(actor), applyDamageConfig);
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
@@ -87,7 +88,7 @@ async function applyDamageToActor(actor, normalizedPayload) {
     : Math.max(damageReduction, armorValue);
 
   const remaining = Math.max(0, damage - armorReductionLimit);
-  const armorBrokenThresholdReached = usesTougherArmor()
+  const armorBrokenThresholdReached = usesTougherArmorFromConfig(applyDamageConfig)
     ? remaining > 0
     : damage >= armorReductionLimit;
   const shouldBreakArmor = !antiArmorHit && !armorBroken && armorBrokenThresholdReached;
@@ -273,8 +274,8 @@ function isContractorActor(actor) {
   return typeof sheetClass === "string" && sheetClass.includes("QoLContractorSheet");
 }
 
-function getAutomatedWoundRoll(woundMetadata, actorScope) {
-  const automate = automatesWoundRoll(actorScope);
+function getAutomatedWoundRoll(woundMetadata, actorScope, applyDamageConfig = null) {
+  const automate = automatesWoundRollFromConfig(applyDamageConfig, actorScope);
   if (!automate) return null;
   if (!woundMetadata.tableSettingKey) {
     return null;
