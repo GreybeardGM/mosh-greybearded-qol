@@ -461,26 +461,77 @@ async function setArmorBrokenStatus(actor) {
   }
 }
 
+const VALID_TARGET_LOGICS = ["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"];
+
+async function getUserCharacterTarget() {
+  const character = game.user?.character;
+  return character instanceof Actor ? character : null;
+}
+
+async function getControlledTokenTargets() {
+  const tokenActors = (canvas?.tokens?.controlled ?? [])
+    .map((token) => token?.actor ?? null)
+    .filter((actor) => actor instanceof Actor);
+  return [...new Set(tokenActors)];
+}
+
+/**
+ * Immer Character; liefert [] wenn kein Character gesetzt ist.
+ * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
+ * @returns {Actor[]}
+ */
+function targetStrategyAlwaysCharacter({ character }) {
+  return character ? [character] : [];
+}
+
+/**
+ * Immer kontrollierte Token; liefert [] wenn keine Token ausgewählt sind.
+ * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
+ * @returns {Actor[]}
+ */
+function targetStrategyAlwaysToken({ tokenActors }) {
+  return tokenActors;
+}
+
+/**
+ * Character bevorzugen; fällt auf Token zurück, wenn kein Character existiert.
+ * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
+ * @returns {Actor[]}
+ */
+function targetStrategyCharacterFirst({ character, tokenActors }) {
+  return character ? [character] : tokenActors;
+}
+
+/**
+ * Token bevorzugen; fällt auf Character zurück, wenn keine Token vorhanden sind.
+ * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
+ * @returns {Actor[]}
+ */
+function targetStrategyTokenFirst({ character, tokenActors }) {
+  return tokenActors.length ? tokenActors : (character ? [character] : []);
+}
+
+const TARGET_LOGIC_STRATEGIES = {
+  alwaysCharacter: targetStrategyAlwaysCharacter,
+  alwaysToken: targetStrategyAlwaysToken,
+  characterFirst: targetStrategyCharacterFirst,
+  tokenFirst: targetStrategyTokenFirst
+};
 
 async function resolveApplyDamageTargets(actorLike) {
   const direct = await resolveActorLike(actorLike);
   if (direct) return [direct];
 
   const mode = getApplyDamageTargetLogic();
-  const character = game.user?.character instanceof Actor ? game.user.character : null;
-  const tokenActors = (canvas?.tokens?.controlled ?? [])
-    .map((token) => token?.actor ?? null)
-    .filter((actor, index, arr) => actor instanceof Actor && arr.indexOf(actor) === index);
-
-  if (mode === "alwaysCharacter") return character ? [character] : [];
-  if (mode === "alwaysToken") return tokenActors;
-  if (mode === "characterFirst") return character ? [character] : tokenActors;
-  if (mode === "tokenFirst") return tokenActors.length ? tokenActors : (character ? [character] : []);
-  return character ? [character] : [];
+  const providers = {
+    character: await getUserCharacterTarget(),
+    tokenActors: await getControlledTokenTargets()
+  };
+  const strategy = TARGET_LOGIC_STRATEGIES[mode] ?? TARGET_LOGIC_STRATEGIES.alwaysCharacter;
+  return strategy(providers);
 }
 
 function getApplyDamageTargetLogic() {
   const value = game.settings.get("mosh-greybearded-qol", "applyDamageTargetLogic");
-  const valid = ["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"];
-  return valid.includes(value) ? value : "alwaysCharacter";
+  return VALID_TARGET_LOGICS.includes(value) ? value : VALID_TARGET_LOGICS[0];
 }
