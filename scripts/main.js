@@ -245,7 +245,7 @@ Hooks.once("init", () => {
   game.settings.register("mosh-greybearded-qol", "applyDamageTargetLogic", {
     name: "MoshQoL.Settings.ApplyDamageTargetLogic.Name",
     hint: "MoshQoL.Settings.ApplyDamageTargetLogic.Hint",
-    scope: "world",
+    scope: "client",
     config: true,
     type: String,
     choices: {
