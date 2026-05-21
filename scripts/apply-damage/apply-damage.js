@@ -5,6 +5,7 @@ import { automatesWoundRoll, usesTougherArmor } from "../settings/apply-damage-c
 import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
 import { chatOutput } from "../utils/chat-output.js";
+import { resolveApplyDamageTargets } from "./policy.js";
 
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
 
@@ -202,16 +203,6 @@ export async function promptDamageInput({ title, message, cancel = null } = {}) 
     ok: { label: game.i18n.localize("MoshQoL.Damage.Apply"), icon: "fa-solid fa-check" },
     ...(cancel ? { cancel } : {})
   });
-}
-
-/** Actor aus verschiedenen Eingabeformen auflösen */
-async function resolveActorLike(actorLike) {
-  if (!actorLike) return null;
-  if (actorLike instanceof Actor) return actorLike;
-  if (actorLike?.actor instanceof Actor) return actorLike.actor;
-  if (typeof actorLike === "string") return game.actors?.get(actorLike) ?? null;
-  if (actorLike.document?.actor instanceof Actor) return actorLike.document.actor;
-  return null;
 }
 
 /** Parsen/Validieren der Schaden-Eingabe (einziger Normalisierungspfad). */
@@ -459,79 +450,4 @@ async function setArmorBrokenStatus(actor) {
   if (typeof actor?.toggleStatusEffect === "function") {
     await actor.toggleStatusEffect("qol-broken-armor", { active: true });
   }
-}
-
-const VALID_TARGET_LOGICS = ["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"];
-
-async function getUserCharacterTarget() {
-  const character = game.user?.character;
-  return character instanceof Actor ? character : null;
-}
-
-async function getControlledTokenTargets() {
-  const tokenActors = (canvas?.tokens?.controlled ?? [])
-    .map((token) => token?.actor ?? null)
-    .filter((actor) => actor instanceof Actor);
-  return [...new Set(tokenActors)];
-}
-
-/**
- * Immer Character; liefert [] wenn kein Character gesetzt ist.
- * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
- * @returns {Actor[]}
- */
-function targetStrategyAlwaysCharacter({ character }) {
-  return character ? [character] : [];
-}
-
-/**
- * Immer kontrollierte Token; liefert [] wenn keine Token ausgewählt sind.
- * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
- * @returns {Actor[]}
- */
-function targetStrategyAlwaysToken({ tokenActors }) {
-  return tokenActors;
-}
-
-/**
- * Character bevorzugen; fällt auf Token zurück, wenn kein Character existiert.
- * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
- * @returns {Actor[]}
- */
-function targetStrategyCharacterFirst({ character, tokenActors }) {
-  return character ? [character] : tokenActors;
-}
-
-/**
- * Token bevorzugen; fällt auf Character zurück, wenn keine Token vorhanden sind.
- * @param {{ character: Actor|null, tokenActors: Actor[] }} providers
- * @returns {Actor[]}
- */
-function targetStrategyTokenFirst({ character, tokenActors }) {
-  return tokenActors.length ? tokenActors : (character ? [character] : []);
-}
-
-const TARGET_LOGIC_STRATEGIES = {
-  alwaysCharacter: targetStrategyAlwaysCharacter,
-  alwaysToken: targetStrategyAlwaysToken,
-  characterFirst: targetStrategyCharacterFirst,
-  tokenFirst: targetStrategyTokenFirst
-};
-
-async function resolveApplyDamageTargets(actorLike) {
-  const direct = await resolveActorLike(actorLike);
-  if (direct) return [direct];
-
-  const mode = getApplyDamageTargetLogic();
-  const providers = {
-    character: await getUserCharacterTarget(),
-    tokenActors: await getControlledTokenTargets()
-  };
-  const strategy = TARGET_LOGIC_STRATEGIES[mode] ?? TARGET_LOGIC_STRATEGIES.alwaysCharacter;
-  return strategy(providers);
-}
-
-function getApplyDamageTargetLogic() {
-  const value = game.settings.get("mosh-greybearded-qol", "applyDamageTargetLogic");
-  return VALID_TARGET_LOGICS.includes(value) ? value : VALID_TARGET_LOGICS[0];
 }

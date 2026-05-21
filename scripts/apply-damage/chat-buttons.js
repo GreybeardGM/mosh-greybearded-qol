@@ -4,7 +4,7 @@ import {
   extractDamageRollFromMessageContent,
   extractWoundEffectFromMessageContent
 } from "./extract-damage-roll.js";
-import { canCurrentUserSeeApplyDamageButtons } from "./visibility.js";
+import { canShowApplyDamageUI } from "./policy.js";
 
 function getApplyDamageChatButtonRoll(message) {
   const woundEffect = extractWoundEffectFromMessageContent(message);
@@ -106,7 +106,7 @@ function createApplyDamageArgs({ damage, antiArmor, woundType, woundRollModifier
 }
 
 export function insertApplyDamageChatButtons(message, html) {
-  if (!canCurrentUserSeeApplyDamageButtons()) return;
+  if (!canShowApplyDamageUI(game.user)) return;
   if (html.querySelector(".apply-damage-chat-buttons")) return;
 
   const damageRoll = getApplyDamageChatButtonRoll(message);
