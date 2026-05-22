@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.1-dev] - 2026-05-22
+### Changed
+- Switched module metadata back to development distribution (`dev` branch manifest/download) and marked the package explicitly as DEV variant.
+
 ## [0.8.0] - 2026-05-22
 ### Added
 - Added German localization for the module.
