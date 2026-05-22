@@ -1,76 +1,80 @@
 # MoSh Greybearded QoL
 
-**MoSh Greybearded QoL** is a Foundry VTT module designed to enhance character creation and gameplay for the Mothership 1e system. It offers a suite of quality-of-life improvements tailored for both GMs and players, with modular components that can be used independently or as part of a complete character generation workflow.
+**MoSh Greybearded QoL** is a modular quality-of-life extension for **Foundry VTT** focused on the **Mothership 1e** ruleset.  
+It streamlines repetitive workflows for both players and game masters while preserving compatibility with homebrew-heavy tables.
 
-## Features
+## Highlights
 
-- 🧬 **QoL Character Generator**
-  - Guided creation: attributes → class → skills → gear → credits
-  - Smart dialogs with homebrew-friendly functionality
-  - Saves creation progress automatically
-  - Full compendium integration with UUID-safe item handling
-    - Clean fallback for non-compendium results
-  - Interactive skill selection tree
-   
-- 🛡️**Armor broken status effect**
-  - Status effect to show the actor's armor is damaged
+- Structured, guided character generation with integrated compendium support
+- Practical table tools for common Mothership workflows
+- Lightweight, purpose-built sheet extensions for stash and contractor management
+- Independent feature modules that can be enabled as needed
 
-- 🌴 **Shore Leave Manager**
-  - Automate Shore Leave directly from a character sheet
-  - Supports custom port classes
-  - Adds random flavor text to activities
-  - Includes support for common house rules
-    - e.g., no Sanity Save, no Stress Relief, etc.
+## Feature Overview
 
-- 🎁 **Stash Sheet**
-  - A lightweight actor sheet type for storing items and credits
-  - Ideal for banks, lockers, or communal stashes
-  - No stats, no rolls – just storage
- 
-- 👷‍♂️ **Contractor Sheet**
-  - Enhanced creature sheet type for managing contractors
-  - Setup generic contractors and upgrade them as needed
-  - Roll loadout from any class in the game
-  - Patched creature/contractor skill rolls to present creature attributes from active stats
- 
-- 🚀 **0e Ship Crits**
-  - Add a button to trigger critical ship damage on demand
-  - Escalate crits to the next level if needed
+### 🧬 QoL Character Generator
+- Guided character creation flow: attributes → class → skills → gear → credits
+- Homebrew-friendly dialogs and option handling
+- Automatic progress persistence during creation
+- UUID-safe compendium item integration with fallback behavior
+- Interactive skill tree selection
 
-- 📋 **Ship Crew Roster**
-  - Adds a crew roster to the Ship Sheet
-  - Track active player characters, active contractors, and active auxiliary craft
-  - Additional roster functionality is work in progress
+### ⚔️ Apply Damage
+- Dedicated helper workflow for applying incoming damage quickly and consistently
+- Designed to reduce manual calculation overhead during combat resolution
+- Integrates with the module’s UI helpers for faster at-table handling
 
-- ⚙️ **Utility Tools**
-  - Theme color customization via CSS variables
-  - Shore Leave helper
-  - Stress conversion helper
-  - Apply damage helper
-  - Skill Training tool (opens the QoL Generator skill tree to add a new skill to a character)
-  - Zero-max `z` modifier for zero-based rolls (e.g. `1d10z`, `1d100z`)
+### 🌴 Shore Leave Manager
+- Runs Shore Leave directly from the character sheet
+- Supports custom port classes and common house rules
+- Includes randomized flavor text for improved session pacing
 
-## Version
+### 👷 Contractor Sheet
+- Extended creature-style sheet for contractor management
+- Supports generic setup and progressive upgrades
+- Allows loadout rolls from available classes
+- Includes a patch for improved creature/contractor skill roll stat selection
 
-- Current module version: `0.7.4`
-- Verified for Foundry VTT: `13.351`
+### 🎁 Stash Sheet
+- Minimal actor sheet type for items and credits
+- Suitable for lockers, banks, and shared party storage
+- Intentionally excludes stats and rolling logic
 
-## Compatibility
+### 📋 Ship Crew Roster
+- Adds a roster interface to ship sheets
+- Tracks active player characters, contractors, and auxiliary craft
+- Additional roster capabilities are under active iteration
 
-- 🧠 System: Mothership 1e (`mosh`)
-- 🏗️ Foundry VTT Version: 13+
-- 📦 Works best with the `fvtt_mosh_1e_psg` compendium pack
+### 🚀 0e Ship Crits
+- Provides a one-click trigger for ship critical damage
+- Supports escalation to higher crit levels when required
+
+### 🛡️ Armor Broken Status Effect
+- Adds a dedicated status marker for damaged armor state visibility
+
+### ⚙️ Utility Tools
+- Theme color customization via CSS variables
+- Stress conversion helper
+- Skill Training tool (opens the QoL skill tree to add new character skills)
+- Zero-max `z` roll modifier support (for example `1d10z`, `1d100z`)
+
+## Version & Compatibility
+
+- **Current module version**: `0.8.0`
+- **Verified Foundry version**: `13.351`
+- **System**: Mothership 1e (`mosh`)
+- **Recommended companion compendium**: `fvtt_mosh_1e_psg`
 
 ## Installation
 
-Download the latest version from [GitHub](https://github.com/GreybeardGM/mosh-greybearded-qol)  
-Or install via [manifest URL](https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/dev/module.json)
-## Developer Notes
+- GitHub repository: <https://github.com/GreybeardGM/mosh-greybearded-qol>  
+- Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json>
 
-This module was created by **GreybeardGM** for use in long-running Mothership campaigns.  
-It is modular, readable, and designed as both a ready-to-use toolkit and a solid foundation for further development.
+## Maintainer Notes
 
-Feature requests are welcome — but I'm working solo, so no guarantees.
+Developed and maintained by **GreybeardGM**. The project emphasizes modular design and practical usability for long-running campaigns.
+
+Feedback and feature requests are welcome — but I'm working solo, so no guarantees.
 
 ---
 
