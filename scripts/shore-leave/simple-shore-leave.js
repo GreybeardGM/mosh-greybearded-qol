@@ -2,6 +2,7 @@ import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
 import { toRollFormula } from "../utils/to-roll-formula.js";
 import { toRollString } from "../utils/to-roll-string.js";
 
@@ -35,7 +36,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/shore-leave/simple-shore-leave.html"
+      template: "modules/mosh-greybearded-qol/templates/dialogs/simple-shore-leave.html"
     },
     confirm: {
       template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
@@ -61,8 +62,9 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     this._resolved = false;
     this._selectedTier = null;
 
+    const shoreLeaveConfig = getNormalizedShoreLeaveConfig();
     const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
-    this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor"));
+    this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? shoreLeaveConfig.simpleShoreLeave.randomFlavor);
     this.themeColor = getThemeColor();
     this.tiers = this._loadTiers();
     this.tierById = new Map(this.tiers.map(tier => [tier.tier, tier]));
@@ -147,7 +149,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     await chatOutput({
       actor: this.actor,
       title: entry.label,
-      subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.ShoreLeave.Title"),
+      subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.Common.ShoreLeave"),
       content: entry.flavor?.description || "",
       icon: entry.flavor?.icon || entry.icon,
       roll,

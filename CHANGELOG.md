@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0] - 2026-05-22
+### Added
+- Added German localization for the module.
+- New Apply Damage feature added: damage rolls are now detected automatically and can be applied via a chat button; Apply Damage behavior is freely configurable in settings.
+
+### Changed
+- The QoL Toolband is now freely configurable.
+- Shore Leave settings have been grouped into a new menu for better overview.
+- Prepared the next development version; details will be expanded before release.
+- Various performance upgrades completed, including a refactor of the item loader for faster loading and a restructuring of settings for better overview.
+
 ## [0.7.3] - 2026-05-07
 ### Improvements
 - Contractor promotion now only sets the essential flags (`isNamed`, `loyalty.enabled`), and loyalty rolls also enable the loyalty flag automatically.

@@ -1,0 +1,390 @@
+{
+  "MoshQoL": {
+    "Common": {
+      "Bonus": "Bonus",
+      "Cancel": "Abbrechen",
+      "Confirm": "Bestätigen",
+      "Dice": "Würfel",
+      "Faces": "Seiten",
+      "RemainingPoints": "Verbleibende Punkte",
+      "Reset": "Zurücksetzen",
+      "ResetToDefault": "Auf Standard zurücksetzen",
+      "SaveChanges": "Änderungen speichern",
+      "AuxiliaryCraft": "Beiboote",
+      "Contractor": "Auftragnehmer",
+      "Contractors": "Auftragnehmende",
+      "CrewRoster": "Mannschaftsliste",
+      "PlayerCharacters": "Spielercharaktere",
+      "ShoreLeave": "Landgang",
+      "ShoreLeaveConfiguration": "Landgang-Konfiguration",
+      "StressConversion": "Stressumwandlung"
+    },
+    "Errors": {
+      "NoActorProvided": "Kein Akteur angegeben.",
+      "NoCharacterAssigned": "Kein Charakter zugewiesen.",
+      "UnknownAction": "Unbekannte Aktion: {action}"
+    },
+    "Attributes": {
+      "Body": "Körper",
+      "Fear": "Angst",
+      "Sanity": "Geistige Stabilität"
+    },
+    "Sheets": {
+      "Contractor": "Auftragnehmerbogen",
+      "Stash": "Vorratsbogen"
+    },
+    "Status": {
+      "BrokenArmor": "Beschädigte Rüstung"
+    },
+    "Settings": {
+      "ConvertStress": {
+        "Formula": {
+          "Hint": "Fallback-Würfelformel für die Stressumwandlung (nützlich für Homebrew-Makros).",
+          "Name": "Formel für Stressumwandlung"
+        },
+        "MinStressConversion": {
+          "Hint": "Wenn aktiviert, wird die Stressumwandlung bei 0 statt beim Mindeststress begrenzt.",
+          "Name": "Mindeststress umwandeln"
+        },
+        "NoSanitySave": {
+          "Hint": "Wenn aktiviert, wird Stress ohne Stabilitätswurf umgewandelt.",
+          "Name": "Kein Stabilitätswurf"
+        },
+        "NoStressRelieve": {
+          "Hint": "Wenn aktiviert, wird Stress nach der Umwandlung nicht auf den Mindestwert zurückgesetzt.",
+          "Name": "Keine Stressentlastung"
+        }
+      },
+      "EnableCharacterCreator": {
+        "Hint": "Wenn aktiviert, ersetzt dies das alte Charaktererstellungs-Makro durch die neue QoL-Version.",
+        "Name": "QoL-Charaktergenerator aktivieren"
+      },
+      "EnableShipCrits": {
+        "Hint": "Wenn aktiviert, erscheint der Schiffskrit-Button und die 0e-Krit-Logik wird aktiviert.",
+        "Name": "0e-Schiffskrits aktivieren"
+      },
+      "ShoreLeaveEditor": {
+        "Hint": "Konfiguriere Landgang-Regeln, Stressumwandlung und Stufenformeln in einem Dialog.",
+        "Label": "Landgang konfigurieren...",
+        "Name": "Landgang konfigurieren"
+      },
+      "ShoreLeaveTiers": {
+        "Name": "Definitionen der Landgang-Stufen"
+      },
+      "SimpleShoreLeave": {
+        "DisableFlavor": {
+          "Hint": "Deaktiviert die zufällige Beschreibung von Landgang-Aktivitäten.",
+          "Name": "Landgang-Beschreibung deaktivieren"
+        },
+        "RandomFlavor": {
+          "Hint": "Erweitert einfachen Landgang um zufällige, stimmungsvolle Aktivitäten.",
+          "Name": "Stimmungsvolle Landgang-Aktivitäten"
+        }
+      },
+      "ThemeColor": {
+        "Hint": "Wenn gesetzt, überschreibt dies die Spielerfarben.",
+        "Name": "Globale Themenfarbe"
+      },
+      "ThemeColorOverride": {
+        "Hint": "Wenn gesetzt, überschreibt dies die Standardfarbe für diesen Benutzer.",
+        "Name": "Spieler-Themenfarbe"
+      },
+      "ToolbandConfig": {
+        "Hint": "Wähle aus, welche QoL-Werkzeugleisten-Schaltflächen auf jedem unterstützten Bogentyp verfügbar sind.",
+        "Label": "Werkzeugleiste konfigurieren...",
+        "Name": "Werkzeugleiste konfigurieren",
+        "SettingName": "Werkzeugleisten-Konfiguration"
+      },
+      "ApplyDamageConfig": {
+        "Hint": "Wähle aus, wie Schaden anwenden Panzerung und Wundwurf-Automatisierung je Akteurskategorie behandelt.",
+        "Label": "Schaden anwenden konfigurieren...",
+        "Name": "Schaden anwenden konfigurieren",
+        "SettingName": "Schaden-anwenden-Konfiguration",
+        "TougherArmor": {
+          "Hint": "Wenn aktiviert, wird Panzerung nur beschädigt, wenn nach der Panzerungsreduktion Schaden übrig bleibt. Wenn deaktiviert, wird Panzerung auch beschädigt, wenn sie den Schaden exakt auf 0 reduziert.",
+          "Name": "Stabilere Panzerung"
+        },
+        "AutomateWoundRoll": {
+          "Title": "Wundwürfe automatisieren",
+          "Character": {
+            "Hint": "Wenn aktiviert, löst Schaden anwenden für Spielercharaktere automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+            "Name": "Spielercharaktere"
+          },
+          "Contractor": {
+            "Hint": "Wenn aktiviert, löst Schaden anwenden für Auftragnehmende automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+            "Name": "Auftragnehmende"
+          },
+          "Creature": {
+            "Hint": "Wenn aktiviert, löst Schaden anwenden für Kreaturen automatisch Wundwürfe aus, sobald Schaden Wunden verursacht.",
+            "Name": "Kreaturen"
+          }
+        }
+      },
+      "ApplyDamageVisibility": {
+        "Name": "Sichtbarkeit der Apply-Damage-Buttons",
+        "Hint": "Lege fest, wer Apply-Damage-Buttons in Chatkarten und Token-Steuerung sehen darf. Disabled blendet alle Apply-Damage-Buttons aus.",
+        "Choices": {
+          "Disabled": "Disabled",
+          "GMOnly": "Nur Spielleitung",
+          "TrustedPlayer": "Vertrauenswürdige Spieler",
+          "Everyone": "Alle"
+        }
+      },
+      "ApplyDamageTargetLogic": {
+        "Name": "Apply-Damage-Ziellogik",
+        "Hint": "Wähle die Zielauswahl, wenn Apply Damage ohne Zielakteur aufgerufen wird.",
+        "Choices": {
+          "AlwaysCharacter": "Immer Spielercharakter",
+          "AlwaysToken": "Immer Token",
+          "CharacterFirst": "Spielercharakter zuerst",
+          "TokenFirst": "Token zuerst"
+        }
+      }
+    },
+    "ShoreLeave": {
+      "ConvertedStress": "Umgewandelter Stress",
+      "DistributeStressConversion": "Stressumwandlung verteilen",
+      "Editor": {
+        "Description": "Bearbeite Landgang-Regeln, Stressumwandlung und Preisformeln an einer Stelle.",
+        "ResetSuccess": "Landgang-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Landgang-Konfiguration aktualisiert.",
+        "GeneralTitle": "Allgemeiner Landgang",
+        "TiersTitle": "Stufenformeln"
+      },
+      "InvalidTier": "Ungültige Stufe ausgewählt.",
+      "NoActorForStressConversion": "Kein Akteur für die Stressumwandlung verfügbar.",
+      "ParticipateNow": "Jetzt teilnehmen",
+      "Price": "Preis",
+      "PriceFormula": "Preisformel",
+      "RerollFlavor": "Beschreibung neu würfeln",
+      "RollPrice": "Preis würfeln",
+      "SelectTier": "Landgang-Stufe auswählen"
+    },
+    "CharacterCreator": {
+      "Chat": {
+        "ClassSelected": {
+          "Content": "{actorName} hat eine Klasse gewählt: <label class='counter'>{className}</label>",
+          "Title": "Klasse gewählt"
+        },
+        "HealthRolled": {
+          "Title": "Gesundheit gewürfelt"
+        },
+        "SkillsSelected": {
+          "Title": "Fertigkeiten gewählt"
+        },
+        "StatsRolled": {
+          "Title": "Werte gewürfelt",
+          "Stats": "Werte",
+          "Saves": "Rettungswürfe"
+        }
+      },
+      "Dialog": {
+        "AlreadyCompleted": {
+          "Content": "<strong>{actorName}</strong> hat die Charaktererstellung bereits abgeschlossen.<br>Möchtest du zurücksetzen und neu beginnen?",
+          "Title": "Charakter bereits abgeschlossen"
+        },
+        "Warning": {
+          "ChooseAction": "Bitte wähle eine Aktion:",
+          "MarkCompleted": "Als abgeschlossen markieren",
+          "NoValidData": "Keine gültigen Charaktergenerator-Daten für <strong>{actorName}</strong> gefunden!",
+          "Overwrite": "Überschreiben",
+          "OverwriteRisk": "Fortfahren könnte einen vorhandenen Charakter <strong><span style='color: #f55;'>überschreiben</span></strong>.",
+          "Title": "Charaktergenerator: Warnung"
+        }
+      },
+      "Loadout": {
+        "Categories": {
+          "Armor": "Rüstung",
+          "Items": "Gegenstände",
+          "Weapons": "Waffen"
+        },
+        "StartingCredits": "Startcredits",
+        "Title": "Ausrüstung gewürfelt"
+      },
+      "Notifications": {
+        "AlreadyCompleted": "Charaktererstellung bereits abgeschlossen.",
+        "AttributeSelectionAborted": "Attributauswahl abgebrochen:",
+        "AttributeSelectionCancelled": "Attributauswahl abgebrochen.",
+        "Cancelled": "Charaktererstellung abgebrochen.",
+        "ClassSelectionCancelled": "Klassenauswahl abgebrochen.",
+        "ClassUuidInvalid": "Klassen-UUID ungültig. Bitte erneut auswählen.",
+        "Completed": "{actorName} hat die Charaktererstellung abgeschlossen.",
+        "MarkedCompleted": "{actorName} wurde manuell als abgeschlossen markiert.",
+        "NoClassUuid": "Keine Klassen-UUID gefunden. Bitte wähle eine Klasse aus.",
+        "Reset": "Charaktererstellung für {actorName} wurde zurückgesetzt.",
+        "SkillSelectionCancelled": "Fertigkeitsauswahl abgebrochen.",
+        "TrainingSkillLoadFailed": "Die ausgewählte Trainingsfertigkeit konnte nicht geladen werden."
+      },
+      "SelectAttributes": {
+        "MustSelectOnePerSet": "Du musst pro Set ein Attribut auswählen.",
+        "Title": "Attribute auswählen"
+      },
+      "SelectClass": {
+        "AllSaves": "Alle Rettungswürfe",
+        "AllStats": "Alle Werte",
+        "AnySave": "Beliebiger Rettungswurf",
+        "AnyStat": "Beliebiger Wert",
+        "ChooseOne": "Wähle 1: {label}",
+        "DefaultSkills": "Standardfertigkeiten",
+        "FailedToLoadClassData": "Klassendaten konnten nicht geladen werden.",
+        "NoAttributes": "Keine Attribute.",
+        "NoDescription": "Keine Beschreibung verfügbar.",
+        "NoTraumaSpecified": "Kein Trauma angegeben.",
+        "OrOption": "Option {index}",
+        "ShowDescription": "Beschreibung anzeigen",
+        "ShowSkills": "Fertigkeiten anzeigen",
+        "Title": "Wähle deine Klasse",
+        "Wounds": "Wunden"
+      },
+      "SelectSkills": {
+        "DependencyNeedsSkill": "{skillName} benötigt diese Fertigkeit, damit die Auswahl bestehen bleibt.",
+        "Title": "Fertigkeiten auswählen",
+        "UnknownOrOption": "Unbekannte ODER-Option"
+      },
+      "Skills": {
+        "Expert": "Experte",
+        "LinkedSkills": "Verknüpfte Fertigkeiten",
+        "Master": "Meister",
+        "Trained": "Trainiert"
+      }
+    },
+    "CrewRoster": {
+      "Actions": {
+        "RemoveEntry": "Aus der Liste entfernen",
+        "ToggleActive": "Aktivstatus umschalten"
+      },
+      "Fallbacks": {
+        "ActorName": "Schiff",
+        "Entries": "Einträge"
+      },
+      "Summary": {
+        "ActiveCrew": "Aktive Crew",
+        "TotalHazardPay": "Gefahrenzulage gesamt",
+        "TotalSalaries": "Gehälter gesamt"
+      },
+      "Table": {
+        "Active": "Aktiv",
+        "EmptyState": "Noch keine {tabLabel} in dieser Liste. Ziehe neue {tabLabel} per Drag-and-drop in diesen Tab, um sie hinzuzufügen.",
+        "HazardPay": "Gefahrenzulage",
+        "InactiveCrew": "Inaktive Crew",
+        "Name": "Name",
+        "Portrait": "Porträt",
+        "Salary": "Gehalt"
+      }
+    },
+    "BaseSalary": "Grundgehalt",
+    "ContractorRole": "Beruf",
+    "EnterHiddenMotivation": "Nur für die SL sichtbar",
+    "HiddenMotivation": "Geheime Motivation (nur SL)",
+    "LoyaltyRolled": "Loyalität gewürfelt",
+    "Motivation": "Motivation",
+    "Toolbar": {
+      "Buttons": {
+        "ApplyDamage": "Schaden anwenden",
+        "ArmorBroken": "Rüstung beschädigt",
+        "Training": "Ausbildung",
+        "ShipCrit": "Schiffskrit",
+        "RollCharacter": "Charakter würfeln",
+        "Completed": "Abgeschlossen",
+        "Ready": "Bereit",
+        "Promote": "Befördern",
+        "Menu": "Menü"
+      },
+      "Config": {
+        "Description": "Schalte die Schaltflächen frei, die die QoL-Werkzeugleiste je Bogentyp anzeigen darf. Es werden nur Schaltflächen gelistet, die auf diesem Bogentyp tatsächlich vorkommen können.",
+        "ResetSuccess": "Werkzeugleisten-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Werkzeugleisten-Konfiguration aktualisiert."
+      },
+      "Scopes": {
+        "creature": "Kreaturen",
+        "ship": "Schiffe",
+        "stash": "Vorratsbögen"
+      }
+    },
+    "Contractor": {
+      "EnterMotivation": "Was treibt den {contractor} an?",
+      "Generic": "Generischer {contractor}",
+      "Unique": "Einzigartiger {contractor}",
+      "Promote": {
+        "Title": "Auftragnehmenden befördern",
+        "Content": "<p>Wie möchtest du diese Auftragnehmende bzw. diesen Auftragnehmenden befördern?</p>",
+        "Roll": "Auftragnehmenden auswürfeln",
+        "Manual": "Manuell befördern",
+        "Rolled": "{actorName} wurde befördert und vollständig ausgewürfelt.",
+        "ManualDone": "{actorName} wurde manuell befördert.",
+        "Cancelled": "Beförderung abgebrochen."
+      },
+      "Actions": {
+        "Title": "Auftragnehmenden-Aktionen",
+        "Content": "<p>Wähle unten eine Option für Auftragnehmende:</p>",
+        "RollLoyalty": "Loyalität würfeln",
+        "RollMotivation": "Motivation würfeln",
+        "RollLoadout": "Ausrüstung würfeln"
+      },
+      "NoMatchingMotivation": "Keine passende Motivation gefunden."
+    },
+    "Damage": {
+      "ApplyDamage": "Schaden anwenden",
+      "ApplyDamageToSelectedTokens": "Schaden auf ausgewählte Tokens anwenden",
+      "EnterAmount": "Gib die Schadensmenge ein:",
+      "EnterAmountForActor": "Gib die Schadensmenge für <strong>{actorName}</strong> ein:",
+      "EnterAmountForTokens": "Gib die Schadensmenge für <strong>{count}</strong> ausgewählte {tokens} ein:",
+      "AntiArmor": "Rüstungsbrechend",
+      "Apply": "Anwenden",
+      "NoTokensSelected": "Keine Tokens ausgewählt.",
+      "PositiveValueRequired": "Bitte gib einen positiven Schadenswert ein.",
+      "AppliedToTokens": "Schaden auf {applied}/{total} {tokens} angewendet.",
+      "TokenSingular": "Token",
+      "TokenPlural": "Tokens",
+      "MaximumWoundsReached": "Maximale Wunden erreicht",
+      "MaximumWoundsContent": "{actorName} hat die maximale Anzahl an Wunden erreicht!<br>@Macro[Todeswurf]",
+      "WoundTaken": "Wunde erlitten",
+      "WoundsTaken": "Wunden erlitten",
+      "WoundsSuffered": "{count} {wounds} erlitten.<br>@Macro[Wundwurf]",
+      "WoundSingular": "Wunde",
+      "WoundPlural": "Wunden",
+      "ApplyToSelectedTokens": "Ohne Rüstungsbrechend anwenden",
+      "ApplyRolledDamage": "{damage} Schaden auf ausgewählte Tokens anwenden",
+      "ApplyToSelectedTokensAntiArmor": "Mit Rüstungsbrechend anwenden",
+      "ApplyDamageShort": "DMG",
+      "ApplyAntiArmorShort": "AA",
+      "Config": {
+        "Description": "Konfiguriere, wie Schaden anwenden Panzerung und Schadensgrenzwerte verarbeitet.",
+        "GeneralTitle": "Allgemeiner Schaden",
+        "ResetSuccess": "Schaden-anwenden-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Schaden-anwenden-Konfiguration aktualisiert."
+      },
+      "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
+      "Advantage": "Vorteil",
+      "Disadvantage": "Nachteil"
+    },
+    "Chat": {
+      "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."
+    },
+    "Training": {
+      "Learned": "{actorName} hat {skillName} gelernt."
+    },
+    "Progress": {
+      "MarkedReady": "Charakter als bereit markiert: {actorName}",
+      "MarkedCompleted": "Charakter als abgeschlossen markiert: {actorName}"
+    },
+    "Armor": {
+      "State": "{actorName}: Rüstung {state}.",
+      "Broken": "beschädigt",
+      "Intact": "intakt"
+    },
+    "ShipCrit": {
+      "NoMatch": "Kein Treffer für: {value}",
+      "ActorSubtitle": "Kritischer Schiffstreffer bei {actorName}",
+      "ShipSubtitle": "Kritischer Schiffstreffer",
+      "Escalate": "Krit eskalieren"
+    },
+    "Items": {
+      "NoItemsFound": {
+        "Title": "Keine Gegenstände gefunden",
+        "Content": "<p><strong>MoSh Greybearded QoL</strong> konnte keine gültigen <em>{itemType}</em>-Gegenstände in den Welt-Gegenständen oder in einem geladenen Kompendium finden.</p><p>Installiere bitte ein kompatibles Kompendiumspaket oder erstelle eigene Gegenstände in den Welt-Gegenständen, damit die Funktion korrekt arbeiten kann.</p>",
+        "Warning": "MoSh Greybearded QoL: Keine Gegenstände gefunden. Installiere ein kompatibles Kompendiumspaket oder erstelle Gegenstände in der Welt."
+      }
+    }
+  }
+}

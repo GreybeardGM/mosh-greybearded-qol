@@ -1,12 +1,14 @@
 {
   "id": "mosh-greybearded-qol",
   "title": "MoSh Greybearded QoL",
-  "description": "MoSh Greybearded QoL is a modular quality-of-life toolkit for the Mothership 1e system in Foundry VTT. It features a guided character generator, Shore Leave manager, stash sheet, ship crits, and various GM tools – all designed for smooth campaign play and customization.",
-  "version": "0.7.3",
-  "authors": [{
-    "name": "GreybeardGM",
-    "url": "https://github.com/GreybeardGM"
-  }],
+  "description": "MoSh Greybearded QoL is a comprehensive quality-of-life toolkit for the Mothership 1e system in Foundry VTT. It combines a guided character creator, Shore Leave workflows, stash and contractor management, stress and damage utilities, chat and dice helpers, and GM-facing automation modules into a modular package built for fast onboarding, smooth session flow, and flexible campaign customization.",
+  "version": "0.8.0",
+  "authors": [
+    {
+      "name": "GreybeardGM",
+      "url": "https://github.com/GreybeardGM"
+    }
+  ],
   "compatibility": {
     "minimum": "13",
     "verified": "13.351"
@@ -16,23 +18,32 @@
       "lang": "en",
       "name": "English",
       "path": "lang/qol-en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/qol-de.json"
     }
   ],
-  "esmodules": ["scripts/main.js"],
+  "esmodules": [
+    "scripts/main.js"
+  ],
   "styles": [
     "styles/qol.css"
   ],
   "url": "https://github.com/GreybeardGM/mosh-greybearded-qol",
-  "manifest": "https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json",
-  "download": "https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/tags/0.7.3.zip",
+  "manifest": "https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/0.8.0/module.json",
+  "download": "https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/tags/0.8.0.zip",
   "relationships": {
-    "systems": [{
-      "id": "mosh",
-      "type": "system",
-      "manifest": "https://raw.githubusercontent.com/Futil/foundry-mothership/master/system.json",
-      "compatibility": {
-        "verified": "0.6.0"
+    "systems": [
+      {
+        "id": "mosh",
+        "type": "system",
+        "manifest": "https://raw.githubusercontent.com/Futil/foundry-mothership/master/system.json",
+        "compatibility": {
+          "verified": "0.6.0"
+        }
       }
-    }]
+    ]
   }
 }

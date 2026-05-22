@@ -28,7 +28,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/shore-leave/stress-conversion.html"
+      template: "modules/mosh-greybearded-qol/templates/dialogs/stress-conversion.html"
     },
     confirm: {
       template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"

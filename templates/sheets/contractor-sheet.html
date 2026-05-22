@@ -15,9 +15,9 @@
         <!-- Named / Generic Indicator -->
         <div class="creature-header-grid contractor-flag">
           {{#if system.contractor.isNamed}}
-      	    {{ localize 'MoshQoL.UniqueContractor' }}
+      	    {{ localize 'MoshQoL.Contractor.Unique' contractor=contractorLabel }}
           {{else}}
-            {{ localize 'MoshQoL.GenericContractor' }}
+            {{ localize 'MoshQoL.Contractor.Generic' contractor=contractorLabel }}
           {{/if}}
         </div>
       
@@ -123,7 +123,7 @@
         <!-- MOTIVATION (sichtbar für alle) -->
       	<div class="contractor-motivationblock">
       	  <div class="resource-label">{{ localize 'MoshQoL.Motivation' }}</div>
-      	  <textarea name="system.contractor.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.EnterMotivation' }}">{{system.contractor.motivation}}</textarea>
+      	  <textarea name="system.contractor.motivation" rows="2" class="textarea-input" placeholder="{{ localize 'MoshQoL.Contractor.EnterMotivation' contractor=contractorLabel }}">{{system.contractor.motivation}}</textarea>
       	</div>
       	
       	<!-- HIDDEN MOTIVATION (nur GM) -->

@@ -9,7 +9,15 @@
       "RemainingPoints": "Remaining Points",
       "Reset": "Reset",
       "ResetToDefault": "Reset to Default",
-      "SaveChanges": "Save Changes"
+      "SaveChanges": "Save Changes",
+      "AuxiliaryCraft": "Auxiliary Craft",
+      "Contractor": "Contractor",
+      "Contractors": "Contractors",
+      "CrewRoster": "Crew Roster",
+      "PlayerCharacters": "Player Characters",
+      "ShoreLeave": "Shore Leave",
+      "ShoreLeaveConfiguration": "Shore Leave Configuration",
+      "StressConversion": "Stress Conversion"
     },
     "Errors": {
       "NoActorProvided": "No actor provided.",
@@ -56,9 +64,9 @@
         "Name": "Enable 0e Ship Crits"
       },
       "ShoreLeaveEditor": {
-        "Hint": "Customize the tiers used in the simple shore leave system.",
-        "Label": "Edit Shore Leave...",
-        "Name": "Edit Shore Leave Tiers"
+        "Hint": "Configure shore leave rules, stress conversion behavior, and tier formulas in one dialog.",
+        "Label": "Configure Shore Leave...",
+        "Name": "Configure Shore Leave"
       },
       "ShoreLeaveTiers": {
         "Name": "Shore Leave Tier Definitions"
@@ -80,16 +88,68 @@
       "ThemeColorOverride": {
         "Hint": "If set, this will override the default color for this user.",
         "Name": "Player Theme Color"
+      },
+      "ToolbandConfig": {
+        "Hint": "Choose which QoL toolbar buttons are available on each supported sheet type.",
+        "Label": "Configure Toolbar...",
+        "Name": "Configure Toolbar",
+        "SettingName": "Toolbar Configuration"
+      },
+      "ApplyDamageConfig": {
+        "Hint": "Choose how Apply Damage handles armor and wound-roll automation per actor category.",
+        "Label": "Configure Apply Damage...",
+        "Name": "Configure Apply Damage",
+        "SettingName": "Apply Damage Configuration",
+        "TougherArmor": {
+          "Hint": "If enabled, armor only breaks when damage remains after armor reduction. If disabled, armor also breaks when armor reduces the damage to exactly 0.",
+          "Name": "Tougher Armor"
+        },
+        "AutomateWoundRoll": {
+          "Title": "Automate Wound Rolls",
+          "Character": {
+            "Hint": "If enabled, Apply Damage will automatically trigger wound rolls for player characters when damage causes wounds.",
+            "Name": "Player Characters"
+          },
+          "Contractor": {
+            "Hint": "If enabled, Apply Damage will automatically trigger wound rolls for contractors when damage causes wounds.",
+            "Name": "Contractors"
+          },
+          "Creature": {
+            "Hint": "If enabled, Apply Damage will automatically trigger wound rolls for creatures when damage causes wounds.",
+            "Name": "Creatures"
+          }
+        }
+      },
+      "ApplyDamageVisibility": {
+        "Name": "Apply Damage Button Visibility",
+        "Hint": "Choose who can see Apply Damage buttons in chat cards and token controls. Disabled hides all Apply Damage buttons.",
+        "Choices": {
+          "Disabled": "Disabled",
+          "GMOnly": "GM Only",
+          "TrustedPlayer": "Trusted Player",
+          "Everyone": "Everyone"
+        }
+      },
+      "ApplyDamageTargetLogic": {
+        "Name": "Apply Damage Target Logic",
+        "Hint": "Choose target selection when Apply Damage is called without a target actor.",
+        "Choices": {
+          "AlwaysCharacter": "Always Player Character",
+          "AlwaysToken": "Always Token",
+          "CharacterFirst": "Player Character First",
+          "TokenFirst": "Token First"
+        }
       }
     },
     "ShoreLeave": {
       "ConvertedStress": "Converted Stress",
       "DistributeStressConversion": "Distribute Stress Conversion",
       "Editor": {
-        "Description": "Edit stress conversion and pricing formulas for each shore leave tier.",
-        "ResetSuccess": "Shore Leave tiers reset to defaults.",
-        "Title": "Shore Leave Tier Configuration",
-        "UpdateSuccess": "Shore Leave tiers updated."
+        "Description": "Edit shore leave rules, stress conversion behavior, and pricing formulas in one place.",
+        "ResetSuccess": "Shore Leave configuration reset to defaults.",
+        "UpdateSuccess": "Shore Leave configuration updated.",
+        "GeneralTitle": "General Shore Leave",
+        "TiersTitle": "Tier Formulas"
       },
       "InvalidTier": "Invalid tier selected.",
       "NoActorForStressConversion": "No actor available for stress conversion.",
@@ -98,9 +158,7 @@
       "PriceFormula": "Price Formula",
       "RerollFlavor": "Reroll Flavor",
       "RollPrice": "Roll Price",
-      "SelectTier": "Select Shore Leave Tier",
-      "StressConversion": "Stress Conversion",
-      "Title": "Shore Leave"
+      "SelectTier": "Select Shore Leave Tier"
     },
     "CharacterCreator": {
       "Chat": {
@@ -113,6 +171,11 @@
         },
         "SkillsSelected": {
           "Title": "Skills Selected"
+        },
+        "StatsRolled": {
+          "Title": "Stats Rolled",
+          "Stats": "Stats",
+          "Saves": "Saves"
         }
       },
       "Dialog": {
@@ -149,7 +212,8 @@
         "MarkedCompleted": "{actorName} has been marked as completed manually.",
         "NoClassUuid": "No class UUID found. Please select a class.",
         "Reset": "Character creation for {actorName} has been reset.",
-        "SkillSelectionCancelled": "Skill selection cancelled."
+        "SkillSelectionCancelled": "Skill selection cancelled.",
+        "TrainingSkillLoadFailed": "Selected training skill could not be loaded."
       },
       "SelectAttributes": {
         "MustSelectOnePerSet": "You must select one attribute per set.",
@@ -206,22 +270,121 @@
         "Name": "Name",
         "Portrait": "Portrait",
         "Salary": "Salary"
-      },
-      "Tabs": {
-        "Character": "Player Characters",
-        "Creature": "Contractors",
-        "Ship": "Auxiliary Craft"
-      },
-      "Title": "Crew Roster"
+      }
     },
     "BaseSalary": "Base Salary",
     "ContractorRole": "Profession",
     "EnterHiddenMotivation": "Only visible to GM",
-    "EnterMotivation": "What drives the Contractor.",
-    "GenericContractor": "Generic Contractor",
     "HiddenMotivation": "Secret Motivation (GM only)",
     "LoyaltyRolled": "Loyalty Rolled",
     "Motivation": "Motivation",
-    "UniqueContractor": "Unique Contractor"
+    "Toolbar": {
+      "Buttons": {
+        "ApplyDamage": "Apply Damage",
+        "ArmorBroken": "Armor Broken",
+        "Training": "Training",
+        "ShipCrit": "Ship Crit",
+        "RollCharacter": "Roll Character",
+        "Completed": "Completed",
+        "Ready": "Ready",
+        "Promote": "Promote",
+        "Menu": "Menu"
+      },
+      "Config": {
+        "Description": "Toggle the buttons that the QoL toolbar may show for each sheet type. Only buttons that can actually appear on that sheet type are listed.",
+        "ResetSuccess": "Toolbar configuration reset to defaults.",
+        "UpdateSuccess": "Toolbar configuration updated."
+      },
+      "Scopes": {
+        "creature": "Creatures",
+        "ship": "Ships",
+        "stash": "Stash Sheets"
+      }
+    },
+    "Contractor": {
+      "EnterMotivation": "What drives the {contractor}.",
+      "Generic": "Generic {contractor}",
+      "Unique": "Unique {contractor}",
+      "Promote": {
+        "Title": "Promote Contractor",
+        "Content": "<p>How would you like to promote this contractor?</p>",
+        "Roll": "Roll Contractor",
+        "Manual": "Manual Promotion",
+        "Rolled": "{actorName} has been promoted and fully rolled.",
+        "ManualDone": "{actorName} has been promoted manually.",
+        "Cancelled": "Promotion canceled."
+      },
+      "Actions": {
+        "Title": "Contractor Actions",
+        "Content": "<p>Select a contractor option below:</p>",
+        "RollLoyalty": "Roll Loyalty",
+        "RollMotivation": "Roll Motivation",
+        "RollLoadout": "Roll Loadout"
+      },
+      "NoMatchingMotivation": "No matching motivation found."
+    },
+    "Damage": {
+      "ApplyDamage": "Apply Damage",
+      "ApplyDamageToSelectedTokens": "Apply Damage to Selected Tokens",
+      "EnterAmount": "Enter the amount of damage to apply:",
+      "EnterAmountForActor": "Enter the amount of damage to apply to <strong>{actorName}</strong>:",
+      "EnterAmountForTokens": "Enter the amount of damage to apply to <strong>{count}</strong> selected {tokens}:",
+      "AntiArmor": "Anti Armor",
+      "Apply": "Apply",
+      "NoTokensSelected": "No tokens selected.",
+      "PositiveValueRequired": "Please enter a positive damage value.",
+      "AppliedToTokens": "Applied damage to {applied}/{total} {tokens}.",
+      "TokenSingular": "token",
+      "TokenPlural": "tokens",
+      "MaximumWoundsReached": "Maximum Wounds Reached",
+      "MaximumWoundsContent": "{actorName} has reached their maximum number of wounds!<br>@Macro[Death Save]",
+      "WoundTaken": "Wound Taken",
+      "WoundsTaken": "Wounds Taken",
+      "WoundsSuffered": "{count} {wounds} suffered.<br>@Macro[Wound Check]",
+      "WoundSingular": "wound",
+      "WoundPlural": "wounds",
+      "ApplyToSelectedTokens": "Apply without Anti Armor",
+      "ApplyRolledDamage": "Apply {damage} damage to selected tokens",
+      "ApplyToSelectedTokensAntiArmor": "Apply with Anti Armor",
+      "ApplyDamageShort": "DMG",
+      "ApplyAntiArmorShort": "AA",
+      "Config": {
+        "Description": "Configure how Apply Damage processes armor and damage thresholds.",
+        "GeneralTitle": "General Apply Damage",
+        "ResetSuccess": "Apply Damage configuration reset to defaults.",
+        "UpdateSuccess": "Apply Damage configuration updated."
+      },
+      "NoWoundResult": "No matching wound result found.",
+      "Advantage": "Advantage",
+      "Disadvantage": "Disadvantage"
+    },
+    "Chat": {
+      "NoActor": "No actor available for chat output."
+    },
+    "Training": {
+      "Learned": "{actorName} learned {skillName}."
+    },
+    "Progress": {
+      "MarkedReady": "Character marked ready: {actorName}",
+      "MarkedCompleted": "Character marked completed: {actorName}"
+    },
+    "Armor": {
+      "State": "{actorName}: Armor {state}.",
+      "Broken": "broken",
+      "Intact": "intact"
+    },
+    "ShipCrit": {
+      "NoMatch": "No match for: {value}",
+      "ActorSubtitle": "{actorName} critically hit",
+      "ShipSubtitle": "Ship critically hit",
+      "Escalate": "Escalate Crit"
+    },
+    "Items": {
+      "NoItemsFound": {
+        "Title": "No Items Found",
+        "Content": "<p><strong>MoSh Greybearded QoL</strong> could not find any valid <em>{itemType}</em> items in your World Items collection or in any loaded compendium.</p><p>To ensure correct functionality, please install a compatible compendium pack or create your own items in the World Items collection.</p>",
+        "Warning": "MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World."
+      }
+    }
   }
 }

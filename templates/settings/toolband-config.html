@@ -1,0 +1,33 @@
+<div class="qolsettings">
+  <p>{{description}}</p>
+
+  <div class="qolsettings-stack">
+    {{#each scopes as |scope|}}
+      <section class="card">
+        <h4 class="qolsettings-heading">{{scope.label}}</h4>
+        <div class="pill-list">
+          {{#each scope.buttons as |button|}}
+            <label class="pill interactive qolsettings-toggle">
+              <span class="qolsettings-label">
+                <i class="{{button.icon}}" aria-hidden="true"></i>
+                <span>{{button.labelText}}</span>
+              </span>
+              <input type="checkbox" name="toolband.{{scope.id}}.{{button.settingKey}}" {{checked button.checked}}>
+            </label>
+          {{/each}}
+        </div>
+      </section>
+    {{/each}}
+  </div>
+
+  <footer class="form-footer">
+    <button type="button" data-action="resetDefaults">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.ResetToDefault"}}
+    </button>
+    <button type="submit">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.SaveChanges"}}
+    </button>
+  </footer>
+</div>

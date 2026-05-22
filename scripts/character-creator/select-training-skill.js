@@ -19,7 +19,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     id: "character-training-select-skill",
     tag: "form",
     window: {
-      title: "Training",
+      title: "MoshQoL.Toolbar.Buttons.Training",
       contentClasses: ["greybeardqol", "qol-skill-selection", "qol-training-selection"],
       resizable: false
     },
@@ -207,7 +207,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     const selectedItem = await fromUuid(selectedUuid);
     if (!selectedItem || selectedItem.type !== "skill") {
-      ui.notifications?.warn("Selected training skill could not be loaded.");
+      ui.notifications?.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.TrainingSkillLoadFailed"));
       resolveAppOnce(this, null);
       return;
     }

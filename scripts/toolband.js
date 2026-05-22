@@ -3,12 +3,74 @@ import { checkReady, checkCompleted, setReady, setCompleted } from "./character-
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
+import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
+import { makeToolbandButton } from "./codex/toolband-buttons.js";
 
 const CLS = "toolband";
 
 /** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
 function getRoot(sheet, html){
   return (sheet?.element?.[0]) || (html?.[0]) || null;
+}
+
+
+function addArmorBrokenButton(buttons, actor) {
+  buttons.push(makeToolbandButton("armor-broken", {
+    pressed: actor?.statuses?.has("qol-broken-armor") === true
+  }));
+}
+
+function getToolbandButtons({ actor, kind, isGM }) {
+  const buttons = [];
+
+  switch (kind) {
+    case "character": {
+      const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+      const ready = checkReady(actor);
+      const completed = checkCompleted(actor);
+
+      if (isCreatorEnabled && ready && !completed) {
+        buttons.push(makeToolbandButton("roll-character"), makeToolbandButton("mark-complete"));
+      } else {
+        buttons.push(makeToolbandButton("apply-damage"));
+        addArmorBrokenButton(buttons, actor);
+        buttons.push(makeToolbandButton("shore-leave"));
+      }
+
+      buttons.push(makeToolbandButton("training"));
+      if (isGM && !ready && !completed) buttons.push(makeToolbandButton("mark-ready"));
+      break;
+    }
+
+    case "contractor":
+      addArmorBrokenButton(buttons, actor);
+      if (isGM) {
+        buttons.push(makeToolbandButton(actor?.system?.contractor?.isNamed ? "contractor-menu" : "promote-contractor"));
+      }
+      break;
+
+    case "ship":
+      buttons.push(makeToolbandButton("ship-crit"), makeToolbandButton("ship-crew-roster"));
+      break;
+
+    case "stash":
+      buttons.push(makeToolbandButton("ship-crew-roster"));
+      break;
+
+    case "creature":
+      buttons.push(makeToolbandButton("apply-damage"));
+      addArmorBrokenButton(buttons, actor);
+      break;
+  }
+
+  return buttons;
+}
+
+function getButtonRenderSignature(buttons) {
+  if (!buttons.length) return "__placeholder__";
+  return buttons
+    .map((button) => [button.id, button.label, button.icon, button.pressed === true ? "1" : "0"].join(":"))
+    .join("|");
 }
 
 /** Toolband erzeugen/ankern (kein Entfernen bei leerer Buttonliste) */
@@ -57,18 +119,18 @@ export function upsertToolband(sheet, html, ctx = {}) {
           if (!actor) return;
           const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
           if (!trainedSkill) return;
-          ui.notifications?.info?.(`${actor.name} learned ${trainedSkill.name}.`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Learned", { actorName: actor.name, skillName: trainedSkill.name }));
           return sheet.render(false);
         }
 
         case "mark-ready":
           await setReady(actor);
-          ui.notifications?.info?.(`Character marked ready: ${actor.name}`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedReady", { actorName: actor.name }));
           return sheet.render(false);
 
         case "mark-complete":
           await setCompleted(actor);
-          ui.notifications?.info?.(`Character marked completed: ${actor.name}`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedCompleted", { actorName: actor.name }));
           return sheet.render(false);
 
         case "apply-damage":
@@ -86,7 +148,10 @@ export function upsertToolband(sheet, html, ctx = {}) {
           // UI sofort spiegeln (kein re-render nötig)
           btn.classList.toggle("is-active", !isActive);
           btn.setAttribute("aria-pressed", String(!isActive));
-          ui.notifications?.info?.(`${actor.name}: Armor ${!isActive ? "broken" : "intact"}.`);
+          ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {
+            actorName: actor.name,
+            state: game.i18n.localize(!isActive ? "MoshQoL.Armor.Broken" : "MoshQoL.Armor.Intact")
+          }));
           return;
         }
           
@@ -95,12 +160,12 @@ export function upsertToolband(sheet, html, ctx = {}) {
           // Guard: nur GM & nur wenn die Sheet-Methoden existieren
           if (!isGM) return;
           const choice = await foundry.applications.api.DialogV2.wait({
-            window: { title: "Promote Contractor" },
-            content: "<p>How would you like to promote this contractor?</p>",
+            window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
+            content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
             buttons: [
-              { label: "Roll Contractor",  icon: "fa-solid fa-dice",        action: "roll" },
-              { label: "Manual Promotion", icon: "fa-solid fa-user-check",  action: "manual" },
-              { label: "Cancel",           icon: "fa-solid fa-xmark",       action: "cancel" }
+              { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
+              { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
+              { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
             ],
             default: "roll"
           });
@@ -114,17 +179,17 @@ export function upsertToolband(sheet, html, ctx = {}) {
               if (typeof sheet._rollContractorLoyalty === "function")   await sheet._rollContractorLoyalty(actor);
               if (typeof sheet._rollContractorMotivation === "function")await sheet._rollContractorMotivation(actor);
               if (typeof sheet._rollContractorLoadout === "function")   await sheet._rollContractorLoadout(actor);
-              ui.notifications.info(`${actor.name} has been promoted and fully rolled.`);
+              ui.notifications.info(game.i18n.format("MoshQoL.Contractor.Promote.Rolled", { actorName: actor.name }));
               break;
             case "manual":
               await actor.update({
                 "system.contractor.isNamed": true,
                 "system.stats.loyalty.enabled": true
               });
-              ui.notifications.info(`${actor.name} has been promoted manually.`);
+              ui.notifications.info(game.i18n.format("MoshQoL.Contractor.Promote.ManualDone", { actorName: actor.name }));
               break;
             default:
-              ui.notifications.info("Promotion canceled.");
+              ui.notifications.info(game.i18n.localize("MoshQoL.Contractor.Promote.Cancelled"));
               return;
           }
           return sheet.render();
@@ -134,11 +199,11 @@ export function upsertToolband(sheet, html, ctx = {}) {
         case "contractor-menu": {
           if (!isGM) return;
           await foundry.applications.api.DialogV2.wait({
-            window: { title: "Contractor Actions" },
-            content: "<p>Select a contractor option below:</p>",
+            window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
+            content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
             buttons: [
               {
-                label: "Roll Loyalty",
+                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
                 icon: "fa-solid fa-handshake",
                 action: "loyalty",
                 callback: async () => { 
@@ -147,7 +212,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
                 }
               },
               {
-                label: "Roll Motivation",
+                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
                 icon: "fa-solid fa-fire",
                 action: "motivation",
                 callback: async () => { 
@@ -156,7 +221,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
                 }
               },
               {
-                label: "Roll Loadout",
+                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
                 icon: "fa-solid fa-boxes-stacked",
                 action: "loadout",
                 callback: async () => { 
@@ -173,125 +238,23 @@ export function upsertToolband(sheet, html, ctx = {}) {
     }, { passive: false });
   }
 
-  // ---- Buttons bestimmen (nach Kategorie + GM-Unterkategorie) ----
   const actor = sheet.actor;
-  const btns = [];
-
-  switch (kind) {
-    case "character": {
-      // Nutzer-Buttons (alle Owner/Spieler) wie gehabt …
-      const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
-      const ready = checkReady(actor);
-      const completed = checkCompleted(actor);
-    
-      if (isCreatorEnabled && ready && !completed) {
-        btns.push({ id: "roll-character", icon: "fas fa-dice-d20", label: "Roll Character" });
-        btns.push({ id: "mark-complete",  icon: "fas fa-flag-checkered", label: "Completed" });
-      } else {
-        btns.push({ id: "apply-damage",   icon: "fas fa-heart-broken", label: "Apply Damage" });
-        // Toggle-Button Armor Broken
-        const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
-        btns.push({
-          id: "armor-broken",
-          icon: "fa-solid fa-shield-halved",
-          label: "Armor Broken",
-          pressed: armorBroken
-        });
-        btns.push({ id: "shore-leave",    icon: "fas fa-umbrella-beach", label: "Shore Leave" });
-      }
-      btns.push({ id: "training",      icon: "fa-solid fa-dumbbell", label: "Training" });
-      // GM-Unterkategorie …
-      if (isGM) {
-        if (!ready && !completed) {
-          btns.push({ id: "mark-ready", icon: "fas fa-check-circle", label: "Ready" });
-        }
-      }
-      break;
-    }
-
-    case "contractor": {
-      // Nutzer-Buttons
-      // Toggle-Button Armor Broken
-      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
-      btns.push({
-        id: "armor-broken",
-        icon: "fa-solid fa-shield-halved",
-        label: "Armor Broken",
-        pressed: armorBroken
-      });
-      // GM-Unterkategorie
-      if (isGM) {
-        const isNamed = !!actor?.system?.contractor?.isNamed;
-        if (!isNamed) {
-          btns.push({ id: "promote-contractor", icon: "fa-solid fa-user-check", label: "Promote" });
-        } else {
-          btns.push({ id: "contractor-menu", icon: "fa-solid fa-bars", label: "Menu" });
-        }
-      }
-      break;
-    }
-
-    case "ship": {
-      // Nutzer-Buttons
-      if (game.settings.get("mosh-greybearded-qol", "enableShipCrits")) {
-        btns.push({ id: "ship-crit", icon: "fas fa-explosion", label: "Critical Hit" });
-      }
-      btns.push({ id: "ship-crew-roster", icon: "fa-solid fa-users", label: "Crew Roster" });
-      // GM-Unterkategorie
-      if (isGM) {
-        // (Platzhalter) — GM-spezifische Ship-Buttons hier ergänzen
-      }
-      break;
-    }
-
-    case "stash": {
-      // Nutzer-Buttons
-      btns.push({ id: "ship-crew-roster", icon: "fa-solid fa-users", label: "Crew Roster" });
-      // GM-Unterkategorie
-      if (isGM) {
-        // (Platzhalter) — Stash-GM-Aktionen hier ergänzen
-      }
-      break;
-    }
-
-    case "creature": {
-      btns.push({ id: "apply-damage", icon: "fas fa-heart-broken", label: "Apply Damage" });
-      // Toggle-Button Armor Broken
-      const armorBroken = actor?.statuses?.has("qol-broken-armor") === true;
-      btns.push({
-        id: "armor-broken",
-        icon: "fa-solid fa-shield-halved",
-        label: "Armor Broken",
-        pressed: armorBroken
-      });
-      // GM-Unterkategorie
-      if (isGM) {
-        // (Platzhalter) — Creature-GM-Aktionen hier ergänzen
-      }
-      break;
-    }
-
-    default: {
-      // (Platzhalter) — Fallback-Actions
-      if (isGM) {
-        // (Platzhalter) — Fallback-GM-Actions
-      }
-      break;
-    }
-  }
+  const btns = getToolbandButtons({ actor, kind, isGM });
 
   // ---- Diff/Neuaufbau ----
-  const targetIds = btns.length ? btns.map(b => b.id) : ["__placeholder__"];
-  const currentIds = Array.from(bar.querySelectorAll(`.${CLS}-btn`)).map(n => n.dataset.action);
-  const changed = currentIds.length !== targetIds.length || currentIds.some((id, i) => id !== targetIds[i]);
-  if (!changed) return;
+  const toolbandConfig = getNormalizedToolbandConfig();
+  const visibleBtns = btns.filter((button) => isToolbandButtonEnabledInConfig(kind, button.id, toolbandConfig));
 
-  if (!btns.length) {
+  const signature = getButtonRenderSignature(visibleBtns);
+  if (bar.dataset.signature === signature) return;
+  bar.dataset.signature = signature;
+
+  if (!visibleBtns.length) {
     bar.innerHTML = `<div class="${CLS}-placeholder" data-note="no-buttons">—</div>`;
     return;
   }
 
-  bar.innerHTML = btns.map(b => {
+  bar.innerHTML = visibleBtns.map(b => {
     const pressed = !!b.pressed;
     const classes = `${CLS}-btn pill interactive` + (pressed ? " is-active" : "");
     const aria = `aria-pressed="${pressed ? "true" : "false"}"`;

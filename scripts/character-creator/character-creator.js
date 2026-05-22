@@ -138,14 +138,14 @@ export async function startCharacterCreation(actor) {
 
     const content = `
       <div style="display: flex; gap: 32px; line-height: 1.5;">
-        ${formatBlock("Stats", rolledAttributes)}
-        ${formatBlock("Saves", rolledSaves)}
+        ${formatBlock(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Stats"), rolledAttributes)}
+        ${formatBlock(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Saves"), rolledSaves)}
       </div>
     `;
 
     await chatOutput({
       actor,
-      title: "Stats Rolled",
+      title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Title"),
       subtitle: actor.name,
       content,
       icon: "fa-chart-line",

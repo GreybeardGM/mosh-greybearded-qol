@@ -112,26 +112,53 @@ function collectWorldByTypeToMap(itemType, map) {
 
 async function getPackIndexCached(pack) {
   const key = String(pack?.collection ?? "");
-  if (!key) return pack.getIndex({ fields: ["name", "type"] });
+  if (!key) return pack.getIndex({ fields: ["name"] });
   if (packIndexCache.has(key)) return packIndexCache.get(key);
-  const index = await pack.getIndex({ fields: ["name", "type"] });
+  const index = await pack.getIndex({ fields: ["name"] });
   packIndexCache.set(key, index);
   return index;
+}
+
+async function getPackDocumentsBulk(pack, ids) {
+  const out = [];
+  const CHUNK_SIZE = 200;
+
+  for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
+    const chunk = ids.slice(i, i + CHUNK_SIZE);
+    if (!chunk.length) continue;
+
+    let docs = [];
+    try {
+      // Foundry unterstützt _id__in-Queries für Bulk-Laden über getDocuments.
+      docs = await pack.getDocuments({ _id__in: chunk });
+    } catch (_e) {
+      // Fallback: weiterhin gebündelt statt 1 riesiger Promise-All-Welle.
+      docs = await Promise.all(chunk.map(id => pack.getDocument(id)));
+    }
+
+    if (Array.isArray(docs) && docs.length) out.push(...docs);
+  }
+
+  return out;
 }
 
 /* Packs sammeln (Index tolerant, Typ final am Dokument prüfen) */
 async function collectPackByTypeToMap(packs, slot, itemType, map) {
   const t = normType(itemType);
   for (const pack of packs) {
-    const index = await getPackIndexCached(pack);
-    const ids = index
-      .filter(e => e?.name && e.name.trim().length)
-      .filter(e => !e.type || normType(e.type) === t)
-      .map(e => e._id);
-
-    if (!ids.length) continue;
-
-    const docs = await Promise.all(ids.map(id => pack.getDocument(id)));
+    let docs = [];
+    try {
+      // Primär: echter Bulk-Abruf (ohne vorgelagerten Index-Fetch).
+      docs = await pack.getDocuments({ type: itemType });
+    } catch (_e) {
+      // Fallback: über schlanken Index nur IDs mit Namen holen, dann gebündelt laden.
+      const index = await getPackIndexCached(pack);
+      const ids = index
+        .filter(e => e?.name && e.name.trim().length)
+        .map(e => e._id);
+      if (!ids.length) continue;
+      docs = await getPackDocumentsBulk(pack, ids);
+    }
 
     for (const d of docs) {
       if (!d || normType(d.type) !== t) continue;
@@ -198,21 +225,17 @@ export async function loadAllItemsByType(itemType) {
   cacheTypeData(typeKey, sorted);
 
   if (sorted.length === 0) {
-    const msg = `
-      <p><strong>MoSh Greybearded QoL</strong> could not find any valid
-      <em>${foundry.utils.escapeHTML(String(itemType))}</em> items in your World
-      Items collection or in any loaded compendium.</p>
-      <p>To ensure correct functionality, please install a compatible compendium
-      pack or create your own items in the World Items collection.</p>
-    `.trim();
+    const msg = game.i18n.format("MoshQoL.Items.NoItemsFound.Content", {
+      itemType: foundry.utils.escapeHTML(String(itemType))
+    });
 
     try {
       await DialogV2.prompt({
-        window: { title: "No Items Found" },
+        window: { title: game.i18n.localize("MoshQoL.Items.NoItemsFound.Title") },
         content: msg
       });
     } catch (e) {
-      ui.notifications?.warn("MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World.");
+      ui.notifications?.warn(game.i18n.localize("MoshQoL.Items.NoItemsFound.Warning"));
       console.warn("[MoSh Greybearded QoL] loadAllItemsByType: No items found for type:", itemType, e);
     }
   }

@@ -4,7 +4,7 @@ import { parseCurrencyValue } from "../utils/normalization.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
-import { MOTIVATION_TABLE } from "../config/default-contractor-motivation.js";
+import { MOTIVATION_TABLE } from "../codex/default-contractor-motivation.js";
 
 export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
@@ -26,6 +26,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         if (salaryPath in formData) {
             formData[salaryPath] = parseCurrencyValue(formData[salaryPath]);
         }
+        formData["system.health.value"] = 0;
+        formData["system.health.max"] = 0;
 
         const actor = this.object;
         var updateData;
@@ -41,6 +43,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     /* -------------------------------------------- */
+
 
     /** @override */
     async getData() {
@@ -72,6 +75,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
       actorData.isGM = game.user.isGM;
       actorData.themeColor = getThemeColor();
+      actorData.contractorLabel = game.i18n.localize("MoshQoL.Common.Contractor");
         
       return actorData;
     }
@@ -502,7 +506,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     const result = MOTIVATION_TABLE.find(entry => rolledValue >= entry.min && rolledValue <= entry.max);
 
     if (!result) {
-      ui.notifications.warn("No matching motivation found.");
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Contractor.NoMatchingMotivation"));
       return;
     }
 

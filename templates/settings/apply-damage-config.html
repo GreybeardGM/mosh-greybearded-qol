@@ -1,0 +1,71 @@
+<div class="qolsettings">
+  <p>{{description}}</p>
+
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Damage.Config.GeneralTitle"}}</h4>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.TougherArmor.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.TougherArmor.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.tougherArmor" {{checked config.tougherArmor}}>
+    </label>
+  </section>
+
+
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.ApplyDamageVisibility.Name"}}</h4>
+
+    <label class="qolsettings-field">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageVisibility.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageVisibility.Hint"}}</small>
+      </span>
+      <select name="applyDamage.visibility">
+        {{#each visibilityChoices as |choice|}}
+          <option value="{{choice.value}}" {{#if (eq ../config.visibility choice.value)}}selected{{/if}}>{{choice.label}}</option>
+        {{/each}}
+      </select>
+    </label>
+  </section>
+
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Title"}}</h4>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Character.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Character.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.automateWoundRoll.character" {{checked config.automateWoundRoll.character}}>
+    </label>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Contractor.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Contractor.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.automateWoundRoll.contractor" {{checked config.automateWoundRoll.contractor}}>
+    </label>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Creature.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.AutomateWoundRoll.Creature.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.automateWoundRoll.creature" {{checked config.automateWoundRoll.creature}}>
+    </label>
+  </section>
+
+  <footer class="form-footer">
+    <button type="button" data-action="resetDefaults">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.ResetToDefault"}}
+    </button>
+    <button type="submit">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.SaveChanges"}}
+    </button>
+  </footer>
+</div>

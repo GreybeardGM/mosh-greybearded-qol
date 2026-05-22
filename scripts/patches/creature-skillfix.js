@@ -30,7 +30,7 @@ Hooks.once("init", () => {
     const fallbackAttribute = activeAttributes[0]?.key ?? "combat";
 
     const content = await foundry.applications.handlebars.renderTemplate(
-      "modules/mosh-greybearded-qol/templates/dialogs/creature-skillfix-stat-selection-dialog.html",
+      "modules/mosh-greybearded-qol/templates/patches/creature-skillfix-stat-selection-dialog.html",
       {
         showRollTypePrompt: !rollString,
         attributes: activeAttributes
