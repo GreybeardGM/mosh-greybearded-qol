@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.0] - 2026-05-07
+## [0.8.0] - 2026-05-22
 ### Added
 - Added German localization for the module.
 - New Apply Damage feature added: damage rolls are now detected automatically and can be applied via a chat button; Apply Damage behavior is freely configurable in settings.
