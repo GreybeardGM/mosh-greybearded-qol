@@ -1,7 +1,7 @@
 import {
   SHORE_LEAVE_CONFIG_SETTING,
   ShoreLeaveConfigApp,
-  getDefaultShoreLeaveConfig
+  getDefaultShoreLeaveConfigWithTiers
 } from "./shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import {
@@ -13,7 +13,10 @@ import {
   LEGACY_SHIP_CRITS_SETTING,
   SHIP_CRITS_MIGRATION_SETTING
 } from "../migration/toolband.js";
-import { SHORE_LEAVE_CONFIG_MIGRATION_SETTING } from "../migration/shore-leave.js";
+import {
+  LEGACY_SHORE_LEAVE_TIERS_SETTING,
+  SHORE_LEAVE_CONFIG_MIGRATION_SETTING
+} from "../migration/shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 
 const WORLD_SETTING_DEFINITIONS = [
@@ -25,15 +28,6 @@ const WORLD_SETTING_DEFINITIONS = [
       config: true,
       type: String,
       default: "#f50"
-    }
-  },
-  {
-    key: "shoreLeaveTiers",
-    options: {
-      name: "MoshQoL.Settings.ShoreLeaveTiers.Name",
-      config: false,
-      type: Object,
-      default: SHORE_LEAVE_TIERS
     }
   },
   {
@@ -134,6 +128,14 @@ const MIGRATION_SETTING_DEFINITIONS = [
     }
   },
   {
+    key: LEGACY_SHORE_LEAVE_TIERS_SETTING,
+    options: {
+      name: "MoshQoL.Settings.ShoreLeaveTiers.Name",
+      type: Object,
+      default: SHORE_LEAVE_TIERS
+    }
+  },
+  {
     key: LEGACY_SHIP_CRITS_SETTING,
     options: {
       name: "MoshQoL.Settings.EnableShipCrits.Name",
@@ -174,7 +176,7 @@ const MENU_DEFINITIONS = [
       options: {
         name: "MoshQoL.Common.ShoreLeaveConfiguration",
         type: Object,
-        default: getDefaultShoreLeaveConfig()
+        default: getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
       }
     }
   },
