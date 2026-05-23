@@ -15,6 +15,7 @@ export const APPLY_DAMAGE_VISIBILITY = {
 export function getDefaultApplyDamageConfig() {
   return {
     tougherArmor: false,
+    applyArmorBroken: true,
     visibility: APPLY_DAMAGE_VISIBILITY.GM_ONLY,
     automateWoundRoll: {
       character: true,
@@ -30,6 +31,9 @@ export function normalizeApplyDamageConfig(config) {
   if (config && typeof config === "object") {
     if (typeof config.tougherArmor === "boolean") {
       normalized.tougherArmor = config.tougherArmor;
+    }
+    if (typeof config.applyArmorBroken === "boolean") {
+      normalized.applyArmorBroken = config.applyArmorBroken;
     }
     if (Object.values(APPLY_DAMAGE_VISIBILITY).includes(config.visibility)) {
       normalized.visibility = config.visibility;
@@ -60,6 +64,10 @@ export function automatesWoundRoll(scope = "character") {
 
 export function usesTougherArmorFromConfig(config) {
   return config?.tougherArmor === true;
+}
+
+export function appliesArmorBrokenFromConfig(config) {
+  return config?.applyArmorBroken === true;
 }
 
 export function automatesWoundRollFromConfig(config, scope = "character") {
@@ -126,6 +134,9 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
 
     const tougherArmor = submitted.tougherArmor;
     config.tougherArmor = isSubmittedCheckboxEnabled(tougherArmor);
+
+    const applyArmorBroken = submitted.applyArmorBroken;
+    config.applyArmorBroken = isSubmittedCheckboxEnabled(applyArmorBroken);
 
     const visibility = submitted.visibility;
     config.visibility = Object.values(APPLY_DAMAGE_VISIBILITY).includes(visibility)

@@ -25,6 +25,11 @@ export function defineStashSheet(BaseSheet) {
         formData[creditsPath] = parseCurrencyValue(formData[creditsPath]);
       }
 
+      formData["system.health.value"] = 0;
+      formData["system.health.max"] = 0;
+      formData["system.hits.value"] = 0;
+      formData["system.hits.max"] = 0;
+
       return super._updateObject(event, formData);
     }
 

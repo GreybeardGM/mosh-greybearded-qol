@@ -1,7 +1,12 @@
 import { getArmorCoverValues } from "../codex/armor-cover.js";
 import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
 import { normalizeNumber } from "../utils/normalization.js";
-import { automatesWoundRollFromConfig, getNormalizedApplyDamageConfig, usesTougherArmorFromConfig } from "../settings/apply-damage-config.js";
+import {
+  appliesArmorBrokenFromConfig,
+  automatesWoundRollFromConfig,
+  getNormalizedApplyDamageConfig,
+  usesTougherArmorFromConfig
+} from "../settings/apply-damage-config.js";
 import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
 import { chatOutput } from "../utils/chat-output.js";
@@ -76,6 +81,7 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
   let   hits    = normalizeNumber(sys.hits?.value, { fallback: 0 });
   const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
+  if (hitsMax <= 0) return false;
 
   const armorBroken = hasArmorBrokenStatus(actor);
   const coverValues = getArmorCoverValues(sys.stats?.armor?.cover);
@@ -83,6 +89,7 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   const baseArmorValue = normalizeNumber(sys.stats?.armor?.mod, { fallback: 0, min: 0 });
   const damageReduction = baseDamageReduction + coverValues.damageReduction;
   const armorValue = baseArmorValue + coverValues.armor;
+  const hasArmorValue = armorValue > 0;
   const armorReductionLimit = antiArmorHit || armorBroken
     ? damageReduction
     : Math.max(damageReduction, armorValue);
@@ -91,7 +98,13 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   const armorBrokenThresholdReached = usesTougherArmorFromConfig(applyDamageConfig)
     ? remaining > 0
     : damage >= armorReductionLimit;
-  const shouldBreakArmor = !antiArmorHit && !armorBroken && armorBrokenThresholdReached;
+  const canApplyArmorBroken = appliesArmorBrokenFromConfig(applyDamageConfig);
+  const canEverBreakArmor = hasArmorValue;
+  const shouldBreakArmor = canEverBreakArmor
+    && canApplyArmorBroken
+    && !antiArmorHit
+    && !armorBroken
+    && armorBrokenThresholdReached;
 
   const originalHp = hp;
   const originalHits = hits;

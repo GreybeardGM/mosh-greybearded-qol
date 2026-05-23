@@ -104,6 +104,10 @@
           "Hint": "Wenn aktiviert, wird Panzerung nur beschädigt, wenn nach der Panzerungsreduktion Schaden übrig bleibt. Wenn deaktiviert, wird Panzerung auch beschädigt, wenn sie den Schaden exakt auf 0 reduziert.",
           "Name": "Stabilere Panzerung"
         },
+        "ApplyArmorBroken": {
+          "Hint": "Wenn aktiviert, kann Schaden anwenden automatisch den Status \"Armor Broken\" setzen.",
+          "Name": "Armor Broken automatisch setzen"
+        },
         "AutomateWoundRoll": {
           "Title": "Wundwürfe automatisieren",
           "Character": {
