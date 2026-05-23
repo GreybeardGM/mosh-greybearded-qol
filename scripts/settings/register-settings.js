@@ -9,15 +9,8 @@ import {
   ApplyDamageConfigApp,
   getDefaultApplyDamageConfig
 } from "./apply-damage-config.js";
-import {
-  LEGACY_SHIP_CRITS_SETTING,
-  SHIP_CRITS_MIGRATION_SETTING
-} from "../migration/toolband.js";
-import {
-  LEGACY_SHORE_LEAVE_TIERS_SETTING,
-  SHORE_LEAVE_CONFIG_MIGRATION_SETTING
-} from "../migration/shore-leave.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
+import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 
 const WORLD_SETTING_DEFINITIONS = [
   {
@@ -81,84 +74,6 @@ const CLIENT_SETTING_DEFINITIONS = [
   }
 ];
 
-const MIGRATION_SETTING_DEFINITIONS = [
-  {
-    key: "convertStress.noSanitySave",
-    options: {
-      name: "MoshQoL.Settings.ConvertStress.NoSanitySave.Name",
-      hint: "MoshQoL.Settings.ConvertStress.NoSanitySave.Hint",
-      type: Boolean,
-      default: false
-    }
-  },
-  {
-    key: "convertStress.noStressRelieve",
-    options: {
-      name: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Name",
-      hint: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Hint",
-      type: Boolean,
-      default: false
-    }
-  },
-  {
-    key: "convertStress.minStressConversion",
-    options: {
-      name: "MoshQoL.Settings.ConvertStress.MinStressConversion.Name",
-      hint: "MoshQoL.Settings.ConvertStress.MinStressConversion.Hint",
-      type: Boolean,
-      default: false
-    }
-  },
-  {
-    key: "convertStress.formula",
-    options: {
-      name: "MoshQoL.Settings.ConvertStress.Formula.Name",
-      hint: "MoshQoL.Settings.ConvertStress.Formula.Hint",
-      type: String,
-      default: "1d5"
-    }
-  },
-  {
-    key: "simpleShoreLeave.randomFlavor",
-    options: {
-      name: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Name",
-      hint: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Hint",
-      type: Boolean,
-      default: true
-    }
-  },
-  {
-    key: LEGACY_SHORE_LEAVE_TIERS_SETTING,
-    options: {
-      name: "MoshQoL.Settings.ShoreLeaveTiers.Name",
-      type: Object,
-      default: SHORE_LEAVE_TIERS
-    }
-  },
-  {
-    key: LEGACY_SHIP_CRITS_SETTING,
-    options: {
-      name: "MoshQoL.Settings.EnableShipCrits.Name",
-      hint: "MoshQoL.Settings.EnableShipCrits.Hint",
-      type: Boolean,
-      default: false
-    }
-  },
-  {
-    key: SHIP_CRITS_MIGRATION_SETTING,
-    options: {
-      type: Boolean,
-      default: false
-    }
-  },
-  {
-    key: SHORE_LEAVE_CONFIG_MIGRATION_SETTING,
-    options: {
-      type: Boolean,
-      default: false
-    }
-  }
-];
 
 const MENU_DEFINITIONS = [
   {

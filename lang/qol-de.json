@@ -59,17 +59,10 @@
         "Hint": "Wenn aktiviert, ersetzt dies das alte Charaktererstellungs-Makro durch die neue QoL-Version.",
         "Name": "QoL-Charaktergenerator aktivieren"
       },
-      "EnableShipCrits": {
-        "Hint": "Wenn aktiviert, erscheint der Schiffskrit-Button und die 0e-Krit-Logik wird aktiviert.",
-        "Name": "0e-Schiffskrits aktivieren"
-      },
       "ShoreLeaveEditor": {
         "Hint": "Konfiguriere Landgang-Regeln, Stressumwandlung und Stufenformeln in einem Dialog.",
         "Label": "Landgang konfigurieren...",
         "Name": "Landgang konfigurieren"
-      },
-      "ShoreLeaveTiers": {
-        "Name": "Definitionen der Landgang-Stufen"
       },
       "SimpleShoreLeave": {
         "DisableFlavor": {
