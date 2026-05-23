@@ -1,5 +1,14 @@
 export const normalizeText = (value) => String(value ?? "").trim().toLowerCase();
 
+
+/**
+ * Normalisiert enum-artige Foundry-Setting-Werte auf eine erlaubte Menge.
+ * Bei ungültigen Werten wird bewusst auf den angegebenen Fallback zurückgefallen.
+ */
+export function normalizeEnum(value, allowedValues, fallback) {
+  return allowedValues.includes(value) ? value : fallback;
+}
+
 export const stripHtml = (html) => String(html ?? "").replace(/<[^>]*>/g, "").trim();
 
 export function capitalize(text, { lowerRest = false } = {}) {
