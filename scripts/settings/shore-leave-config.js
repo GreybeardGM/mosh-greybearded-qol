@@ -13,8 +13,34 @@ export function getDefaultShoreLeaveConfig() {
     },
     simpleShoreLeave: {
       randomFlavor: true
-    }
+    },
+    tiers: {}
   };
+}
+
+function normalizeShoreLeaveTiers(tiers) {
+  if (!tiers || typeof tiers !== "object" || Array.isArray(tiers)) return {};
+  return foundry.utils.deepClone(tiers);
+}
+
+export function getNormalizedShoreLeaveTiers(config) {
+  return normalizeShoreLeaveTiers(config?.tiers);
+}
+
+export function getShoreLeaveTiersFromSettings() {
+  return getNormalizedShoreLeaveTiers(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
+}
+
+export function getShoreLeaveConfigWithDefaults(config) {
+  const normalized = normalizeShoreLeaveConfig(config);
+  normalized.tiers = getNormalizedShoreLeaveTiers(config);
+  return normalized;
+}
+
+export function getDefaultShoreLeaveConfigWithTiers(defaultTiers) {
+  const defaults = getDefaultShoreLeaveConfig();
+  defaults.tiers = normalizeShoreLeaveTiers(defaultTiers);
+  return defaults;
 }
 
 export function normalizeShoreLeaveConfig(config) {
@@ -39,7 +65,7 @@ export function normalizeShoreLeaveConfig(config) {
 }
 
 export function getNormalizedShoreLeaveConfig() {
-  return normalizeShoreLeaveConfig(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
+  return getShoreLeaveConfigWithDefaults(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
 }
 
 export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -72,10 +98,10 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
   };
 
   async _prepareContext() {
-    const tiers = game.settings.get(MODULE_ID, "shoreLeaveTiers");
+    const config = getNormalizedShoreLeaveConfig();
     return {
-      options: getNormalizedShoreLeaveConfig(),
-      tiers: foundry.utils.deepClone(tiers)
+      options: config,
+      tiers: foundry.utils.deepClone(config.tiers)
     };
   }
 
@@ -83,10 +109,11 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     event.preventDefault();
     const module = await import("../codex/default-shore-leave-tiers.js");
 
-    await Promise.all([
-      game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, getDefaultShoreLeaveConfig()),
-      game.settings.set(MODULE_ID, "shoreLeaveTiers", module.SHORE_LEAVE_TIERS)
-    ]);
+    await game.settings.set(
+      MODULE_ID,
+      SHORE_LEAVE_CONFIG_SETTING,
+      getDefaultShoreLeaveConfigWithTiers(module.SHORE_LEAVE_TIERS)
+    );
 
     this.render();
     ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.ResetSuccess"));
@@ -94,12 +121,10 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   static async _onSubmit(event, form, formData) {
     const expanded = foundry.utils.expandObject(formData.object ?? {});
-    const submitted = normalizeShoreLeaveConfig(expanded.shoreLeave ?? {});
+    const submitted = getShoreLeaveConfigWithDefaults(expanded.shoreLeave ?? {});
+    submitted.tiers = normalizeShoreLeaveTiers(expanded.tiers);
 
-    await Promise.all([
-      game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted),
-      game.settings.set(MODULE_ID, "shoreLeaveTiers", expanded.tiers)
-    ]);
+    await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted);
 
     ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.UpdateSuccess"));
     this.close();

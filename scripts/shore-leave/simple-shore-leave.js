@@ -71,7 +71,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _loadTiers() {
-    const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+    const config = getNormalizedShoreLeaveConfig().tiers;
     return Object.values(config).map(tier => {
       const base = {
         tier: tier.tier,
