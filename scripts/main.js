@@ -55,7 +55,6 @@ Hooks.once("ready", () => {
   game.moshGreybeardQol.applyDamage = applyDamage;
 
   registerChatActions();
-  registerApplyDamageSceneControl();
 
   // Register Stash Sheet
   const BaseSheet = CONFIG.Actor.sheetClasses.character["mosh.MothershipActorSheet"].cls;
@@ -93,6 +92,8 @@ Hooks.once("ready", () => {
 Hooks.once("init", () => {
   registerDiceTerms();
   registerSettings();
+  // Bind scene-control hook early to avoid races during controls construction.
+  registerApplyDamageSceneControl();
 });
 
 Hooks.once("ready", () => {
