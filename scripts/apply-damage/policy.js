@@ -1,10 +1,11 @@
 import { APPLY_DAMAGE_VISIBILITY } from "../settings/apply-damage-config.js";
+import { normalizeEnum } from "../utils/normalization.js";
 import { getApplyDamageVisibilitySetting } from "./visibility.js";
 
 const TARGET_LOGIC_SETTING = "applyDamageTargetLogic";
 const MODULE_ID = "mosh-greybearded-qol";
 const DEFAULT_TARGET_LOGIC = "alwaysCharacter";
-const VALID_TARGET_LOGICS = new Set(["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"]);
+const VALID_TARGET_LOGICS = ["alwaysCharacter", "alwaysToken", "characterFirst", "tokenFirst"];
 
 /**
  * Apply-Damage-Policy für UI-Sichtbarkeit und Target-Auflösung.
@@ -23,7 +24,7 @@ export function canShowApplyDamageUI(user = game.user) {
 
 export function getApplyDamageTargetLogicSetting() {
   const value = game.settings.get(MODULE_ID, TARGET_LOGIC_SETTING);
-  return VALID_TARGET_LOGICS.has(value) ? value : DEFAULT_TARGET_LOGIC;
+  return normalizeEnum(value, VALID_TARGET_LOGICS, DEFAULT_TARGET_LOGIC);
 }
 
 export async function resolveApplyDamageTargets(actorLike, context = {}) {
