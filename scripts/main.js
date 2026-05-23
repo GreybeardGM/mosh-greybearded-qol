@@ -2,12 +2,7 @@ import { QoLContractorSheet } from "./sheets/contractor-sheet-class.js";
 import { defineStashSheet } from "./sheets/stash-sheet-class.js";
 import { convertStress } from "./shore-leave/convert-stress.js";
 import { registerSettings } from "./settings/register-settings.js";
-import {
-  migrateLegacyShipCritToolbandConfig
-} from "./migration/toolband.js";
-import {
-  migrateLegacyShoreLeaveConfig
-} from "./migration/shore-leave.js";
+import { runReadyMigrations } from "./register/migrations.js";
 import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
 import { triggerShipCrit } from "./ship-crits-0e.js";
 import { upsertToolband, removeToolband } from "./toolband.js";
@@ -101,13 +96,7 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("ready", () => {
-  migrateLegacyShipCritToolbandConfig().catch((error) => {
-    console.error("[MoSh QoL] Failed to migrate legacy ship crit setting", error);
-  });
-
-  migrateLegacyShoreLeaveConfig().catch((error) => {
-    console.error("[MoSh QoL] Failed to migrate legacy shore leave settings", error);
-  });
+  runReadyMigrations();
 });
 
 
