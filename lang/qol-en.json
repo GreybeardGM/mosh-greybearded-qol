@@ -104,6 +104,10 @@
           "Hint": "If enabled, armor only breaks when damage remains after armor reduction. If disabled, armor also breaks when armor reduces the damage to exactly 0.",
           "Name": "Tougher Armor"
         },
+        "ApplyArmorBroken": {
+          "Hint": "If enabled, Apply Damage can automatically set the Armor Broken status.",
+          "Name": "Auto-apply Armor Broken"
+        },
         "AutomateWoundRoll": {
           "Title": "Automate Wound Rolls",
           "Character": {
