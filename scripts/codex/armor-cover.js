@@ -1,3 +1,5 @@
+import { normalizeText } from "../utils/normalization.js";
+
 export const ARMOR_COVER_VALUES = {
   none: {
     armor: 0,
@@ -18,6 +20,6 @@ export const ARMOR_COVER_VALUES = {
 };
 
 export function getArmorCoverValues(cover) {
-  const normalizedCover = String(cover ?? "none").trim().toLowerCase();
+  const normalizedCover = normalizeText(cover || "none");
   return ARMOR_COVER_VALUES[normalizedCover] ?? ARMOR_COVER_VALUES.none;
 }

@@ -1,6 +1,6 @@
 import { getArmorCoverValues } from "../codex/armor-cover.js";
 import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
-import { normalizeNumber } from "../utils/normalization.js";
+import { normalizeBoolean, normalizeNumber } from "../utils/normalization.js";
 import {
   appliesArmorBrokenFromConfig,
   automatesWoundRollFromConfig,
@@ -454,11 +454,7 @@ async function renderTableResult(result) {
 
 function parseAntiArmorInput(antiArmor) {
   if (typeof antiArmor === "object" && antiArmor !== null) return parseAntiArmorInput(antiArmor.antiArmor);
-  if (typeof antiArmor === "string") {
-    const normalized = antiArmor.trim().toLowerCase();
-    return ["true", "on", "1", "yes"].includes(normalized);
-  }
-  return antiArmor === true;
+  return normalizeBoolean(antiArmor, { fallback: false });
 }
 
 /** Prüft, ob der Armor-Broken-Status bereits aktiv ist. */

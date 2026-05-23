@@ -40,6 +40,18 @@ export function normalizeKeepToken(keep) {
   return null;
 }
 
+export function normalizeBoolean(value, { fallback = false } = {}) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value !== "string") return fallback;
+
+  const normalized = normalizeText(value);
+  if (["true", "on", "1", "yes"].includes(normalized)) return true;
+  if (["false", "off", "0", "no"].includes(normalized)) return false;
+
+  return fallback;
+}
+
 export function parseCurrencyValue(value, { fallback = 0 } = {}) {
   if (typeof value === "number") {
     const numericValue = Math.trunc(value);
