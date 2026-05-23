@@ -3,34 +3,44 @@ import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tre
 
 const EMPTY_LINE_META = () => ({});
 
-export function cacheSkillTreeDom(root, { includeOrOptions = false, includePointCounts = false } = {}) {
+/**
+ * Caches stable DOM references for the skill tree once per render pass.
+ *
+ * @param {HTMLElement} root
+ * @returns {{
+ *   root: HTMLElement,
+ *   svg: SVGElement | null,
+ *   confirm: HTMLButtonElement | null,
+ *   skillCards: HTMLElement[],
+ *   skillCardById: Map<string, HTMLElement>,
+ *   orOptions: HTMLElement[],
+ *   pointCounts: HTMLElement[],
+ *   skillCardsByRank: Map<string, HTMLElement[]>
+ * }}
+ */
+export function cacheSkillTreeDom(root) {
   const skillCards = Array.from(root.querySelectorAll(".skill-card"));
   const skillCardById = new Map(skillCards.map(el => [el.dataset.skillId, el]));
+  const orOptions = Array.from(root.querySelectorAll(".or-option"));
+  const pointCounts = Array.from(root.querySelectorAll(".point-count"));
+  const skillCardsByRank = new Map();
 
-  const dom = {
+  for (const el of skillCards) {
+    const rank = el.dataset.rank;
+    if (!skillCardsByRank.has(rank)) skillCardsByRank.set(rank, []);
+    skillCardsByRank.get(rank).push(el);
+  }
+
+  return {
     root,
     svg: root.querySelector("#skill-arrows"),
     confirm: root.querySelector("#confirm-button"),
     skillCards,
-    skillCardById
+    skillCardById,
+    orOptions,
+    pointCounts,
+    skillCardsByRank
   };
-
-  if (includeOrOptions) {
-    dom.orOptions = Array.from(root.querySelectorAll(".or-option"));
-  }
-
-  if (includePointCounts) {
-    dom.pointCounts = Array.from(root.querySelectorAll(".point-count"));
-    const skillCardsByRank = new Map();
-    for (const el of skillCards) {
-      const rank = el.dataset.rank;
-      if (!skillCardsByRank.has(rank)) skillCardsByRank.set(rank, []);
-      skillCardsByRank.get(rank).push(el);
-    }
-    dom.skillCardsByRank = skillCardsByRank;
-  }
-
-  return dom;
 }
 
 export function selectedSkillIdsFromDom(cards = []) {

@@ -168,7 +168,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _cacheDomReferences(root) {
-    this._dom = cacheSkillTreeDom(root, { includeOrOptions: true, includePointCounts: true });
+    this._dom = cacheSkillTreeDom(root);
   }
 
   _initializeSelectionStateFromDom() {
@@ -235,11 +235,11 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       for (const el of this._dom?.skillCards ?? []) cards.add(el);
     } else {
       for (const skillId of hasAffectedSkillIds ? affectedSkillIds : []) {
-        const el = this._dom?.skillCardById?.get(skillId);
+        const el = this._dom?.skillCardById.get(skillId);
         if (el) cards.add(el);
       }
       for (const rank of hasAffectedRanks ? affectedRanks : []) {
-        for (const el of this._dom?.skillCardsByRank?.get(rank) ?? []) cards.add(el);
+        for (const el of this._dom?.skillCardsByRank.get(rank) ?? []) cards.add(el);
       }
     }
 
