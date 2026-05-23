@@ -83,6 +83,18 @@ export function registerApplyDamageSceneControl() {
       }
     };
 
+    const existingApplyDamageTool = Array.isArray(tokenControls.tools)
+      ? tokenControls.tools.find(t => t?.name === "applyDamage")
+      : tokenControls?.tools?.applyDamage;
+
+    if (existingApplyDamageTool) {
+      existingApplyDamageTool.visible = toolDef.visible;
+      existingApplyDamageTool.title = toolDef.title;
+      existingApplyDamageTool.icon = toolDef.icon;
+      existingApplyDamageTool.onClick = toolDef.onClick;
+      return;
+    }
+
     insertApplyDamageTool(tokenControls, toolDef);
   });
 }
