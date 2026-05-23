@@ -18,7 +18,6 @@ const WORLD_SETTING_DEFINITIONS = [
     options: {
       name: "MoshQoL.Settings.ThemeColor.Name",
       hint: "MoshQoL.Settings.ThemeColor.Hint",
-      config: true,
       type: String,
       default: "#f50"
     }
@@ -28,7 +27,6 @@ const WORLD_SETTING_DEFINITIONS = [
     options: {
       name: "MoshQoL.Settings.EnableCharacterCreator.Name",
       hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
-      config: true,
       type: Boolean,
       default: true
     }
@@ -41,7 +39,6 @@ const CLIENT_SETTING_DEFINITIONS = [
     options: {
       name: "MoshQoL.Settings.ThemeColorOverride.Name",
       hint: "MoshQoL.Settings.ThemeColorOverride.Hint",
-      config: true,
       type: String,
       default: ""
     }
@@ -51,7 +48,6 @@ const CLIENT_SETTING_DEFINITIONS = [
     options: {
       name: "MoshQoL.Settings.ApplyDamageTargetLogic.Name",
       hint: "MoshQoL.Settings.ApplyDamageTargetLogic.Hint",
-      config: true,
       type: String,
       choices: {
         alwaysCharacter: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.AlwaysCharacter",
@@ -67,7 +63,6 @@ const CLIENT_SETTING_DEFINITIONS = [
     options: {
       name: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Name",
       hint: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Hint",
-      config: true,
       default: false,
       type: Boolean
     }
@@ -148,14 +143,16 @@ export function registerSettings() {
   for (const settingDefinition of WORLD_SETTING_DEFINITIONS) {
     game.settings.register("mosh-greybearded-qol", settingDefinition.key, {
       scope: "world",
-      ...settingDefinition.options
+      ...settingDefinition.options,
+      config: true
     });
   }
 
   for (const settingDefinition of CLIENT_SETTING_DEFINITIONS) {
     game.settings.register("mosh-greybearded-qol", settingDefinition.key, {
       scope: "client",
-      ...settingDefinition.options
+      ...settingDefinition.options,
+      config: true
     });
   }
 
