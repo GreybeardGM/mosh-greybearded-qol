@@ -59,17 +59,10 @@
         "Hint": "If enabled, replaces the old character creation macro with the new QoL version.",
         "Name": "Enable QoL Character Creator"
       },
-      "EnableShipCrits": {
-        "Hint": "If enabled, ship crit button appears and the 0e crit logic activates.",
-        "Name": "Enable 0e Ship Crits"
-      },
       "ShoreLeaveEditor": {
         "Hint": "Configure shore leave rules, stress conversion behavior, and tier formulas in one dialog.",
         "Label": "Configure Shore Leave...",
         "Name": "Configure Shore Leave"
-      },
-      "ShoreLeaveTiers": {
-        "Name": "Shore Leave Tier Definitions"
       },
       "SimpleShoreLeave": {
         "DisableFlavor": {
