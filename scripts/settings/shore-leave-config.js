@@ -34,7 +34,7 @@ export function getShoreLeaveTiersFromSettings() {
 
 export function getShoreLeaveConfigWithDefaults(config) {
   const normalized = normalizeShoreLeaveConfig(config);
-  normalized.tiers = getNormalizedShoreLeaveTiers(config);
+  normalized.tiers = normalizeShoreLeaveTiers(config?.tiers);
   return normalized;
 }
 
