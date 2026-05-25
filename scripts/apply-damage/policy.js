@@ -68,8 +68,12 @@ function getControlledTokenTargets(context) {
 
   for (const token of controlled) {
     const actor = token?.actor;
-    if (!(actor instanceof Actor) || seen.has(actor)) continue;
-    seen.add(actor);
+    if (!(actor instanceof Actor)) continue;
+
+    const actorKey = actor.id ?? actor.uuid ?? actor;
+    if (seen.has(actorKey)) continue;
+
+    seen.add(actorKey);
     actors.push(actor);
   }
 
