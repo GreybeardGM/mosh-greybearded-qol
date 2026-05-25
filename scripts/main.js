@@ -11,6 +11,7 @@ import { registerChatActions } from "./chat-actions.js";
 import { registerApplyDamageSceneControl } from "./apply-damage/scene-control.js";
 import { startCharacterCreation } from "./character-creator/character-creator.js";
 import { registerDiceTerms } from "./dice.js";
+import { registerModuleApi } from "./register/api.js";
 import { capitalize, stripHtml } from "./utils/normalization.js";
 import { setReady } from "./character-creator/progress.js";
 import "./patches/creature-skillfix.js";
@@ -47,12 +48,13 @@ Hooks.once("ready", () => {
   Handlebars.registerHelper("stripHtml", (text) => stripHtml(text));
   
   // Global registry for use in macros
-  game.moshGreybeardQol = game.moshGreybeardQol || {};
-  game.moshGreybeardQol.convertStress = convertStress;
-  game.moshGreybeardQol.SimpleShoreLeave = SimpleShoreLeave;
-  game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
-  game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
-  game.moshGreybeardQol.applyDamage = applyDamage;
+  registerModuleApi({
+    convertStress,
+    SimpleShoreLeave,
+    triggerShipCrit,
+    startCharacterCreation,
+    applyDamage
+  });
 
   registerChatActions();
 
