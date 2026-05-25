@@ -14,6 +14,9 @@ import { resolveApplyDamageTargets } from "./policy.js";
 import { ApplyDamageInputApp } from "./damage-input-app.js";
 
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
+const automatedWoundRollTableCache = new Map();
+// Cache-Invalidierung: Ein Foundry-Reload ist ausreichend, da das Modul neu geladen wird.
+// Optional kann bei Settings-/Pack-Änderungen explizit `automatedWoundRollTableCache.clear()` aufgerufen werden.
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
@@ -372,23 +375,35 @@ async function resolveAutomatedWoundRollTable(tableReference) {
     return null;
   }
 
-  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
-    return resolveTableFromUuid(reference);
+  if (automatedWoundRollTableCache.has(reference)) {
+    return automatedWoundRollTableCache.get(reference) ?? null;
   }
 
-  const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
-  if (tableByMoshDocumentId) return tableByMoshDocumentId;
+  let resolvedTable = null;
+  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
+    resolvedTable = await resolveTableFromUuid(reference);
+  } else {
+    const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
+    if (tableByMoshDocumentId) {
+      resolvedTable = tableByMoshDocumentId;
+    } else {
+      const tableByWorldId = game.tables?.get(reference) ?? null;
+      if (tableByWorldId) {
+        resolvedTable = tableByWorldId;
+      } else {
+        const tableByName = game.tables?.getName?.(reference) ?? null;
+        if (tableByName) {
+          resolvedTable = tableByName;
+        } else {
+          const normalizedReference = reference.toLowerCase();
+          resolvedTable = game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
+        }
+      }
+    }
+  }
 
-  const tableByWorldId = game.tables?.get(reference) ?? null;
-  if (tableByWorldId) return tableByWorldId;
-
-  const tableByName = game.tables?.getName?.(reference) ?? null;
-  if (tableByName) return tableByName;
-
-  const normalizedReference = reference.toLowerCase();
-  const tableByCaseInsensitiveName = game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
-  if (tableByCaseInsensitiveName) return tableByCaseInsensitiveName;
-  return null;
+  automatedWoundRollTableCache.set(reference, resolvedTable ?? null);
+  return resolvedTable ?? null;
 }
 
 
