@@ -51,11 +51,14 @@ export async function migrateLegacyShoreLeaveConfig() {
     return index === -1 ? Number.POSITIVE_INFINITY : index;
   };
 
-  const normalizedLegacyTiers = Array.isArray(legacyTiers)
-    ? foundry.utils.deepClone(legacyTiers)
-    : legacyTiers && typeof legacyTiers === "object"
-      ? foundry.utils.deepClone(Object.values(legacyTiers))
-      : null;
+  // Legacy-only migration tolerance: object-shaped tiers were stored by older versions.
+  // Runtime code only accepts the new array format for `shoreLeaveConfig.tiers`.
+  let normalizedLegacyTiers = null;
+  if (Array.isArray(legacyTiers)) {
+    normalizedLegacyTiers = foundry.utils.deepClone(legacyTiers);
+  } else if (legacyTiers && typeof legacyTiers === "object") {
+    normalizedLegacyTiers = foundry.utils.deepClone(Object.values(legacyTiers));
+  }
 
   const hasValidLegacyTiers = Array.isArray(normalizedLegacyTiers) && normalizedLegacyTiers.length > 0;
   if (hasValidLegacyTiers) {
@@ -67,6 +70,8 @@ export async function migrateLegacyShoreLeaveConfig() {
   } else if (!Array.isArray(config.tiers) || config.tiers.length === 0) {
     config.tiers = foundry.utils.deepClone(SHORE_LEAVE_TIERS);
   }
+
+  config.tiers = Array.isArray(config.tiers) ? foundry.utils.deepClone(config.tiers) : foundry.utils.deepClone(SHORE_LEAVE_TIERS);
 
   await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, config);
   await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_MIGRATION_SETTING, true);
