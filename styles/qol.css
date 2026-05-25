@@ -858,6 +858,7 @@
 .greybeardqol .mosh-qol-apply-damage-target-strip {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .greybeardqol .mosh-qol-apply-damage-target-portrait {
