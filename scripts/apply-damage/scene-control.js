@@ -99,7 +99,12 @@ export function registerApplyDamageSceneControl() {
         });
 
         if (!data) return;
-        await applyDamageToSelectedTokens(data.damage, data.antiArmor, null, null, selected);
+
+        const selectedIndexes = Array.isArray(data.selectedTargetIndexes) ? data.selectedTargetIndexes : [];
+        const filteredSelected = selected.filter((_token, index) => selectedIndexes.includes(index));
+        if (!filteredSelected.length) return;
+
+        await applyDamageToSelectedTokens(data.damage, data.antiArmor, null, null, filteredSelected);
       }
     };
 

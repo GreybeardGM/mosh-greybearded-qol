@@ -325,7 +325,7 @@
       "ApplyDamageToSelectedTokens": "Schaden auf ausgewählte Tokens anwenden",
       "EnterAmount": "Gib die Schadensmenge ein:",
       "EnterAmountForActor": "Gib die Schadensmenge für <strong>{actorName}</strong> ein:",
-      "EnterAmountForTokens": "Gib die Schadensmenge für <strong>{count}</strong> ausgewählte {tokens} ein:",
+      "EnterAmountForTokens": "Gib die Schadensmenge für <span class=\"counter\">{count}</span> ausgewählte {tokens} ein:",
       "AntiArmor": "Rüstungsbrechend",
       "Apply": "Anwenden",
       "NoTokensSelected": "Keine Tokens ausgewählt.",
