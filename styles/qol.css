@@ -858,15 +858,12 @@
 .greybeardqol .mosh-qol-apply-damage-target-strip {
   display: flex;
   gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
 }
 
 .greybeardqol .mosh-qol-apply-damage-target-portrait {
   margin: 0;
   min-width: 64px;
   max-width: 72px;
-  text-align: center;
 }
 
 .greybeardqol .mosh-qol-apply-damage-target-portrait img {
@@ -890,14 +887,6 @@
   margin-top: 0.5rem;
 }
 
-
-.greybeardqol .mosh-qol-apply-damage-input-app {
-  background: var(--color-bg);
-  border: 2px solid var(--color-border);
-  border-radius: 0.6rem;
-  padding: 0.75rem;
-}
-
 .greybeardqol .mosh-qol-apply-damage-message {
   margin: 0.25rem 0 0;
 }
@@ -916,8 +905,8 @@
   margin-top: 0.25rem;
 }
 
-.greybeardqol .mosh-qol-apply-damage-anti-armor input {
-  accent-color: var(--theme-color);
+.greybeardqol .mosh-qol-apply-damage-anti-armor input::after {
+  color: var(--theme-color);
 }
 
 .greybeardqol .mosh-qol-apply-damage-input-actions button {
