@@ -40,6 +40,10 @@
   --color-text);
   font-weight: 700;
   position: relative;
+  &::placeholder {
+    color: var(--color-text);
+    opacity: 0.3;
+  }
 }
 
 .greybeardqol input[type="checkbox"]::after {
