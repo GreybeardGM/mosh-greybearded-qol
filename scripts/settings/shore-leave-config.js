@@ -123,8 +123,16 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   static async _onSubmit(event, form, formData) {
     const expanded = foundry.utils.expandObject(formData.object ?? {});
+    const expandedTiers = expanded?.tiers;
+    const tiersArray = Array.isArray(expandedTiers)
+      ? expandedTiers
+      : Object.entries(expandedTiers ?? {})
+          .filter(([key]) => /^\d+$/.test(key))
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map(([, tier]) => tier);
+
     const submitted = getShoreLeaveConfigWithDefaults(expanded.shoreLeave ?? {});
-    submitted.tiers = normalizeShoreLeaveTiers(expanded.tiers);
+    submitted.tiers = normalizeShoreLeaveTiers(tiersArray);
 
     await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted);
 
