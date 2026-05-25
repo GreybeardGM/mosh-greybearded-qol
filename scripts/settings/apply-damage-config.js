@@ -1,3 +1,4 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export const MODULE_ID = "mosh-greybearded-qol";
@@ -111,6 +112,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     return {
       config: getNormalizedApplyDamageConfig(),
       description: game.i18n.localize("MoshQoL.Damage.Config.Description"),
+      themeColor: getThemeColor(),
       visibilityChoices: [
         { value: APPLY_DAMAGE_VISIBILITY.DISABLED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Disabled") },
         { value: APPLY_DAMAGE_VISIBILITY.GM_ONLY, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.GMOnly") },

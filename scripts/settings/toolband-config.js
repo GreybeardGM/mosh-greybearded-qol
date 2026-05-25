@@ -1,3 +1,4 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
 import {
   TOOLBAND_SCOPES,
   getConfigurableToolbandButton,
@@ -115,7 +116,8 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     return {
       description: game.i18n.localize("MoshQoL.Toolbar.Config.Description"),
-      scopes
+      scopes,
+      themeColor: getThemeColor()
     };
   }
 

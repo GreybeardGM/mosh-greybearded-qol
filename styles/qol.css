@@ -33,6 +33,31 @@
   height: 0;
 }
 
+/* Module-wide form control styling */
+.greybeardqol :is(input[type="checkbox"], input[type="text"], input[type="number"], select) {
+  border-color: color-mix(in srgb, var(--theme-color) 45%, var(--color-border-light-primary));
+}
+
+.greybeardqol :is(input[type="text"], input[type="number"], select) {
+  border-radius: 4px;
+}
+
+.greybeardqol input[type="checkbox"]::after {
+  color: var(--theme-color);
+}
+
+/* Module-wide button styling */
+.greybeardqol button {
+  border: 2px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-radius: 4px;
+}
+
+.greybeardqol button:hover:not(:disabled) {
+  border-color: var(--theme-color);
+}
+
 /* Grey-out or Highlight */
 .greybeardqol .locked {
   pointer-events: none;
@@ -808,17 +833,17 @@
   flex: 1;
 }
 
-.greybeardqol .qolsettings input[type="checkbox"]::after{
-  color: var(--theme-color);
-}
-
-.greybeardqol .qolsettings input[type="number"],
-.greybeardqol .qolsettings input[type="text"] {
+.greybeardqol .qolsettings :is(input[type="number"], input[type="text"], select) {
   width: 5em;
 }
 
 .greybeardqol .qolsettings .qolsettings-wide-input input[type="text"] {
   width: 100%;
+}
+
+.greybeardqol .qolsettings .qolsettings-field select {
+  width: 100%;
+  max-width: 16rem;
 }
 
 .greybeardqol .qolsettings .form-footer {
@@ -908,14 +933,4 @@
 
 .greybeardqol .mosh-qol-apply-damage-anti-armor input::after {
   color: var(--theme-color);
-}
-
-.greybeardqol .mosh-qol-apply-damage-input-actions button {
-  border: 2px solid var(--color-border);
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.greybeardqol .mosh-qol-apply-damage-input-actions button:hover {
-  border-color: var(--theme-color);
 }

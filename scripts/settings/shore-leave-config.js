@@ -1,3 +1,4 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export const MODULE_ID = "mosh-greybearded-qol";
@@ -19,7 +20,7 @@ export function getDefaultShoreLeaveConfig() {
 }
 
 function normalizeShoreLeaveTiers(tiers) {
-  if (!tiers || typeof tiers !== "object" || Array.isArray(tiers)) return {};
+  if (!Array.isArray(tiers)) return [];
   return foundry.utils.deepClone(tiers);
 }
 
@@ -101,7 +102,8 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     const config = getNormalizedShoreLeaveConfig();
     return {
       options: config,
-      tiers: foundry.utils.deepClone(config.tiers)
+      tiers: foundry.utils.deepClone(config.tiers),
+      themeColor: getThemeColor()
     };
   }
 
