@@ -1,6 +1,8 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static #active = null;
+
   static DEFAULT_OPTIONS = {
     id: "mosh-greybearded-qol-apply-damage-input",
     tag: "form",
@@ -9,25 +11,25 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
       contentClasses: ["greybeardqol", "mosh-qol-apply-damage-input-window"],
       resizable: false
     },
-    position: {
-      width: 520,
-      height: "auto"
-    },
+    position: { width: 520, height: "auto" },
     form: {
       handler: this._onSubmit,
       submitOnChange: false,
       closeOnSubmit: false
     },
-    actions: {
-      cancel: this._onCancel
-    }
+    actions: { cancel: this._onCancel }
   };
 
   static PARTS = {
-    form: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/apply-damage-input.html"
-    }
+    form: { template: "modules/mosh-greybearded-qol/templates/dialogs/apply-damage-input.html" }
   };
+
+  static async waitForInput(options = {}) {
+    await this.#active?.close();
+    const app = new this(options);
+    this.#active = app;
+    return app.wait();
+  }
 
   constructor({ title, message, targets = [], cancel = null } = {}) {
     super();
@@ -35,21 +37,19 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     this._message = message ?? game.i18n.localize("MoshQoL.Damage.EnterAmount");
     this._targets = targets;
     this._cancel = cancel;
-    this._resolver = null;
+    this._resolve = null;
   }
 
   async _prepareContext() {
-    const portraits = this._targets.map((actor) => ({
-      name: actor?.name ?? "",
-      src: actor?.img || "icons/svg/mystery-man.svg"
-    }));
-
     return {
       message: this._message,
-      portraits,
+      portraits: this._targets.map(actor => ({
+        name: actor?.name ?? "",
+        src: actor?.img || "icons/svg/mystery-man.svg"
+      })),
       antiArmorLabel: game.i18n.localize("MoshQoL.Damage.AntiArmor"),
       applyLabel: game.i18n.localize("MoshQoL.Damage.Apply"),
-      cancelLabel: game.i18n.localize("Cancel")
+      cancelLabel: this._cancel?.label ?? game.i18n.localize("Cancel")
     };
   }
 
@@ -59,18 +59,16 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
   }
 
   async close(options = {}) {
-    const wasResolved = this._resolver === null;
-    const result = await super.close(options);
-    if (!wasResolved && this._resolver) {
-      this._resolver(null);
-      this._resolver = null;
-    }
-    return result;
+    const resolve = this._resolve;
+    this._resolve = null;
+    if (ApplyDamageInputApp.#active === this) ApplyDamageInputApp.#active = null;
+    await super.close(options);
+    resolve?.(null);
   }
 
   wait() {
     return new Promise((resolve) => {
-      this._resolver = resolve;
+      this._resolve = resolve;
       this.render(true);
     });
   }
@@ -81,17 +79,13 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
   }
 
   static async _onSubmit(_event, _form, formData) {
-    const app = this;
-    const expanded = foundry.utils.expandObject(formData.object ?? {});
-    const payload = expanded.applyDamage ?? {};
-
-    const resolver = app._resolver;
-    app._resolver = null;
-    resolver?.({
+    const payload = foundry.utils.expandObject(formData.object ?? {}).applyDamage ?? {};
+    const resolve = this._resolve;
+    this._resolve = null;
+    resolve?.({
       damage: payload.damage,
       antiArmor: payload.antiArmor === true || payload.antiArmor === "on" || payload.antiArmor === "true"
     });
-
-    await app.close();
+    await this.close();
   }
 }

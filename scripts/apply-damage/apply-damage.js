@@ -37,7 +37,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   let damageRaw = damageInput;
   let antiArmorRaw = antiArmor;
 
-  // Falls kein Wert angegeben: über DialogV2.input abfragen
+  // Falls kein Wert angegeben: über zentrales ApplyDamage-Dialogfenster abfragen
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
@@ -213,8 +213,7 @@ function calculateDamageOutcome({ hp, hpMax, hits, hitsMax, remaining }) {
  * Die eigentliche Validierung/Normalisierung bleibt in applyDamage.
  */
 export async function promptDamageInput({ title, message, targets = [], cancel = null } = {}) {
-  const app = new ApplyDamageInputApp({ title, message, targets, cancel });
-  return app.wait();
+  return ApplyDamageInputApp.waitForInput({ title, message, targets, cancel });
 }
 
 /** Parsen/Validieren der Schaden-Eingabe (einziger Normalisierungspfad). */
