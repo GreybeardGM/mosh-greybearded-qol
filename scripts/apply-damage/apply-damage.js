@@ -31,13 +31,64 @@ const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
  */
 export async function applyDamage(actorLike, damageInput, antiArmor = false, woundType = null, woundRollModifier = null) {
   const applyDamageConfig = getNormalizedApplyDamageConfig();
+
+  // 1) Target-Auflösung
   const targets = await resolveApplyDamageTargets(actorLike);
   if (!targets.length) return false;
 
+  // 2) Input-Normalisierung
+  const normalizedPayload = await normalizeApplyDamagePayload({
+    damageInput,
+    antiArmor,
+    woundType,
+    woundRollModifier,
+    targets
+  });
+  if (!normalizedPayload) return false;
+
+  // 3) Eigentliche Actor-Verarbeitung
+  const applied = await applyDamageToActors(targets, normalizedPayload, { applyDamageConfig });
+  return applied > 0;
+}
+
+export async function applyDamageToActors(actors, payload, options = {}) {
+  const actorList = Array.isArray(actors) ? actors.filter(Boolean) : [];
+  if (!actorList.length || !payload) return false;
+
+  const normalizedPayload = normalizeActorApplyDamagePayload(payload);
+  if (!normalizedPayload) return false;
+
+  const applyDamageConfig = options.applyDamageConfig ?? getNormalizedApplyDamageConfig();
+
+  let applied = 0;
+  for (const actor of actorList) {
+    const didApply = await applyDamageToActor(actor, normalizedPayload, applyDamageConfig);
+    if (didApply) applied += 1;
+  }
+
+  return applied;
+}
+
+
+function normalizeActorApplyDamagePayload(payload) {
+  if (!payload || typeof payload !== "object") return null;
+
+  const damage = parseDamageInput(payload.damage);
+  if (damage === null) return null;
+
+  const woundMetadataInput = payload.woundMetadata ?? {};
+
+  return {
+    damage,
+    antiArmorHit: parseAntiArmorInput(payload.antiArmorHit),
+    woundMetadata: normalizeWoundMetadata(woundMetadataInput.woundType, woundMetadataInput.woundRollModifier)
+  };
+}
+
+async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, woundType = null, woundRollModifier = null, targets = [] } = {}) {
   let damageRaw = damageInput;
   let antiArmorRaw = antiArmor;
 
-  // Falls kein Wert angegeben: über zentrales ApplyDamage-Dialogfenster abfragen
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
@@ -45,8 +96,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
       targets
     });
 
-    // Abbruch per X liefert null → nichts tun
-    if (!data) return false;
+    if (!data) return null;
     damageRaw = data.damage;
     antiArmorRaw = data.antiArmor;
   }
@@ -54,23 +104,14 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   const damage = parseDamageInput(damageRaw);
   if (damage === null) {
     ui.notifications?.warn?.(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
-    return false;
+    return null;
   }
 
-  const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
-  const normalizedPayload = {
+  return {
     damage,
     antiArmorHit: parseAntiArmorInput(antiArmorRaw),
-    woundMetadata
+    woundMetadata: normalizeWoundMetadata(woundType, woundRollModifier)
   };
-
-  let applied = 0;
-  for (const target of targets) {
-    const didApply = await applyDamageToActor(target, normalizedPayload, applyDamageConfig);
-    if (didApply) applied += 1;
-  }
-
-  return applied > 0;
 }
 
 async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = null) {
