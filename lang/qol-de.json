@@ -155,7 +155,10 @@
       "PriceFormula": "Preisformel",
       "RerollFlavor": "Beschreibung neu würfeln",
       "RollPrice": "Preis würfeln",
-      "SelectTier": "Landgang-Stufe auswählen"
+      "SelectTier": "Landgang-Stufe auswählen",
+      "PayUp": "Bezahlen",
+      "PayablePrice": "Zu zahlender Preis:",
+      "CannotAfford": "{actorName} kann diese Landgang-Aktivität nicht bezahlen."
     },
     "CharacterCreator": {
       "Chat": {

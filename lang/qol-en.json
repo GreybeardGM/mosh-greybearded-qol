@@ -155,7 +155,10 @@
       "PriceFormula": "Price Formula",
       "RerollFlavor": "Reroll Flavor",
       "RollPrice": "Roll Price",
-      "SelectTier": "Select Shore Leave Tier"
+      "SelectTier": "Select Shore Leave Tier",
+      "PayUp": "Pay Up",
+      "PayablePrice": "Price to pay:",
+      "CannotAfford": "{actorName} cannot afford this shore leave activity."
     },
     "CharacterCreator": {
       "Chat": {
