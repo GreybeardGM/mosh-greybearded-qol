@@ -1,0 +1,23 @@
+<div class="mosh-qol-apply-damage-input-app">
+  <div class="mosh-qol-apply-damage-target-strip">
+    {{#each portraits}}
+      <figure class="mosh-qol-apply-damage-target-portrait" title="{{this.name}}">
+        <img src="{{this.src}}" alt="{{this.name}}">
+        <figcaption>{{this.name}}</figcaption>
+      </figure>
+    {{/each}}
+  </div>
+
+  <p>{{message}}</p>
+
+  <input name="applyDamage.damage" type="number" min="1" step="1" autofocus style="width:100%">
+  <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
+    <input name="applyDamage.antiArmor" type="checkbox">
+    <span>{{antiArmorLabel}}</span>
+  </label>
+
+  <footer class="mosh-qol-apply-damage-input-actions">
+    <button type="button" data-action="cancel">{{cancelLabel}}</button>
+    <button type="submit"><i class="fa-solid fa-check"></i> {{applyLabel}}</button>
+  </footer>
+</div>
