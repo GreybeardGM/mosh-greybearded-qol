@@ -8,8 +8,14 @@ function mapTokensToActors(tokens) {
     .filter(Boolean);
 }
 
-export async function applyDamageToSelectedTokens(damageInput, antiArmor, woundType = null, woundRollModifier = null) {
-  const selected = canvas?.tokens?.controlled ?? [];
+export async function applyDamageToSelectedTokens(
+  damageInput,
+  antiArmor,
+  woundType = null,
+  woundRollModifier = null,
+  selectedTokens = null
+) {
+  const selected = selectedTokens ?? (canvas?.tokens?.controlled ?? []);
   if (!selected.length) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
     return;
@@ -93,7 +99,7 @@ export function registerApplyDamageSceneControl() {
         });
 
         if (!data) return;
-        await applyDamageToSelectedTokens(data.damage, data.antiArmor);
+        await applyDamageToSelectedTokens(data.damage, data.antiArmor, null, null, selected);
       }
     };
 
