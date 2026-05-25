@@ -11,6 +11,7 @@ import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
 import { chatOutput } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
+import { ApplyDamageInputApp } from "./damage-input-app.js";
 
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
 
@@ -40,7 +41,8 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
-      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: targets[0]?.name ?? "" })
+      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: targets[0]?.name ?? "" }),
+      targets
     });
 
     // Abbruch per X liefert null → nichts tun
@@ -210,20 +212,9 @@ function calculateDamageOutcome({ hp, hpMax, hits, hitsMax, remaining }) {
  * Öffnet den gemeinsamen Apply-Damage-Dialog und liefert rohe Dialogwerte zurück.
  * Die eigentliche Validierung/Normalisierung bleibt in applyDamage.
  */
-export async function promptDamageInput({ title, message, cancel = null } = {}) {
-  return foundry.applications.api.DialogV2.input({
-    window: { title: title ?? game.i18n.localize("MoshQoL.Damage.ApplyDamage") },
-    content: `
-      <p>${message ?? game.i18n.localize("MoshQoL.Damage.EnterAmount")}</p>
-      <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
-      <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
-        <input name="antiArmor" type="checkbox">
-        <span>${game.i18n.localize("MoshQoL.Damage.AntiArmor")}</span>
-      </label>
-    `,
-    ok: { label: game.i18n.localize("MoshQoL.Damage.Apply"), icon: "fa-solid fa-check" },
-    ...(cancel ? { cancel } : {})
-  });
+export async function promptDamageInput({ title, message, targets = [], cancel = null } = {}) {
+  const app = new ApplyDamageInputApp({ title, message, targets, cancel });
+  return app.wait();
 }
 
 /** Parsen/Validieren der Schaden-Eingabe (einziger Normalisierungspfad). */

@@ -848,3 +848,44 @@
   flex-basis: 0;
   font-weight: 700;
 }
+
+.greybeardqol .mosh-qol-apply-damage-input-app {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.greybeardqol .mosh-qol-apply-damage-target-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.greybeardqol .mosh-qol-apply-damage-target-portrait {
+  margin: 0;
+  min-width: 64px;
+  max-width: 72px;
+  text-align: center;
+}
+
+.greybeardqol .mosh-qol-apply-damage-target-portrait img {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--color-border-light-2);
+}
+
+.greybeardqol .mosh-qol-apply-damage-target-portrait figcaption {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.greybeardqol .mosh-qol-apply-damage-input-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
