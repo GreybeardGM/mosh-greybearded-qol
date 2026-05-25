@@ -2,6 +2,12 @@ import { applyDamageToActors, promptDamageInput } from "./apply-damage.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { canShowApplyDamageUI } from "./policy.js";
 
+function mapTokensToActors(tokens) {
+  return (tokens ?? [])
+    .map((token) => token?.actor ?? token)
+    .filter(Boolean);
+}
+
 export async function applyDamageToSelectedTokens(damageInput, antiArmor, woundType = null, woundRollModifier = null) {
   const selected = canvas?.tokens?.controlled ?? [];
   if (!selected.length) {
@@ -15,9 +21,7 @@ export async function applyDamageToSelectedTokens(damageInput, antiArmor, woundT
     return;
   }
 
-  const actors = selected
-    .map((token) => token?.actor ?? token)
-    .filter(Boolean);
+  const actors = mapTokensToActors(selected);
 
   const normalizedPayload = {
     damage: Math.trunc(damage),
@@ -76,6 +80,7 @@ export function registerApplyDamageSceneControl() {
           ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
           return;
         }
+        const targets = mapTokensToActors(selected);
 
         const data = await promptDamageInput({
           title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
@@ -83,6 +88,7 @@ export function registerApplyDamageSceneControl() {
             count: selected.length,
             tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
           }),
+          targets,
           cancel: { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark" }
         });
 
