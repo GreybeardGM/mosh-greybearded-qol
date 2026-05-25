@@ -1,4 +1,4 @@
-import { promptDamageInput } from "./apply-damage.js";
+import { applyDamageToActors, promptDamageInput } from "./apply-damage.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { canShowApplyDamageUI } from "./policy.js";
 
@@ -15,16 +15,24 @@ export async function applyDamageToSelectedTokens(damageInput, antiArmor, woundT
     return;
   }
 
-  let applied = 0;
-  for (const token of selected) {
-    const actorLike = token?.actor ?? token;
-    if (!actorLike) continue;
-    try {
-      const didApply = await game.moshGreybeardQol.applyDamage(actorLike, damage, antiArmor, woundType, woundRollModifier);
-      if (didApply !== false) applied++;
-    } catch (err) {
-      console.error("applyDamage failed for", token, err);
+  const actors = selected
+    .map((token) => token?.actor ?? token)
+    .filter(Boolean);
+
+  const normalizedPayload = {
+    damage: Math.trunc(damage),
+    antiArmorHit: Boolean(antiArmor),
+    woundMetadata: {
+      woundType,
+      woundRollModifier
     }
+  };
+
+  let applied = 0;
+  try {
+    applied = await applyDamageToActors(actors, normalizedPayload);
+  } catch (err) {
+    console.error("applyDamage failed for selected tokens", selected, err);
   }
 
   ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
