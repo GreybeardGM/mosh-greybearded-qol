@@ -325,7 +325,7 @@
       "ApplyDamageToSelectedTokens": "Apply Damage to Selected Tokens",
       "EnterAmount": "Enter the amount of damage to apply:",
       "EnterAmountForActor": "Enter the amount of damage to apply to <strong>{actorName}</strong>:",
-      "EnterAmountForTokens": "Enter the amount of damage to apply to <strong>{count}</strong> selected {tokens}:",
+      "EnterAmountForTokens": "Enter the amount of damage to apply to <span class=\"counter\">{count}</span> selected {tokens}:",
       "AntiArmor": "Anti Armor",
       "Apply": "Apply",
       "NoTokensSelected": "No tokens selected.",

@@ -1,3 +1,4 @@
+import { getThemeColor } from "../utils/get-theme-color.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -17,7 +18,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
       submitOnChange: false,
       closeOnSubmit: false
     },
-    actions: { cancel: this._onCancel }
+    actions: { cancel: this._onCancel, toggleTarget: this._onToggleTarget }
   };
 
   static PARTS = {
@@ -38,18 +39,21 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     this._targets = targets;
     this._cancel = cancel;
     this._resolve = null;
+    this._selectedTargetIndexes = new Set(targets.map((_actor, index) => index));
   }
 
   async _prepareContext() {
     return {
       message: this._message,
-      portraits: this._targets.map(actor => ({
+      portraits: this._targets.map((actor, index) => ({
+        index,
         name: actor?.name ?? "",
         src: actor?.img || "icons/svg/mystery-man.svg"
       })),
       antiArmorLabel: game.i18n.localize("MoshQoL.Damage.AntiArmor"),
       applyLabel: game.i18n.localize("MoshQoL.Damage.Apply"),
-      cancelLabel: this._cancel?.label ?? game.i18n.localize("Cancel")
+      cancelLabel: this._cancel?.label ?? game.i18n.localize("Cancel"),
+      themeColor: getThemeColor()
     };
   }
 
@@ -78,13 +82,27 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     await this.close();
   }
 
+
+  static _onToggleTarget(event, target) {
+    event?.preventDefault?.();
+
+    const index = Number.parseInt(target?.dataset?.index ?? "", 10);
+    if (!Number.isInteger(index)) return;
+
+    if (this._selectedTargetIndexes.has(index)) this._selectedTargetIndexes.delete(index);
+    else this._selectedTargetIndexes.add(index);
+
+    target.classList.toggle("selected", this._selectedTargetIndexes.has(index));
+  }
+
   static async _onSubmit(_event, _form, formData) {
     const payload = foundry.utils.expandObject(formData.object ?? {}).applyDamage ?? {};
     const resolve = this._resolve;
     this._resolve = null;
     resolve?.({
       damage: payload.damage,
-      antiArmor: payload.antiArmor === true || payload.antiArmor === "on" || payload.antiArmor === "true"
+      antiArmor: payload.antiArmor === true || payload.antiArmor === "on" || payload.antiArmor === "true",
+      selectedTargetIndexes: Array.from(this._selectedTargetIndexes)
     });
     await this.close();
   }

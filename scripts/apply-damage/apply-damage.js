@@ -49,8 +49,11 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   });
   if (!normalizedPayload) return false;
 
+  const actorList = filterTargetsBySelectedIndexes(targets, normalizedPayload.selectedTargetIndexes);
+  if (!actorList.length) return false;
+
   // 3) Eigentliche Actor-Verarbeitung
-  const applied = await applyDamageToActors(targets, normalizedPayload, { applyDamageConfig });
+  const applied = await applyDamageToActors(actorList, normalizedPayload, { applyDamageConfig });
   return applied > 0;
 }
 
@@ -91,6 +94,7 @@ function normalizeActorApplyDamagePayload(payload) {
 async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, woundType = null, woundRollModifier = null, targets = [] } = {}) {
   let damageRaw = damageInput;
   let antiArmorRaw = antiArmor;
+  let selectedTargetIndexes = targets.map((_actor, index) => index);
 
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
@@ -102,6 +106,7 @@ async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, wou
     if (!data) return null;
     damageRaw = data.damage;
     antiArmorRaw = data.antiArmor;
+    selectedTargetIndexes = normalizeSelectedTargetIndexes(data.selectedTargetIndexes, targets.length);
   }
 
   const damage = parseDamageInput(damageRaw);
@@ -113,8 +118,22 @@ async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, wou
   return {
     damage,
     antiArmorHit: parseAntiArmorInput(antiArmorRaw),
-    woundMetadata: normalizeWoundMetadata(woundType, woundRollModifier)
+    woundMetadata: normalizeWoundMetadata(woundType, woundRollModifier),
+    selectedTargetIndexes
   };
+}
+
+function normalizeSelectedTargetIndexes(indexes, maxLength) {
+  if (!Array.isArray(indexes)) return Array.from({ length: maxLength }, (_v, index) => index);
+
+  return [...new Set(indexes
+    .map(index => Number.parseInt(index, 10))
+    .filter(index => Number.isInteger(index) && index >= 0 && index < maxLength))];
+}
+
+function filterTargetsBySelectedIndexes(targets, selectedTargetIndexes) {
+  const normalized = normalizeSelectedTargetIndexes(selectedTargetIndexes, targets.length);
+  return normalized.map(index => targets[index]).filter(Boolean);
 }
 
 async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = null) {

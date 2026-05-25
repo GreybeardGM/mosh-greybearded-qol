@@ -889,3 +889,43 @@
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
+
+
+.greybeardqol .mosh-qol-apply-damage-input-app {
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+}
+
+.greybeardqol .mosh-qol-apply-damage-message {
+  margin: 0.25rem 0 0;
+}
+
+.greybeardqol .mosh-qol-apply-damage-value {
+  width: 100%;
+  background: color-mix(in srgb, var(--color-bg) 85%, black);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.greybeardqol .mosh-qol-apply-damage-anti-armor {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.greybeardqol .mosh-qol-apply-damage-anti-armor input {
+  accent-color: var(--theme-color);
+}
+
+.greybeardqol .mosh-qol-apply-damage-input-actions button {
+  border: 2px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.greybeardqol .mosh-qol-apply-damage-input-actions button:hover {
+  border-color: var(--theme-color);
+}
