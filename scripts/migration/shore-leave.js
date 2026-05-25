@@ -45,9 +45,26 @@ export async function migrateLegacyShoreLeaveConfig() {
   }
 
   const legacyTiers = game.settings.get(MODULE_ID, LEGACY_SHORE_LEAVE_TIERS_SETTING);
-  if (legacyTiers && typeof legacyTiers === "object" && !Array.isArray(legacyTiers)) {
-    config.tiers = foundry.utils.deepClone(legacyTiers);
-  } else if (!Object.keys(config.tiers ?? {}).length) {
+  const tierOrder = ["X", "C", "B", "A", "S"];
+  const getTierSortIndex = (tier) => {
+    const index = tierOrder.indexOf(tier);
+    return index === -1 ? Number.POSITIVE_INFINITY : index;
+  };
+
+  const normalizedLegacyTiers = Array.isArray(legacyTiers)
+    ? foundry.utils.deepClone(legacyTiers)
+    : legacyTiers && typeof legacyTiers === "object"
+      ? foundry.utils.deepClone(Object.values(legacyTiers))
+      : null;
+
+  const hasValidLegacyTiers = Array.isArray(normalizedLegacyTiers) && normalizedLegacyTiers.length > 0;
+  if (hasValidLegacyTiers) {
+    config.tiers = normalizedLegacyTiers.sort((a, b) => {
+      const tierA = typeof a?.tier === "string" ? a.tier : "";
+      const tierB = typeof b?.tier === "string" ? b.tier : "";
+      return getTierSortIndex(tierA) - getTierSortIndex(tierB);
+    });
+  } else if (!Array.isArray(config.tiers) || config.tiers.length === 0) {
     config.tiers = foundry.utils.deepClone(SHORE_LEAVE_TIERS);
   }
 
