@@ -5,6 +5,7 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
 import { toRollFormula } from "../utils/to-roll-formula.js";
 import { toRollString } from "../utils/to-roll-string.js";
+import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -145,15 +146,26 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const roll = new Roll(entry.priceFormula);
     await roll.evaluate();
+    const rolledPrice = parseCurrencyValue(roll.total);
+    const formattedPrice = formatCurrency(rolledPrice);
 
     await chatOutput({
       actor: this.actor,
       title: entry.label,
       subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.Common.ShoreLeave"),
-      content: entry.flavor?.description || "",
+      content: `
+        ${entry.flavor?.description || ""}
+        <br><strong>${game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice")}</strong> <label class="counter">${formattedPrice}</label>
+      `,
       icon: entry.flavor?.icon || entry.icon,
       roll,
       buttons: [
+        {
+          label: game.i18n.localize("MoshQoL.ShoreLeave.PayUp"),
+          icon: "fa-coins",
+          action: "payShoreLeave",
+          args: [rolledPrice]
+        },
         {
           label: game.i18n.localize("MoshQoL.ShoreLeave.ParticipateNow"),
           icon: "fa-dice",
