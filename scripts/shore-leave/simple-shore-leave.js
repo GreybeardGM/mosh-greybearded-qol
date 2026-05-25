@@ -155,7 +155,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.Common.ShoreLeave"),
       content: `
         ${entry.flavor?.description || ""}
-        <br><strong>${game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice")}</strong> <label class="counter">${formattedPrice}</label>
+        <br><br><strong>${game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice")}</strong> <label class="counter">${formattedPrice}</label>
       `,
       icon: entry.flavor?.icon || entry.icon,
       roll,
