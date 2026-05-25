@@ -1,22 +1,16 @@
-import { applyDamageToActors, promptDamageInput } from "./apply-damage.js";
+import { applyDamageToActors, getUniqueActorsFromTargets, promptDamageInput } from "./apply-damage.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { canShowApplyDamageUI } from "./policy.js";
 
-function mapTokensToActors(tokens) {
-  return (tokens ?? [])
-    .map((token) => token?.actor ?? token)
-    .filter(Boolean);
-}
-
-export async function applyDamageToSelectedTokens(
+export async function applyDamageToSelectedActors(
   damageInput,
   antiArmor,
   woundType = null,
   woundRollModifier = null,
-  selectedTokens = null
+  selectedActors = null
 ) {
-  const selected = selectedTokens ?? (canvas?.tokens?.controlled ?? []);
-  if (!selected.length) {
+  const selectedActorsList = getUniqueActorsFromTargets(selectedActors ?? (canvas?.tokens?.controlled ?? []));
+  if (!selectedActorsList.length) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
     return;
   }
@@ -26,8 +20,6 @@ export async function applyDamageToSelectedTokens(
     ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
     return;
   }
-
-  const actors = mapTokensToActors(selected);
 
   const normalizedPayload = {
     damage: Math.trunc(damage),
@@ -40,15 +32,15 @@ export async function applyDamageToSelectedTokens(
 
   let applied = 0;
   try {
-    applied = await applyDamageToActors(actors, normalizedPayload);
+    applied = await applyDamageToActors(selectedActorsList, normalizedPayload);
   } catch (err) {
-    console.error("applyDamage failed for selected tokens", selected, err);
+    console.error("applyDamage failed for selected actors", selectedActorsList, err);
   }
 
   ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
     applied,
-    total: selected.length,
-    tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
+    total: selectedActorsList.length,
+    tokens: game.i18n.localize(selectedActorsList.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
   }));
 }
 
@@ -86,13 +78,13 @@ export function registerApplyDamageSceneControl() {
           ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
           return;
         }
-        const targets = mapTokensToActors(selected);
+        const targets = getUniqueActorsFromTargets(selected);
 
         const data = await promptDamageInput({
           title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
           message: game.i18n.format("MoshQoL.Damage.EnterAmountForTokens", {
-            count: selected.length,
-            tokens: game.i18n.localize(selected.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
+            count: targets.length,
+            tokens: game.i18n.localize(targets.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
           }),
           targets,
           cancel: { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark" }
@@ -101,10 +93,11 @@ export function registerApplyDamageSceneControl() {
         if (!data) return;
 
         const selectedIndexes = Array.isArray(data.selectedTargetIndexes) ? data.selectedTargetIndexes : [];
-        const filteredSelected = selected.filter((_token, index) => selectedIndexes.includes(index));
-        if (!filteredSelected.length) return;
+        const filteredActors = targets.filter((_actor, index) => selectedIndexes.includes(index));
+        const selectedActors = getUniqueActorsFromTargets(filteredActors);
+        if (!selectedActors.length) return;
 
-        await applyDamageToSelectedTokens(data.damage, data.antiArmor, null, null, filteredSelected);
+        await applyDamageToSelectedActors(data.damage, data.antiArmor, null, null, selectedActors);
       }
     };
 
