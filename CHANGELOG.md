@@ -1,8 +1,28 @@
 # Changelog
 
 ## [0.8.1-dev] - 2026-05-22
+### Added
+- Simple Shore Leave now includes a Pay-Up button to automatically deduct credits.
+
 ### Changed
 - Switched module metadata back to development distribution (`dev` branch manifest/download) and marked the package explicitly as DEV variant.
+- Simple Shore Leave roll output was simplified for easier price reading.
+- Setting forms were polished and unified for a consistent layout.
+- Apply Damage dialog was overhauled and now allows deselecting accidentally selected tokens.
+- Multiple safeguards were added to prevent creature/player stats from leaking into stash sheets or contractors.
+
+### Fixed
+- Fixed a bug in Shore Leave tier migration.
+- Apply Damage now deduplicates duplicate actor entries so multiple tokens of the same actor are not damaged twice.
+- Armor Broken auto-arbitration was reworked and now applies status only to valid actors.
+
+### Notes
+- Some users may need to reset Shore Leave tiers to default once so tiers become visible again.
+- Sorry for the inconvenience; hopefully no custom tiers were lost.
+
+### Performance
+- Automatic wound rolling now runs in bundled batches for much faster execution.
+- Various additional small performance upgrades.
 
 ## [0.8.0] - 2026-05-22
 ### Added
