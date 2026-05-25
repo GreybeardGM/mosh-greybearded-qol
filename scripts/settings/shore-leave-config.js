@@ -15,7 +15,7 @@ export function getDefaultShoreLeaveConfig() {
     simpleShoreLeave: {
       randomFlavor: true
     },
-    tiers: {}
+    tiers: []
   };
 }
 
