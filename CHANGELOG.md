@@ -5,7 +5,6 @@
 - Simple Shore Leave now includes a Pay-Up button to automatically deduct credits.
 
 ### Changed
-- Switched module metadata back to development distribution (`dev` branch manifest/download) and marked the package explicitly as DEV variant.
 - Simple Shore Leave roll output was simplified for easier price reading.
 - Setting forms were polished and unified for a consistent layout.
 - Apply Damage dialog was overhauled and now allows deselecting accidentally selected tokens.
