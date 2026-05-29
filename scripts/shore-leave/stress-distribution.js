@@ -9,7 +9,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
     tag: "form",
     window: {
       title: "MoshQoL.ShoreLeave.DistributeStressConversion",
-      contentClasses: ["greybeardqol", "stress-conversion-form"],
+      contentClasses: ["greybeardqol", "qol-ui", "stress-conversion-form"],
       resizable: false
     },
     position: {

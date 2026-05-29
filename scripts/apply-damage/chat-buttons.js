@@ -38,7 +38,7 @@ function isDamageRoll(roll) {
 
 function createApplyDamageChatButtons(damageRoll) {
   const panel = document.createElement("div");
-  panel.classList.add("greybeardqol", "apply-damage-chat-buttons");
+  panel.classList.add("greybeardqol", "qol-ui", "apply-damage-chat-buttons");
   panel.style.setProperty("--theme-color", getThemeColor());
 
   const buttonRow = document.createElement("div");

@@ -16,7 +16,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     window: {
       title: "MoshQoL.ShoreLeave.SelectTier",
       icon: "fas fa-umbrella-beach",
-      contentClasses: ["greybeardqol"],
+      contentClasses: ["greybeardqol", "qol-ui"],
       resizable: false
     },
     position: {

@@ -85,7 +85,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ApplyDamageConfig.Name",
-      contentClasses: ["greybeardqol", "qolsettings-window"],
+      contentClasses: ["greybeardqol", "qol-ui", "qolsettings-window"],
       resizable: true
     },
     position: {

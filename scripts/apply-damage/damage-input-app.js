@@ -9,7 +9,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     tag: "form",
     window: {
       title: "MoshQoL.Damage.ApplyDamage",
-      contentClasses: ["greybeardqol", "mosh-qol-apply-damage-input-window"],
+      contentClasses: ["greybeardqol", "qol-ui", "mosh-qol-apply-damage-input-window"],
       resizable: false
     },
     position: { width: 520, height: "auto" },
