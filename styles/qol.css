@@ -597,44 +597,44 @@
   z-index: 0;
 }
 
-.greybeardqol.crew-roster .crew-roster-app {
+.greybeardqol.qol-ui.crew-roster .crew-roster-app {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   height: 100%;
 }
 
-.greybeardqol.crew-roster .crew-roster-header {
+.greybeardqol.qol-ui.crew-roster .crew-roster-header {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-header-icon {
+.greybeardqol.qol-ui.crew-roster .crew-roster-header-icon {
   width: 5rem;
   height: 5rem;
   border-radius: 0.5rem;
   object-fit: cover;
 }
 
-.greybeardqol.crew-roster .crew-roster-title {
+.greybeardqol.qol-ui.crew-roster .crew-roster-title {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-subtitle {
+.greybeardqol.qol-ui.crew-roster .crew-roster-subtitle {
   font-style: italic;
   color: var(--theme-color);
   font-size: 1.2rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-tabs {
+.greybeardqol.qol-ui.crew-roster .crew-roster-tabs {
   display: flex;
   justify-content: end;
 }
 
-.greybeardqol.crew-roster .crew-roster-tab {
+.greybeardqol.qol-ui.crew-roster .crew-roster-tab {
   appearance: none;
   background: transparent;
   flex: 1;
@@ -648,50 +648,50 @@
   text-align: center;
 }
 
-.greybeardqol.crew-roster .crew-roster-tab:hover,
-.greybeardqol.crew-roster .crew-roster-tab:focus-visible {
+.greybeardqol.qol-ui.crew-roster .crew-roster-tab:hover,
+.greybeardqol.qol-ui.crew-roster .crew-roster-tab:focus-visible {
   text-shadow: 0 0 6px var(--theme-color);
 }
 
-.greybeardqol.crew-roster .crew-roster-tab.is-active {
+.greybeardqol.qol-ui.crew-roster .crew-roster-tab.is-active {
   border-bottom: 0;
   color: var(--theme-color);
   zoom: 1.05;
   flex: 1.05;
 }
 
-.greybeardqol.crew-roster .crew-roster-table-wrap {
+.greybeardqol.qol-ui.crew-roster .crew-roster-table-wrap {
   overflow-y: auto;
 }
 
-.greybeardqol.crew-roster .crew-roster-table {
+.greybeardqol.qol-ui.crew-roster .crew-roster-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.greybeardqol.crew-roster .crew-roster-table thead th {
+.greybeardqol.qol-ui.crew-roster .crew-roster-table thead th {
   border-bottom: 1px solid var(--color-border);
   font-size: 0.8rem;
   padding: 0.35rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-row td {
+.greybeardqol.qol-ui.crew-roster .crew-roster-row td {
   padding: 0.35rem;
   vertical-align: middle;
 }
 
-.greybeardqol.crew-roster .crew-roster-col-portrait,
-.greybeardqol.crew-roster .crew-roster-col-active,
-.greybeardqol.crew-roster .crew-roster-col-remove {
+.greybeardqol.qol-ui.crew-roster .crew-roster-col-portrait,
+.greybeardqol.qol-ui.crew-roster .crew-roster-col-active,
+.greybeardqol.qol-ui.crew-roster .crew-roster-col-remove {
   width: 3.7rem;
   text-align: center;
 }
 
-.greybeardqol.crew-roster .crew-roster-divider-row td {
+.greybeardqol.qol-ui.crew-roster .crew-roster-divider-row td {
   padding: 0.4rem 0.35rem 0.15rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-divider {
+.greybeardqol.qol-ui.crew-roster .crew-roster-divider {
   border-top: 1px solid color-mix(in srgb, var(--theme-color) 45%, var(--color-border));
   color: color-mix(in srgb, var(--theme-color) 70%, var(--color-text));
   font-size: 0.72rem;
@@ -702,64 +702,64 @@
   text-transform: uppercase;
 }
 
-.greybeardqol.crew-roster .crew-roster-open-entry {
+.greybeardqol.qol-ui.crew-roster .crew-roster-open-entry {
   cursor: pointer;
 }
 
-.greybeardqol.crew-roster .crew-roster-row.is-inactive {
+.greybeardqol.qol-ui.crew-roster .crew-roster-row.is-inactive {
   opacity: 0.65;
 }
 
-.greybeardqol.crew-roster .crew-roster-portrait {
+.greybeardqol.qol-ui.crew-roster .crew-roster-portrait {
   width: 3rem;
   height: 3rem;
   border-radius: 0.35rem;
   object-fit: cover;
 }
 
-.greybeardqol.crew-roster .crew-roster-name-cell {
+.greybeardqol.qol-ui.crew-roster .crew-roster-name-cell {
   line-height: 1.2;
 }
 
-.greybeardqol.crew-roster .crew-roster-name {
+.greybeardqol.qol-ui.crew-roster .crew-roster-name {
   font-weight: 600;
 }
 
-.greybeardqol.crew-roster .crew-roster-job {
+.greybeardqol.qol-ui.crew-roster .crew-roster-job {
   opacity: 0.7;
   font-size: 0.78em;
   font-style: italic;
 }
 
-.greybeardqol.crew-roster .crew-roster-salary-head,
-.greybeardqol.crew-roster .crew-roster-salary {
+.greybeardqol.qol-ui.crew-roster .crew-roster-salary-head,
+.greybeardqol.qol-ui.crew-roster .crew-roster-salary {
   text-align: right;
 }
 
-.greybeardqol.crew-roster .crew-roster-salary {
+.greybeardqol.qol-ui.crew-roster .crew-roster-salary {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.greybeardqol.crew-roster .crew-roster-hazard-head,
-.greybeardqol.crew-roster .crew-roster-hazard {
+.greybeardqol.qol-ui.crew-roster .crew-roster-hazard-head,
+.greybeardqol.qol-ui.crew-roster .crew-roster-hazard {
   text-align: center;
   width: 5.2rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-hazard-input {
+.greybeardqol.qol-ui.crew-roster .crew-roster-hazard-input {
   width: 4.2rem;
   text-align: center;
 }
 
-.greybeardqol.crew-roster .crew-roster-switch {
+.greybeardqol.qol-ui.crew-roster .crew-roster-switch {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
 }
 
-.greybeardqol.crew-roster .crew-roster-switch input {
+.greybeardqol.qol-ui.crew-roster .crew-roster-switch input {
   accent-color: var(--theme-color);
   cursor: pointer;
   &:after{
@@ -768,7 +768,7 @@
   }
 }
 
-.greybeardqol.crew-roster .crew-roster-remove {
+.greybeardqol.qol-ui.crew-roster .crew-roster-remove {
   border: 0;
   background: transparent;
   color: var(--color-text);
@@ -779,12 +779,12 @@
 }
 
 
-.greybeardqol.crew-roster .crew-roster-summary-row td {
+.greybeardqol.qol-ui.crew-roster .crew-roster-summary-row td {
   border-top: 1px solid var(--color-border);
   padding: 0.45rem 0.35rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-summary {
+.greybeardqol.qol-ui.crew-roster .crew-roster-summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -792,7 +792,7 @@
   font-size: 0.82rem;
 }
 
-.greybeardqol.crew-roster .crew-roster-empty {
+.greybeardqol.qol-ui.crew-roster .crew-roster-empty {
   text-align: center;
   opacity: 0.7;
   padding: 0.8rem;
