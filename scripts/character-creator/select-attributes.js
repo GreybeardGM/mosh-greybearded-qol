@@ -10,7 +10,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     tag: "form",
     window: {
       title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
-      contentClasses: ["greybeardqol", "attribute-selection"],
+      contentClasses: ["greybeardqol", "qol-ui", "attribute-selection"],
       resizable: false
     },
     position: {

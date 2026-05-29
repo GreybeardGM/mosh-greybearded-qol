@@ -20,7 +20,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     tag: "form",
     window: {
       title: "MoshQoL.Toolbar.Buttons.Training",
-      contentClasses: ["greybeardqol", "qol-skill-selection", "qol-training-selection"],
+      contentClasses: ["greybeardqol", "qol-ui", "qol-skill-selection", "qol-training-selection"],
       resizable: false
     },
     position: {

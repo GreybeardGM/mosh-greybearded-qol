@@ -75,7 +75,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-      contentClasses: ["greybeardqol", "qolsettings-window"],
+      contentClasses: ["greybeardqol", "qol-ui", "qolsettings-window"],
       resizable: true
     },
     position: {

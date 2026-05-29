@@ -79,7 +79,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     tag: "form",
     window: {
       title: "MoshQoL.Settings.ToolbandConfig.Name",
-      contentClasses: ["greybeardqol", "qolsettings-window"],
+      contentClasses: ["greybeardqol", "qol-ui", "qolsettings-window"],
       resizable: true
     },
     position: {

@@ -34,7 +34,7 @@
 }
 
 /* Module-wide form control styling */
-.greybeardqol :is(input[type="text"], input[type="number"], select) {
+.greybeardqol.qol-ui :is(input[type="text"], input[type="number"], select) {
   background: var(--color-bg);
   color: var(
   --color-text);
@@ -46,24 +46,24 @@
   }
 }
 
-.greybeardqol input[type="checkbox"]::after {
+.greybeardqol.qol-ui input[type="checkbox"]::after {
   color: var(--theme-color);
 }
 
 /* Module-wide button styling */
-.greybeardqol button {
+.greybeardqol.qol-ui button {
   border: 2px solid var(--color-border);
   background: var(--color-bg);
   color: var(--color-text);
   border-radius: 4px;
 }
 
-.greybeardqol button:hover:not(:disabled) {
+.greybeardqol.qol-ui button:hover:not(:disabled) {
   border-color: var(--theme-color);
 }
 
 /* Grey-out or Highlight */
-.greybeardqol .locked {
+.greybeardqol.qol-ui .locked {
   pointer-events: none;
 }
 
@@ -71,18 +71,18 @@
   color: var(--theme-color);
 }
 
-.greybeardqol .selected {
+.greybeardqol.qol-ui .selected {
   border-color: var(--theme-color) !important;
   outline: 2px solid var(--theme-color);
   outline-offset: 1px;
 }
 
-.greybeardqol .locked.selected {
+.greybeardqol.qol-ui .locked.selected {
   border-color: var(--color-border);
   color: var(--color-text);
 }
 
-.greybeardqol .locked:not(.selected) {
+.greybeardqol.qol-ui .locked:not(.selected) {
   border-color: #444;
   color: #777;
 }
@@ -107,7 +107,7 @@
   object-fit: contain;
 }
 
-.greybeardqol .confirm-button {
+.greybeardqol.qol-ui .confirm-button {
   width: 50%;
   margin: 1.5rem auto 0 !important;
   justify-content: center !important;
@@ -116,29 +116,29 @@
   font-size: 1.2rem;
 }
 
-.greybeardqol .confirm-button:not(.locked) {
+.greybeardqol.qol-ui .confirm-button:not(.locked) {
   outline: 2px solid var(--color-border);
   outline-offset: 1px;
 }
 
-.greybeardqol .confirm-button:hover:not(.locked) {
+.greybeardqol.qol-ui .confirm-button:hover:not(.locked) {
   outline-color: var(--theme-color);
   transform: scale(1.02);
 }
 
 /* Everything clickable */
-.greybeardqol .interactive {
+.greybeardqol.qol-ui .interactive {
   cursor: pointer;
   transition: border 0.2s ease, background-color 0.2s ease;
 }
 
-.greybeardqol .interactive:hover {
+.greybeardqol.qol-ui .interactive:hover {
   border-color: var(--theme-color) !important;
   background-color: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg));
 }
 
 /* Generic card */
-.greybeardqol .card {
+.greybeardqol.qol-ui .card {
   background-color: var(--color-bg);
   border: 2px solid var(--color-border);
   color: var(--color-text);
@@ -151,7 +151,7 @@
 }
 
 /* CRT Effect */
-.greybeardqol .card::before {
+.greybeardqol.qol-ui .card::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -176,7 +176,7 @@
   font-size: 5rem;
 }
 
-.greybeardqol .card-grid {
+.greybeardqol.qol-ui .card-grid {
   display: grid;
   grid-template-columns: repeat(var(--col-count, 3), 1fr);
   gap: 0.5rem;
@@ -207,7 +207,7 @@
 }
 
 /* Pill layout */
-.greybeardqol .pill {
+.greybeardqol.qol-ui .pill {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -218,13 +218,13 @@
   position: relative;
 }
 
-.greybeardqol .pill img {
+.greybeardqol.qol-ui .pill img {
   width: 1.6rem;
   height: 1.6rem;
   object-fit: contain;
 }
 
-.greybeardqol .pill-list {
+.greybeardqol.qol-ui .pill-list {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -391,12 +391,12 @@
     gap: 10%;
   }
 
-  .greybeardqol .pill {
+  .greybeardqol.qol-ui .pill {
     padding: 0.12rem 0.55rem;
     font-size: 0.8rem;
   }
 
-  .greybeardqol .pill img {
+  .greybeardqol.qol-ui .pill img {
     width: 1.35rem;
     height: 1.35rem;
   }
@@ -413,12 +413,12 @@
     gap: 6%;
   }
 
-  .greybeardqol .pill {
+  .greybeardqol.qol-ui .pill {
     padding: 0.1rem 0.45rem;
     font-size: 0.75rem;
   }
 
-  .greybeardqol .pill img {
+  .greybeardqol.qol-ui .pill img {
     width: 1.2rem;
     height: 1.2rem;
   }

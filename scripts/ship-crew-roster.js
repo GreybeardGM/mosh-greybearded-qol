@@ -142,7 +142,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     window: {
       resizable: true,
       title: "MoshQoL.Common.CrewRoster",
-      contentClasses: ["greybeardqol", "crew-roster"]
+      contentClasses: ["greybeardqol", "qol-ui", "crew-roster"]
     },
     position: {
       width: 680,
