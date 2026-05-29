@@ -1,3 +1,7 @@
+/* ==========================================================================
+   General Module Styling
+   ========================================================================== */
+
 /* Base wrapper to scope all styles to the module */
 .greybeardqol {
   --theme-color: #f50;
@@ -33,6 +37,193 @@
   height: 0;
 }
 
+.greybeardqol .text-highlight {
+  color: var(--theme-color);
+}
+
+/* Icon/Image resizing */
+.greybeardqol .icon {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+}
+
+/* Chat Cards */
+.greybeardqol .chat-card .header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.greybeardqol .chat-card .icon {
+  width: 3rem;
+  height: 3rem;
+  font-size: 2.5rem;
+}
+
+.greybeardqol .chat-card .title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.greybeardqol .chat-card .subtitle {
+  font-style: italic;
+  color: var(--theme-color);
+}
+
+/* Inline Overwrite */
+.greybeardqol .content-link,
+.greybeardqol .inline-roll,
+.greybeardqol .inline-result {
+  background-color: var(--color-bg-hover);
+  color: var(--theme-color);
+  border-radius: 999px;
+  padding: 1px 5px;
+}
+
+.greybeardqol .content-link:hover,
+.greybeardqol .inline-roll:hover,
+.greybeardqol .inline-result:hover {
+  text-shadow: 0 0 8px var(--theme-color);
+}
+
+/* Compact apply-damage chat controls */
+.greybeardqol.apply-damage-chat-buttons {
+  margin-top: 0.35rem;
+}
+
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-button {
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  display: flex;
+  flex-basis: 0;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Sheet Styling
+   ========================================================================== */
+
+/* Contractor Sheet */
+.greybeardqol.qol-sheet.contractor {
+  color: unset;
+}
+
+.greybeardqol.qol-sheet.contractor .editor-content {
+  min-height: 10em;
+}
+
+.greybeardqol.qol-sheet.contractor .mainstatlabel {
+  padding: 0.5rem;
+}
+
+.greybeardqol.qol-sheet.contractor .grid-1col {
+  margin: auto 0;
+}
+
+.greybeardqol.qol-sheet .highlighted-input {
+  color: var(--theme-color);
+  border: none;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.greybeardqol.qol-sheet .description-input {
+  margin-bottom: 0.5em;
+}
+
+.greybeardqol.qol-sheet .contractor-flag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 0;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.greybeardqol.qol-sheet .creaturedescription {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  overflow: visible;
+}
+
+.greybeardqol.qol-sheet .creature-header-grid {
+  flex-grow: 1;
+}
+
+/* Stash Sheet currency overlay: keep visible on dark header areas */
+.greybeardqol.qol-sheet .currency-field {
+  position: relative;
+}
+
+.greybeardqol.qol-sheet .currency-display {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: text;
+}
+
+.greybeardqol.qol-sheet .stash-currency-display {
+  color: #111;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.greybeardqol.qol-sheet .sheet-body {
+  height: auto;
+}
+
+/* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
+.greybeardqol.toolband {
+  height: 0;
+  display: flex;
+  flex: 0 0 0;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 100;
+  justify-content: center;
+}
+
+.greybeardqol.toolband .toolband-btn {
+  pointer-events: auto;
+  width: 8rem;
+  margin: 1px 2px;
+  color: var(--color-text);
+  box-shadow: unset;
+  line-height: 1rem;
+  padding: 1px 0.5rem;
+}
+
+.greybeardqol.toolband .toolband-btn:hover {
+  line-height: 2rem;
+}
+
+.greybeardqol.toolband .is-active {
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 8px var(--theme-color) !important;
+}
+
+/* ==========================================================================
+   UI Styling
+   ========================================================================== */
+
 /* Module-wide form control styling */
 .greybeardqol.qol-ui :is(input[type="text"], input[type="number"], select) {
   background: var(--color-bg);
@@ -67,10 +258,6 @@
   pointer-events: none;
 }
 
-.greybeardqol .text-highlight {
-  color: var(--theme-color);
-}
-
 .greybeardqol.qol-ui .selected {
   border-color: var(--theme-color) !important;
   outline: 2px solid var(--theme-color);
@@ -95,16 +282,6 @@
   margin: 0 0 0.75rem;
   text-align: center;
   font-style: italic;
-}
-
-
-/* Icon/Image resizing */
-.greybeardqol .icon {
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  object-fit: contain;
 }
 
 .greybeardqol.qol-ui .confirm-button {
@@ -181,29 +358,6 @@
   grid-template-columns: repeat(var(--col-count, 3), 1fr);
   gap: 0.5rem;
   margin: 0 auto;
-}
-
-/* Chat Cards */
-.greybeardqol .chat-card .header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.greybeardqol .chat-card .icon {
-  width: 3rem;
-  height: 3rem;
-  font-size: 2.5rem;
-}
-
-.greybeardqol .chat-card .title {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.greybeardqol .chat-card .subtitle {
-  font-style: italic;
-  color: var(--theme-color);
 }
 
 /* Pill layout */
@@ -442,128 +596,6 @@
   height: 100%;
   pointer-events: none;
   z-index: 0;
-}
-
-/* Inline Overwrite */
-.greybeardqol .content-link,
-.greybeardqol .inline-roll,
-.greybeardqol .inline-result {
-  background-color: var(--color-bg-hover);
-  color: var(--theme-color);
-  border-radius: 999px;
-  padding: 1px 5px;
-}
-
-.greybeardqol .content-link:hover,
-.greybeardqol .inline-roll:hover,
-.greybeardqol .inline-result:hover {
-  text-shadow: 0 0 8px var(--theme-color);
-}
-
-/* Contractor Sheet */
-.greybeardqol.contractor {
-  color: unset;
-}
-
-.greybeardqol.contractor .editor-content {
-  min-height: 10em;
-}
-
-.greybeardqol.contractor .mainstatlabel {
-  padding: 0.5rem;
-}
-
-.greybeardqol.contractor .grid-1col {
-  margin: auto 0;
-}
-
-.greybeardqol .highlighted-input {
-  color: var(--theme-color);
-  border: none;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.4em;
-}
-
-.greybeardqol .description-input {
-  margin-bottom: 0.5em;
-}
-
-.greybeardqol .contractor-flag {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  width: 0;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-
-.greybeardqol .creaturedescription {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8em;
-  overflow: visible;
-}
-
-.greybeardqol .creature-header-grid {
-  flex-grow: 1;
-}
-
-/* Stash Sheet currency overlay: keep visible on dark header areas */
-.greybeardqol .currency-field {
-  position: relative;
-}
-
-.greybeardqol .currency-display {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: text;
-}
-
-.greybeardqol .stash-currency-display {
-  color: #111;
-  font-family: "Roboto", sans-serif;
-  font-weight: 700;
-  text-transform: none;
-}
-
-.greybeardqol .sheet-body {
-  height: auto;
-}
-
-/* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
-.greybeardqol.toolband {
-  height: 0;
-  display: flex;
-  flex: 0 0 0;
-  align-items: flex-start;
-  pointer-events: none;
-  z-index: 100;
-  justify-content: center;
-}
-
-.greybeardqol.toolband .toolband-btn {
-  pointer-events: auto;
-  width: 8rem;
-  margin: 1px 2px;
-  color: var(--color-text);
-  box-shadow: unset;
-  line-height: 1rem;
-  padding: 1px 0.5rem;
-}
-
-.greybeardqol.toolband .toolband-btn:hover {
-  line-height: 2rem;
-}
-
-.greybeardqol.toolband .is-active {
-  border-color: var(--theme-color) !important;
-  box-shadow: 0 0 8px var(--theme-color) !important;
 }
 
 .greybeardqol.crew-roster .crew-roster-app {
@@ -855,27 +887,6 @@
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 0.25rem;
-}
-
-/* Compact apply-damage chat controls */
-.greybeardqol.apply-damage-chat-buttons {
-  margin-top: 0.35rem;
-}
-
-.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-buttons-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.25rem;
-  width: 100%;
-}
-
-.greybeardqol.apply-damage-chat-buttons .apply-damage-chat-button {
-  background-color: var(--color-bg);
-  border: 2px solid var(--color-border);
-  color: var(--color-text);
-  display: flex;
-  flex-basis: 0;
-  font-weight: 700;
 }
 
 .greybeardqol .mosh-qol-apply-damage-input-app {

@@ -11,7 +11,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     static get defaultOptions() {
         var options = {
-            classes: ["mosh", "sheet", "actor", "creature"],
+            classes: ["mosh", "greybeardqol", "qol-sheet", "sheet", "actor", "creature", "contractor"],
             template: "modules/mosh-greybearded-qol/templates/sheets/contractor-sheet.html",
             width: 700,
             height: 650,
