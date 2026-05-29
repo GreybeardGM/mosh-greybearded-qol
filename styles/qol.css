@@ -273,11 +273,11 @@
   color: #777;
 }
 
-.greybeardqol.qol-skill-selection .window-content {
+.greybeardqol.qol-ui.qol-skill-selection .window-content {
   overflow-y: auto;
   max-height: 85vh;
 }
-.greybeardqol.qol-training-selection .training-intro {
+.greybeardqol.qol-ui.qol-training-selection .training-intro {
   margin: 0 0 0.75rem;
   text-align: center;
   font-style: italic;
@@ -342,13 +342,13 @@
 }
 
 /* Dialog Cards */
-.greybeardqol .dialog-card {
+.greybeardqol.qol-ui .dialog-card {
   text-align: center;
   width: 11rem;
   margin: 0 auto;
 }
 
-.greybeardqol .dialog-card .icon {
+.greybeardqol.qol-ui .dialog-card .icon {
   font-size: 5rem;
 }
 
@@ -384,7 +384,7 @@
 }
 
 /* Remaining points info */
-.greybeardqol .remaining-points {
+.greybeardqol.qol-ui .remaining-points {
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
@@ -395,7 +395,7 @@
   padding: 0.5rem;
 }
 
-.greybeardqol .remaining-points span {
+.greybeardqol.qol-ui .remaining-points span {
   font-family: monospace;
   font-variant-numeric: tabular-nums;
   font-size: 1.1em;
@@ -405,46 +405,46 @@
 }
 
 /* Counter for Highlighting */
-.greybeardqol .counter {
+.greybeardqol.qol-ui .counter {
   font-size: 1.1rem;
   font-weight: bold;
   color: var(--color-counter);
 }
 
-.greybeardqol .counter .bonus {
+.greybeardqol.qol-ui .counter .bonus {
   color: var(--color-text);
   font-weight: normal;
 }
 
-.greybeardqol .or-option-row .or-option {
+.greybeardqol.qol-ui.qol-skill-selection .or-option-row .or-option {
   width: 100%;
   justify-content: space-between;
 }
 
-.greybeardqol .or-option-skill-pills {
+.greybeardqol.qol-ui.qol-skill-selection .or-option-skill-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   justify-content: center;
 }
 
-.greybeardqol .or-option-skill-pill {
+.greybeardqol.qol-ui.qol-skill-selection .or-option-skill-pill {
   gap: 0.5rem;
 }
 
-.greybeardqol .or-option-skill-pill span {
+.greybeardqol.qol-ui.qol-skill-selection .or-option-skill-pill span {
   white-space: nowrap;
 }
 
 /* Shore Leave Stuff */
 
-.greybeardqol .flavor-description {
+.greybeardqol.qol-ui .flavor-description {
   min-height: 7.2rem;
   font-size: 0.8rem;
   opacity: 0.8;
 }
 
-.greybeardqol .flavor-label {
+.greybeardqol.qol-ui .flavor-label {
   font-weight: bold;
   height: 2rem;
   display: flex;
@@ -454,7 +454,7 @@
 
 
 /* Character Creator Stuff */
-.greybeardqol .attributes-container {
+.greybeardqol.qol-ui.qol-class-selection .attributes-container {
   height: 6rem;
   font-family: monospace;
   text-align: left;
@@ -462,7 +462,7 @@
   font-size: 0.75rem;
 }
 
-.greybeardqol .trauma-response {
+.greybeardqol.qol-ui.qol-class-selection .trauma-response {
   height: 4.5rem;
   color: var(--theme-color);
   font-style: italic;
@@ -470,40 +470,40 @@
   font-size: 0.75rem;
 }
 
-.greybeardqol.qol-class-selection .window-content {
+.greybeardqol.qol-ui.qol-class-selection .window-content {
   position: relative;
 }
 
-.greybeardqol .class-view-toggle-wrap {
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle-wrap {
   position: absolute;
   right: 0.8rem;
   bottom: 0.8rem;
   z-index: 5;
 }
 
-.greybeardqol .class-view-toggle {
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle {
   margin: 0;
   padding: 0.35rem 0.8rem;
   font-size: 0.75rem;
   color: var(--color-text);
 }
 
-.greybeardqol .class-view-toggle.active {
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle.active {
   border-color: var(--theme-color);
 }
 
-.greybeardqol .class-skill-view {
+.greybeardqol.qol-ui.qol-class-selection .class-skill-view {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.greybeardqol .class-skill-option-card {
+.greybeardqol.qol-ui.qol-class-selection .class-skill-option-card {
   gap: 0.25rem;
   padding: 0.4rem;
 }
 
-.greybeardqol .class-skill-option-card h4 {
+.greybeardqol.qol-ui.qol-class-selection .class-skill-option-card h4 {
   font-size: 0.7rem;
   margin: 0;
   border-bottom: 1px solid var(--color-border);
@@ -511,7 +511,7 @@
   font-family: Monospace;
 }
 
-.greybeardqol .class-skill-list {
+.greybeardqol.qol-ui.qol-class-selection .class-skill-list {
   margin: 0;
   padding-left: 1rem;
   text-align: left;
@@ -521,7 +521,7 @@
   font-size: 0.75rem;
 }
 
-.greybeardqol .class-skill-linked-heading {
+.greybeardqol.qol-ui.qol-class-selection .class-skill-linked-heading {
   margin: 0;
   text-align: left;
   font-size: 0.7rem;
@@ -529,18 +529,18 @@
   font-family: Monospace;
 }
 
-.greybeardqol .skill-columns {
+.greybeardqol.qol-ui.qol-skill-selection .skill-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20%;
 }
 
-.greybeardqol .skill-card {
+.greybeardqol.qol-ui.qol-skill-selection .skill-card {
   padding-right: 2.5rem;
 }
 
 @media (max-width: 980px), (max-height: 760px) {
-  .greybeardqol .skill-columns {
+  .greybeardqol.qol-ui.qol-skill-selection .skill-columns {
     gap: 10%;
   }
 
@@ -554,7 +554,7 @@
     height: 1.35rem;
   }
 
-  .greybeardqol .remaining-points {
+  .greybeardqol.qol-ui .remaining-points {
     font-size: 1.05rem;
     margin: 0.5rem 0;
     padding: 0.35rem 0.45rem;
@@ -562,7 +562,7 @@
 }
 
 @media (max-width: 780px), (max-height: 640px) {
-  .greybeardqol .skill-columns {
+  .greybeardqol.qol-ui.qol-skill-selection .skill-columns {
     gap: 6%;
   }
 
@@ -576,18 +576,18 @@
     height: 1.2rem;
   }
 
-  .greybeardqol .remaining-points {
+  .greybeardqol.qol-ui .remaining-points {
     font-size: 0.95rem;
     margin: 0.35rem 0;
     padding: 0.28rem 0.4rem;
   }
 }
 
-.greybeardqol .skill-area-wrapper {
+.greybeardqol.qol-ui.qol-skill-selection .skill-area-wrapper {
   position: relative;
 }
 
-.greybeardqol .skill-arrow-overlay {
+.greybeardqol.qol-ui.qol-skill-selection .skill-arrow-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -799,114 +799,114 @@
 }
 
 /* Shared settings dialogs */
-.greybeardqol.qolsettings-window.window-content {
+.greybeardqol.qol-ui.qolsettings-window.window-content {
   overflow-y: auto;
   max-height: 85vh;
   scrollbar-gutter: stable;
 }
 
-.greybeardqol .qolsettings {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.greybeardqol .qolsettings p {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings p {
   text-align: center;
   opacity: 0.85;
 }
 
-.greybeardqol .qolsettings-heading {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-heading {
   font-size: 0.82rem;
   margin: 0;
   color: var(--theme-color);
   font-family: Monospace;
 }
 
-.greybeardqol .qolsettings-stack {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-stack {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.greybeardqol .qolsettings fieldset {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings fieldset {
   margin-bottom: 0.75em;
   border: 1px solid #666;
   border-radius: 6px;
 }
 
-.greybeardqol .qolsettings fieldset:last-child {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings fieldset:last-child {
   margin-bottom: 0;
 }
 
-.greybeardqol .qolsettings .form-group {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 0.1em;
 }
 
-.greybeardqol .qolsettings .form-group label {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-group label {
   font-size: 0.9em;
   margin-bottom: 0.25em;
 }
 
-.greybeardqol .qolsettings small {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings small {
   display: block;
   font-size: 0.8em;
   opacity: 0.75;
 }
 
-.greybeardqol .qolsettings .inline-row,
-.greybeardqol .qolsettings-toggle {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .inline-row,
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-toggle {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5em;
   align-items: center;
 }
 
-.greybeardqol .qolsettings-toggle > span {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-toggle > span {
   flex: 1;
 }
 
-.greybeardqol .qolsettings :is(input[type="number"], input[type="text"], select) {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings :is(input[type="number"], input[type="text"], select) {
   width: 5em;
 }
 
-.greybeardqol .qolsettings .qolsettings-wide-input input[type="text"] {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-wide-input input[type="text"] {
   width: 100%;
 }
 
-.greybeardqol .qolsettings .qolsettings-field select {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-field select {
   width: 100%;
   max-width: 16rem;
 }
 
-.greybeardqol .qolsettings .form-footer {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
 
-.greybeardqol .mosh-qol-apply-damage-input-app {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-input-app {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.greybeardqol .mosh-qol-apply-damage-target-strip {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-target-strip {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.greybeardqol .mosh-qol-apply-damage-target-portrait {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-target-portrait {
   margin: 0;
   min-width: 64px;
   max-width: 72px;
 }
 
-.greybeardqol .mosh-qol-apply-damage-target-portrait img {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-target-portrait img {
   width: 56px;
   height: 56px;
   border-radius: 6px;
@@ -914,37 +914,37 @@
   border: 1px solid var(--color-border-light-2);
 }
 
-.greybeardqol .mosh-qol-apply-damage-target-portrait figcaption {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-target-portrait figcaption {
   font-size: 0.75rem;
   line-height: 1.2;
   word-break: break-word;
 }
 
-.greybeardqol .mosh-qol-apply-damage-input-actions {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-input-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
 
-.greybeardqol .mosh-qol-apply-damage-message {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-message {
   margin: 0.25rem 0 0;
 }
 
-.greybeardqol .mosh-qol-apply-damage-value {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-value {
   width: 100%;
   background: color-mix(in srgb, var(--color-bg) 85%, black);
   border: 2px solid var(--color-border);
   color: var(--color-text);
 }
 
-.greybeardqol .mosh-qol-apply-damage-anti-armor {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-anti-armor {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
 
-.greybeardqol .mosh-qol-apply-damage-anti-armor input::after {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-anti-armor input::after {
   color: var(--theme-color);
 }
