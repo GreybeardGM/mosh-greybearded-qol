@@ -20,6 +20,20 @@ function addArmorBrokenButton(buttons, actor) {
   }));
 }
 
+export function syncArmorBrokenToolbandButton(actor) {
+  const active = actor.statuses.has("qol-broken-armor");
+
+  for (const app of Object.values(ui.windows)) {
+    if (app.actor?.uuid !== actor.uuid) continue;
+
+    const button = app.element?.[0]?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
+    if (!button) continue;
+
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  }
+}
+
 function getToolbandButtons({ actor, kind, isGM }) {
   const buttons = [];
 
@@ -144,10 +158,8 @@ export function upsertToolband(sheet, html, ctx = {}) {
         
           // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
           await actor.toggleStatusEffect("qol-broken-armor", { active: !isActive });
+          syncArmorBrokenToolbandButton(actor);
         
-          // UI sofort spiegeln (kein re-render nötig)
-          btn.classList.toggle("is-active", !isActive);
-          btn.setAttribute("aria-pressed", String(!isActive));
           ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {
             actorName: actor.name,
             state: game.i18n.localize(!isActive ? "MoshQoL.Armor.Broken" : "MoshQoL.Armor.Intact")

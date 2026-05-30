@@ -12,6 +12,7 @@ import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
 import { ApplyDamageInputApp } from "./damage-input-app.js";
+import { syncArmorBrokenToolbandButton } from "../toolband.js";
 
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
 const automatedWoundRollTableCache = new Map();
@@ -559,5 +560,6 @@ function hasArmorBrokenStatus(actor) {
 async function setArmorBrokenStatus(actor) {
   if (typeof actor?.toggleStatusEffect === "function") {
     await actor.toggleStatusEffect("qol-broken-armor", { active: true });
+    syncArmorBrokenToolbandButton(actor);
   }
 }
