@@ -142,7 +142,6 @@
       "ConvertedStress": "Converted Stress",
       "DistributeStressConversion": "Distribute Stress Conversion",
       "Editor": {
-        "Description": "Edit shore leave rules, stress conversion behavior, and pricing formulas in one place.",
         "ResetSuccess": "Shore Leave configuration reset to defaults.",
         "UpdateSuccess": "Shore Leave configuration updated.",
         "GeneralTitle": "General Shore Leave",
@@ -291,7 +290,6 @@
         "Menu": "Menu"
       },
       "Config": {
-        "Description": "Toggle the buttons that the QoL toolbar may show for each sheet type. Only buttons that can actually appear on that sheet type are listed.",
         "ResetSuccess": "Toolbar configuration reset to defaults.",
         "UpdateSuccess": "Toolbar configuration updated."
       },
@@ -349,7 +347,6 @@
       "ApplyDamageShort": "DMG",
       "ApplyAntiArmorShort": "AA",
       "Config": {
-        "Description": "Configure how Apply Damage processes armor and damage thresholds.",
         "GeneralTitle": "General Apply Damage",
         "ResetSuccess": "Apply Damage configuration reset to defaults.",
         "UpdateSuccess": "Apply Damage configuration updated."

@@ -104,7 +104,7 @@
 }
 
 /* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
-.greybeardqol.toolband {
+.greybeardqol.qol-ui.toolband {
   height: 0;
   display: flex;
   flex: 0 0 0;
@@ -114,7 +114,7 @@
   justify-content: center;
 }
 
-.greybeardqol.toolband .toolband-btn {
+.greybeardqol.qol-ui.toolband .toolband-btn {
   pointer-events: auto;
   width: 8rem;
   margin: 1px 2px;
@@ -124,11 +124,11 @@
   padding: 1px 0.5rem;
 }
 
-.greybeardqol.toolband .toolband-btn:hover {
+.greybeardqol.qol-ui.toolband .toolband-btn:hover {
   line-height: 2rem;
 }
 
-.greybeardqol.toolband .is-active {
+.greybeardqol.qol-ui.toolband .is-active {
   border-color: var(--theme-color) !important;
   box-shadow: 0 0 8px var(--theme-color) !important;
 }
@@ -809,11 +809,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.greybeardqol.qol-ui.qolsettings-window .qolsettings p {
-  text-align: center;
-  opacity: 0.85;
 }
 
 .greybeardqol.qol-ui.qolsettings-window .qolsettings-heading {
