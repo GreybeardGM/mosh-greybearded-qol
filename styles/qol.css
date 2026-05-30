@@ -19,51 +19,8 @@
   color: var(--color-text);
 }
 
-/* Overwrite Foundry's red underline */
-.greybeardqol h1,
-.greybeardqol h2,
-.greybeardqol h3 {
-  border-bottom: 1px solid var(--theme-color);
-  color: var(--color-text);
-  margin: 0;
-}
-
-/* Keep horizontal rules simple inside module output */
-.greybeardqol hr {
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--color-border);
-  box-shadow: none;
-  height: 0;
-}
-
 .greybeardqol .text-highlight {
   color: var(--theme-color);
-}
-
-/* Icon/Image resizing */
-.greybeardqol .icon {
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  object-fit: contain;
-}
-
-/* Inline Overwrite */
-.greybeardqol .content-link,
-.greybeardqol .inline-roll,
-.greybeardqol .inline-result {
-  background-color: var(--color-bg-hover);
-  color: var(--theme-color);
-  border-radius: 999px;
-  padding: 1px 5px;
-}
-
-.greybeardqol .content-link:hover,
-.greybeardqol .inline-roll:hover,
-.greybeardqol .inline-result:hover {
-  text-shadow: 0 0 8px var(--theme-color);
 }
 
 /* ==========================================================================
@@ -179,6 +136,49 @@
 /* ==========================================================================
    UI Styling
    ========================================================================== */
+
+/* Overwrite Foundry's red underline */
+.greybeardqol.qol-ui h1,
+.greybeardqol.qol-ui h2,
+.greybeardqol.qol-ui h3 {
+  border-bottom: 1px solid var(--theme-color);
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* Keep horizontal rules simple inside module UI output */
+.greybeardqol.qol-ui hr {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  box-shadow: none;
+  height: 0;
+}
+
+/* Icon/Image resizing */
+.greybeardqol.qol-ui .icon {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+}
+
+/* Inline Overwrite */
+.greybeardqol.qol-ui .content-link,
+.greybeardqol.qol-ui .inline-roll,
+.greybeardqol.qol-ui .inline-result {
+  background-color: var(--color-bg-hover);
+  color: var(--theme-color);
+  border-radius: 999px;
+  padding: 1px 5px;
+}
+
+.greybeardqol.qol-ui .content-link:hover,
+.greybeardqol.qol-ui .inline-roll:hover,
+.greybeardqol.qol-ui .inline-result:hover {
+  text-shadow: 0 0 8px var(--theme-color);
+}
 
 /* Chat output */
 .greybeardqol.qol-ui .chat-card .header {
