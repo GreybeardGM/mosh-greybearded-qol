@@ -28,9 +28,6 @@
    ========================================================================== */
 
 /* Contractor Sheet */
-.greybeardqol.qol-sheet.contractor {
-  color: unset;
-}
 
 .greybeardqol.qol-sheet.contractor .editor-content {
   min-height: 10em;
@@ -61,8 +58,6 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: 0;
-  border: 1px solid var(--color-border);
   color: var(--color-text);
 }
 
@@ -75,6 +70,10 @@
 
 .greybeardqol.qol-sheet .creature-header-grid {
   flex-grow: 1;
+}
+
+.greybeardqol.qol-sheet .creature-abilities {
+  scrollbar-width: none;
 }
 
 /* Stash Sheet currency overlay: keep visible on dark header areas */
