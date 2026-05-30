@@ -89,7 +89,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
   let bar = root.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
-    bar.className = `${CLS} greybeardqol`;
+    bar.className = `${CLS} greybeardqol qol-ui`;
     bar.dataset.appid = String(sheet.appId);
     winHeader.insertAdjacentElement("afterend", bar);
     bar.style.setProperty("--theme-color", getThemeColor());

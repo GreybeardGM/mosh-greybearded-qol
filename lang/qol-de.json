@@ -142,7 +142,6 @@
       "ConvertedStress": "Umgewandelter Stress",
       "DistributeStressConversion": "Stressumwandlung verteilen",
       "Editor": {
-        "Description": "Bearbeite Landgang-Regeln, Stressumwandlung und Preisformeln an einer Stelle.",
         "ResetSuccess": "Landgang-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Landgang-Konfiguration aktualisiert.",
         "GeneralTitle": "Allgemeiner Landgang",
@@ -291,7 +290,6 @@
         "Menu": "Menü"
       },
       "Config": {
-        "Description": "Schalte die Schaltflächen frei, die die QoL-Werkzeugleiste je Bogentyp anzeigen darf. Es werden nur Schaltflächen gelistet, die auf diesem Bogentyp tatsächlich vorkommen können.",
         "ResetSuccess": "Werkzeugleisten-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Werkzeugleisten-Konfiguration aktualisiert."
       },
@@ -349,7 +347,6 @@
       "ApplyDamageShort": "DMG",
       "ApplyAntiArmorShort": "AA",
       "Config": {
-        "Description": "Konfiguriere, wie Schaden anwenden Panzerung und Schadensgrenzwerte verarbeitet.",
         "GeneralTitle": "Allgemeiner Schaden",
         "ResetSuccess": "Schaden-anwenden-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Schaden-anwenden-Konfiguration aktualisiert."

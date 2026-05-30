@@ -115,7 +115,6 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     }));
 
     return {
-      description: game.i18n.localize("MoshQoL.Toolbar.Config.Description"),
       scopes,
       themeColor: getThemeColor()
     };

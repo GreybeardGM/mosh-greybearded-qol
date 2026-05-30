@@ -111,7 +111,6 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
   async _prepareContext() {
     return {
       config: getNormalizedApplyDamageConfig(),
-      description: game.i18n.localize("MoshQoL.Damage.Config.Description"),
       themeColor: getThemeColor(),
       visibilityChoices: [
         { value: APPLY_DAMAGE_VISIBILITY.DISABLED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Disabled") },
