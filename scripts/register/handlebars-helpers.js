@@ -1,6 +1,11 @@
 import { capitalize, stripHtml } from "../utils/normalization.js";
 
+let handlebarsHelpersRegistered = false;
+
 export function registerHandlebarsHelpers() {
+  if (handlebarsHelpersRegistered) return;
+  handlebarsHelpersRegistered = true;
+
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
   Handlebars.registerHelper("capitalize", str => capitalize(str));

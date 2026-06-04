@@ -37,7 +37,12 @@ async function payShoreLeave(actor, amount) {
   });
 }
 
+let chatActionsRegistered = false;
+
 export function registerChatActions() {
+  if (chatActionsRegistered) return;
+  chatActionsRegistered = true;
+
   Hooks.on("renderChatMessageHTML", (message, html) => {
     insertApplyDamageChatButtons(message, html);
 

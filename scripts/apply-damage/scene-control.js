@@ -57,7 +57,12 @@ function insertApplyDamageTool(tokenControls, toolDef) {
   tokenControls.tools.applyDamage = { ...toolDef, order };
 }
 
+let applyDamageSceneControlRegistered = false;
+
 export function registerApplyDamageSceneControl() {
+  if (applyDamageSceneControlRegistered) return;
+  applyDamageSceneControlRegistered = true;
+
   Hooks.on("getSceneControlButtons", (controls) => {
     const tokenControls = Array.isArray(controls)
       ? controls.find(c => c?.name === "token")
