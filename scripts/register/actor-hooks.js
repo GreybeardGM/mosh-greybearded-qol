@@ -2,7 +2,12 @@ import { upsertToolband, removeToolband } from "../toolband.js";
 import { setReady } from "../character-creator/progress.js";
 import { getSheetKind } from "./sheets.js";
 
+let actorHooksRegistered = false;
+
 export function registerActorHooks() {
+  if (actorHooksRegistered) return;
+  actorHooksRegistered = true;
+
   Hooks.on("renderActorSheet", (sheet, html) => {
     const actor = sheet.actor;
     const isGM = game.user.isGM;
