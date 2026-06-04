@@ -21,6 +21,40 @@ const LEGACY_SHORE_LEAVE_SETTINGS = {
   }
 };
 
+function getStoredWorldSetting(moduleId, settingKey) {
+  const worldStorage = game.settings.storage?.get?.("world");
+  if (!worldStorage) return null;
+
+  const storageKey = `${moduleId}.${settingKey}`;
+
+  if (typeof worldStorage.get === "function") {
+    const stored = worldStorage.get(storageKey);
+    if (stored) return stored;
+  }
+
+  if (typeof worldStorage.find === "function") {
+    const stored = worldStorage.find((setting) => setting?.key === storageKey);
+    if (stored) return stored;
+  }
+
+  const values = Array.isArray(worldStorage.contents)
+    ? worldStorage.contents
+    : typeof worldStorage.values === "function"
+      ? Array.from(worldStorage.values())
+      : [];
+
+  return values.find((setting) => setting?.key === storageKey) ?? null;
+}
+
+function hasStoredWorldSetting(moduleId, settingKey) {
+  const worldStorage = game.settings.storage?.get?.("world");
+  const storageKey = `${moduleId}.${settingKey}`;
+
+  if (typeof worldStorage?.has === "function" && worldStorage.has(storageKey)) return true;
+
+  return Boolean(getStoredWorldSetting(moduleId, settingKey));
+}
+
 export async function migrateLegacyShoreLeaveConfig() {
   if (!game.user?.isGM) return;
   if (game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_MIGRATION_SETTING)) return;
@@ -44,7 +78,8 @@ export async function migrateLegacyShoreLeaveConfig() {
     }
   }
 
-  const legacyTiers = game.settings.get(MODULE_ID, LEGACY_SHORE_LEAVE_TIERS_SETTING);
+  const hasStoredLegacyTiers = hasStoredWorldSetting(MODULE_ID, LEGACY_SHORE_LEAVE_TIERS_SETTING);
+  const legacyTiers = hasStoredLegacyTiers ? game.settings.get(MODULE_ID, LEGACY_SHORE_LEAVE_TIERS_SETTING) : null;
   const tierOrder = ["X", "C", "B", "A", "S"];
   const getTierSortIndex = (tier) => {
     const index = tierOrder.indexOf(tier);
@@ -60,7 +95,7 @@ export async function migrateLegacyShoreLeaveConfig() {
     normalizedLegacyTiers = foundry.utils.deepClone(Object.values(legacyTiers));
   }
 
-  const hasValidLegacyTiers = Array.isArray(normalizedLegacyTiers) && normalizedLegacyTiers.length > 0;
+  const hasValidLegacyTiers = hasStoredLegacyTiers && Array.isArray(normalizedLegacyTiers) && normalizedLegacyTiers.length > 0;
   if (hasValidLegacyTiers) {
     config.tiers = normalizedLegacyTiers.sort((a, b) => {
       const tierA = typeof a?.tier === "string" ? a.tier : "";
