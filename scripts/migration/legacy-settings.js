@@ -6,7 +6,6 @@ import {
   LEGACY_SHIP_CRITS_SETTING,
   SHIP_CRITS_MIGRATION_SETTING
 } from "./toolband.js";
-import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 
 export const MIGRATION_SETTING_DEFINITIONS = [
   {
@@ -54,7 +53,7 @@ export const MIGRATION_SETTING_DEFINITIONS = [
     options: {
       name: "Legacy: Shore Leave Tiers",
       type: Object,
-      default: SHORE_LEAVE_TIERS
+      default: []
     }
   },
   {
