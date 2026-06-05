@@ -2,7 +2,9 @@ import {
   MODULE_ID,
   SHORE_LEAVE_CONFIG_SETTING,
   getDefaultShoreLeaveConfig,
-  getShoreLeaveConfigWithDefaults
+  getShoreLeaveConfigWithDefaults,
+  hasValidShoreLeaveTiers,
+  normalizeShoreLeaveTiers
 } from "../settings/shore-leave-config.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 
@@ -95,18 +97,18 @@ export async function migrateLegacyShoreLeaveConfig() {
     normalizedLegacyTiers = foundry.utils.deepClone(Object.values(legacyTiers));
   }
 
-  const hasValidLegacyTiers = hasStoredLegacyTiers && Array.isArray(normalizedLegacyTiers) && normalizedLegacyTiers.length > 0;
+  const hasValidLegacyTiers = hasStoredLegacyTiers && hasValidShoreLeaveTiers(normalizedLegacyTiers);
   if (hasValidLegacyTiers) {
-    config.tiers = normalizedLegacyTiers.sort((a, b) => {
+    config.tiers = normalizeShoreLeaveTiers(normalizedLegacyTiers, { fallbackToDefaults: false }).sort((a, b) => {
       const tierA = typeof a?.tier === "string" ? a.tier : "";
       const tierB = typeof b?.tier === "string" ? b.tier : "";
       return getTierSortIndex(tierA) - getTierSortIndex(tierB);
     });
-  } else if (!Array.isArray(config.tiers) || config.tiers.length === 0) {
+  } else if (hasStoredLegacyTiers || !hasValidShoreLeaveTiers(config.tiers)) {
     config.tiers = foundry.utils.deepClone(SHORE_LEAVE_TIERS);
   }
 
-  config.tiers = Array.isArray(config.tiers) ? foundry.utils.deepClone(config.tiers) : foundry.utils.deepClone(SHORE_LEAVE_TIERS);
+  config.tiers = normalizeShoreLeaveTiers(config.tiers);
 
   await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, config);
   await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_MIGRATION_SETTING, true);
