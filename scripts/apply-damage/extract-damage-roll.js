@@ -75,7 +75,7 @@ function parseEncodedRollData(encodedRoll) {
   }
 }
 
-function isDamageRoll(rollData) {
+export function isDamageRoll(rollData) {
   if (typeof rollData?.formula === "string" && rollData.formula.includes("[damage]")) return true;
 
   return Array.isArray(rollData?.terms)

@@ -2,7 +2,8 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import {
   extractDamageRollFromMessageContent,
-  extractWoundEffectFromMessageContent
+  extractWoundEffectFromMessageContent,
+  isDamageRoll
 } from "./extract-damage-roll.js";
 import { canShowApplyDamageUI } from "./policy.js";
 
@@ -27,13 +28,6 @@ function getApplyDamageChatButtonRoll(message) {
   }
 
   return null;
-}
-
-function isDamageRoll(roll) {
-  if (typeof roll?.formula === "string" && roll.formula.includes("[damage]")) return true;
-
-  return Array.isArray(roll?.terms)
-    && roll.terms.some((term) => term?.options?.flavor === "damage");
 }
 
 function createApplyDamageChatButtons(damageRoll) {
