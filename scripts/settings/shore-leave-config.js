@@ -35,13 +35,20 @@ function hasRequiredTierFields(tier) {
   );
 }
 
-function normalizeShoreLeaveTiers(tiers) {
-  if (!Array.isArray(tiers) || !tiers.length) return foundry.utils.deepClone(SHORE_LEAVE_TIERS);
+function getValidShoreLeaveTiers(tiers) {
+  if (!Array.isArray(tiers) || !tiers.length) return [];
+  return tiers.filter(hasRequiredTierFields);
+}
 
-  const validTiers = tiers.filter(hasRequiredTierFields);
+function normalizeShoreLeaveTiers(tiers) {
+  const validTiers = getValidShoreLeaveTiers(tiers);
   if (!validTiers.length) return foundry.utils.deepClone(SHORE_LEAVE_TIERS);
 
   return foundry.utils.deepClone(validTiers);
+}
+
+function usesDefaultShoreLeaveTiersFallback(tiers) {
+  return !getValidShoreLeaveTiers(tiers).length;
 }
 
 export function getNormalizedShoreLeaveTiers(config) {
@@ -151,7 +158,12 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
           .map(([, tier]) => tier);
 
     const submitted = getShoreLeaveConfigWithDefaults(expanded.shoreLeave ?? {});
-    submitted.tiers = normalizeShoreLeaveTiers(tiersArray);
+    const usedDefaultTiersFallback = usesDefaultShoreLeaveTiersFallback(tiersArray);
+    submitted.tiers = getNormalizedShoreLeaveTiers({ tiers: tiersArray });
+
+    if (usedDefaultTiersFallback) {
+      ui.notifications.warn(game.i18n.localize("MoshQoL.ShoreLeave.Editor.DefaultTiersFallback"));
+    }
 
     await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted);
 
