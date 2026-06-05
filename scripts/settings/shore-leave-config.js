@@ -1,3 +1,4 @@
+import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -15,13 +16,32 @@ export function getDefaultShoreLeaveConfig() {
     simpleShoreLeave: {
       randomFlavor: true
     },
-    tiers: []
+    tiers: foundry.utils.deepClone(SHORE_LEAVE_TIERS)
   };
 }
 
+function hasRequiredTierFields(tier) {
+  return (
+    tier &&
+    typeof tier === "object" &&
+    typeof tier.tier === "string" &&
+    tier.tier.trim() &&
+    typeof tier.label === "string" &&
+    tier.label.trim() &&
+    tier.baseStressConversion &&
+    typeof tier.baseStressConversion === "object" &&
+    tier.basePrice &&
+    typeof tier.basePrice === "object"
+  );
+}
+
 function normalizeShoreLeaveTiers(tiers) {
-  if (!Array.isArray(tiers)) return [];
-  return foundry.utils.deepClone(tiers);
+  if (!Array.isArray(tiers) || !tiers.length) return foundry.utils.deepClone(SHORE_LEAVE_TIERS);
+
+  const validTiers = tiers.filter(hasRequiredTierFields);
+  if (!validTiers.length) return foundry.utils.deepClone(SHORE_LEAVE_TIERS);
+
+  return foundry.utils.deepClone(validTiers);
 }
 
 export function getNormalizedShoreLeaveTiers(config) {
@@ -109,12 +129,11 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   static async _onResetDefaults(event) {
     event.preventDefault();
-    const module = await import("../codex/default-shore-leave-tiers.js");
 
     await game.settings.set(
       MODULE_ID,
       SHORE_LEAVE_CONFIG_SETTING,
-      getDefaultShoreLeaveConfigWithTiers(module.SHORE_LEAVE_TIERS)
+      getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
     );
 
     this.render();
