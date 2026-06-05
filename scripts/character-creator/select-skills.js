@@ -2,6 +2,7 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
   cacheSkillTreeDom,
   cleanupSkillTreeApp,
@@ -14,31 +15,12 @@ import {
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = game.i18n.localize("MoshQoL.CharacterCreator.SelectSkills.UnknownOrOption") }) {
-  const candidates = Array.isArray(option?.from_list) ? option.from_list : [];
-  const unique = new Map();
-
-  for (const entry of candidates) {
-    const rawRef = typeof entry === "string" ? entry : entry?.uuid || entry?.id;
-    if (!rawRef) continue;
-
-    const byUuid = skillByUuid.get(rawRef);
-    const skill = byUuid || skillMap.get(toSkillId(rawRef));
-
-    if (!skill) {
-      console.warn(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`);
-      continue;
-    }
-
-    unique.set(skill.id, {
-      id: skill.id,
-      uuid: skill.uuid,
-      name: skill.name,
-      img: skill.img || "icons/svg/d20-grey.svg",
-      rank: normalizeText(skill?.system?.rank)
-    });
-  }
-
-  return [...unique.values()];
+  return resolveSkillReferences(option?.from_list, {
+    skillByUuid,
+    skillMap,
+    includeRank: true,
+    onMissing: rawRef => console.warn(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`)
+  });
 }
 
 export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {

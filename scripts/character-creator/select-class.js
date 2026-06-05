@@ -1,32 +1,11 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillId, toSkillPointBundle } from "./utils.js";
+import { stripHtml, toSkillPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { resolveSkillReferences } from "./skill-reference-utils.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-
-function resolveSkillsFromReferences(references, { skillByUuid, skillMap }) {
-  const unique = new Map();
-
-  for (const ref of references) {
-    const rawRef = typeof ref === "string" ? ref : ref?.uuid || ref?.id;
-    if (!rawRef) continue;
-
-    const skill = skillByUuid.get(rawRef) || skillMap.get(toSkillId(rawRef));
-    if (!skill) continue;
-
-    unique.set(skill.id, {
-      id: skill.id,
-      uuid: skill.uuid,
-      name: skill.name,
-      img: skill.img || "icons/svg/d20-grey.svg"
-    });
-  }
-
-  return [...unique.values()];
-}
 
 export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -140,14 +119,14 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         id: `${cls.id}-default`,
         name: game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.DefaultSkills"),
         ...toSkillPointBundle(baseAnd),
-        skills: resolveSkillsFromReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
+        skills: resolveSkillReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
       };
 
       const orOptions = (selected.choose_skill_or || []).flat().map((option, index) => ({
         id: `${cls.id}-or-${index}`,
         name: option.name || game.i18n.format("MoshQoL.CharacterCreator.SelectClass.OrOption", { index: index + 1 }),
         ...toSkillPointBundle(option),
-        skills: resolveSkillsFromReferences(option.from_list || [], { skillByUuid, skillMap })
+        skills: resolveSkillReferences(option.from_list || [], { skillByUuid, skillMap })
       }));
 
       return {
