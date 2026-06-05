@@ -145,7 +145,8 @@
         "ResetSuccess": "Shore Leave configuration reset to defaults.",
         "UpdateSuccess": "Shore Leave configuration updated.",
         "GeneralTitle": "General Shore Leave",
-        "TiersTitle": "Tier Formulas"
+        "TiersTitle": "Tier Formulas",
+        "DefaultTiersFallback": "Submitted shore leave tiers were empty or invalid. Defaults were saved instead."
       },
       "InvalidTier": "Invalid tier selected.",
       "NoActorForStressConversion": "No actor available for stress conversion.",

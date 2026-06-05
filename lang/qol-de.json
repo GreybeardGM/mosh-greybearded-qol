@@ -145,7 +145,8 @@
         "ResetSuccess": "Landgang-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Landgang-Konfiguration aktualisiert.",
         "GeneralTitle": "Allgemeiner Landgang",
-        "TiersTitle": "Stufenformeln"
+        "TiersTitle": "Stufenformeln",
+        "DefaultTiersFallback": "Die eingereichten Landgang-Stufen waren leer oder ungültig. Stattdessen wurden Standardwerte gespeichert."
       },
       "InvalidTier": "Ungültige Stufe ausgewählt.",
       "NoActorForStressConversion": "Kein Akteur für die Stressumwandlung verfügbar.",
