@@ -35,20 +35,26 @@ function hasRequiredTierFields(tier) {
   );
 }
 
-function getValidShoreLeaveTiers(tiers) {
+export function getValidShoreLeaveTiers(tiers) {
   if (!Array.isArray(tiers) || !tiers.length) return [];
   return tiers.filter(hasRequiredTierFields);
 }
 
-function normalizeShoreLeaveTiers(tiers) {
+export function hasValidShoreLeaveTiers(tiers) {
+  return getValidShoreLeaveTiers(tiers).length > 0;
+}
+
+export function normalizeShoreLeaveTiers(tiers, { fallbackToDefaults = true } = {}) {
   const validTiers = getValidShoreLeaveTiers(tiers);
-  if (!validTiers.length) return foundry.utils.deepClone(SHORE_LEAVE_TIERS);
+  if (!validTiers.length) {
+    return fallbackToDefaults ? foundry.utils.deepClone(SHORE_LEAVE_TIERS) : [];
+  }
 
   return foundry.utils.deepClone(validTiers);
 }
 
 function usesDefaultShoreLeaveTiersFallback(tiers) {
-  return !getValidShoreLeaveTiers(tiers).length;
+  return !hasValidShoreLeaveTiers(tiers);
 }
 
 export function getNormalizedShoreLeaveTiers(config) {
