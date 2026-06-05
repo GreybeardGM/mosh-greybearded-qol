@@ -3,9 +3,12 @@ import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
+import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { toRollFormula } from "../utils/to-roll-formula.js";
 import { toRollString } from "../utils/to-roll-string.js";
 import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+
+const INVALID_TIER_FALLBACK_WARNING = "[mosh-greybearded-qol] Invalid shore leave tiers; falling back to defaults";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -73,20 +76,52 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
   _loadTiers() {
     const config = getNormalizedShoreLeaveConfig().tiers;
-    return Object.values(config).map(tier => {
-      const base = {
-        tier: tier.tier,
-        label: tier.label,
-        icon: tier.icon ?? null,
-        stressFormula: toRollFormula(tier.baseStressConversion),
-        stressString: toRollString(tier.baseStressConversion),
-        priceFormula: toRollFormula(tier.basePrice),
-        priceString: toRollString(tier.basePrice),
-        raw: tier
-      };
-      if (this.randomFlavor) flavorizeShoreLeave(base);
-      return base;
-    });
+    const mappedTiers = this._mapTiers(Object.values(config ?? {}));
+
+    if (mappedTiers.length) return mappedTiers;
+
+    console.warn(INVALID_TIER_FALLBACK_WARNING);
+    return this._mapTiers(foundry.utils.deepClone(SHORE_LEAVE_TIERS));
+  }
+
+  _mapTiers(tiers) {
+    if (!Array.isArray(tiers) || !tiers.length) return [];
+
+    return tiers
+      .map(tier => this._mapTier(tier))
+      .filter(Boolean);
+  }
+
+  _mapTier(tier) {
+    if (!this._hasRequiredTierFields(tier)) return null;
+
+    const base = {
+      tier: tier.tier,
+      label: tier.label,
+      icon: tier.icon ?? null,
+      stressFormula: toRollFormula(tier.baseStressConversion),
+      stressString: toRollString(tier.baseStressConversion),
+      priceFormula: toRollFormula(tier.basePrice),
+      priceString: toRollString(tier.basePrice),
+      raw: tier
+    };
+    if (this.randomFlavor) flavorizeShoreLeave(base);
+    return base;
+  }
+
+  _hasRequiredTierFields(tier) {
+    return (
+      tier &&
+      typeof tier === "object" &&
+      typeof tier.tier === "string" &&
+      tier.tier.trim() &&
+      typeof tier.label === "string" &&
+      tier.label.trim() &&
+      tier.baseStressConversion &&
+      typeof tier.baseStressConversion === "object" &&
+      tier.basePrice &&
+      typeof tier.basePrice === "object"
+    );
   }
 
   _getTier(tierKey) {
