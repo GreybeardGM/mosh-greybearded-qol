@@ -1,6 +1,7 @@
 // scripts/utils/item-loader.js
 // Foundry VTT v13 — Item-Aggregation (Homebrew-first) + Sortierung
 
+import { compareSkillNames } from "../codex/skill-sort.js";
 import { normalizeText } from "./normalization.js";
 
 const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
@@ -10,19 +11,15 @@ const normType = normalizeText;
 const normName = normalizeText;
 const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
 
-/* Skill-Sortierung */
-function getSkillSortOrder() {
-  return [
-    "Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging",
-    "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology",
-    "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine",
-    "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking",
-    "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat",
-    "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics",
-    "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"
-  ];
+function getOrCreateResolutionGroup(map, type, name) {
+  const key = keyOf(type, name);
+  let group = map.get(key);
+  if (!group) {
+    group = { world: null, normal: null, psg: null };
+    map.set(key, group);
+  }
+  return group;
 }
-const SKILL_RANK = new Map(getSkillSortOrder().map((n, i) => [normName(n), i]));
 
 /* ---------- Cache (defensiv begrenzt) ---------- */
 const HOT_CACHE_TYPES = new Set(["skill", "class"]);
@@ -100,13 +97,8 @@ function collectWorldByTypeToMap(itemType, map) {
     if (!it || normType(it.type) !== t) continue;
     const nm = it.name ?? "";
     if (!nm) continue;
-    const k = keyOf(it.type, nm);
-    let g = map.get(k);
-    if (!g) {
-      g = { world: null, normal: null, psg: null };
-      map.set(k, g);
-    }
-    if (!g.world) g.world = it;
+    const group = getOrCreateResolutionGroup(map, it.type, nm);
+    if (!group.world) group.world = it;
   }
 }
 
@@ -164,13 +156,8 @@ async function collectPackByTypeToMap(packs, slot, itemType, map) {
       if (!d || normType(d.type) !== t) continue;
       const nm = d.name ?? "";
       if (!nm) continue;
-      const k = keyOf(d.type, nm);
-      let g = map.get(k);
-      if (!g) {
-        g = { world: null, normal: null, psg: null };
-        map.set(k, g);
-      }
-      if (!g[slot]) g[slot] = d;
+      const group = getOrCreateResolutionGroup(map, d.type, nm);
+      if (!group[slot]) group[slot] = d;
     }
   }
 }
@@ -188,14 +175,7 @@ function winnersFromMap(map) {
 /* Sortierung */
 function sortItems(itemType, items) {
   const t = normType(itemType);
-  if (t === "skill") {
-    return items.sort((a, b) => {
-      const ra = SKILL_RANK.get(normName(a.name)) ?? Number.MAX_SAFE_INTEGER;
-      const rb = SKILL_RANK.get(normName(b.name)) ?? Number.MAX_SAFE_INTEGER;
-      if (ra !== rb) return ra - rb;
-      return String(a.name).localeCompare(String(b.name));
-    });
-  }
+  if (t === "skill") return items.sort((a, b) => compareSkillNames(a.name, b.name));
   return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }
 
