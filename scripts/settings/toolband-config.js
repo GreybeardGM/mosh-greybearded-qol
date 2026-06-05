@@ -69,10 +69,6 @@ export function isToolbandButtonEnabledInConfig(kind, action, config) {
   return config?.[scope]?.[button.settingKey] !== false;
 }
 
-export function isToolbandButtonEnabled(kind, action) {
-  return isToolbandButtonEnabledInConfig(kind, action, getNormalizedToolbandConfig());
-}
-
 export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "toolband-config",
