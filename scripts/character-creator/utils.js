@@ -1,7 +1,4 @@
-import { getSkillSortOrder } from "../codex/skill-sort.js";
 import { normalizeNumber, normalizeText, stripHtml } from "../utils/normalization.js";
-export { getSkillSortOrder };
-
 export const toSkillId = value => String(value ?? "").split(".").pop();
 
 export { normalizeText, stripHtml };

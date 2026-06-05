@@ -55,14 +55,6 @@ export function getNormalizedApplyDamageConfig() {
   return normalizeApplyDamageConfig(game.settings.get(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING));
 }
 
-export function usesTougherArmor() {
-  return usesTougherArmorFromConfig(getNormalizedApplyDamageConfig());
-}
-
-export function automatesWoundRoll(scope = "character") {
-  return automatesWoundRollFromConfig(getNormalizedApplyDamageConfig(), scope);
-}
-
 export function usesTougherArmorFromConfig(config) {
   return config?.tougherArmor === true;
 }

@@ -61,10 +61,6 @@ export function getNormalizedShoreLeaveTiers(config) {
   return normalizeShoreLeaveTiers(config?.tiers);
 }
 
-export function getShoreLeaveTiersFromSettings() {
-  return getNormalizedShoreLeaveTiers(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
-}
-
 export function getShoreLeaveConfigWithDefaults(config) {
   const normalized = normalizeShoreLeaveConfig(config);
   normalized.tiers = normalizeShoreLeaveTiers(config?.tiers);
