@@ -427,33 +427,26 @@ async function resolveAutomatedWoundRollTable(tableReference) {
     return automatedWoundRollTableCache.get(reference) ?? null;
   }
 
-  let resolvedTable = null;
-  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
-    resolvedTable = await resolveTableFromUuid(reference);
-  } else {
-    const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
-    if (tableByMoshDocumentId) {
-      resolvedTable = tableByMoshDocumentId;
-    } else {
-      const tableByWorldId = game.tables?.get(reference) ?? null;
-      if (tableByWorldId) {
-        resolvedTable = tableByWorldId;
-      } else {
-        const tableByName = game.tables?.getName?.(reference) ?? null;
-        if (tableByName) {
-          resolvedTable = tableByName;
-        } else {
-          const normalizedReference = reference.toLowerCase();
-          resolvedTable = game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
-        }
-      }
-    }
-  }
+  const resolvedTable = reference.startsWith("RollTable.") || reference.startsWith("Compendium.")
+    ? await resolveTableFromUuid(reference)
+    : await resolveNamedOrIdTableReference(reference);
 
   automatedWoundRollTableCache.set(reference, resolvedTable ?? null);
   return resolvedTable ?? null;
 }
 
+async function resolveNamedOrIdTableReference(reference) {
+  const moshTable = await resolveTableFromMoshCompendium(reference);
+  return moshTable
+    ?? game.tables?.get(reference)
+    ?? game.tables?.getName?.(reference)
+    ?? findWorldTableByNormalizedName(reference);
+}
+
+function findWorldTableByNormalizedName(reference) {
+  const normalizedReference = reference.toLowerCase();
+  return game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
+}
 
 async function resolveTableFromMoshCompendium(documentId) {
   const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK) ?? null;

@@ -1,51 +1,6 @@
+import { getSkillSortOrder } from "../codex/skill-sort.js";
 import { normalizeNumber, normalizeText, stripHtml } from "../utils/normalization.js";
-
-export function getSkillSortOrder() {
-  return [
-    "Linguistics",
-    "Zoology",
-    "Botany",
-    "Geology",
-    "Industrial Equipment",
-    "Jury-Rigging",
-    "Chemistry",
-    "Computers",
-    "Zero-G",
-    "Mathematics",
-    "Art",
-    "Archaeology",
-    "Theology",
-    "Military Training",
-    "Rimwise",
-    "Athletics",
-    "Psychology",
-    "Pathology",
-    "Field Medicine",
-    "Ecology",
-    "Asteroid Mining",
-    "Mechanical Repair",
-    "Explosives",
-    "Pharmacology",
-    "Hacking",
-    "Piloting",
-    "Physics",
-    "Mysticism",
-    "Wilderness Survival",
-    "Firearms",
-    "Hand-to-Hand Combat",
-    "Sophontology",
-    "Exobiology",
-    "Surgery",
-    "Planetology",
-    "Robotics",
-    "Engineering",
-    "Cybernetics",
-    "Artificial Intelligence",
-    "Hyperspace",
-    "Xenoesotericism",
-    "Command"
-  ];
-}
+export { getSkillSortOrder };
 
 export const toSkillId = value => String(value ?? "").split(".").pop();
 
