@@ -1,8 +1,9 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export const MODULE_ID = "mosh-greybearded-qol";
-export const APPLY_DAMAGE_CONFIG_SETTING = "applyDamageConfig";
+export { MODULE_ID };
+export const APPLY_DAMAGE_CONFIG_SETTING = SETTING_APPLY_DAMAGE_CONFIG;
 
 export const APPLY_DAMAGE_ACTOR_SCOPES = ["character", "contractor", "creature"];
 
@@ -96,7 +97,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/settings/apply-damage-config.html"
+      template: `modules/${MODULE_ID}/templates/settings/apply-damage-config.html`
     }
   };
 

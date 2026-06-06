@@ -1,9 +1,9 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { formatCurrency } from "./utils/normalization.js";
+import { FLAG_CREW_ROSTER, MODULE_ID } from "./codex/constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const MODULE_ID = "mosh-greybearded-qol";
-const FLAG_KEY = "crewRoster";
+const FLAG_KEY = FLAG_CREW_ROSTER;
 const TABS = ["character", "creature", "ship"];
 
 function normalizeHazardPayValue(value) {
@@ -193,7 +193,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   static PARTS = {
     body: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/crew-roster.html"
+      template: `modules/${MODULE_ID}/templates/dialogs/crew-roster.html`
     }
   };
 

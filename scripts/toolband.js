@@ -5,6 +5,7 @@ import { TrainingSkillSelectorApp } from "./character-creator/select-training-sk
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
+import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN } from "./codex/constants.js";
 
 const CLS = "toolband";
 
@@ -15,12 +16,12 @@ function getRoot(sheet, html){
 
 function addArmorBrokenButton(buttons, actor) {
   buttons.push(makeToolbandButton("armor-broken", {
-    pressed: actor?.statuses?.has("qol-broken-armor") === true
+    pressed: actor?.statuses?.has(STATUS_ARMOR_BROKEN) === true
   }));
 }
 
 export function syncArmorBrokenToolbandButton(actor) {
-  const active = actor.statuses.has("qol-broken-armor");
+  const active = actor.statuses.has(STATUS_ARMOR_BROKEN);
 
   for (const app of Object.values(ui.windows)) {
     if (app.actor?.uuid !== actor.uuid) continue;
@@ -38,7 +39,7 @@ function getToolbandButtons({ actor, kind, isGM }) {
 
   switch (kind) {
     case "character": {
-      const isCreatorEnabled = game.settings.get("mosh-greybearded-qol", "enableCharacterCreator");
+      const isCreatorEnabled = game.settings.get(MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR);
       const ready = checkReady(actor);
       const completed = checkCompleted(actor);
 
@@ -115,10 +116,10 @@ async function handleArmorBrokenAction(sheet) {
   const actor = sheet?.actor;
   if (!actor) return;
 
-  const isActive = actor?.statuses?.has("qol-broken-armor") === true;
+  const isActive = actor?.statuses?.has(STATUS_ARMOR_BROKEN) === true;
 
   // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
-  await actor.toggleStatusEffect("qol-broken-armor", { active: !isActive });
+  await actor.toggleStatusEffect(STATUS_ARMOR_BROKEN, { active: !isActive });
   syncArmorBrokenToolbandButton(actor);
 
   ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {

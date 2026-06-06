@@ -3,7 +3,7 @@ import {
   ShoreLeaveConfigApp,
   getDefaultShoreLeaveConfigWithTiers
 } from "./shore-leave-config.js";
-import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
+import { TOOLBAND_CONFIG_SETTING, ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import {
   APPLY_DAMAGE_CONFIG_SETTING,
   ApplyDamageConfigApp,
@@ -11,10 +11,17 @@ import {
 } from "./apply-damage-config.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
+import {
+  MODULE_ID,
+  SETTING_APPLY_DAMAGE_TARGET_LOGIC,
+  SETTING_ENABLE_CHARACTER_CREATOR,
+  SETTING_THEME_COLOR,
+  SETTING_THEME_COLOR_OVERRIDE
+} from "../codex/constants.js";
 
 const WORLD_SETTING_DEFINITIONS = [
   {
-    key: "themeColor",
+    key: SETTING_THEME_COLOR,
     options: {
       name: "MoshQoL.Settings.ThemeColor.Name",
       hint: "MoshQoL.Settings.ThemeColor.Hint",
@@ -23,7 +30,7 @@ const WORLD_SETTING_DEFINITIONS = [
     }
   },
   {
-    key: "enableCharacterCreator",
+    key: SETTING_ENABLE_CHARACTER_CREATOR,
     options: {
       name: "MoshQoL.Settings.EnableCharacterCreator.Name",
       hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
@@ -35,7 +42,7 @@ const WORLD_SETTING_DEFINITIONS = [
 
 const CLIENT_SETTING_DEFINITIONS = [
   {
-    key: "themeColorOverride",
+    key: SETTING_THEME_COLOR_OVERRIDE,
     options: {
       name: "MoshQoL.Settings.ThemeColorOverride.Name",
       hint: "MoshQoL.Settings.ThemeColorOverride.Hint",
@@ -44,7 +51,7 @@ const CLIENT_SETTING_DEFINITIONS = [
     }
   },
   {
-    key: "applyDamageTargetLogic",
+    key: SETTING_APPLY_DAMAGE_TARGET_LOGIC,
     options: {
       name: "MoshQoL.Settings.ApplyDamageTargetLogic.Name",
       hint: "MoshQoL.Settings.ApplyDamageTargetLogic.Hint",
@@ -101,7 +108,7 @@ const MENU_DEFINITIONS = [
       restricted: true
     },
     setting: {
-      key: "toolbandConfig",
+      key: TOOLBAND_CONFIG_SETTING,
       options: {
         name: "MoshQoL.Settings.ToolbandConfig.SettingName",
         type: Object,
@@ -132,16 +139,16 @@ const MENU_DEFINITIONS = [
 
 export function registerSettings() {
   for (const menuDefinition of MENU_DEFINITIONS) {
-    game.settings.register("mosh-greybearded-qol", menuDefinition.setting.key, {
+    game.settings.register(MODULE_ID, menuDefinition.setting.key, {
       scope: "world",
       config: false,
       ...menuDefinition.setting.options
     });
-    game.settings.registerMenu("mosh-greybearded-qol", menuDefinition.key, menuDefinition.options);
+    game.settings.registerMenu(MODULE_ID, menuDefinition.key, menuDefinition.options);
   }
 
   for (const settingDefinition of WORLD_SETTING_DEFINITIONS) {
-    game.settings.register("mosh-greybearded-qol", settingDefinition.key, {
+    game.settings.register(MODULE_ID, settingDefinition.key, {
       scope: "world",
       ...settingDefinition.options,
       config: true
@@ -149,7 +156,7 @@ export function registerSettings() {
   }
 
   for (const settingDefinition of CLIENT_SETTING_DEFINITIONS) {
-    game.settings.register("mosh-greybearded-qol", settingDefinition.key, {
+    game.settings.register(MODULE_ID, settingDefinition.key, {
       scope: "client",
       ...settingDefinition.options,
       config: true
@@ -157,7 +164,7 @@ export function registerSettings() {
   }
 
   for (const settingDefinition of MIGRATION_SETTING_DEFINITIONS) {
-    game.settings.register("mosh-greybearded-qol", settingDefinition.key, {
+    game.settings.register(MODULE_ID, settingDefinition.key, {
       scope: "world",
       config: false,
       ...settingDefinition.options
