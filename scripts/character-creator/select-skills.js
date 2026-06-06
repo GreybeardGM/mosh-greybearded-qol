@@ -23,6 +23,35 @@ function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = gam
   });
 }
 
+function getSkillDependencies(skills) {
+  const map = new Map();
+  for (const skill of skills) {
+    for (const prereqId of skill.prereqIds ?? []) {
+      let dependents = map.get(prereqId);
+      if (!dependents) {
+        dependents = new Set();
+        map.set(prereqId, dependents);
+      }
+      dependents.add(skill.id);
+    }
+  }
+  return map;
+}
+
+function toSkillViewModel(skill) {
+  return {
+    id: skill.id,
+    _id: skill.id,
+    uuid: skill.uuid,
+    name: skill.name,
+    nameLower: normalizeText(skill.name),
+    img: skill.img,
+    system: skill.system,
+    rank: normalizeText(skill?.system?.rank),
+    prereqIds: (skill.system?.prerequisite_ids ?? []).map(toSkillId)
+  };
+}
+
 export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "character-creator-select-skills",
@@ -68,33 +97,12 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static async _prepareData({ actor, selectedClass }) {
-    const getSkillDependencies = skills => {
-      const map = new Map();
-      for (const skill of skills) {
-        for (const prereq of skill.system.prerequisite_ids || []) {
-          const prereqId = toSkillId(prereq);
-          if (!map.has(prereqId)) map.set(prereqId, new Set());
-          map.get(prereqId).add(skill.id);
-        }
-      }
-      return map;
-    };
-
     const allSkills = await loadAllItemsByType("skill");
+    const sortedSkills = allSkills.map(toSkillViewModel);
 
-    const skillMap = new Map(allSkills.map(s => [s.id, s]));
+    const skillMap = new Map(sortedSkills.map(s => [s.id, s]));
     const skillByUuid = new Map(allSkills.map(s => [s.uuid, s]));
-    const dependencies = getSkillDependencies(allSkills);
-    const sortedSkills = allSkills.map(skill => ({
-      id: skill.id,
-      _id: skill.id,
-      uuid: skill.uuid,
-      name: skill.name,
-      nameLower: normalizeText(skill.name),
-      img: skill.img,
-      system: skill.system,
-      rank: normalizeText(skill?.system?.rank)
-    }));
+    const dependencies = getSkillDependencies(sortedSkills);
 
     const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
     const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
@@ -112,10 +120,12 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       };
     });
 
-    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions };
+    const prereqIdsBySkillId = new Map(sortedSkills.map(skill => [skill.id, skill.prereqIds]));
+
+    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions };
   }
 
-  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions }, options = {}) {
+  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions }, options = {}) {
     super(options);
     this.actor = actor;
     this.selectedClass = selectedClass;
@@ -127,6 +137,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this.skillMap = skillMap;
     this.skillByUuid = skillByUuid;
     this.dependencies = dependencies;
+    this.prereqIdsBySkillId = prereqIdsBySkillId;
     this.granted = granted;
     this.basePoints = basePoints;
     this.orOptions = orOptions;
@@ -185,8 +196,8 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     return this._selectedSkillIds.has(skillId);
   }
 
-  _getPrereqIds(skill) {
-    return (skill?.system?.prerequisite_ids || []).map(toSkillId);
+  _getPrereqIds(skillId) {
+    return this.prereqIdsBySkillId.get(skillId) ?? [];
   }
 
   _scheduleDrawLines({ changedSkillIds = null } = {}) {
@@ -240,8 +251,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         continue;
       }
 
-      const skill = this.skillMap.get(skillId);
-      const prereqs = (skill?.system?.prerequisite_ids || []).map(toSkillId);
+      const prereqs = this._getPrereqIds(skillId);
       const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkillIds.has(id));
       if (unlocked) {
         el.classList.remove("locked");
@@ -339,20 +349,16 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     if (target.classList.contains("selected")) {
       const skillId = target.dataset.skillId;
       const dependents = this.dependencies.get(skillId) || new Set();
-      const selectedDependents = [...dependents].filter(depId => {
-        const depEl = this._dom.skillCardById.get(depId);
-        return depEl?.classList.contains("selected");
-      });
+      for (const depId of dependents) {
+        if (!this._isSkillSelected(depId)) continue;
 
-      for (const depId of selectedDependents) {
+        const depPrereqs = this._getPrereqIds(depId);
+        const hasAlternatePrereq = depPrereqs.some(pid => pid !== skillId && this._isSkillSelected(pid));
+        if (hasAlternatePrereq) continue;
+
         const depSkill = this.skillMap.get(depId);
-        const depPrereqs = this._getPrereqIds(depSkill);
-        const fulfilled = depPrereqs.filter(pid => pid !== skillId && this._isSkillSelected(pid));
-
-        if (fulfilled.length === 0) {
-          ui.notifications.warn(game.i18n.format("MoshQoL.CharacterCreator.SelectSkills.DependencyNeedsSkill", { skillName: depSkill.name }));
-          return;
-        }
+        ui.notifications.warn(game.i18n.format("MoshQoL.CharacterCreator.SelectSkills.DependencyNeedsSkill", { skillName: depSkill.name }));
+        return;
       }
 
       target.classList.remove("selected");
@@ -442,7 +448,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async close(options = {}) {
-    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds"] });
+    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds", "prereqIdsBySkillId"] });
     resolveAppOnce(this, null);
     return super.close(options);
   }

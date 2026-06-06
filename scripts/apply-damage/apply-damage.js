@@ -79,26 +79,17 @@ export async function applyDamageToActors(actors, payload, options = {}) {
 
 export function getUniqueActorsFromTargets(targets) {
   const rawList = Array.isArray(targets) ? targets : [targets];
-  const normalizedActors = rawList
-    .map(target => target?.actor ?? target)
-    .filter(Boolean);
-
-  const seenIds = new Set();
-  const seenRefs = new Set();
+  const seen = new Set();
   const uniqueActors = [];
 
-  for (const actor of normalizedActors) {
-    const identity = actor?.uuid ?? actor?.id ?? null;
-    if (identity) {
-      const dedupeKey = `id:${identity}`;
-      if (seenIds.has(dedupeKey)) continue;
-      seenIds.add(dedupeKey);
-      uniqueActors.push(actor);
-      continue;
-    }
+  for (const target of rawList) {
+    const actor = target?.actor ?? target;
+    if (!actor) continue;
 
-    if (seenRefs.has(actor)) continue;
-    seenRefs.add(actor);
+    const key = actor.uuid ?? actor.id ?? actor;
+    if (seen.has(key)) continue;
+
+    seen.add(key);
     uniqueActors.push(actor);
   }
 
@@ -156,14 +147,23 @@ async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, wou
 function normalizeSelectedTargetIndexes(indexes, maxLength) {
   if (!Array.isArray(indexes)) return Array.from({ length: maxLength }, (_v, index) => index);
 
-  return [...new Set(indexes
-    .map(index => Number.parseInt(index, 10))
-    .filter(index => Number.isInteger(index) && index >= 0 && index < maxLength))];
+  const seen = new Set();
+  const normalized = [];
+  for (const rawIndex of indexes) {
+    const index = Number.parseInt(rawIndex, 10);
+    if (!Number.isInteger(index) || index < 0 || index >= maxLength || seen.has(index)) continue;
+    seen.add(index);
+    normalized.push(index);
+  }
+
+  return normalized;
 }
 
 function filterActorsBySelectedIndexes(targets, selectedTargetIndexes) {
   const normalized = normalizeSelectedTargetIndexes(selectedTargetIndexes, targets.length);
-  return getUniqueActorsFromTargets(normalized.map(index => targets[index]).filter(Boolean));
+  const selectedTargets = [];
+  for (const index of normalized) selectedTargets.push(targets[index]);
+  return getUniqueActorsFromTargets(selectedTargets);
 }
 
 async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = null) {
