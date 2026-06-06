@@ -1,7 +1,7 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillPointBundle } from "./utils.js";
+import { stripHtml, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 
@@ -118,14 +118,14 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const defaultSkills = {
         id: `${cls.id}-default`,
         name: game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.DefaultSkills"),
-        ...toSkillPointBundle(baseAnd),
+        ...toSkillSelectionPointBundle(baseAnd),
         skills: resolveSkillReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
       };
 
       const orOptions = (selected.choose_skill_or || []).flat().map((option, index) => ({
         id: `${cls.id}-or-${index}`,
         name: option.name || game.i18n.format("MoshQoL.CharacterCreator.SelectClass.OrOption", { index: index + 1 }),
-        ...toSkillPointBundle(option),
+        ...toSkillSelectionPointBundle(option),
         skills: resolveSkillReferences(option.from_list || [], { skillByUuid, skillMap })
       }));
 
