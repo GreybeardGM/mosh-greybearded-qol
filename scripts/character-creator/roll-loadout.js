@@ -97,8 +97,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     blocks.push({
       type: "counter",
       label: `${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:`,
-      value: formatCurrency(startingCredits),
-      labelPosition: "before"
+      value: formatCurrency(startingCredits)
     });
   }
   

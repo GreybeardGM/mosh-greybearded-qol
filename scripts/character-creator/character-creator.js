@@ -175,8 +175,9 @@ export async function startCharacterCreation(actor) {
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.ClassSelected.Title"),
       subtitle: actor.name,
       blocks: [{
-        type: "text",
-        text: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name, className: selectedClass.name })
+        type: "highlight",
+        label: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name }),
+        value: selectedClass.name
       }],
       image: selectedClass?.img || "",
       icon: "fa-user"

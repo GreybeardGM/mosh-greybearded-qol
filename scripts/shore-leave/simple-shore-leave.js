@@ -158,8 +158,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
         {
           type: "counter",
           label: game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice"),
-          value: formattedPrice,
-          labelPosition: "before"
+          value: formattedPrice
         }
       ],
       icon: entry.flavor?.icon || entry.icon,

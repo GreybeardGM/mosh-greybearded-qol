@@ -949,7 +949,8 @@
   gap: 0.5rem;
 }
 
-.greybeardqol.qol-ui .chat-text {
+.greybeardqol.qol-ui .chat-text,
+.greybeardqol.qol-ui .chat-highlight-line {
   margin: 0;
 }
 
