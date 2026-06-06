@@ -96,7 +96,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     await actor.update({ system: { credits: { value: startingCredits } } });
     blocks.push({
       type: "counter",
-      label: `${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:`,
+      label: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits"),
       value: formatCurrency(startingCredits)
     });
   }
