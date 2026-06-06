@@ -1,5 +1,5 @@
 import { SHIP_CRITS } from "./codex/default-ship-crits-0e.js";
-import { chatOutput } from "./utils/chat-output.js";
+import { chatOutput, rawChatHTML } from "./utils/chat-output.js";
 
 /**
  * Find the matching crit entry for a given roll
@@ -40,7 +40,7 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
   await chatOutput({
     title: crit.title,
     subtitle: actor ? game.i18n.format("MoshQoL.ShipCrit.ActorSubtitle", { actorName: actor.name }) : game.i18n.localize("MoshQoL.ShipCrit.ShipSubtitle"),
-    content: enrichedContent,
+    blocks: [{ type: "html", html: rawChatHTML(enrichedContent) }],
     icon: crit.icon,
     image: actor?.img,
     roll,

@@ -529,7 +529,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
       title: game.i18n.localize("MoshQoL.LoyaltyRolled") || "Loyalty Rolled",
       subtitle: actor.name,
       image: actor.img,
-      content: `<span class="counter">${total}</span> Loyalty`,
+      blocks: [{ type: "counter", value: total, label: "Loyalty" }],
       roll
     });
   

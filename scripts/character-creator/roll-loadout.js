@@ -75,38 +75,31 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   }
   
   // 💬 Chat output
-  let itemSummary = "";
   const categoryLabels = {
     Weapons: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Categories.Weapons"),
     Armor: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Categories.Armor"),
     Items: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Categories.Items")
   };
+  const blocks = Object.entries(allItems)
+    .filter(([, items]) => items.length > 0)
+    .map(([category, items]) => ({
+      type: "itemList",
+      title: categoryLabels[category] ?? category,
+      items
+    }));
 
-  for (const [category, items] of Object.entries(allItems)) {
-    if (items.length > 0) {
-      itemSummary += `<h3>${categoryLabels[category] ?? category}</h3>`;
-      itemSummary += items.map(i => `
-        <div style="
-          display: flex;
-          align-items: center;
-          gap: 0.5em;
-          margin: 0.2em 0;
-        ">
-          <img src="${i.img}" 
-               style="height: 2.5em; flex: 0 0 auto;">
-          <span style="flex: 1;">${i.name}</span>
-        </div>
-      `).join("");
-    }
-  }
-
-  // Roill for Staring Credits
+  // Roll for Starting Credits
   if (rollCredits) {
     const creditRoll = new Roll("2d10 * 10");
     await creditRoll.evaluate();
     const startingCredits = creditRoll.total;
     await actor.update({ system: { credits: { value: startingCredits } } });
-    itemSummary += `<br><strong>${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:</strong> <label class="counter">${formatCurrency(startingCredits)}</label>`;
+    blocks.push({
+      type: "counter",
+      label: `${game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits")}:`,
+      value: formatCurrency(startingCredits),
+      labelPosition: "before"
+    });
   }
   
   await chatOutput({
@@ -115,7 +108,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     subtitle: actor.name,
     icon: "fa-dice",
     image: DEFAULT_IMAGES.Loadout,
-    content: itemSummary
+    blocks
   });
 
   return true;
