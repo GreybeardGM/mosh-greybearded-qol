@@ -23,21 +23,14 @@ const LEGACY_SHORE_LEAVE_SETTINGS = {
   }
 };
 
-function getStoredWorldSetting(moduleId, settingKey) {
+function hasStoredWorldSetting(moduleId, settingKey) {
   const worldStorage = game.settings.storage?.get?.("world");
-  if (!worldStorage) return null;
+  if (!worldStorage) return false;
 
   const storageKey = `${moduleId}.${settingKey}`;
-
-  if (typeof worldStorage.get === "function") {
-    const stored = worldStorage.get(storageKey);
-    if (stored) return stored;
-  }
-
-  if (typeof worldStorage.find === "function") {
-    const stored = worldStorage.find((setting) => setting?.key === storageKey);
-    if (stored) return stored;
-  }
+  if (typeof worldStorage.has === "function" && worldStorage.has(storageKey)) return true;
+  if (typeof worldStorage.get === "function" && worldStorage.get(storageKey)) return true;
+  if (typeof worldStorage.find === "function" && worldStorage.find((setting) => setting?.key === storageKey)) return true;
 
   const values = Array.isArray(worldStorage.contents)
     ? worldStorage.contents
@@ -45,16 +38,7 @@ function getStoredWorldSetting(moduleId, settingKey) {
       ? Array.from(worldStorage.values())
       : [];
 
-  return values.find((setting) => setting?.key === storageKey) ?? null;
-}
-
-function hasStoredWorldSetting(moduleId, settingKey) {
-  const worldStorage = game.settings.storage?.get?.("world");
-  const storageKey = `${moduleId}.${settingKey}`;
-
-  if (typeof worldStorage?.has === "function" && worldStorage.has(storageKey)) return true;
-
-  return Boolean(getStoredWorldSetting(moduleId, settingKey));
+  return values.some((setting) => setting?.key === storageKey);
 }
 
 export async function migrateLegacyShoreLeaveConfig() {

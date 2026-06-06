@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { normalizeBoolean } from "../utils/normalization.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -101,7 +102,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     this._resolve = null;
     resolve?.({
       damage: payload.damage,
-      antiArmor: payload.antiArmor === true || payload.antiArmor === "on" || payload.antiArmor === "true",
+      antiArmor: normalizeBoolean(payload.antiArmor),
       selectedTargetIndexes: Array.from(this._selectedTargetIndexes)
     });
     await this.close();
