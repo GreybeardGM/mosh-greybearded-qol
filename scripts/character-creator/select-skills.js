@@ -423,7 +423,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const selectedItems = await Promise.all(selectedUUIDs.map(async uuid => {
       const preloaded = this.skillByUuid.get(uuid);
-      if (preloaded) {
+      if (typeof preloaded?.toObject === "function") {
         const data = preloaded.toObject();
         delete data._id;
         return data;
