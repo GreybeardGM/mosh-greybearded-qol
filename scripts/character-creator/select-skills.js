@@ -1,6 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, stripHtml, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
+import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
@@ -422,9 +422,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const selectedItems = await Promise.all(selectedUUIDs.map(async uuid => {
       const preloaded = this.skillByUuid.get(uuid);
       if (typeof preloaded?.toObject === "function") {
-        const data = preloaded.toObject();
-        delete data._id;
-        return data;
+        return toEmbeddedItemData(preloaded);
       }
 
       const item = await fromUuid(uuid);
@@ -432,9 +430,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         console.warn("Invalid or missing skill:", uuid);
         return null;
       }
-      const itemData = item.toObject();
-      delete itemData._id;
-      return itemData;
+      return toEmbeddedItemData(item);
     }));
 
     const validItems = selectedItems.filter(Boolean);

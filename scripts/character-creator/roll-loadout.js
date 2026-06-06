@@ -1,5 +1,6 @@
 import { chatOutput } from "../utils/chat-output.js";
 import { formatCurrency } from "../utils/normalization.js";
+import { toEmbeddedItemData } from "./utils.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;
@@ -52,7 +53,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
       }
 
       if (fullItem) {
-        const itemData = fullItem.toObject(false);
+        const itemData = toEmbeddedItemData(fullItem, false);
         itemsToCreate.push(itemData);
         if (itemData.type === "weapon") allItems.Weapons.push({ name: itemData.name, img: itemData.img });
         else if (itemData.type === "armor") allItems.Armor.push({ name: itemData.name, img: itemData.img });
