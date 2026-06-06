@@ -47,10 +47,6 @@ const SKILL_SORT_ORDER = Object.freeze([
 
 const SKILL_RANK = new Map(SKILL_SORT_ORDER.map((name, index) => [normalizeText(name), index]));
 
-export function getSkillSortOrder() {
-  return [...SKILL_SORT_ORDER];
-}
-
 export function getSkillRank(name) {
   return SKILL_RANK.get(normalizeText(name)) ?? Number.MAX_SAFE_INTEGER;
 }

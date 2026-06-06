@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { normalizeBoolean } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -68,10 +69,6 @@ export function automatesWoundRollFromConfig(config, scope = "character") {
   return config?.automateWoundRoll?.[scope] === true;
 }
 
-function isSubmittedCheckboxEnabled(value) {
-  return value === true || value === "true" || value === "on";
-}
-
 export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "apply-damage-config",
@@ -127,10 +124,10 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     const config = getDefaultApplyDamageConfig();
 
     const tougherArmor = submitted.tougherArmor;
-    config.tougherArmor = isSubmittedCheckboxEnabled(tougherArmor);
+    config.tougherArmor = normalizeBoolean(tougherArmor);
 
     const applyArmorBroken = submitted.applyArmorBroken;
-    config.applyArmorBroken = isSubmittedCheckboxEnabled(applyArmorBroken);
+    config.applyArmorBroken = normalizeBoolean(applyArmorBroken);
 
     const visibility = submitted.visibility;
     config.visibility = Object.values(APPLY_DAMAGE_VISIBILITY).includes(visibility)
@@ -139,7 +136,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
 
     const automateWoundRoll = submitted.automateWoundRoll ?? {};
     for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
-      config.automateWoundRoll[scope] = isSubmittedCheckboxEnabled(automateWoundRoll[scope]);
+      config.automateWoundRoll[scope] = normalizeBoolean(automateWoundRoll[scope]);
     }
 
     await game.settings.set(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, config);

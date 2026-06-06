@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { normalizeBoolean } from "../utils/normalization.js";
 import {
   TOOLBAND_SCOPES,
   getConfigurableToolbandButton,
@@ -134,7 +135,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
 
       for (const button of getConfigurableToolbandButtonsForScope(scope)) {
         const value = scopeSubmission[button.settingKey];
-        current[scope][button.settingKey] = value === true || value === "true" || value === "on";
+        current[scope][button.settingKey] = normalizeBoolean(value);
       }
     }
 

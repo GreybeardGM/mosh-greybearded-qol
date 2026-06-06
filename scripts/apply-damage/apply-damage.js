@@ -230,40 +230,53 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   }
 
   if (woundsGained > 0) {
-    const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
-    const automatedWoundBlocks = automatedWoundContent
-      ? [{ type: "separator" }, { type: "html", html: rawChatHTML(automatedWoundContent) }]
-      : [];
-
-    if (hits === hitsMax) {
-      await chatOutput({
-        actor,
-        title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
-        subtitle: actor.name ?? "",
-        icon: "fa-skull",
-        blocks: [
-          { type: "text", text: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }) },
-          ...automatedWoundBlocks
-        ]
-      });
-    } else {
-      const plural = woundsGained !== 1;
-      const woundsLabel = game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular");
-
-      await chatOutput({
-        actor,
-        title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
-        subtitle: actor.name ?? "",
-        icon: "fa-heart-broken",
-        blocks: [
-          { type: "text", text: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { count: woundsGained, wounds: woundsLabel }) },
-          ...automatedWoundBlocks
-        ]
-      });
-    }
+    await emitWoundChatMessage({
+      actor,
+      woundsGained,
+      maximumWoundsReached: hits === hitsMax,
+      automatedWoundResults
+    });
   }
 
   return true;
+}
+
+async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached, automatedWoundResults }) {
+  const automatedWoundBlocks = await getAutomatedWoundChatBlocks(automatedWoundResults);
+
+  if (maximumWoundsReached) {
+    return chatOutput({
+      actor,
+      title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
+      subtitle: actor.name ?? "",
+      icon: "fa-skull",
+      blocks: [
+        { type: "text", text: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }) },
+        ...automatedWoundBlocks
+      ]
+    });
+  }
+
+  const plural = woundsGained !== 1;
+  const woundsLabel = game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular");
+
+  return chatOutput({
+    actor,
+    title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
+    subtitle: actor.name ?? "",
+    icon: "fa-heart-broken",
+    blocks: [
+      { type: "text", text: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { count: woundsGained, wounds: woundsLabel }) },
+      ...automatedWoundBlocks
+    ]
+  });
+}
+
+async function getAutomatedWoundChatBlocks(automatedWoundResults) {
+  const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
+  return automatedWoundContent
+    ? [{ type: "separator" }, { type: "html", html: rawChatHTML(automatedWoundContent) }]
+    : [];
 }
 
 
