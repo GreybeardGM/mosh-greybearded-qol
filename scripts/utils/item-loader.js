@@ -5,6 +5,20 @@ import { compareSkillNames } from "../codex/skill-sort.js";
 import { normalizeText } from "./normalization.js";
 
 const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
+const PACK_INDEX_FIELDS = [
+  "name",
+  "type",
+  "img",
+  "system.rank",
+  "system.prerequisite_ids",
+  "system.description",
+  "system.trauma_response",
+  "system.base_adjustment",
+  "system.selected_adjustment",
+  "uuid"
+];
+const PACK_LOAD_CONCURRENCY = 4;
+const INDEX_ONLY_TYPES = new Set(["skill", "class"]);
 
 /* ---------- Helpers ---------- */
 const normType = normalizeText;
@@ -104,19 +118,50 @@ function collectWorldByTypeToMap(itemType, map) {
 
 async function getPackIndexCached(pack) {
   const key = String(pack?.collection ?? "");
-  if (!key) return pack.getIndex({ fields: ["name"] });
+  if (!key) return pack.getIndex({ fields: PACK_INDEX_FIELDS });
   if (packIndexCache.has(key)) return packIndexCache.get(key);
-  const index = await pack.getIndex({ fields: ["name"] });
+  const index = await pack.getIndex({ fields: PACK_INDEX_FIELDS });
   packIndexCache.set(key, index);
   return index;
+}
+
+function shouldUsePackIndexOnly(itemType) {
+  return INDEX_ONLY_TYPES.has(normType(itemType));
+}
+
+function packIndexEntryToItem(entry, pack) {
+  const id = entry?._id ?? entry?.id;
+  return {
+    ...entry,
+    id,
+    _id: id,
+    uuid: entry?.uuid ?? (id && pack?.collection ? `Compendium.${pack.collection}.${id}` : undefined),
+    img: entry?.img
+  };
+}
+
+async function mapLimited(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  const workerCount = Math.min(Math.max(1, limit), items.length);
+
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (next < items.length) {
+      const index = next++;
+      out[index] = await fn(items[index], index);
+    }
+  }));
+
+  return out;
 }
 
 async function getPackDocumentsBulk(pack, ids) {
   const out = [];
   const CHUNK_SIZE = 200;
+  const filteredIds = [...new Set(ids.filter(Boolean))];
 
-  for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
-    const chunk = ids.slice(i, i + CHUNK_SIZE);
+  for (let i = 0; i < filteredIds.length; i += CHUNK_SIZE) {
+    const chunk = filteredIds.slice(i, i + CHUNK_SIZE);
     if (!chunk.length) continue;
 
     let docs = [];
@@ -128,38 +173,57 @@ async function getPackDocumentsBulk(pack, ids) {
       docs = await Promise.all(chunk.map(id => pack.getDocument(id)));
     }
 
-    if (Array.isArray(docs) && docs.length) out.push(...docs);
+    if (Array.isArray(docs) && docs.length) out.push(...docs.filter(Boolean));
   }
 
   return out;
 }
 
+async function getPackDocumentsByType(pack, itemType) {
+  const t = normType(itemType);
+
+  if (shouldUsePackIndexOnly(itemType)) {
+    const index = await getPackIndexCached(pack);
+    return index
+      .filter(e => e?.name && e.name.trim().length && normType(e.type) === t)
+      .map(e => packIndexEntryToItem(e, pack));
+  }
+
+  try {
+    // Primär: echter Bulk-Abruf (ohne vorgelagerten Index-Fetch).
+    return await pack.getDocuments({ type: itemType });
+  } catch (_e) {
+    // Fallback: über schlanken Index nur passende IDs holen, dann gebündelt laden.
+    const index = await getPackIndexCached(pack);
+    const ids = index
+      .filter(e => e?.name && e.name.trim().length && normType(e.type) === t)
+      .map(e => e._id);
+    if (!ids.length) return [];
+    return getPackDocumentsBulk(pack, ids);
+  }
+}
+
+function collectDocumentsToMap(docs, slot, itemType, map) {
+  const t = normType(itemType);
+  for (const d of docs) {
+    if (!d || normType(d.type) !== t) continue;
+    const nm = d.name ?? "";
+    if (!nm) continue;
+    const group = getOrCreateResolutionGroup(map, d.type, nm);
+    if (!group[slot]) group[slot] = d;
+  }
+}
+
 /* Packs sammeln (Index tolerant, Typ final am Dokument prüfen) */
 async function collectPackByTypeToMap(packs, slot, itemType, map) {
-  const t = normType(itemType);
-  for (const pack of packs) {
-    let docs = [];
-    try {
-      // Primär: echter Bulk-Abruf (ohne vorgelagerten Index-Fetch).
-      docs = await pack.getDocuments({ type: itemType });
-    } catch (_e) {
-      // Fallback: über schlanken Index nur IDs mit Namen holen, dann gebündelt laden.
-      const index = await getPackIndexCached(pack);
-      const ids = index
-        .filter(e => e?.name && e.name.trim().length)
-        .map(e => e._id);
-      if (!ids.length) continue;
-      docs = await getPackDocumentsBulk(pack, ids);
-    }
+  const packDocs = await mapLimited(
+    packs,
+    PACK_LOAD_CONCURRENCY,
+    pack => getPackDocumentsByType(pack, itemType)
+  );
 
-    for (const d of docs) {
-      if (!d || normType(d.type) !== t) continue;
-      const nm = d.name ?? "";
-      if (!nm) continue;
-      const group = getOrCreateResolutionGroup(map, d.type, nm);
-      if (!group[slot]) group[slot] = d;
-    }
-  }
+  // Merge bleibt in Pack-Reihenfolge, damit vorhandene Priorität innerhalb eines Slots stabil bleibt.
+  for (const docs of packDocs) collectDocumentsToMap(docs, slot, itemType, map);
 }
 
 /* Gewinner extrahieren */
@@ -183,8 +247,10 @@ async function buildResolvedItemsByType(itemType) {
   const map = new Map();
   collectWorldByTypeToMap(itemType, map);
   const { normalPacks, psgPacks } = partitionItemPacks();
-  await collectPackByTypeToMap(normalPacks, "normal", itemType, map);
-  await collectPackByTypeToMap(psgPacks, "psg", itemType, map);
+  await Promise.all([
+    collectPackByTypeToMap(normalPacks, "normal", itemType, map),
+    collectPackByTypeToMap(psgPacks, "psg", itemType, map)
+  ]);
 
   const winners = winnersFromMap(map);
   return sortItems(itemType, winners);
