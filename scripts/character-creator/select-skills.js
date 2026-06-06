@@ -1,6 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from "./utils.js";
+import { normalizeText, stripHtml, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
@@ -100,16 +100,14 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
     const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(toSkillId));
 
-    const basePoints = toSkillPointBundle(baseAnd);
+    const basePoints = toSkillSelectionPointBundle(baseAnd);
 
     const orOptions = baseOr.flat().map((opt, i) => {
       const name = opt.name ?? `Option ${i + 1}`;
       return {
         id: `or-${i}`,
         name,
-        trained: sumSkillPointFields(opt.trained, opt.expert_full_set, opt.master_full_set),
-        expert: sumSkillPointFields(opt.expert, opt.expert_full_set, opt.master_full_set),
-        master: sumSkillPointFields(opt.master, opt.master_full_set),
+        ...toSkillSelectionPointBundle(opt),
         skills: resolveOrOptionSkills(opt, { skillByUuid, skillMap, optionName: name })
       };
     });
