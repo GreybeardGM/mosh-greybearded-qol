@@ -56,7 +56,7 @@ export function applyInitialAvailabilityLock({ cards = [], skillById, selectedSk
     if (card.classList.contains("default-skill")) continue;
 
     const skill = skillById.get(card.dataset.skillId);
-    const prereqIds = (skill?.system?.prerequisite_ids || []).map(toSkillId);
+    const prereqIds = skill?.prereqIds ?? (skill?.system?.prerequisite_ids || []).map(toSkillId);
     const isUnlocked = prereqIds.length === 0 || prereqIds.some(id => selectedSkillIds.has(id));
 
     if (!isUnlocked) card.classList.add("locked");

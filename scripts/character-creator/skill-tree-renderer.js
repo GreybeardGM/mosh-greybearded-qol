@@ -1,3 +1,36 @@
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function getLineKeySet(lineKeyBySkill, skillId) {
+  let keys = lineKeyBySkill.get(skillId);
+  if (!keys) {
+    keys = new Set();
+    lineKeyBySkill.set(skillId, keys);
+  }
+  return keys;
+}
+
+function* getChangedLines(changedSkillIds, linePathCache, lineKeyBySkill) {
+  const seen = new Set();
+  for (const skillId of changedSkillIds) {
+    const keys = lineKeyBySkill.get(skillId);
+    if (!keys) continue;
+
+    for (const key of keys) {
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      const line = linePathCache.get(key);
+      if (line) yield line;
+    }
+  }
+}
+
+function getPrereqIds(skill, toSkillId) {
+  if (skill.prereqIds) return skill.prereqIds;
+  const rawPrereqs = skill.system?.prerequisite_ids ?? [];
+  return rawPrereqs.map(toSkillId);
+}
+
 export function rebuildSkillLineGeometry({
   svg,
   sortedSkills,
@@ -10,7 +43,7 @@ export function rebuildSkillLineGeometry({
 
   linePathCache.clear();
   lineKeyBySkill.clear();
-  svg.innerHTML = "";
+  svg.replaceChildren();
 
   const parentRect = svg.getBoundingClientRect();
   const cardRectById = new Map();
@@ -21,22 +54,24 @@ export function rebuildSkillLineGeometry({
   const frag = document.createDocumentFragment();
 
   for (const skill of sortedSkills) {
-    const prereqIds = (skill.system?.prerequisite_ids || []).map(toSkillId);
-    for (const prereqId of prereqIds) {
+    const skillId = skill.id;
+    const rect2 = cardRectById.get(skillId);
+    if (!rect2) continue;
+
+    const relX2 = rect2.left - parentRect.left;
+    const relY2 = rect2.top + rect2.height / 2 - parentRect.top;
+
+    for (const prereqId of getPrereqIds(skill, toSkillId)) {
       const rect1 = cardRectById.get(prereqId);
-      const rect2 = cardRectById.get(skill.id);
-      if (!rect1 || !rect2) continue;
+      if (!rect1) continue;
 
       const relX1 = rect1.left + rect1.width - parentRect.left;
       const relY1 = rect1.top + rect1.height / 2 - parentRect.top;
-      const relX2 = rect2.left - parentRect.left;
-      const relY2 = rect2.top + rect2.height / 2 - parentRect.top;
-
       const deltaX = Math.abs(relX2 - relX1) / 2;
       const pathData = `M ${relX1},${relY1} C ${relX1 + deltaX},${relY1} ${relX2 - deltaX},${relY2} ${relX2},${relY2}`;
 
-      const key = `${prereqId}->${skill.id}`;
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const key = `${prereqId}->${skillId}`;
+      const path = document.createElementNS(SVG_NS, "path");
       path.setAttribute("d", pathData);
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", "var(--color-border)");
@@ -46,15 +81,13 @@ export function rebuildSkillLineGeometry({
       linePathCache.set(key, {
         path,
         prereqId,
-        skillId: skill.id,
+        skillId,
         isHighlighted: false,
         ...buildLineMeta(skill, prereqId)
       });
 
-      if (!lineKeyBySkill.has(prereqId)) lineKeyBySkill.set(prereqId, new Set());
-      if (!lineKeyBySkill.has(skill.id)) lineKeyBySkill.set(skill.id, new Set());
-      lineKeyBySkill.get(prereqId).add(key);
-      lineKeyBySkill.get(skill.id).add(key);
+      getLineKeySet(lineKeyBySkill, prereqId).add(key);
+      getLineKeySet(lineKeyBySkill, skillId).add(key);
     }
   }
 
@@ -71,22 +104,12 @@ export function updateSkillLineHighlights({
   isHighlighted
 }) {
 
-  const keysToUpdate = new Set();
   const updateAll = rebuiltGeometry || !changedSkillIds || changedSkillIds.size === 0;
+  const linesToUpdate = updateAll
+    ? linePathCache.values()
+    : getChangedLines(changedSkillIds, linePathCache, lineKeyBySkill);
 
-  if (updateAll) {
-    for (const key of linePathCache.keys()) keysToUpdate.add(key);
-  } else {
-    for (const skillId of changedSkillIds) {
-      const keys = lineKeyBySkill.get(skillId);
-      if (!keys) continue;
-      for (const key of keys) keysToUpdate.add(key);
-    }
-  }
-
-  for (const key of keysToUpdate) {
-    const line = linePathCache.get(key);
-    if (!line) continue;
+  for (const line of linesToUpdate) {
 
     const highlighted = isHighlighted(line, selectedSkillIds);
     if (highlighted === line.isHighlighted) continue;
