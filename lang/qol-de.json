@@ -163,7 +163,7 @@
     "CharacterCreator": {
       "Chat": {
         "ClassSelected": {
-          "Content": "{actorName} hat eine Klasse gewählt: <label class='counter'>{className}</label>",
+          "Content": "{actorName} hat eine Klasse gewählt:",
           "Title": "Klasse gewählt"
         },
         "HealthRolled": {
@@ -336,10 +336,10 @@
       "TokenSingular": "Token",
       "TokenPlural": "Tokens",
       "MaximumWoundsReached": "Maximale Wunden erreicht",
-      "MaximumWoundsContent": "{actorName} hat die maximale Anzahl an Wunden erreicht!<br>@Macro[Todeswurf]",
+      "MaximumWoundsContent": "{actorName} hat die maximale Anzahl an Wunden erreicht!",
       "WoundTaken": "Wunde erlitten",
       "WoundsTaken": "Wunden erlitten",
-      "WoundsSuffered": "{count} {wounds} erlitten.<br>@Macro[Wundwurf]",
+      "WoundsSuffered": "{wounds} erlitten.",
       "WoundSingular": "Wunde",
       "WoundPlural": "Wunden",
       "ApplyToSelectedTokens": "Ohne Rüstungsbrechend anwenden",
@@ -354,7 +354,9 @@
       },
       "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
       "Advantage": "Vorteil",
-      "Disadvantage": "Nachteil"
+      "Disadvantage": "Nachteil",
+      "WoundCheckMacro": "@Macro[Wundwurf]",
+      "DeathSaveMacro": "@Macro[Todeswurf]"
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."

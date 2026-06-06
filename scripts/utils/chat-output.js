@@ -5,7 +5,7 @@ const CHAT_HTML_BRAND = Symbol("mosh-qol-chat-html");
 
 /**
  * Chat output contract:
- * - `blocks` is the API for standard layouts (text, counters, lists, separators).
+ * - `blocks` is the API for standard layouts (text, highlights, counters, lists, separators).
  * - `rawChatHTML(html)` is only for HTML already enriched by Foundry or another trusted source.
  * - New call sites should pass data via `blocks` instead of building HTML strings.
  */
@@ -34,12 +34,25 @@ function normalizeHtmlBlock(block = {}) {
   };
 }
 
+function normalizeSuffix(value) {
+  if (value === null || value === undefined) return "";
+  return isChatHTML(value) ? value.html : escapeHTML(value);
+}
+
+function normalizeHighlightBlock(block = {}) {
+  return {
+    type: "highlight",
+    label: escapeHTML(block.label),
+    value: escapeHTML(block.value)
+  };
+}
+
 function normalizeCounterBlock(block = {}) {
   return {
     type: "counter",
     value: escapeHTML(block.value),
     label: escapeHTML(block.label),
-    labelPosition: block.labelPosition === "before" ? "before" : "after"
+    suffix: normalizeSuffix(block.suffix)
   };
 }
 
@@ -88,6 +101,7 @@ function normalizeCounterColumnsBlock(block = {}) {
 function normalizeBlock(block = {}) {
   switch (block.type) {
     case "html": return normalizeHtmlBlock(block);
+    case "highlight": return normalizeHighlightBlock(block);
     case "counter": return normalizeCounterBlock(block);
     case "itemList": return normalizeItemListBlock(block);
     case "counterColumns": return normalizeCounterColumnsBlock(block);

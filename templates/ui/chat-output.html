@@ -30,19 +30,18 @@
             <div class="chat-html">{{{this.html}}}</div>
           {{/if}}
 
+          {{#if (eq this.type "highlight")}}
+            <p class="chat-highlight-line">
+              {{#if this.label}}<span class="chat-highlight-label">{{{this.label}}}</span>{{/if}}
+              <span class="counter">{{{this.value}}}</span>
+            </p>
+          {{/if}}
+
           {{#if (eq this.type "counter")}}
             <div class="chat-counter-line">
-              {{#if this.label}}
-                {{#if (eq this.labelPosition "before")}}
-                  <span class="chat-counter-label">{{{this.label}}}</span>
-                {{/if}}
-              {{/if}}
               <span class="counter">{{{this.value}}}</span>
-              {{#if this.label}}
-                {{#if (eq this.labelPosition "after")}}
-                  <span class="chat-counter-label">{{{this.label}}}</span>
-                {{/if}}
-              {{/if}}
+              {{#if this.label}}<span class="chat-counter-label">{{{this.label}}}</span>{{/if}}
+              {{#if this.suffix}}<span class="chat-counter-suffix">{{{this.suffix}}}</span>{{/if}}
             </div>
           {{/if}}
 

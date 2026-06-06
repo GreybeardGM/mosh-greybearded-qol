@@ -241,10 +241,19 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   return true;
 }
 
+async function enrichChatReference(content) {
+  const enriched = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content || "", {
+    async: true
+  });
+  return rawChatHTML(enriched);
+}
+
 async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached, automatedWoundResults }) {
   const automatedWoundBlocks = await getAutomatedWoundChatBlocks(automatedWoundResults);
 
   if (maximumWoundsReached) {
+    const deathSaveMacro = await enrichChatReference(game.i18n.localize("MoshQoL.Damage.DeathSaveMacro"));
+
     return chatOutput({
       actor,
       title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
@@ -252,6 +261,7 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
       icon: "fa-skull",
       blocks: [
         { type: "text", text: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }) },
+        { type: "html", html: deathSaveMacro },
         ...automatedWoundBlocks
       ]
     });
@@ -259,6 +269,7 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
 
   const plural = woundsGained !== 1;
   const woundsLabel = game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular");
+  const woundCheckMacro = await enrichChatReference(game.i18n.localize("MoshQoL.Damage.WoundCheckMacro"));
 
   return chatOutput({
     actor,
@@ -266,7 +277,12 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
     subtitle: actor.name ?? "",
     icon: "fa-heart-broken",
     blocks: [
-      { type: "text", text: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { count: woundsGained, wounds: woundsLabel }) },
+      {
+        type: "counter",
+        value: woundsGained,
+        label: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { wounds: woundsLabel }),
+        suffix: woundCheckMacro
+      },
       ...automatedWoundBlocks
     ]
   });

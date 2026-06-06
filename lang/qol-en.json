@@ -163,7 +163,7 @@
     "CharacterCreator": {
       "Chat": {
         "ClassSelected": {
-          "Content": "{actorName} chose a class: <label class='counter'>{className}</label>",
+          "Content": "{actorName} chose a class:",
           "Title": "Class Selected"
         },
         "HealthRolled": {
@@ -336,10 +336,10 @@
       "TokenSingular": "token",
       "TokenPlural": "tokens",
       "MaximumWoundsReached": "Maximum Wounds Reached",
-      "MaximumWoundsContent": "{actorName} has reached their maximum number of wounds!<br>@Macro[Death Save]",
+      "MaximumWoundsContent": "{actorName} has reached their maximum number of wounds!",
       "WoundTaken": "Wound Taken",
       "WoundsTaken": "Wounds Taken",
-      "WoundsSuffered": "{count} {wounds} suffered.<br>@Macro[Wound Check]",
+      "WoundsSuffered": "{wounds} suffered.",
       "WoundSingular": "wound",
       "WoundPlural": "wounds",
       "ApplyToSelectedTokens": "Apply without Anti Armor",
@@ -354,7 +354,9 @@
       },
       "NoWoundResult": "No matching wound result found.",
       "Advantage": "Advantage",
-      "Disadvantage": "Disadvantage"
+      "Disadvantage": "Disadvantage",
+      "WoundCheckMacro": "@Macro[Wound Check]",
+      "DeathSaveMacro": "@Macro[Death Save]"
     },
     "Chat": {
       "NoActor": "No actor available for chat output."
