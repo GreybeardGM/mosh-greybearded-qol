@@ -13,6 +13,7 @@ import { chatOutput } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
 import { ApplyDamageInputApp } from "./damage-input-app.js";
 import { syncArmorBrokenToolbandButton } from "../toolband.js";
+import { STATUS_ARMOR_BROKEN } from "../codex/constants.js";
 
 const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
 const automatedWoundRollTableCache = new Map();
@@ -546,13 +547,13 @@ function parseAntiArmorInput(antiArmor) {
 
 /** Prüft, ob der Armor-Broken-Status bereits aktiv ist. */
 function hasArmorBrokenStatus(actor) {
-  return actor?.statuses?.has("qol-broken-armor") === true;
+  return actor?.statuses?.has(STATUS_ARMOR_BROKEN) === true;
 }
 
 /** Aktiviert den Armor-Broken-Status, sofern die Actor-API verfügbar ist. */
 async function setArmorBrokenStatus(actor) {
   if (typeof actor?.toggleStatusEffect === "function") {
-    await actor.toggleStatusEffect("qol-broken-armor", { active: true });
+    await actor.toggleStatusEffect(STATUS_ARMOR_BROKEN, { active: true });
     syncArmorBrokenToolbandButton(actor);
   }
 }

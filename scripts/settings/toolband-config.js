@@ -7,6 +7,7 @@ import {
   getToolbandButtonLabel,
   isToolbandButtonConfigurableForScope
 } from "../codex/toolband-buttons.js";
+import { MODULE_ID, SETTING_TOOLBAND_CONFIG } from "../codex/constants.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -18,8 +19,8 @@ const TOOLBAND_SCOPE_LABEL_KEYS = {
   stash: "MoshQoL.Toolbar.Scopes.stash"
 };
 
-export const MODULE_ID = "mosh-greybearded-qol";
-export const TOOLBAND_CONFIG_SETTING = "toolbandConfig";
+export { MODULE_ID };
+export const TOOLBAND_CONFIG_SETTING = SETTING_TOOLBAND_CONFIG;
 
 export function getDefaultToolbandConfig() {
   return Object.fromEntries(
@@ -94,7 +95,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/settings/toolband-config.html"
+      template: `modules/${MODULE_ID}/templates/settings/toolband-config.html`
     }
   };
 

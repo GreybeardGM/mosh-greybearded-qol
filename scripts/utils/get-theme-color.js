@@ -1,10 +1,12 @@
+import { MODULE_ID, SETTING_THEME_COLOR, SETTING_THEME_COLOR_OVERRIDE } from "../codex/constants.js";
+
 const cssColorProbe = new Option().style;
 let lastThemeInputs = null;
 let lastThemeResult = "#f50";
 
 export function getThemeColor() {
-  const global = String(game.settings.get("mosh-greybearded-qol", "themeColor") || "").trim();
-  const override = String(game.settings.get("mosh-greybearded-qol", "themeColorOverride") || "").trim();
+  const global = String(game.settings.get(MODULE_ID, SETTING_THEME_COLOR) || "").trim();
+  const override = String(game.settings.get(MODULE_ID, SETTING_THEME_COLOR_OVERRIDE) || "").trim();
   const userColor = game.user?.color;
 
   const cacheKey = `${global}|${override}|${String(userColor ?? "")}`;

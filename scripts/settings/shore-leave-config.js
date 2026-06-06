@@ -1,9 +1,10 @@
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export const MODULE_ID = "mosh-greybearded-qol";
-export const SHORE_LEAVE_CONFIG_SETTING = "shoreLeaveConfig";
+export { MODULE_ID };
+export const SHORE_LEAVE_CONFIG_SETTING = SETTING_SHORE_LEAVE_CONFIG;
 
 export function getDefaultShoreLeaveConfig() {
   return {
@@ -123,7 +124,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/settings/shore-leave-config.html"
+      template: `modules/${MODULE_ID}/templates/settings/shore-leave-config.html`
     }
   };
 
