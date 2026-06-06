@@ -14,40 +14,68 @@ function normalizeHazardPayValue(value) {
 
 function normalizeEntry(entry) {
   if (typeof entry === "string") {
-    return { uuid: entry, active: true, hazardPay: null };
+    return { entry: { uuid: entry, active: true, hazardPay: null }, changed: true };
   }
 
   if (!entry || typeof entry !== "object" || typeof entry.uuid !== "string") {
-    return null;
+    return { entry: null, changed: true };
   }
 
   const hazardPay = normalizeHazardPayValue(entry.hazardPay);
-
-  return {
+  const normalizedEntry = {
     uuid: entry.uuid,
     active: entry.active !== false,
     hazardPay
   };
+
+  return {
+    entry: normalizedEntry,
+    changed: entry.active !== normalizedEntry.active || entry.hazardPay !== hazardPay
+  };
+}
+
+function normalizeRosterWithChanges(roster = {}) {
+  const normalized = {};
+  let changed = !roster || typeof roster !== "object" || Array.isArray(roster);
+
+  if (roster && typeof roster === "object") {
+    changed ||= Object.keys(roster).some((tab) => (
+      !TABS.includes(tab)
+      && Array.isArray(roster[tab])
+      && roster[tab].length > 0
+    ));
+  }
+
+  for (const tab of TABS) {
+    const sourceEntries = Array.isArray(roster?.[tab]) ? roster[tab] : [];
+    const seen = new Set();
+    normalized[tab] = [];
+
+    if (roster && typeof roster === "object" && roster[tab] !== undefined && !Array.isArray(roster[tab])) {
+      changed = true;
+    }
+
+    for (const sourceEntry of sourceEntries) {
+      const { entry, changed: entryChanged } = normalizeEntry(sourceEntry);
+
+      if (entryChanged) changed = true;
+      if (!entry) continue;
+
+      if (seen.has(entry.uuid)) {
+        changed = true;
+        continue;
+      }
+
+      seen.add(entry.uuid);
+      normalized[tab].push(entry);
+    }
+  }
+
+  return { roster: normalized, changed };
 }
 
 function normalizeRoster(roster = {}) {
-  const normalized = {};
-
-  for (const tab of TABS) {
-    const sourceEntries = Array.isArray(roster[tab]) ? roster[tab] : [];
-    const seen = new Set();
-
-    normalized[tab] = sourceEntries
-      .map((entry) => normalizeEntry(entry))
-      .filter((entry) => {
-        if (!entry) return false;
-        if (seen.has(entry.uuid)) return false;
-        seen.add(entry.uuid);
-        return true;
-      });
-  }
-
-  return normalized;
+  return normalizeRosterWithChanges(roster).roster;
 }
 
 function getBucketByType(type) {
@@ -134,6 +162,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this._pendingRosterCommit = null;
     this._commitInFlight = null;
     this._commitScheduled = false;
+    this._cleanupInFlight = null;
+    this._lastRosterCleanupCandidate = null;
   }
 
   static DEFAULT_OPTIONS = {
@@ -167,19 +197,13 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     }
   };
 
-  async _prepareContext() {
-    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
-    const roster = normalizeRoster(sourceRoster);
-    const entries = { character: [], creature: [], ship: [] };
-    const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
-    const hasLegacyTabs = Object.keys(sourceRoster).some((tab) => !TABS.includes(tab) && Array.isArray(sourceRoster[tab]) && sourceRoster[tab].length > 0);
-    let rosterChanged = hasLegacyTabs;
+  async _resolveCleanRoster(sourceRoster = {}) {
+    const { roster, changed: normalizationChanged } = normalizeRosterWithChanges(sourceRoster);
     const uniqueUuids = new Set();
 
     for (const tab of TABS) {
       for (const rosterEntry of roster[tab]) {
-        if (typeof rosterEntry.uuid !== "string" || !rosterEntry.uuid.trim()) continue;
-        uniqueUuids.add(rosterEntry.uuid);
+        if (rosterEntry.uuid.trim()) uniqueUuids.add(rosterEntry.uuid);
       }
     }
 
@@ -187,20 +211,34 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       Array.from(uniqueUuids, async (uuid) => [uuid, await fromUuid(uuid)])
     );
     const actorsByUuid = new Map(resolvedActors);
+    const cleanedRoster = { character: [], creature: [], ship: [] };
+    let rosterChanged = normalizationChanged;
 
     for (const tab of TABS) {
       for (const rosterEntry of roster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
-        if (!actor || actor.documentName !== "Actor") {
+        const mappedTab = actor?.documentName === "Actor" ? getBucketByType(actor.type) : null;
+
+        if (mappedTab !== tab) {
           rosterChanged = true;
           continue;
         }
 
-        const mappedTab = getBucketByType(actor.type);
-        if (!mappedTab || mappedTab !== tab) {
-          rosterChanged = true;
-          continue;
-        }
+        cleanedRoster[tab].push(rosterEntry);
+      }
+    }
+
+    return { actorsByUuid, cleanedRoster, rosterChanged };
+  }
+
+  async _buildRosterContext(sourceRoster = {}) {
+    const { actorsByUuid, cleanedRoster, rosterChanged } = await this._resolveCleanRoster(sourceRoster);
+    const entries = { character: [], creature: [], ship: [] };
+    const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
+
+    for (const tab of TABS) {
+      for (const rosterEntry of cleanedRoster[tab]) {
+        const actor = actorsByUuid.get(rosterEntry.uuid);
 
         entries[tab].push({
           uuid: rosterEntry.uuid,
@@ -238,18 +276,19 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       }
     }
 
-    if (rosterChanged && this.actor) {
-      const cleanedRoster = Object.fromEntries(
-        TABS.map((tab) => [tab, entries[tab].map(({ uuid, active, hazardPay }) => ({ uuid, active, hazardPay }))])
-      );
-      await this.actor.setFlag(MODULE_ID, FLAG_KEY, cleanedRoster);
-    }
-
     const tabs = [
       { id: "character", label: game.i18n.localize("MoshQoL.Common.PlayerCharacters") },
       { id: "creature", label: game.i18n.localize("MoshQoL.Common.Contractors") },
       { id: "ship", label: game.i18n.localize("MoshQoL.Common.AuxiliaryCraft") }
     ];
+
+    return { cleanedRoster, entries, rosterChanged, summary, tabs };
+  }
+
+  async _prepareContext() {
+    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
+    const { cleanedRoster, entries, rosterChanged, summary, tabs } = await this._buildRosterContext(sourceRoster);
+    this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
     return {
       actorName: this.actor?.name ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.ActorName"),
@@ -280,6 +319,10 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
     root.addEventListener("change", this._boundHazardChange);
+
+    const cleanupCandidate = this._lastRosterCleanupCandidate;
+    this._lastRosterCleanupCandidate = null;
+    this._cleanupRosterFlagIfNeeded(cleanupCandidate);
   }
 
   _onClose(options) {
@@ -290,9 +333,32 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       root.removeEventListener("change", this._boundHazardChange);
     }
 
+    this._lastRosterCleanupCandidate = null;
     return super._onClose(options);
   }
 
+  _cleanupRosterFlagIfNeeded(candidate = null) {
+    if (!this.actor) return Promise.resolve(false);
+    if (this._cleanupInFlight) return this._cleanupInFlight;
+
+    this._cleanupInFlight = (async () => {
+      const cleanupCandidate = candidate ?? await this._resolveCleanRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+      if (!cleanupCandidate.rosterChanged) return false;
+
+      return this._scheduleRosterCommit(cleanupCandidate.cleanedRoster);
+    })();
+
+    this._cleanupInFlight.finally(() => {
+      this._cleanupInFlight = null;
+    });
+
+    return this._cleanupInFlight;
+  }
+
+  async _normalizeRosterForCommit(roster) {
+    const { cleanedRoster } = await this._resolveCleanRoster(roster);
+    return cleanedRoster;
+  }
 
   _scheduleRosterCommit(nextRoster) {
     if (!this.actor) return Promise.resolve(false);
@@ -323,8 +389,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   async _flushRosterCommit() {
     if (!this.actor || !this._pendingRosterCommit) return false;
 
-    const rosterToCommit = this._pendingRosterCommit;
+    const pendingRoster = this._pendingRosterCommit;
     this._pendingRosterCommit = null;
+    const rosterToCommit = await this._normalizeRosterForCommit(pendingRoster);
 
     await this.actor.setFlag(MODULE_ID, FLAG_KEY, rosterToCommit);
     this.render();
