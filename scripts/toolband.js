@@ -6,8 +6,40 @@ import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN } from "./codex/constants.js";
+import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
 
 const CLS = "toolband";
+
+function renderPlaceholder(bar) {
+  const placeholder = document.createElement("div");
+  placeholder.classList.add(`${CLS}-placeholder`);
+  placeholder.setAttribute("data-note", "no-buttons");
+  placeholder.textContent = "—";
+  bar.appendChild(placeholder);
+}
+
+function renderToolbandButton(button) {
+  const pressed = button?.pressed === true;
+  const label = String(button?.label ?? "");
+
+  const el = document.createElement("button");
+  el.type = "button";
+  el.classList.add(`${CLS}-btn`, "pill", "interactive");
+  el.classList.toggle("is-active", pressed);
+  el.setAttribute("data-action", sanitizeDataAction(button?.id));
+  el.setAttribute("title", label);
+  el.setAttribute("aria-pressed", String(pressed));
+
+  const icon = document.createElement("i");
+  icon.setAttribute("aria-hidden", "true");
+  icon.classList.add(...sanitizeClassTokens(button?.icon));
+
+  const text = document.createElement("span");
+  text.textContent = label;
+
+  el.append(icon, text);
+  return el;
+}
 
 /** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
 function getRoot(sheet, html){
@@ -301,21 +333,16 @@ export function upsertToolband(sheet, html, ctx = {}) {
   if (bar.dataset.signature === signature) return;
   bar.dataset.signature = signature;
 
+  bar.replaceChildren();
+
   if (!visibleBtns.length) {
-    bar.innerHTML = `<div class="${CLS}-placeholder" data-note="no-buttons">—</div>`;
+    renderPlaceholder(bar);
     return;
   }
 
-  bar.innerHTML = visibleBtns.map(b => {
-    const pressed = !!b.pressed;
-    const classes = `${CLS}-btn pill interactive` + (pressed ? " is-active" : "");
-    const aria = `aria-pressed="${pressed ? "true" : "false"}"`;
-    return `
-      <button type="button" class="${classes}" data-action="${b.id}" title="${b.label}" ${aria}>
-        <i class="${b.icon}" aria-hidden="true"></i><span>${b.label}</span>
-      </button>
-    `;
-  }).join("");// + `<div class="${CLS}-spacer"></div>`;
+  for (const button of visibleBtns) {
+    bar.appendChild(renderToolbandButton(button));
+  }
 
 }
 

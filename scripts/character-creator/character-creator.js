@@ -1,4 +1,5 @@
 import { chatOutput } from "../utils/chat-output.js";
+import { escapeHTML } from "../utils/html-safety.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 import { ClassSelectorApp } from "./select-class.js";
 import { AttributeSelectorApp } from "./select-attributes.js";
@@ -15,7 +16,7 @@ export async function startCharacterCreation(actor) {
     if (game.user.isGM) {
       const resetConfirm = await foundry.applications.api.DialogV2.wait({
         window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Title") },
-        content: `<p>${game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name })}</p>`,
+        content: `<p>${escapeHTML(game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name }))}</p>`,
         buttons: [
           { label: game.i18n.localize("MoshQoL.Common.Reset"), icon: "fa-solid fa-rotate-left", action: "reset" },
           { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
@@ -38,9 +39,9 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 1: Check if actor is marked "ready"
   if (!checkReady(actor)) {
     const content = `
-      <p>${game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name })}</p>
-      <p>${game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk")}</p>
-      <p>${game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction")}</p>
+      <p>${escapeHTML(game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name }))}</p>
+      <p>${escapeHTML(game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk"))}</p>
+      <p>${escapeHTML(game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction"))}</p>
     `;
   
     const choice = await foundry.applications.api.DialogV2.wait({
@@ -125,29 +126,24 @@ export async function startCharacterCreation(actor) {
       }
     });
 
-    const formatBlock = (title, data) => {
-      return `
-        <div style="display: inline-block; vertical-align: top; min-width: 120px; margin-right: 24px;">
-          <u><b>${title}</b></u><br>
-          ${Object.entries(data)
-            .map(([k, v]) => `<span class="counter">${v}</span> ${k[0].toUpperCase() + k.slice(1)}`)
-            .join("<br>")}
-        </div>
-      `;
-    };
+    const formatCounterColumn = (title, data) => ({
+      title,
+      items: Object.entries(data).map(([key, value]) => ({
+        label: key[0].toUpperCase() + key.slice(1),
+        value
+      }))
+    });
 
-    const content = `
-      <div style="display: flex; gap: 32px; line-height: 1.5;">
-        ${formatBlock(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Stats"), rolledAttributes)}
-        ${formatBlock(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Saves"), rolledSaves)}
-      </div>
-    `;
+    const statColumns = [
+      formatCounterColumn(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Stats"), rolledAttributes),
+      formatCounterColumn(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Saves"), rolledSaves)
+    ];
 
     await chatOutput({
       actor,
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Title"),
       subtitle: actor.name,
-      content,
+      blocks: [{ type: "counterColumns", columns: statColumns }],
       icon: "fa-chart-line",
       image: actor.img
     });
@@ -178,7 +174,10 @@ export async function startCharacterCreation(actor) {
     await chatOutput({
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.ClassSelected.Title"),
       subtitle: actor.name,
-      content: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name, className: selectedClass.name }),
+      blocks: [{
+        type: "text",
+        text: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name, className: selectedClass.name })
+      }],
       image: selectedClass?.img || "",
       icon: "fa-user"
     });
@@ -217,7 +216,7 @@ export async function startCharacterCreation(actor) {
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.HealthRolled.Title"),
       subtitle: actor.name,
       icon: "fa-heart-pulse",
-      content: `<span class="counter">${total}</span> HP`
+      blocks: [{ type: "counter", value: total, label: "HP" }]
     });
   
     await completeStep(actor, "rolledHealth");
@@ -235,16 +234,11 @@ export async function startCharacterCreation(actor) {
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.SkillsSelected.Title"),
       subtitle: actor.name,
       icon: "fa-sitemap",
-      content: `
-          ${adjustments
-            .map(i => `
-              <div style="display:flex; align-items:center; gap:0.5em; margin:0.2em 0;">
-                <img src="${i.img}" style="height:2.5em; flex:0 0 auto;">
-                <span style="flex:1; white-space:nowrap;">${i.name}</span>
-              </div>
-            `)
-            .join("")}
-        `
+      blocks: [{
+        type: "itemList",
+        items: adjustments,
+        nowrap: true
+      }]
     });
         
     await completeStep(actor, "selectedSkills");

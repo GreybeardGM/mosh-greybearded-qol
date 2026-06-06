@@ -64,7 +64,12 @@ export async function convertStress(actor, formula, options = {}) {
   await chatOutput({
     actor,
     title: game.i18n.localize("MoshQoL.Common.StressConversion"),
-    content: `${game.i18n.localize("MoshQoL.ShoreLeave.ConvertedStress")}: <label class="counter">${conversionPoints}</label>`,
+    blocks: [{
+      type: "counter",
+      label: `${game.i18n.localize("MoshQoL.ShoreLeave.ConvertedStress")}:`,
+      value: conversionPoints,
+      labelPosition: "before"
+    }],
     subtitle: actor.name,
     image: actor.img,
     roll

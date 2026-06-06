@@ -1,10 +1,122 @@
 import { getThemeColor } from "./get-theme-color.js";
+import { escapeHTML, sanitizeClassList, sanitizeDataAction } from "./html-safety.js";
+
+const CHAT_HTML_BRAND = Symbol("mosh-qol-chat-html");
+
+/**
+ * Chat output contract:
+ * - `blocks` is the API for standard layouts (text, counters, lists, separators).
+ * - `rawChatHTML(html)` is only for HTML already enriched by Foundry or another trusted source.
+ * - New call sites should pass data via `blocks` instead of building HTML strings.
+ */
+export function rawChatHTML(html = "") {
+  return {
+    [CHAT_HTML_BRAND]: true,
+    html: String(html ?? "")
+  };
+}
+
+function isChatHTML(value) {
+  return value?.[CHAT_HTML_BRAND] === true;
+}
+
+function normalizeTextBlock(block = {}) {
+  return {
+    type: "text",
+    text: escapeHTML(block.text)
+  };
+}
+
+function normalizeHtmlBlock(block = {}) {
+  return {
+    type: "html",
+    html: isChatHTML(block.html) ? block.html.html : ""
+  };
+}
+
+function normalizeCounterBlock(block = {}) {
+  return {
+    type: "counter",
+    value: escapeHTML(block.value),
+    label: escapeHTML(block.label),
+    labelPosition: block.labelPosition === "before" ? "before" : "after"
+  };
+}
+
+function normalizeItem(item = {}) {
+  return {
+    name: escapeHTML(item.name),
+    img: escapeHTML(item.img),
+    subtitle: escapeHTML(item.subtitle),
+    quantity: item.quantity === null || item.quantity === undefined ? "" : escapeHTML(item.quantity)
+  };
+}
+
+function normalizeItemListBlock(block = {}) {
+  const items = Array.isArray(block.items) ? block.items.map(normalizeItem) : [];
+
+  return {
+    type: "itemList",
+    title: escapeHTML(block.title),
+    items,
+    compact: block.compact === true,
+    nowrap: block.nowrap === true
+  };
+}
+
+function normalizeCounterListItem(item = {}) {
+  return {
+    label: escapeHTML(item.label),
+    value: escapeHTML(item.value)
+  };
+}
+
+function normalizeCounterColumnsBlock(block = {}) {
+  const columns = Array.isArray(block.columns)
+    ? block.columns.map(column => ({
+      title: escapeHTML(column.title),
+      items: Array.isArray(column.items) ? column.items.map(normalizeCounterListItem) : []
+    }))
+    : [];
+
+  return {
+    type: "counterColumns",
+    columns
+  };
+}
+
+function normalizeBlock(block = {}) {
+  switch (block.type) {
+    case "html": return normalizeHtmlBlock(block);
+    case "counter": return normalizeCounterBlock(block);
+    case "itemList": return normalizeItemListBlock(block);
+    case "counterColumns": return normalizeCounterColumnsBlock(block);
+    case "separator": return { type: "separator" };
+    case "text":
+    default: return normalizeTextBlock(block);
+  }
+}
+
+function normalizeBlocks(blocks) {
+  return Array.isArray(blocks) ? blocks.map(normalizeBlock) : [];
+}
+
+function prepareButton(button = {}) {
+  const args = Array.isArray(button.args) ? button.args : [];
+
+  return {
+    icon: sanitizeClassList(button.icon || "fa-dice", { fallback: "fa-dice" }),
+    action: escapeHTML(sanitizeDataAction(button.action)),
+    args: escapeHTML(JSON.stringify(args)),
+    label: escapeHTML(button.label)
+  };
+}
 
 export async function chatOutput({
   actor,
   title = "Untitled",
   subtitle = "",
-  content = "",
+  blocks = [],
   icon = null,
   image = null,
   roll = null,
@@ -18,46 +130,23 @@ export async function chatOutput({
   if (image) {
     icon = null;
   } else if (!icon && title) {
-    const letter = title.charAt(0).toLowerCase();
-    icon = `fa-${letter}`;
-    title = title.slice(1);
+    const normalizedTitle = String(title);
+    icon = `fa-${normalizedTitle.charAt(0).toLowerCase()}`;
+    title = normalizedTitle.slice(1);
   }
 
-  // Normalize and build chat-action buttons
-  if (Array.isArray(buttons)) {
-    buttons.forEach(btn => {
-      if (!btn.icon) btn.icon = "fa-dice";
-  
-      const action = btn.action || "";
-      const args = btn.args || [];
-      const argsString = JSON.stringify(args).replace(/"/g, "&quot;");
-  
-      btn.buttonHtml = `
-        <div class="pill chat-action interactive" data-action="${action}" data-args="${argsString}">
-          <i class="fas ${btn.icon}"></i> ${btn.label}
-        </div>
-      `;
-    });
-  }
-
-  // Prepare HTML via template
-  const themeColor = getThemeColor();
+  // Prepare HTML via template. The template intentionally uses triple-stash only
+  // for fields escaped or explicitly marked as trusted by this module.
   const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/ui/chat-output.html", {
     actor,
-    title,
-    subtitle,
-    content,
-    icon,
-    image,
-    buttons,
-    themeColor
+    title: escapeHTML(title),
+    subtitle: escapeHTML(subtitle),
+    blocks: normalizeBlocks(blocks),
+    icon: sanitizeClassList(icon),
+    image: escapeHTML(image),
+    buttons: Array.isArray(buttons) ? buttons.map(prepareButton) : [],
+    themeColor: escapeHTML(getThemeColor())
   });
-
-  // Send to chat (Foundry V13)
-  const messageData = {
-    speaker: ChatMessage.getSpeaker({ actor }),
-    content: html
-  };
 
   if (roll instanceof Roll) {
     return roll.toMessage({

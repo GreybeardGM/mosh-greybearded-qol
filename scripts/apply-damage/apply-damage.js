@@ -9,7 +9,7 @@ import {
 } from "../settings/apply-damage-config.js";
 import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
-import { chatOutput } from "../utils/chat-output.js";
+import { chatOutput, rawChatHTML } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
 import { ApplyDamageInputApp } from "./damage-input-app.js";
 import { syncArmorBrokenToolbandButton } from "../toolband.js";
@@ -231,6 +231,9 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
 
   if (woundsGained > 0) {
     const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
+    const automatedWoundBlocks = automatedWoundContent
+      ? [{ type: "separator" }, { type: "html", html: rawChatHTML(automatedWoundContent) }]
+      : [];
 
     if (hits === hitsMax) {
       await chatOutput({
@@ -238,25 +241,24 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
         title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
         subtitle: actor.name ?? "",
         icon: "fa-skull",
-        content: [
-          game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }),
-          automatedWoundContent
-        ].filter(Boolean).join("<hr>")
+        blocks: [
+          { type: "text", text: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }) },
+          ...automatedWoundBlocks
+        ]
       });
     } else {
       const plural = woundsGained !== 1;
+      const woundsLabel = game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular");
+
       await chatOutput({
         actor,
         title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
         subtitle: actor.name ?? "",
         icon: "fa-heart-broken",
-        content: [
-          game.i18n.format("MoshQoL.Damage.WoundsSuffered", {
-            count: woundsGained,
-            wounds: game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular")
-          }),
-          automatedWoundContent
-        ].filter(Boolean).join("<hr>")
+        blocks: [
+          { type: "text", text: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { count: woundsGained, wounds: woundsLabel }) },
+          ...automatedWoundBlocks
+        ]
       });
     }
   }

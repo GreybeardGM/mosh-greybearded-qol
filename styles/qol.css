@@ -941,3 +941,75 @@
 .greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-anti-armor input::after {
   color: var(--theme-color);
 }
+
+/* Structured chat output blocks */
+.greybeardqol.qol-ui .chat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.greybeardqol.qol-ui .chat-text {
+  margin: 0;
+}
+
+.greybeardqol.qol-ui .chat-counter-line,
+.greybeardqol.qol-ui .chat-counter-row,
+.greybeardqol.qol-ui .chat-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.greybeardqol.qol-ui .chat-counter-line {
+  flex-wrap: wrap;
+}
+
+.greybeardqol.qol-ui .chat-counter-columns {
+  display: flex;
+  gap: 2rem;
+  line-height: 1.5;
+}
+
+.greybeardqol.qol-ui .chat-counter-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 7.5rem;
+}
+
+.greybeardqol.qol-ui .chat-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.greybeardqol.qol-ui .chat-item-list.is-compact {
+  gap: 0.1rem;
+}
+
+.greybeardqol.qol-ui .chat-item-list.is-nowrap .chat-item-name {
+  white-space: nowrap;
+}
+
+.greybeardqol.qol-ui .chat-item-image {
+  flex: 0 0 auto;
+  height: 2.5em;
+  object-fit: contain;
+}
+
+.greybeardqol.qol-ui .chat-item-name {
+  flex: 1;
+}
+
+.greybeardqol.qol-ui .chat-item-subtitle {
+  color: var(--theme-color);
+  font-style: italic;
+}
+
+.greybeardqol.qol-ui .chat-item-quantity {
+  font-weight: bold;
+}
+
+.greybeardqol.qol-ui .chat-section-title {
+  margin-bottom: 0.2rem;
+}
