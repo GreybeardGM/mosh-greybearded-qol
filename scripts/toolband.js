@@ -13,7 +13,6 @@ function getRoot(sheet, html){
   return (sheet?.element?.[0]) || (html?.[0]) || null;
 }
 
-
 function addArmorBrokenButton(buttons, actor) {
   buttons.push(makeToolbandButton("armor-broken", {
     pressed: actor?.statuses?.has("qol-broken-armor") === true
@@ -80,6 +79,177 @@ function getToolbandButtons({ actor, kind, isGM }) {
   return buttons;
 }
 
+async function handleTrainingAction(sheet) {
+  const actor = sheet?.actor;
+  if (!actor) return;
+
+  const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
+  if (!trainedSkill) return;
+
+  ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Learned", {
+    actorName: actor.name,
+    skillName: trainedSkill.name
+  }));
+  return sheet.render(false);
+}
+
+async function handleMarkReadyAction(sheet) {
+  const actor = sheet?.actor;
+  if (!actor) return;
+
+  await setReady(actor);
+  ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedReady", { actorName: actor.name }));
+  return sheet.render(false);
+}
+
+async function handleMarkCompleteAction(sheet) {
+  const actor = sheet?.actor;
+  if (!actor) return;
+
+  await setCompleted(actor);
+  ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedCompleted", { actorName: actor.name }));
+  return sheet.render(false);
+}
+
+async function handleArmorBrokenAction(sheet) {
+  const actor = sheet?.actor;
+  if (!actor) return;
+
+  const isActive = actor?.statuses?.has("qol-broken-armor") === true;
+
+  // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
+  await actor.toggleStatusEffect("qol-broken-armor", { active: !isActive });
+  syncArmorBrokenToolbandButton(actor);
+
+  ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {
+    actorName: actor.name,
+    state: game.i18n.localize(!isActive ? "MoshQoL.Armor.Broken" : "MoshQoL.Armor.Intact")
+  }));
+}
+
+async function rollContractorDetails(sheet, actor, { loyalty = false, motivation = false, loadout = false } = {}) {
+  if (!actor) return;
+
+  if (loyalty && typeof sheet?._rollContractorLoyalty === "function") {
+    await sheet._rollContractorLoyalty(actor);
+  }
+
+  if (motivation && typeof sheet?._rollContractorMotivation === "function") {
+    await sheet._rollContractorMotivation(actor);
+  }
+
+  if (loadout && typeof sheet?._rollContractorLoadout === "function") {
+    await sheet._rollContractorLoadout(actor);
+  }
+}
+
+async function markContractorNamed(actor) {
+  if (!actor) return;
+
+  await actor.update({
+    "system.contractor.isNamed": true,
+    "system.stats.loyalty.enabled": true
+  });
+}
+
+async function handlePromoteContractorAction(sheet, { isGM = false } = {}) {
+  const actor = sheet?.actor;
+  if (!isGM || !actor) return;
+
+  const choice = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
+    content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
+    buttons: [
+      { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
+      { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
+      { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
+    ],
+    default: "roll"
+  });
+
+  switch (choice) {
+    case "roll":
+      await markContractorNamed(actor);
+      await rollContractorDetails(sheet, actor, { loyalty: true, motivation: true, loadout: true });
+      ui.notifications?.info?.(game.i18n.format("MoshQoL.Contractor.Promote.Rolled", { actorName: actor.name }));
+      break;
+    case "manual":
+      await markContractorNamed(actor);
+      ui.notifications?.info?.(game.i18n.format("MoshQoL.Contractor.Promote.ManualDone", { actorName: actor.name }));
+      break;
+    default:
+      ui.notifications?.info?.(game.i18n.localize("MoshQoL.Contractor.Promote.Cancelled"));
+      return;
+  }
+
+  return sheet.render();
+}
+
+async function handleContractorMenuAction(sheet, { isGM = false } = {}) {
+  const actor = sheet?.actor;
+  if (!isGM || !actor) return;
+
+  await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
+    content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
+    buttons: [
+      {
+        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
+        icon: "fa-solid fa-handshake",
+        action: "loyalty",
+        callback: () => rollContractorDetails(sheet, actor, { loyalty: true })
+      },
+      {
+        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
+        icon: "fa-solid fa-fire",
+        action: "motivation",
+        callback: () => rollContractorDetails(sheet, actor, { motivation: true })
+      },
+      {
+        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
+        icon: "fa-solid fa-boxes-stacked",
+        action: "loadout",
+        callback: () => rollContractorDetails(sheet, actor, { loadout: true })
+      }
+    ],
+    default: "loyalty"
+  });
+}
+
+function handleToolbandAction(action, sheet, ctx = {}) {
+  const actor = sheet?.actor;
+
+  switch (action) {
+    case "ship-crit":
+      if (!actor) return;
+      return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
+    case "ship-crew-roster":
+      if (!actor) return;
+      return new ShipCrewRosterApp({ actor }).render(true);
+    case "roll-character":
+      if (!actor) return;
+      return game.moshGreybeardQol.startCharacterCreation(actor);
+    case "shore-leave":
+      if (!actor) return;
+      return game.moshGreybeardQol.SimpleShoreLeave.wait({ actor });
+    case "training":
+      return handleTrainingAction(sheet);
+    case "mark-ready":
+      return handleMarkReadyAction(sheet);
+    case "mark-complete":
+      return handleMarkCompleteAction(sheet);
+    case "apply-damage":
+      if (!actor) return;
+      return game.moshGreybeardQol.applyDamage(actor);
+    case "armor-broken":
+      return handleArmorBrokenAction(sheet);
+    case "promote-contractor":
+      return handlePromoteContractorAction(sheet, ctx);
+    case "contractor-menu":
+      return handleContractorMenuAction(sheet, ctx);
+  }
+}
+
 function getButtonRenderSignature(buttons) {
   if (!buttons.length) return "__placeholder__";
   return buttons
@@ -112,141 +282,10 @@ export function upsertToolband(sheet, html, ctx = {}) {
     bar.addEventListener("click", async (ev) => {
       const btn = ev.target.closest(`.${CLS}-btn[data-action]`);
       if (!btn) return;
-      ev.preventDefault(); ev.stopPropagation();
+      ev.preventDefault();
+      ev.stopPropagation();
 
-      const actor = sheet.actor;
-      switch (btn.dataset.action) {
-        case "ship-crit":
-          return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
-
-        case "ship-crew-roster":
-          if (!actor) return;
-          return new ShipCrewRosterApp({ actor }).render(true);
-
-        case "roll-character":
-          return game.moshGreybeardQol.startCharacterCreation(actor);
-
-        case "shore-leave":
-          return game.moshGreybeardQol.SimpleShoreLeave.wait({ actor });
-
-        case "training": {
-          if (!actor) return;
-          const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
-          if (!trainedSkill) return;
-          ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Learned", { actorName: actor.name, skillName: trainedSkill.name }));
-          return sheet.render(false);
-        }
-
-        case "mark-ready":
-          await setReady(actor);
-          ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedReady", { actorName: actor.name }));
-          return sheet.render(false);
-
-        case "mark-complete":
-          await setCompleted(actor);
-          ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedCompleted", { actorName: actor.name }));
-          return sheet.render(false);
-
-        case "apply-damage":
-          if (!actor) return;
-          await game.moshGreybeardQol.applyDamage(actor);
-          return;
-        
-        case "armor-broken": {
-          if (!actor) return;
-          const isActive = actor?.statuses?.has("qol-broken-armor") === true;
-        
-          // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
-          await actor.toggleStatusEffect("qol-broken-armor", { active: !isActive });
-          syncArmorBrokenToolbandButton(actor);
-        
-          ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {
-            actorName: actor.name,
-            state: game.i18n.localize(!isActive ? "MoshQoL.Armor.Broken" : "MoshQoL.Armor.Intact")
-          }));
-          return;
-        }
-          
-        // ===== Contractor: Promote =====
-        case "promote-contractor": {
-          // Guard: nur GM & nur wenn die Sheet-Methoden existieren
-          if (!isGM) return;
-          const choice = await foundry.applications.api.DialogV2.wait({
-            window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
-            content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
-            buttons: [
-              { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
-              { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
-              { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
-            ],
-            default: "roll"
-          });
-         
-          switch (choice) {
-            case "roll":
-              await actor.update({
-                "system.contractor.isNamed": true,
-                "system.stats.loyalty.enabled": true
-              });
-              if (typeof sheet._rollContractorLoyalty === "function")   await sheet._rollContractorLoyalty(actor);
-              if (typeof sheet._rollContractorMotivation === "function")await sheet._rollContractorMotivation(actor);
-              if (typeof sheet._rollContractorLoadout === "function")   await sheet._rollContractorLoadout(actor);
-              ui.notifications.info(game.i18n.format("MoshQoL.Contractor.Promote.Rolled", { actorName: actor.name }));
-              break;
-            case "manual":
-              await actor.update({
-                "system.contractor.isNamed": true,
-                "system.stats.loyalty.enabled": true
-              });
-              ui.notifications.info(game.i18n.format("MoshQoL.Contractor.Promote.ManualDone", { actorName: actor.name }));
-              break;
-            default:
-              ui.notifications.info(game.i18n.localize("MoshQoL.Contractor.Promote.Cancelled"));
-              return;
-          }
-          return sheet.render();
-        }
-
-        // ===== Contractor: Menü =====
-        case "contractor-menu": {
-          if (!isGM) return;
-          await foundry.applications.api.DialogV2.wait({
-            window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
-            content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
-            buttons: [
-              {
-                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
-                icon: "fa-solid fa-handshake",
-                action: "loyalty",
-                callback: async () => { 
-                  if (typeof sheet._rollContractorLoyalty === "function") 
-                    await sheet._rollContractorLoyalty(actor); 
-                }
-              },
-              {
-                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
-                icon: "fa-solid fa-fire",
-                action: "motivation",
-                callback: async () => { 
-                  if (typeof sheet._rollContractorMotivation === "function") 
-                    await sheet._rollContractorMotivation(actor); 
-                }
-              },
-              {
-                label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
-                icon: "fa-solid fa-boxes-stacked",
-                action: "loadout",
-                callback: async () => { 
-                  if (typeof sheet._rollContractorLoadout === "function") 
-                    await sheet._rollContractorLoadout(actor); 
-                }
-              }
-            ],
-            default: "loyalty"
-          });
-          return;
-        }
-      }
+      return handleToolbandAction(btn.dataset.action, sheet, { isGM });
     }, { passive: false });
   }
 
