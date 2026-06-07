@@ -12,6 +12,7 @@ import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 import { chatOutput, rawChatHTML } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
 import { ApplyDamageInputApp } from "./damage-input-app.js";
+import { calculateDamageOutcome } from "./damage-outcome.js";
 import { syncArmorBrokenToolbandButton } from "../toolband.js";
 import { STATUS_ARMOR_BROKEN } from "../codex/constants.js";
 
@@ -295,42 +296,6 @@ async function getAutomatedWoundChatBlocks(automatedWoundResults) {
     : [];
 }
 
-
-function calculateDamageOutcome({ hp, hpMax, hits, hitsMax, remaining }) {
-  let woundsGained = 0;
-  const availableWounds = Math.max(0, hitsMax - hits);
-
-  if (remaining <= 0 || availableWounds <= 0) {
-    return { hp, hits, remaining, woundsGained };
-  }
-
-  if (hpMax <= 0) {
-    return { hp, hits: hits + 1, remaining: 0, woundsGained: 1 };
-  }
-
-  if (hp > 0) {
-    if (remaining < hp) {
-      return { hp: hp - remaining, hits, remaining: 0, woundsGained };
-    }
-
-    remaining -= hp;
-    woundsGained += 1;
-    hits += 1;
-    hp = hpMax;
-  }
-
-  const remainingWoundCapacity = Math.max(0, hitsMax - hits);
-  const extraWounds = Math.min(remainingWoundCapacity, Math.ceil(remaining / hpMax));
-
-  if (extraWounds > 0) {
-    woundsGained += extraWounds;
-    hits += extraWounds;
-    remaining = Math.max(0, remaining - (extraWounds * hpMax));
-    hp = hpMax;
-  }
-
-  return { hp, hits, remaining, woundsGained };
-}
 
 /**
  * Öffnet den gemeinsamen Apply-Damage-Dialog und liefert rohe Dialogwerte zurück.
