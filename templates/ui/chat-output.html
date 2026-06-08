@@ -75,6 +75,24 @@
             </div>
           {{/if}}
 
+          {{#if (eq this.type "automatedWounds")}}
+            <div class="mosh-qol-automated-wounds">
+              {{#each this.entries}}
+                <p>
+                  {{#if this.rollLabel}}{{{this.rollLabel}}}: {{/if}}
+                  {{#each this.rolls}}
+                    {{#if this.html}}{{{this.html}}}{{else}}{{{this.text}}}{{/if}}{{#unless @last}} / {{/unless}}
+                  {{/each}}
+                  <br>
+                  {{#each this.results}}
+                    {{#if this.html}}{{{this.html}}}{{else}}{{{this.text}}}{{/if}}{{#unless @last}}<br>{{/unless}}
+                  {{/each}}
+                </p>
+                {{#unless @last}}<hr>{{/unless}}
+              {{/each}}
+            </div>
+          {{/if}}
+
           {{#if (eq this.type "separator")}}
             <hr class="chat-separator"/>
           {{/if}}
