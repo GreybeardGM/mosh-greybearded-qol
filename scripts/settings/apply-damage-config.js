@@ -1,4 +1,4 @@
-import { normalizeBoolean } from "../utils/normalization.js";
+import { normalizeBoolean, normalizeEnum } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
 import {
   APPLY_DAMAGE_ACTOR_SCOPES,
@@ -10,7 +10,7 @@ import {
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   resetSettingToDefaults,
-  setSettingAndNotify
+  saveSettingAndClose
 } from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -24,9 +24,11 @@ function normalizeApplyDamageConfig(config) {
     if (typeof config.applyArmorBroken === "boolean") {
       normalized.applyArmorBroken = config.applyArmorBroken;
     }
-    if (Object.values(APPLY_DAMAGE_VISIBILITY).includes(config.visibility)) {
-      normalized.visibility = config.visibility;
-    }
+    normalized.visibility = normalizeEnum(
+      config.visibility,
+      Object.values(APPLY_DAMAGE_VISIBILITY),
+      normalized.visibility
+    );
     if (config.automateWoundRoll && typeof config.automateWoundRoll === "object") {
       for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
         if (typeof config.automateWoundRoll[scope] === "boolean") {
@@ -97,17 +99,17 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     const applyArmorBroken = submitted.applyArmorBroken;
     config.applyArmorBroken = normalizeBoolean(applyArmorBroken);
 
-    const visibility = submitted.visibility;
-    config.visibility = Object.values(APPLY_DAMAGE_VISIBILITY).includes(visibility)
-      ? visibility
-      : APPLY_DAMAGE_VISIBILITY.GM_ONLY;
+    config.visibility = normalizeEnum(
+      submitted.visibility,
+      Object.values(APPLY_DAMAGE_VISIBILITY),
+      APPLY_DAMAGE_VISIBILITY.GM_ONLY
+    );
 
     const automateWoundRoll = submitted.automateWoundRoll ?? {};
     for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
       config.automateWoundRoll[scope] = normalizeBoolean(automateWoundRoll[scope]);
     }
 
-    await setSettingAndNotify(MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG, config, "MoshQoL.Damage.Config.UpdateSuccess");
-    this.close();
+    await saveSettingAndClose(this, MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG, config, "MoshQoL.Damage.Config.UpdateSuccess");
   }
 }
