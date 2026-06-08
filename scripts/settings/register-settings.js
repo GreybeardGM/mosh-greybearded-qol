@@ -6,6 +6,7 @@ import {
 import { TOOLBAND_CONFIG_SETTING, ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import { APPLY_DAMAGE_CONFIG_SETTING, ApplyDamageConfigApp } from "./apply-damage-config.js";
 import { getDefaultApplyDamageConfig } from "../codex/apply-damage-config.js";
+import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import {
@@ -91,7 +92,7 @@ const MENU_DEFINITIONS = [
       name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
       label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
       hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
-      icon: "fas fa-edit",
+      icon: getFeatureIcon("shoreLeaveEditor", "fas fa-edit"),
       type: ShoreLeaveConfigApp,
       restricted: true
     },
@@ -110,7 +111,7 @@ const MENU_DEFINITIONS = [
       name: "MoshQoL.Settings.ToolbandConfig.Name",
       label: "MoshQoL.Settings.ToolbandConfig.Label",
       hint: "MoshQoL.Settings.ToolbandConfig.Hint",
-      icon: "fas fa-toolbox",
+      icon: getFeatureIcon("toolbandConfigMenu", "fas fa-toolbox"),
       type: ToolbandConfigApp,
       restricted: true
     },
@@ -129,7 +130,7 @@ const MENU_DEFINITIONS = [
       name: "MoshQoL.Settings.ApplyDamageConfig.Name",
       label: "MoshQoL.Settings.ApplyDamageConfig.Label",
       hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
-      icon: "fas fa-heart-broken",
+      icon: getFeatureIcon("applyDamageConfigMenu", "fas fa-heart-broken"),
       type: ApplyDamageConfigApp,
       restricted: true
     },

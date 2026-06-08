@@ -1,6 +1,7 @@
 import { applyDamageToActors, getUniqueActorsFromTargets, promptDamageInput } from "./apply-damage.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { canShowApplyDamageUI } from "./policy.js";
+import { getFeatureIcon } from "../codex/feature-actions.js";
 
 async function applyDamageToSelectedActors(damageInput, antiArmor, selectedActors = null) {
   const selectedActorsList = getUniqueActorsFromTargets(selectedActors ?? (canvas?.tokens?.controlled ?? []));
@@ -62,7 +63,7 @@ export function registerApplyDamageSceneControl() {
     const toolDef = {
       name: "applyDamage",
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamageToSelectedTokens"),
-      icon: "fa-solid fa-heart-broken",
+      icon: getFeatureIcon("apply-damage", "fa-solid fa-heart-broken"),
       visible: canShowApplyDamageUI(game.user),
       button: true,
       onClick: async () => {
