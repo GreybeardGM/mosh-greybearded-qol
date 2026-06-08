@@ -3,6 +3,7 @@
 
 export const MOSH_PSG_MODULE_ID = "fvtt_mosh_1e_psg";
 export const MOSH_ROLLTABLE_PACK_ID = "mosh.rolltables_1e";
+export const MOSH_FALLBACK_ACTOR_IMAGE = "icons/svg/mystery-man.svg";
 
 export const MOSH_LOADOUT_ROLLTABLE_IMAGES = Object.freeze({
   Loadout: `modules/${MOSH_PSG_MODULE_ID}/icons/rolltables/loadouts.png`,

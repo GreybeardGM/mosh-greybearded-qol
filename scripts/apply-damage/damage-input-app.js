@@ -1,5 +1,6 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { MODULE_ID, templatePath } from "../codex/constants.js";
+import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -50,7 +51,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
       portraits: this._targets.map((actor, index) => ({
         index,
         name: actor?.name ?? "",
-        src: actor?.img || "icons/svg/mystery-man.svg"
+        src: actor?.img || MOSH_FALLBACK_ACTOR_IMAGE
       })),
       antiArmorLabel: game.i18n.localize("MoshQoL.Damage.AntiArmor"),
       applyLabel: game.i18n.localize("MoshQoL.Damage.Apply"),

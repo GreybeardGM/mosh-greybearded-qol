@@ -1,4 +1,5 @@
 import { templatePath } from "../codex/constants.js";
+import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
@@ -134,7 +135,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         id: cls.id,
         uuid: cls.uuid,
         name: cls.name,
-        img: cls.img || "icons/svg/mystery-man.svg",
+        img: cls.img || MOSH_FALLBACK_ACTOR_IMAGE,
         trauma,
         description,
         attributes: attr.join("<br>") || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoAttributes"),
