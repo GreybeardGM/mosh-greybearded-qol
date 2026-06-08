@@ -1,3 +1,4 @@
+import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
@@ -19,7 +20,7 @@ function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = gam
     skillByUuid,
     skillMap,
     includeRank: true,
-    onMissing: rawRef => console.warn(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`)
+    onMissing: rawRef => console.warn(`[${MODULE_ID}] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`)
   });
 }
 
@@ -78,13 +79,13 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     options: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-skills-options.html"
+      template: templatePath("character-creator/select-skills-options.html")
     },
     skilltree: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/skilltree-core.html"
+      template: templatePath("character-creator/skilltree-core.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 

@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "./utils.js";
@@ -39,10 +40,10 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static PARTS = {
     main: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/skilltree-core.html"
+      template: templatePath("character-creator/skilltree-core.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 

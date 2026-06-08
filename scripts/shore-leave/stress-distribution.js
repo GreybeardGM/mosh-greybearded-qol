@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize } from "../utils/normalization.js";
 
@@ -28,10 +29,10 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/stress-conversion.html"
+      template: templatePath("dialogs/stress-conversion.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 

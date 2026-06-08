@@ -1,6 +1,6 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { formatCurrency } from "./utils/normalization.js";
-import { FLAG_CREW_ROSTER, MODULE_ID } from "./codex/constants.js";
+import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const FLAG_KEY = FLAG_CREW_ROSTER;
@@ -193,7 +193,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   static PARTS = {
     body: {
-      template: `modules/${MODULE_ID}/templates/dialogs/crew-roster.html`
+      template: templatePath("dialogs/crew-roster.html")
     }
   };
 

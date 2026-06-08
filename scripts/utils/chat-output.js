@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "./get-theme-color.js";
 import { escapeHTML, sanitizeClassList, sanitizeDataAction } from "./html-safety.js";
 
@@ -151,7 +152,7 @@ export async function chatOutput({
 
   // Prepare HTML via template. The template intentionally uses triple-stash only
   // for fields escaped or explicitly marked as trusted by this module.
-  const html = await foundry.applications.handlebars.renderTemplate("modules/mosh-greybearded-qol/templates/ui/chat-output.html", {
+  const html = await foundry.applications.handlebars.renderTemplate(templatePath("ui/chat-output.html"), {
     actor,
     title: escapeHTML(title),
     subtitle: escapeHTML(subtitle),

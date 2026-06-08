@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { parseCurrencyValue } from "../utils/normalization.js";
@@ -12,7 +13,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     static get defaultOptions() {
         var options = {
             classes: ["mosh", "greybeardqol", "qol-sheet", "sheet", "actor", "creature", "contractor"],
-            template: "modules/mosh-greybearded-qol/templates/sheets/contractor-sheet.html",
+            template: templatePath("sheets/contractor-sheet.html"),
             width: 700,
             height: 650,
             tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "character" }]

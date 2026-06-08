@@ -1,3 +1,4 @@
+import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
@@ -37,10 +38,10 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/simple-shore-leave.html"
+      template: templatePath("dialogs/simple-shore-leave.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 
@@ -64,7 +65,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     this._selectedTier = null;
 
     const shoreLeaveConfig = getNormalizedShoreLeaveConfig();
-    const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
+    const flavorDisabled = game.settings.get(MODULE_ID, "simpleShoreLeave.disableFlavor");
     this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? shoreLeaveConfig.simpleShoreLeave.randomFlavor);
     this.themeColor = getThemeColor();
     this.tiers = this._loadTiers();

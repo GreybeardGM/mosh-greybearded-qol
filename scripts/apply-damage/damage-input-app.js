@@ -1,4 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -6,7 +7,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
   static #active = null;
 
   static DEFAULT_OPTIONS = {
-    id: "mosh-greybearded-qol-apply-damage-input",
+    id: `${MODULE_ID}-apply-damage-input`,
     tag: "form",
     window: {
       title: "MoshQoL.Damage.ApplyDamage",
@@ -23,7 +24,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
   };
 
   static PARTS = {
-    form: { template: "modules/mosh-greybearded-qol/templates/dialogs/apply-damage-input.html" }
+    form: { template: templatePath("dialogs/apply-damage-input.html") }
   };
 
   static async waitForInput(options = {}) {
