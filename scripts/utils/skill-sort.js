@@ -1,4 +1,4 @@
-import { normalizeText } from "../utils/normalization.js";
+import { normalizeText } from "./normalization.js";
 
 const SKILL_SORT_ORDER = Object.freeze([
   "Linguistics",

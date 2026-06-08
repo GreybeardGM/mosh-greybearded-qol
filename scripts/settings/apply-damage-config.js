@@ -4,7 +4,7 @@ import {
   APPLY_DAMAGE_ACTOR_SCOPES,
   APPLY_DAMAGE_VISIBILITY,
   getDefaultApplyDamageConfig
-} from "../codex/apply-damage-config.js";
+} from "../apply-damage/config.js";
 import {
   appendThemeColor,
   createSettingsAppDefaultOptions,

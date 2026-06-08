@@ -1,7 +1,7 @@
 // scripts/utils/item-loader.js
 // Foundry VTT v13 — Item-Aggregation (Homebrew-first) + Sortierung
 
-import { compareSkillNames } from "../codex/skill-sort.js";
+import { compareSkillNames } from "./skill-sort.js";
 import {
   MOSH_HOT_CACHE_ITEM_TYPES,
   MOSH_INDEX_ONLY_ITEM_TYPES,

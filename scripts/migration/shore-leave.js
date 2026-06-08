@@ -5,7 +5,7 @@ import {
   normalizeShoreLeaveTiers
 } from "../settings/shore-leave-config.js";
 import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
-import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
+import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 
 export const SHORE_LEAVE_CONFIG_MIGRATION_SETTING = "migrations.shoreLeaveConfig";
 export const LEGACY_SHORE_LEAVE_TIERS_SETTING = "shoreLeaveTiers";
