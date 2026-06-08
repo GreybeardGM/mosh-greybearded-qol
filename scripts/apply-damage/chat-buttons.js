@@ -6,6 +6,7 @@ import {
   isDamageRoll
 } from "./extract-damage-roll.js";
 import { canShowApplyDamageUI } from "./policy.js";
+import { getFeatureIcon } from "../codex/feature-actions.js";
 
 function getApplyDamageChatButtonRoll(message) {
   const woundEffect = extractWoundEffectFromMessageContent(message);
@@ -41,7 +42,7 @@ function createApplyDamageChatButtons(damageRoll) {
   const applyRegularButton = createApplyDamageButton({
     damage: damageRoll.total,
     antiArmor: false,
-    icon: "fas fa-heart-broken",
+    icon: getFeatureIcon("apply-damage", "fas fa-heart-broken"),
     label: game.i18n.localize("MoshQoL.Damage.ApplyDamageShort"),
     title: game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total }),
     flex: 2,
@@ -52,7 +53,7 @@ function createApplyDamageChatButtons(damageRoll) {
   const applyAntiArmorButton = createApplyDamageButton({
     damage: damageRoll.total,
     antiArmor: true,
-    icon: "fas fa-shield-halved",
+    icon: getFeatureIcon("armor-broken", "fas fa-shield-halved"),
     label: game.i18n.localize("MoshQoL.Damage.ApplyAntiArmorShort"),
     title: `${game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total })} (${game.i18n.localize("MoshQoL.Damage.AntiArmor")})`,
     flex: 1,

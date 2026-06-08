@@ -1,3 +1,5 @@
+import { FEATURE_ACTIONS } from "./feature-actions.js";
+
 export const TOOLBAND_SCOPE_META = [
   {
     id: "character",
@@ -23,61 +25,37 @@ export const TOOLBAND_SCOPE_META = [
 
 export const TOOLBAND_SCOPES = TOOLBAND_SCOPE_META.map((scope) => scope.id);
 
-const TOOLBAND_BUTTONS = [
+export const TOOLBAND_BUTTONS = [
   {
-    action: "apply-damage",
-    settingKey: "applyDamage",
+    ...FEATURE_ACTIONS["apply-damage"],
     configurable: true,
-    scopes: ["character", "creature"],
-    icon: "fas fa-heart-broken",
-    label: "Apply Damage",
-    labelKey: "MoshQoL.Toolbar.Buttons.ApplyDamage"
+    scopes: ["character", "creature"]
   },
   {
-    action: "armor-broken",
-    settingKey: "armorBroken",
+    ...FEATURE_ACTIONS["armor-broken"],
     configurable: true,
-    scopes: ["character", "contractor", "creature"],
-    icon: "fa-solid fa-shield-halved",
-    label: "Armor Broken",
-    labelKey: "MoshQoL.Toolbar.Buttons.ArmorBroken"
+    scopes: ["character", "contractor", "creature"]
   },
   {
-    action: "shore-leave",
-    settingKey: "shoreLeave",
+    ...FEATURE_ACTIONS["shore-leave"],
     configurable: true,
-    scopes: ["character"],
-    icon: "fas fa-umbrella-beach",
-    label: "Shore Leave",
-    labelKey: "MoshQoL.Common.ShoreLeave"
+    scopes: ["character"]
   },
   {
-    action: "training",
-    settingKey: "training",
+    ...FEATURE_ACTIONS.training,
     configurable: true,
-    scopes: ["character"],
-    icon: "fa-solid fa-dumbbell",
-    label: "Training",
-    labelKey: "MoshQoL.Toolbar.Buttons.Training"
+    scopes: ["character"]
   },
   {
-    action: "ship-crew-roster",
-    settingKey: "crewRoster",
+    ...FEATURE_ACTIONS["ship-crew-roster"],
     configurable: true,
-    scopes: ["ship", "stash"],
-    icon: "fa-solid fa-users",
-    label: "Crew Roster",
-    labelKey: "MoshQoL.Common.CrewRoster"
+    scopes: ["ship", "stash"]
   },
   {
-    action: "ship-crit",
-    settingKey: "shipCrit",
+    ...FEATURE_ACTIONS["ship-crit"],
     configurable: true,
     scopes: ["ship"],
-    defaultEnabled: false,
-    icon: "fas fa-explosion",
-    label: "Critical Hit",
-    labelKey: "MoshQoL.Toolbar.Buttons.ShipCrit"
+    defaultEnabled: false
   },
   {
     action: "roll-character",
@@ -128,7 +106,7 @@ export function getToolbandScopeLabel(scopeId) {
   return meta.label ?? meta.id;
 }
 
-function getToolbandButtonMeta(action) {
+export function getToolbandButtonMeta(action) {
   return TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
 }
 
