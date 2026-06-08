@@ -2,7 +2,7 @@ import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "./utils.js";
-import { getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { createQolAppDefaultOptions } from "../utils/application-options.js";
 import {
   applyInitialAvailabilityLock,

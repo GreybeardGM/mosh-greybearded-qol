@@ -2,6 +2,7 @@ import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize } from "../utils/normalization.js";
 import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -54,12 +55,6 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
     return (this.values.sanity + this.values.fear + this.values.body) - (this.base.sanity + this.base.fear + this.base.body);
   }
 
-  _getElementRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
-  }
-
   _cacheDomReferences(root) {
     this._dom = {
       remaining: root.querySelector("#remaining"),
@@ -101,7 +96,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
 
   _onRender(context, options) {
     super._onRender(context, options);
-    const root = this._getElementRoot();
+    const root = getAppRoot(this.element);
     if (!root) return;
 
     this._cacheDomReferences(root);
@@ -168,7 +163,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
   static async _onSubmit(event, form, formData) {
     if (this._assignedPoints !== this.points) return;
 
-    this._resolveOnce({
+    resolveAppOnce(this, {
       sanity: this.values.sanity,
       fear: this.values.fear,
       body: this.values.body
@@ -176,20 +171,15 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
   }
 
   async close(options = {}) {
-    const root = this._getElementRoot();
+    const root = getAppRoot(this.element);
     if (root && this._boundContextMenu) {
       root.removeEventListener("contextmenu", this._boundContextMenu);
     }
     this._boundContextMenu = null;
     this._dom = null;
 
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }
