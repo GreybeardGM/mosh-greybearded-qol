@@ -5,6 +5,8 @@ import {
   getConfigurableToolbandButtonsForScope,
   getToolbandButtonDefaultEnabled,
   getToolbandButtonLabel,
+  getToolbandScopeLabel,
+  getToolbandScopes,
   isToolbandButtonConfigurableForScope
 } from "../codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_TOOLBAND_CONFIG } from "../codex/constants.js";
@@ -17,14 +19,6 @@ import {
 } from "./settings-app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-const TOOLBAND_SCOPE_LABEL_KEYS = {
-  character: "MoshQoL.Common.PlayerCharacters",
-  contractor: "MoshQoL.Common.Contractor",
-  creature: "MoshQoL.Toolbar.Scopes.creature",
-  ship: "MoshQoL.Toolbar.Scopes.ship",
-  stash: "MoshQoL.Toolbar.Scopes.stash"
-};
 
 export { MODULE_ID };
 export const TOOLBAND_CONFIG_SETTING = SETTING_TOOLBAND_CONFIG;
@@ -89,12 +83,12 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   async _prepareContext() {
     const config = getNormalizedToolbandConfig();
-    const scopes = TOOLBAND_SCOPES.map((scope) => ({
-      id: scope,
-      label: game.i18n.localize(TOOLBAND_SCOPE_LABEL_KEYS[scope] ?? `MoshQoL.Toolbar.Scopes.${scope}`),
-      buttons: getConfigurableToolbandButtonsForScope(scope).map((button) => ({
+    const scopes = getToolbandScopes().map(({ id }) => ({
+      id,
+      label: getToolbandScopeLabel(id),
+      buttons: getConfigurableToolbandButtonsForScope(id).map((button) => ({
         ...button,
-        checked: config[scope][button.settingKey],
+        checked: config[id][button.settingKey],
         labelText: getToolbandButtonLabel(button)
       }))
     }));
