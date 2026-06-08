@@ -111,7 +111,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     resetDefaultsHandler: this._onResetDefaults
   });
 
-  static PARTS = createSettingsAppParts(MODULE_ID, "templates/settings/shore-leave-config.html");
+  static PARTS = createSettingsAppParts("settings/shore-leave-config.html");
 
   async _prepareContext() {
     const config = getNormalizedShoreLeaveConfig();

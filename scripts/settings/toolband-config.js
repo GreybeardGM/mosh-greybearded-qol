@@ -76,7 +76,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     resetDefaultsHandler: this._onResetDefaults
   });
 
-  static PARTS = createSettingsAppParts(MODULE_ID, "templates/settings/toolband-config.html");
+  static PARTS = createSettingsAppParts("settings/toolband-config.html");
 
   async _prepareContext() {
     const config = getNormalizedToolbandConfig();
