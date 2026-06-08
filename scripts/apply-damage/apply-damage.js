@@ -15,8 +15,8 @@ import { ApplyDamageInputApp } from "./damage-input-app.js";
 import { calculateDamageOutcome } from "./damage-outcome.js";
 import { syncArmorBrokenToolbandButton } from "../toolband.js";
 import { STATUS_ARMOR_BROKEN } from "../codex/constants.js";
+import { MOSH_ROLLTABLE_PACK_ID } from "../codex/mosh-system.js";
 
-const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
 const automatedWoundRollTableCache = new Map();
 // Cache-Invalidierung: Ein Foundry-Reload ist ausreichend, da das Modul neu geladen wird.
 // Optional kann bei Settings-/Pack-Änderungen explizit `automatedWoundRollTableCache.clear()` aufgerufen werden.
@@ -446,7 +446,7 @@ function findWorldTableByNormalizedName(reference) {
 }
 
 async function resolveTableFromMoshCompendium(documentId) {
-  const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK) ?? null;
+  const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK_ID) ?? null;
   if (!pack || pack.documentName !== "RollTable") {
     return null;
   }

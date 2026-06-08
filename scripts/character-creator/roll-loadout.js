@@ -1,15 +1,14 @@
+import {
+  MOSH_LOADOUT_CLEAR_ITEM_TYPES,
+  MOSH_LOADOUT_ROLLTABLE_IMAGES,
+  MOSH_STARTING_CREDITS_FORMULA
+} from "../codex/mosh-system.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { formatCurrency } from "../utils/normalization.js";
 import { toEmbeddedItemData } from "./utils.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;
-
-  const DEFAULT_IMAGES = {
-    Loadout: "modules/fvtt_mosh_1e_psg/icons/rolltables/loadouts.png",
-    Patches: "modules/fvtt_mosh_1e_psg/icons/rolltables/patch.png",
-    Trinkets: "modules/fvtt_mosh_1e_psg/icons/rolltables/trinket.png"
-  };
 
   const classData = selectedClass.system ?? selectedClass; // Support for Item or raw data
   const tableUUIDs = [
@@ -22,9 +21,8 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   const itemsToCreate = [];
 
   if (clearItems) {
-    const deletableTypes = ["weapon", "armor", "item"];
     const idsToDelete = actor.items
-      .filter(i => deletableTypes.includes(i.type))
+      .filter(i => MOSH_LOADOUT_CLEAR_ITEM_TYPES.includes(i.type))
       .map(i => i.id);
     if (idsToDelete.length > 0) {
       await actor.deleteEmbeddedDocuments("Item", idsToDelete);
@@ -64,8 +62,8 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
       // fallback for text-only results
       const cleanText = result.text?.replace(/<br\s*\/?>/gi, " ").replace(/@UUID\[[^\]]+\]/g, "").trim();
       if (cleanText) {
-        itemsToCreate.push({ name: cleanText, type: "item", img: DEFAULT_IMAGES.Loadout, system: {}, effects: [], flags: {} });
-        allItems.Items.push({ name: cleanText, img: DEFAULT_IMAGES.Loadout });
+        itemsToCreate.push({ name: cleanText, type: "item", img: MOSH_LOADOUT_ROLLTABLE_IMAGES.Loadout, system: {}, effects: [], flags: {} });
+        allItems.Items.push({ name: cleanText, img: MOSH_LOADOUT_ROLLTABLE_IMAGES.Loadout });
       }
     }
   }
@@ -90,7 +88,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
 
   // Roll for Starting Credits
   if (rollCredits) {
-    const creditRoll = new Roll("2d10 * 10");
+    const creditRoll = new Roll(MOSH_STARTING_CREDITS_FORMULA);
     await creditRoll.evaluate();
     const startingCredits = creditRoll.total;
     await actor.update({ system: { credits: { value: startingCredits } } });
@@ -106,7 +104,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     title: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.Title"),
     subtitle: actor.name,
     icon: "fa-dice",
-    image: DEFAULT_IMAGES.Loadout,
+    image: MOSH_LOADOUT_ROLLTABLE_IMAGES.Loadout,
     blocks
   });
 
