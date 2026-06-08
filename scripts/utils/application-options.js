@@ -1,4 +1,5 @@
 import { qolWindowClasses } from "../codex/constants.js";
+import { getThemeColor } from "./get-theme-color.js";
 
 function normalizeClassList(classes) {
   if (Array.isArray(classes)) return classes;
@@ -41,4 +42,11 @@ export function createQolAppDefaultOptions({
   if (actions) options.actions = actions;
 
   return options;
+}
+
+export function appendQolThemeContext(context) {
+  return {
+    ...context,
+    themeColor: getThemeColor()
+  };
 }

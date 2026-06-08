@@ -1,11 +1,10 @@
 import { templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { stripHtml, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -152,7 +151,6 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     this.classes = classes;
     this.gridColumns = gridColumns;
-    this.themeColor = getThemeColor();
     this._selectedClassId = null;
     this._showSkillView = false;
   }
@@ -179,13 +177,12 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext() {
-    return {
-      themeColor: this.themeColor,
+    return appendQolThemeContext({
       gridColumns: this.gridColumns,
       classes: this.classes,
       showSkillView: this._showSkillView,
       confirmLocked: !this._selectedClassId
-    };
+    });
   }
 
   _onRender(context, options) {

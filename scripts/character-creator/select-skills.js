@@ -1,9 +1,8 @@
 import { MODULE_ID, templatePath } from "../codex/constants.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
   cacheSkillTreeDom,
@@ -302,8 +301,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext() {
-    return {
-      themeColor: getThemeColor(),
+    return appendQolThemeContext({
       actor: this.actor,
       selectedClass: this.selectedClass,
       sortedSkills: this.sortedSkills,
@@ -313,7 +311,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       basePoints: this.basePoints,
       orOptions: this.orOptions,
       confirmLocked: true
-    };
+    });
   }
 
   _onRender(context, options) {

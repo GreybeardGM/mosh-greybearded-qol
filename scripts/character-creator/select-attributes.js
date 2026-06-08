@@ -1,7 +1,6 @@
 import { templatePath } from "../codex/constants.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -49,7 +48,6 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
       stats: choice.stats
     }));
 
-    this.themeColor = getThemeColor();
     this._selectedBySet = new Map();
   }
 
@@ -80,11 +78,10 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       attributeSets: this.attributeSets,
-      themeColor: this.themeColor,
       confirmLocked: true
-    };
+    });
   }
 
   _onRender(context, options) {
