@@ -290,9 +290,9 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
 }
 
 async function getAutomatedWoundChatBlocks(automatedWoundResults) {
-  const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
-  return automatedWoundContent
-    ? [{ type: "separator" }, { type: "html", html: rawChatHTML(automatedWoundContent) }]
+  const automatedWoundEntries = await buildAutomatedWoundRollEntries(automatedWoundResults);
+  return automatedWoundEntries.length
+    ? [{ type: "separator" }, { type: "automatedWounds", entries: automatedWoundEntries }]
     : [];
 }
 
@@ -485,55 +485,52 @@ function getTableResultsForRoll(table, rollTotal) {
   return results;
 }
 
-async function renderAutomatedWoundResults(wounds) {
-  if (!wounds.length) return "";
+async function buildAutomatedWoundRollEntries(wounds) {
+  if (!wounds.length) return [];
 
   const entries = [];
 
   for (const wound of wounds) {
-    const rollHtml = renderWoundRolls(wound);
-    const resultHtml = await renderTableResults(wound.tableResults);
-
-    entries.push(`<p>${rollHtml}<br>${resultHtml}</p>`);
+    entries.push({
+      rollLabel: getWoundRollLabel(wound),
+      rolls: wound.rolls.map((roll) => renderRollInline(roll)),
+      results: await renderTableResults(wound.tableResults)
+    });
   }
 
-  return `<div class="mosh-qol-automated-wounds">${entries.join("<hr>")}</div>`;
+  return entries;
 }
 
-function renderWoundRolls(wound) {
-  const rollAnchors = wound.rolls.map((roll) => rollToInlineHtml(roll));
-  if (!wound.modifier) return rollAnchors[0] ?? "";
+function getWoundRollLabel(wound) {
+  if (!wound.modifier) return "";
 
-  const modifierLabel = game.i18n.localize(wound.modifier === "advantage"
+  return game.i18n.localize(wound.modifier === "advantage"
     ? "MoshQoL.Damage.Advantage"
     : "MoshQoL.Damage.Disadvantage");
-
-  return `${foundry.utils.escapeHTML(modifierLabel)}: ${rollAnchors.join(" / ")}`;
 }
 
-function rollToInlineHtml(roll) {
-  const fallback = `<span class="inline-roll"><i class="fas fa-dice-d10"></i> ${roll.total}</span>`;
+function renderRollInline(roll) {
   const anchor = typeof roll.toAnchor === "function" ? roll.toAnchor() : null;
-  if (!anchor?.outerHTML) return fallback;
+  if (anchor?.outerHTML) return rawChatHTML(anchor.outerHTML);
 
-  return anchor.outerHTML;
+  return roll.total;
 }
 
 async function renderTableResults(results) {
-  if (!results.length) return foundry.utils.escapeHTML(game.i18n.localize("MoshQoL.Damage.NoWoundResult"));
+  if (!results.length) return [game.i18n.localize("MoshQoL.Damage.NoWoundResult")];
 
   const resultText = [];
   for (const result of results) {
     resultText.push(await renderTableResult(result));
   }
 
-  return resultText.join("<br>");
+  return resultText;
 }
 
 async function renderTableResult(result) {
-  if (typeof result.getHTML === "function") return await result.getHTML();
+  if (typeof result.getHTML === "function") return rawChatHTML(await result.getHTML());
   const text = result.description ?? result.name ?? "";
-  return foundry.utils.escapeHTML(String(text));
+  return String(text);
 }
 
 function parseAntiArmorInput(antiArmor) {

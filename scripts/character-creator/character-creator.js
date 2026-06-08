@@ -1,5 +1,5 @@
+import { templatePath } from "../codex/constants.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { escapeHTML } from "../utils/html-safety.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 import { ClassSelectorApp } from "./select-class.js";
 import { AttributeSelectorApp } from "./select-attributes.js";
@@ -14,9 +14,15 @@ export async function startCharacterCreation(actor) {
   // ✅ Check if character is already completed
   if (checkCompleted(actor)) {
     if (game.user.isGM) {
+      const content = await foundry.applications.handlebars.renderTemplate(
+        templatePath("character-creator/already-completed-dialog.html"),
+        {
+          content: game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name })
+        }
+      );
       const resetConfirm = await foundry.applications.api.DialogV2.wait({
         window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Title") },
-        content: `<p>${escapeHTML(game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name }))}</p>`,
+        content,
         buttons: [
           { label: game.i18n.localize("MoshQoL.Common.Reset"), icon: "fa-solid fa-rotate-left", action: "reset" },
           { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
@@ -38,11 +44,14 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 1: Check if actor is marked "ready"
   if (!checkReady(actor)) {
-    const content = `
-      <p>${escapeHTML(game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name }))}</p>
-      <p>${escapeHTML(game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk"))}</p>
-      <p>${escapeHTML(game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction"))}</p>
-    `;
+    const content = await foundry.applications.handlebars.renderTemplate(
+      templatePath("character-creator/overwrite-warning-dialog.html"),
+      {
+        noValidData: game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name }),
+        overwriteRisk: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk"),
+        chooseAction: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction")
+      }
+    );
   
     const choice = await foundry.applications.api.DialogV2.wait({
       window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.Title") },

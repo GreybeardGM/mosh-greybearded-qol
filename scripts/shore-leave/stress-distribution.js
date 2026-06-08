@@ -133,7 +133,14 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
 
       const counter = dom.counters[attr];
       if (counter) {
-        counter.innerHTML = diff > 0 ? `${value} <span class="bonus">[+${diff}]</span>` : `${value}`;
+        counter.textContent = String(value);
+        if (diff > 0) {
+          counter.append(" ");
+          const bonus = document.createElement("span");
+          bonus.classList.add("bonus");
+          bonus.textContent = `[+${diff}]`;
+          counter.append(bonus);
+        }
       }
 
       const hiddenInput = dom.inputs[attr];

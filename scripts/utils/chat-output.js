@@ -99,6 +99,29 @@ function normalizeCounterColumnsBlock(block = {}) {
   };
 }
 
+function normalizeTrustedHtmlOrText(value) {
+  if (isChatHTML(value)) {
+    return { html: value.html, text: "" };
+  }
+
+  return { html: "", text: escapeHTML(value) };
+}
+
+function normalizeAutomatedWoundEntry(entry = {}) {
+  return {
+    rollLabel: escapeHTML(entry.rollLabel),
+    rolls: Array.isArray(entry.rolls) ? entry.rolls.map(normalizeTrustedHtmlOrText) : [],
+    results: Array.isArray(entry.results) ? entry.results.map(normalizeTrustedHtmlOrText) : []
+  };
+}
+
+function normalizeAutomatedWoundsBlock(block = {}) {
+  return {
+    type: "automatedWounds",
+    entries: Array.isArray(block.entries) ? block.entries.map(normalizeAutomatedWoundEntry) : []
+  };
+}
+
 function normalizeBlock(block = {}) {
   switch (block.type) {
     case "html": return normalizeHtmlBlock(block);
@@ -106,6 +129,7 @@ function normalizeBlock(block = {}) {
     case "counter": return normalizeCounterBlock(block);
     case "itemList": return normalizeItemListBlock(block);
     case "counterColumns": return normalizeCounterColumnsBlock(block);
+    case "automatedWounds": return normalizeAutomatedWoundsBlock(block);
     case "separator": return { type: "separator" };
     case "text":
     default: return normalizeTextBlock(block);
