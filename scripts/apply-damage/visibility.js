@@ -1,7 +1,5 @@
-import {
-  APPLY_DAMAGE_VISIBILITY,
-  getNormalizedApplyDamageConfig
-} from "../settings/apply-damage-config.js";
+import { APPLY_DAMAGE_VISIBILITY } from "../codex/apply-damage-config.js";
+import { getNormalizedApplyDamageConfig } from "../settings/apply-damage-config.js";
 import { normalizeEnum } from "../utils/normalization.js";
 
 /**

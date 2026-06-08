@@ -1,4 +1,4 @@
-import { APPLY_DAMAGE_VISIBILITY } from "../settings/apply-damage-config.js";
+import { APPLY_DAMAGE_VISIBILITY } from "../codex/apply-damage-config.js";
 import { normalizeEnum } from "../utils/normalization.js";
 import { getApplyDamageVisibilitySetting } from "./visibility.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_TARGET_LOGIC } from "../codex/constants.js";

@@ -4,11 +4,8 @@ import {
   getDefaultShoreLeaveConfigWithTiers
 } from "./shore-leave-config.js";
 import { TOOLBAND_CONFIG_SETTING, ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
-import {
-  APPLY_DAMAGE_CONFIG_SETTING,
-  ApplyDamageConfigApp,
-  getDefaultApplyDamageConfig
-} from "./apply-damage-config.js";
+import { APPLY_DAMAGE_CONFIG_SETTING, ApplyDamageConfigApp } from "./apply-damage-config.js";
+import { getDefaultApplyDamageConfig } from "../codex/apply-damage-config.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import {
