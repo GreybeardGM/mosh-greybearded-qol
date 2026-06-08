@@ -11,6 +11,7 @@ import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js
 import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
 import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
 import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -85,14 +86,8 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     return this.tierById.get(tierKey);
   }
 
-  _getElementRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
-  }
-
   _updateSelectionUi() {
-    const root = this._getElementRoot();
+    const root = getAppRoot(this.element);
     if (!root) return;
 
     root.querySelectorAll(".card").forEach(card => {
@@ -206,17 +201,12 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!entry) return ui.notifications.error(game.i18n.localize("MoshQoL.ShoreLeave.InvalidTier"));
 
     const result = await convertStress(this.actor, entry.stressFormula);
-    this._resolveOnce(result);
+    resolveAppOnce(this, result);
   }
 
   async close(options = {}) {
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }

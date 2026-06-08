@@ -15,7 +15,6 @@ export function applyAppWrapperLayout(root, { width = null, maxWidth = "95vw", m
   if (margin !== null) wrapper.style.margin = margin;
 }
 
-
 export function resolveAppOnce(app, value) {
   if (app._resolved) return;
   app._resolved = true;
