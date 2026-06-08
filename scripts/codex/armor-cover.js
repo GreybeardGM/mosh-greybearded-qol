@@ -1,6 +1,6 @@
 import { normalizeText } from "../utils/normalization.js";
 
-export const ARMOR_COVER_VALUES = {
+const ARMOR_COVER_VALUES = {
   none: {
     armor: 0,
     damageReduction: 0

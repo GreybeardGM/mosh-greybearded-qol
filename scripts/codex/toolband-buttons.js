@@ -90,7 +90,7 @@ export const TOOLBAND_BUTTONS = [
 
 export const CONFIGURABLE_TOOLBAND_BUTTONS = TOOLBAND_BUTTONS.filter((button) => button.configurable);
 
-export function getToolbandButtonMeta(action) {
+function getToolbandButtonMeta(action) {
   return TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
 }
 
@@ -98,7 +98,7 @@ export function getConfigurableToolbandButton(action) {
   return CONFIGURABLE_TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
 }
 
-export function getToolbandButtonScopes(button) {
+function getToolbandButtonScopes(button) {
   if (!button?.configurable || !Array.isArray(button.scopes)) return [];
   return button.scopes;
 }

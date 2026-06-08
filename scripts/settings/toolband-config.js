@@ -53,7 +53,7 @@ export function normalizeToolbandConfig(config) {
   return normalized;
 }
 
-export function getToolbandScope(kind) {
+function getToolbandScope(kind) {
   return TOOLBAND_SCOPES.includes(kind) ? kind : null;
 }
 

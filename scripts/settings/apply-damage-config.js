@@ -3,10 +3,9 @@ import { normalizeBoolean } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export { MODULE_ID };
 export const APPLY_DAMAGE_CONFIG_SETTING = SETTING_APPLY_DAMAGE_CONFIG;
 
-export const APPLY_DAMAGE_ACTOR_SCOPES = ["character", "contractor", "creature"];
+const APPLY_DAMAGE_ACTOR_SCOPES = ["character", "contractor", "creature"];
 
 export const APPLY_DAMAGE_VISIBILITY = {
   DISABLED: "disabled",
@@ -28,7 +27,7 @@ export function getDefaultApplyDamageConfig() {
   };
 }
 
-export function normalizeApplyDamageConfig(config) {
+function normalizeApplyDamageConfig(config) {
   const normalized = foundry.utils.deepClone(getDefaultApplyDamageConfig());
 
   if (config && typeof config === "object") {
