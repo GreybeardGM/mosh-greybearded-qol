@@ -1,4 +1,4 @@
-import { FLAG_CHARACTER_CREATION, FLAG_SCOPE_WORLD } from "../codex/constants.js";
+import { FLAG_CHARACTER_CREATION, MODULE_ID } from "../codex/constants.js";
 
 // progress.js – Fortschrittsverwaltung für den Charaktergenerator
 
@@ -6,7 +6,7 @@ import { FLAG_CHARACTER_CREATION, FLAG_SCOPE_WORLD } from "../codex/constants.js
  * Setzt alle Fortschrittsinformationen zurück.
  */
 export async function reset(actor) {
-  return actor.unsetFlag(FLAG_SCOPE_WORLD, FLAG_CHARACTER_CREATION);
+  return actor.unsetFlag(MODULE_ID, FLAG_CHARACTER_CREATION);
 }
 
 /**
@@ -19,40 +19,40 @@ export async function completeStep(actor, key, extra = {}) {
     timestamp: new Date().toISOString(),
     ...extra
   };
-  return actor.setFlag(FLAG_SCOPE_WORLD, path, data);
+  return actor.setFlag(MODULE_ID, path, data);
 }
 
 /**
  * Prüft, ob ein bestimmter Schritt bereits abgeschlossen ist.
  */
 export function checkStep(actor, key) {
-  return actor.getFlag(FLAG_SCOPE_WORLD, `${FLAG_CHARACTER_CREATION}.${key}`)?.completed === true;
+  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.${key}`)?.completed === true;
 }
 
 /**
  * Prüft, ob der Charakter bereit für den Generator ist.
  */
 export function checkReady(actor) {
-  return actor.getFlag(FLAG_SCOPE_WORLD, `${FLAG_CHARACTER_CREATION}.ready`) === true;
+  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.ready`) === true;
 }
 
 /**
  * Setzt den Charakter auf bereit oder nicht bereit.
  */
 export async function setReady(actor, state = true) {
-  return actor.setFlag(FLAG_SCOPE_WORLD, `${FLAG_CHARACTER_CREATION}.ready`, state);
+  return actor.setFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.ready`, state);
 }
 
 /**
  * Prüft, ob der gesamte Ersteller abgeschlossen ist.
  */
 export function checkCompleted(actor) {
-  return actor.getFlag(FLAG_SCOPE_WORLD, `${FLAG_CHARACTER_CREATION}.completed`) === true;
+  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.completed`) === true;
 }
 
 /**
  * Markiert den gesamten Ersteller als abgeschlossen.
  */
 export async function setCompleted(actor, state = true) {
-  return actor.setFlag(FLAG_SCOPE_WORLD, `${FLAG_CHARACTER_CREATION}.completed`, state);
+  return actor.setFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.completed`, state);
 }
