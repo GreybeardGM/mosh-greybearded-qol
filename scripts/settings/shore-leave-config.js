@@ -58,14 +58,6 @@ export function normalizeShoreLeaveTiers(tiers, { fallbackToDefaults = true } = 
   return foundry.utils.deepClone(validTiers);
 }
 
-function usesDefaultShoreLeaveTiersFallback(tiers) {
-  return !hasValidShoreLeaveTiers(tiers);
-}
-
-function getNormalizedShoreLeaveTiers(config) {
-  return normalizeShoreLeaveTiers(config?.tiers);
-}
-
 export function getShoreLeaveConfigWithDefaults(config) {
   const normalized = normalizeShoreLeaveConfig(config);
   normalized.tiers = normalizeShoreLeaveTiers(config?.tiers);
@@ -141,8 +133,8 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
           .map(([, tier]) => tier);
 
     const submitted = getShoreLeaveConfigWithDefaults(expanded.shoreLeave ?? {});
-    const usedDefaultTiersFallback = usesDefaultShoreLeaveTiersFallback(tiersArray);
-    submitted.tiers = getNormalizedShoreLeaveTiers({ tiers: tiersArray });
+    const usedDefaultTiersFallback = !hasValidShoreLeaveTiers(tiersArray);
+    submitted.tiers = normalizeShoreLeaveTiers(tiersArray);
 
     if (usedDefaultTiersFallback) {
       notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");
