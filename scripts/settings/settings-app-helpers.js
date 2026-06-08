@@ -1,4 +1,5 @@
-import { qolWindowClasses, templatePath } from "../codex/constants.js";
+import { templatePath } from "../codex/constants.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 
 export function createSettingsAppDefaultOptions({
@@ -9,12 +10,11 @@ export function createSettingsAppDefaultOptions({
   width = 550,
   height = "auto"
 }) {
-  return {
+  return createQolAppDefaultOptions({
     id,
-    tag: "form",
+    title,
+    windowClasses: "qolsettings-window",
     window: {
-      title,
-      contentClasses: qolWindowClasses("qolsettings-window"),
       resizable: true
     },
     position: {
@@ -22,14 +22,12 @@ export function createSettingsAppDefaultOptions({
       height
     },
     form: {
-      handler: submitHandler,
-      submitOnChange: false,
-      closeOnSubmit: true
+      handler: submitHandler
     },
     actions: {
       resetDefaults: resetDefaultsHandler
     }
-  };
+  });
 }
 
 export function createSettingsAppParts(relativeTemplatePath) {
