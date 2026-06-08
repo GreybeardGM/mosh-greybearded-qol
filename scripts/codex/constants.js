@@ -1,4 +1,22 @@
 export const MODULE_ID = "mosh-greybearded-qol";
+export const MODULE_PATH = `modules/${MODULE_ID}`;
+
+export function modulePath(relativePath = "") {
+  const normalizedPath = String(relativePath ?? "").replace(/^\/+/, "");
+  return normalizedPath ? `${MODULE_PATH}/${normalizedPath}` : MODULE_PATH;
+}
+
+function normalizeRelativePath(relativePath = "") {
+  return String(relativePath ?? "").replace(/^\/+/, "");
+}
+
+export function templatePath(relativePath) {
+  return modulePath(`templates/${normalizeRelativePath(relativePath)}`);
+}
+
+export function assetPath(relativePath) {
+  return modulePath(`assets/${normalizeRelativePath(relativePath)}`);
+}
 
 export const STATUS_ARMOR_BROKEN = "qol-broken-armor";
 

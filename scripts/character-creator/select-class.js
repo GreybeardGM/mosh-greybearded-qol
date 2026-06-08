@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
@@ -33,13 +34,13 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-class.html"
+      template: templatePath("character-creator/select-class.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     },
     viewToggle: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-class-view-toggle.html"
+      template: templatePath("character-creator/select-class-view-toggle.html")
     }
   };
 

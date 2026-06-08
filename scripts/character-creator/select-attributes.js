@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
@@ -29,10 +30,10 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html"
+      template: templatePath("character-creator/select-attributes.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 

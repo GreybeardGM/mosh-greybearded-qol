@@ -1,4 +1,3 @@
-// modules/mosh-greybearded-qol/toolband.js
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";

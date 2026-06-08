@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { parseCurrencyValue } from "../utils/normalization.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 
@@ -6,7 +7,7 @@ export function defineStashSheet(BaseSheet) {
     static get defaultOptions() {
       return foundry.utils.mergeObject(super.defaultOptions, {
         classes: ["mosh", "greybeardqol", "qol-sheet", "sheet", "actor", "stash"],
-        template: "modules/mosh-greybearded-qol/templates/sheets/stash-sheet.html",
+        template: templatePath("sheets/stash-sheet.html"),
         width: 700,
         height: 700,
         tabs: [
