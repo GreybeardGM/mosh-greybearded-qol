@@ -14,39 +14,30 @@ import {
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   resetSettingToDefaults,
-  setSettingAndNotify
+  saveSettingAndClose
 } from "./settings-app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export function getDefaultToolbandConfig() {
+function mapConfigurableToolbandScopes(mapButtons) {
   return Object.fromEntries(
     TOOLBAND_SCOPES.map((scope) => [
       scope,
-      Object.fromEntries(
-        getConfigurableToolbandButtonsForScope(scope)
-          .map((button) => [button.settingKey, button.defaultEnabled !== false])
-      )
+      Object.fromEntries(getConfigurableToolbandButtonsForScope(scope).map((button) => mapButtons(button, scope)))
     ])
   );
 }
 
+export function getDefaultToolbandConfig() {
+  return mapConfigurableToolbandScopes((button) => [button.settingKey, button.defaultEnabled !== false]);
+}
+
 export function normalizeToolbandConfig(config) {
   const defaults = getDefaultToolbandConfig();
-  const normalized = foundry.utils.deepClone(defaults);
-
-  for (const scope of TOOLBAND_SCOPES) {
-    const scopeConfig = config?.[scope];
-    if (!scopeConfig || typeof scopeConfig !== "object") continue;
-
-    for (const button of getConfigurableToolbandButtonsForScope(scope)) {
-      if (typeof scopeConfig[button.settingKey] === "boolean") {
-        normalized[scope][button.settingKey] = scopeConfig[button.settingKey];
-      }
-    }
-  }
-
-  return normalized;
+  return mapConfigurableToolbandScopes((button, scope) => {
+    const value = config?.[scope]?.[button.settingKey];
+    return [button.settingKey, typeof value === "boolean" ? value : defaults[scope][button.settingKey]];
+  });
 }
 
 function getToolbandScope(kind) {
@@ -104,18 +95,11 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
   static async _onSubmit(event, form, formData) {
     const expanded = foundry.utils.expandObject(formData.object ?? {});
     const submitted = expanded.toolband ?? {};
-    const current = getDefaultToolbandConfig();
+    const current = mapConfigurableToolbandScopes((button, scope) => [
+      button.settingKey,
+      normalizeBoolean(submitted?.[scope]?.[button.settingKey])
+    ]);
 
-    for (const scope of TOOLBAND_SCOPES) {
-      const scopeSubmission = submitted?.[scope] ?? {};
-
-      for (const button of getConfigurableToolbandButtonsForScope(scope)) {
-        const value = scopeSubmission[button.settingKey];
-        current[scope][button.settingKey] = normalizeBoolean(value);
-      }
-    }
-
-    await setSettingAndNotify(MODULE_ID, SETTING_TOOLBAND_CONFIG, current, "MoshQoL.Toolbar.Config.UpdateSuccess");
-    this.close();
+    await saveSettingAndClose(this, MODULE_ID, SETTING_TOOLBAND_CONFIG, current, "MoshQoL.Toolbar.Config.UpdateSuccess");
   }
 }

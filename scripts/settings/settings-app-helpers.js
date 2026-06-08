@@ -50,6 +50,11 @@ export async function setSettingAndNotify(moduleId, settingKey, value, notificat
   notifyLocalized("info", notificationKey);
 }
 
+export async function saveSettingAndClose(app, moduleId, settingKey, value, notificationKey) {
+  await setSettingAndNotify(moduleId, settingKey, value, notificationKey);
+  app.close();
+}
+
 export async function resetSettingToDefaults(app, event, { moduleId, settingKey, defaults, notificationKey }) {
   event.preventDefault();
   await game.settings.set(moduleId, settingKey, defaults());

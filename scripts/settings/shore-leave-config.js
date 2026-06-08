@@ -6,7 +6,7 @@ import {
   createSettingsAppParts,
   notifyLocalized,
   resetSettingToDefaults,
-  setSettingAndNotify
+  saveSettingAndClose
 } from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -140,7 +140,6 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
       notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");
     }
 
-    await setSettingAndNotify(MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, submitted, "MoshQoL.ShoreLeave.Editor.UpdateSuccess");
-    this.close();
+    await saveSettingAndClose(this, MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, submitted, "MoshQoL.ShoreLeave.Editor.UpdateSuccess");
   }
 }
