@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { qolWindowClasses, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
@@ -15,7 +15,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     tag: "form",
     window: {
       title: "MoshQoL.CharacterCreator.SelectClass.Title",
-      contentClasses: ["greybeardqol", "qol-ui", "qol-class-selection"],
+      contentClasses: qolWindowClasses("qol-class-selection"),
       resizable: false
     },
     position: {

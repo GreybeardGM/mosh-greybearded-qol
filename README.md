@@ -70,6 +70,10 @@ It streamlines repetitive workflows for both players and game masters while pres
 - GitHub repository: <https://github.com/GreybeardGM/mosh-greybearded-qol>  
 - Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json>
 
+## Development Notes
+
+- New Foundry `ApplicationV2` UI components must use the shared QoL base classes from `QOL_UI_CLASSES` in `scripts/codex/constants.js`; prefer `qolWindowClasses(...)` for `window.contentClasses` and `qolClassName(...)` for composed `className` strings.
+
 ## Maintainer Notes
 
 Developed and maintained by **GreybeardGM**. The project emphasizes modular design and practical usability for long-running campaigns.

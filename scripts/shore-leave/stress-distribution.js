@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { qolWindowClasses, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize } from "../utils/normalization.js";
 
@@ -10,7 +10,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
     tag: "form",
     window: {
       title: "MoshQoL.ShoreLeave.DistributeStressConversion",
-      contentClasses: ["greybeardqol", "qol-ui", "stress-conversion-form"],
+      contentClasses: qolWindowClasses("stress-conversion-form"),
       resizable: false
     },
     position: {

@@ -4,7 +4,7 @@ import { TrainingSkillSelectorApp } from "./character-creator/select-training-sk
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
-import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN } from "./codex/constants.js";
+import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
 
 const CLS = "toolband";
@@ -305,7 +305,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
   let bar = root.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`);
   if (!bar) {
     bar = document.createElement("div");
-    bar.className = `${CLS} greybeardqol qol-ui`;
+    bar.className = qolClassName(CLS);
     bar.dataset.appid = String(sheet.appId);
     winHeader.insertAdjacentElement("afterend", bar);
     bar.style.setProperty("--theme-color", getThemeColor());

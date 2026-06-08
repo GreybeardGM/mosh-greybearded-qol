@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { qolWindowClasses, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "./utils.js";
@@ -21,7 +21,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     tag: "form",
     window: {
       title: "MoshQoL.Toolbar.Buttons.Training",
-      contentClasses: ["greybeardqol", "qol-ui", "qol-skill-selection", "qol-training-selection"],
+      contentClasses: qolWindowClasses("qol-skill-selection", "qol-training-selection"),
       resizable: false
     },
     position: {

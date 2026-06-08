@@ -1,5 +1,5 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
-import { MODULE_ID, templatePath } from "../codex/constants.js";
+import { MODULE_ID, qolWindowClasses, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -12,7 +12,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     tag: "form",
     window: {
       title: "MoshQoL.Damage.ApplyDamage",
-      contentClasses: ["greybeardqol", "qol-ui", "mosh-qol-apply-damage-input-window"],
+      contentClasses: qolWindowClasses("mosh-qol-apply-damage-input-window"),
       resizable: false
     },
     position: { width: 520, height: "auto" },
