@@ -63,7 +63,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     resetDefaultsHandler: this._onResetDefaults
   });
 
-  static PARTS = createSettingsAppParts(MODULE_ID, "templates/settings/apply-damage-config.html");
+  static PARTS = createSettingsAppParts("settings/apply-damage-config.html");
 
   async _prepareContext() {
     return appendThemeColor({
