@@ -1,4 +1,3 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 import {
   TOOLBAND_SCOPES,
@@ -9,6 +8,13 @@ import {
   isToolbandButtonConfigurableForScope
 } from "../codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_TOOLBAND_CONFIG } from "../codex/constants.js";
+import {
+  appendThemeColor,
+  createSettingsAppDefaultOptions,
+  createSettingsAppParts,
+  resetSettingToDefaults,
+  setSettingAndNotify
+} from "./settings-app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -72,33 +78,14 @@ export function isToolbandButtonEnabledInConfig(kind, action, config) {
 }
 
 export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createSettingsAppDefaultOptions({
     id: "toolband-config",
-    tag: "form",
-    window: {
-      title: "MoshQoL.Settings.ToolbandConfig.Name",
-      contentClasses: ["greybeardqol", "qol-ui", "qolsettings-window"],
-      resizable: true
-    },
-    position: {
-      width: 550,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
-    actions: {
-      resetDefaults: this._onResetDefaults
-    }
-  };
+    title: "MoshQoL.Settings.ToolbandConfig.Name",
+    submitHandler: this._onSubmit,
+    resetDefaultsHandler: this._onResetDefaults
+  });
 
-  static PARTS = {
-    form: {
-      template: `modules/${MODULE_ID}/templates/settings/toolband-config.html`
-    }
-  };
+  static PARTS = createSettingsAppParts(MODULE_ID, "templates/settings/toolband-config.html");
 
   async _prepareContext() {
     const config = getNormalizedToolbandConfig();
@@ -112,17 +99,16 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
       }))
     }));
 
-    return {
-      scopes,
-      themeColor: getThemeColor()
-    };
+    return appendThemeColor({ scopes });
   }
 
   static async _onResetDefaults(event) {
-    event.preventDefault();
-    await game.settings.set(MODULE_ID, TOOLBAND_CONFIG_SETTING, getDefaultToolbandConfig());
-    this.render();
-    ui.notifications.info(game.i18n.localize("MoshQoL.Toolbar.Config.ResetSuccess"));
+    await resetSettingToDefaults(this, event, {
+      moduleId: MODULE_ID,
+      settingKey: TOOLBAND_CONFIG_SETTING,
+      defaults: getDefaultToolbandConfig,
+      notificationKey: "MoshQoL.Toolbar.Config.ResetSuccess"
+    });
   }
 
   static async _onSubmit(event, form, formData) {
@@ -139,8 +125,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
       }
     }
 
-    await game.settings.set(MODULE_ID, TOOLBAND_CONFIG_SETTING, current);
-    ui.notifications.info(game.i18n.localize("MoshQoL.Toolbar.Config.UpdateSuccess"));
+    await setSettingAndNotify(MODULE_ID, TOOLBAND_CONFIG_SETTING, current, "MoshQoL.Toolbar.Config.UpdateSuccess");
     this.close();
   }
 }

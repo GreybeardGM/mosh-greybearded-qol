@@ -1,6 +1,13 @@
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
+import {
+  appendThemeColor,
+  createSettingsAppDefaultOptions,
+  createSettingsAppParts,
+  notifyLocalized,
+  resetSettingToDefaults,
+  setSettingAndNotify
+} from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export { MODULE_ID };
@@ -100,54 +107,30 @@ export function getNormalizedShoreLeaveConfig() {
 }
 
 export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createSettingsAppDefaultOptions({
     id: "shore-leave-config",
-    tag: "form",
-    window: {
-      title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-      contentClasses: ["greybeardqol", "qol-ui", "qolsettings-window"],
-      resizable: true
-    },
-    position: {
-      width: 550,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
-    actions: {
-      resetDefaults: this._onResetDefaults
-    }
-  };
+    title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+    submitHandler: this._onSubmit,
+    resetDefaultsHandler: this._onResetDefaults
+  });
 
-  static PARTS = {
-    form: {
-      template: `modules/${MODULE_ID}/templates/settings/shore-leave-config.html`
-    }
-  };
+  static PARTS = createSettingsAppParts(MODULE_ID, "templates/settings/shore-leave-config.html");
 
   async _prepareContext() {
     const config = getNormalizedShoreLeaveConfig();
-    return {
+    return appendThemeColor({
       options: config,
-      tiers: foundry.utils.deepClone(config.tiers),
-      themeColor: getThemeColor()
-    };
+      tiers: foundry.utils.deepClone(config.tiers)
+    });
   }
 
   static async _onResetDefaults(event) {
-    event.preventDefault();
-
-    await game.settings.set(
-      MODULE_ID,
-      SHORE_LEAVE_CONFIG_SETTING,
-      getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
-    );
-
-    this.render();
-    ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.ResetSuccess"));
+    await resetSettingToDefaults(this, event, {
+      moduleId: MODULE_ID,
+      settingKey: SHORE_LEAVE_CONFIG_SETTING,
+      defaults: () => getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS),
+      notificationKey: "MoshQoL.ShoreLeave.Editor.ResetSuccess"
+    });
   }
 
   static async _onSubmit(event, form, formData) {
@@ -165,12 +148,10 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     submitted.tiers = getNormalizedShoreLeaveTiers({ tiers: tiersArray });
 
     if (usedDefaultTiersFallback) {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.ShoreLeave.Editor.DefaultTiersFallback"));
+      notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");
     }
 
-    await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted);
-
-    ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.UpdateSuccess"));
+    await setSettingAndNotify(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted, "MoshQoL.ShoreLeave.Editor.UpdateSuccess");
     this.close();
   }
 }
