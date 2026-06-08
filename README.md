@@ -74,6 +74,16 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 - New Foundry `ApplicationV2` UI components must use the shared QoL base classes from `QOL_UI_CLASSES` in `scripts/codex/constants.js`; prefer `qolWindowClasses(...)` for `window.contentClasses` and `qolClassName(...)` for composed `className` strings.
 
+### Developer Checklist Before New Implementations
+
+- Search for existing helpers in `scripts/utils/`, `scripts/codex/`, and `scripts/settings/` before adding new implementation code.
+- Do not introduce a new constant when a canonical value already exists in `scripts/codex/constants.js`.
+- Do not add a new helper if it is only used once and does not clearly improve readability.
+- Do not use inline HTML for chat output when `chatOutput` blocks from `scripts/utils/chat-output.js` are sufficient.
+- Do not manually build new template paths when `templatePath()` from `scripts/codex/constants.js` is sufficient.
+- Prefer existing normalization, HTML-safety, chat-output, and settings helpers from `scripts/utils/normalization.js`, `scripts/utils/html-safety.js`, `scripts/utils/chat-output.js`, and `scripts/settings/settings-app-helpers.js`.
+- Review question: Hat diese Änderung netto Komplexität entfernt oder nur verschoben?
+
 ## Maintainer Notes
 
 Developed and maintained by **GreybeardGM**. The project emphasizes modular design and practical usability for long-running campaigns.
