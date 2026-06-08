@@ -95,7 +95,7 @@ export function getToolbandScopes() {
   return TOOLBAND_SCOPE_META.map((scope) => ({ ...scope }));
 }
 
-export function getToolbandScopeMeta(scopeId) {
+function getToolbandScopeMeta(scopeId) {
   return TOOLBAND_SCOPE_META.find((scope) => scope.id === scopeId) ?? null;
 }
 
@@ -106,7 +106,7 @@ export function getToolbandScopeLabel(scopeId) {
   return meta.label ?? meta.id;
 }
 
-export function getToolbandButtonMeta(action) {
+function getToolbandButtonMeta(action) {
   return TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
 }
 
@@ -114,22 +114,13 @@ export function getConfigurableToolbandButton(action) {
   return CONFIGURABLE_TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
 }
 
-function getToolbandButtonScopes(button) {
-  if (!button?.configurable || !Array.isArray(button.scopes)) return [];
-  return button.scopes;
-}
-
 export function isToolbandButtonConfigurableForScope(button, scope) {
-  return getToolbandButtonScopes(button).includes(scope);
+  if (!button?.configurable) return false;
+  return (button.scopes ?? []).includes(scope);
 }
 
 export function getConfigurableToolbandButtonsForScope(scope) {
   return CONFIGURABLE_TOOLBAND_BUTTONS.filter((button) => isToolbandButtonConfigurableForScope(button, scope));
-}
-
-export function getToolbandButtonDefaultEnabled(button, scope) {
-  if (!isToolbandButtonConfigurableForScope(button, scope)) return undefined;
-  return button.defaultEnabled !== false;
 }
 
 export function getToolbandButtonLabel(button) {
