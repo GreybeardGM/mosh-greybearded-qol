@@ -95,19 +95,11 @@ export function getToolbandScopes() {
   return TOOLBAND_SCOPE_META.map((scope) => ({ ...scope }));
 }
 
-function getToolbandScopeMeta(scopeId) {
-  return TOOLBAND_SCOPE_META.find((scope) => scope.id === scopeId) ?? null;
-}
-
 export function getToolbandScopeLabel(scopeId) {
-  const meta = getToolbandScopeMeta(scopeId);
+  const meta = TOOLBAND_SCOPE_META.find((scope) => scope.id === scopeId) ?? null;
   if (!meta) return scopeId ?? "";
   if (meta.labelKey && typeof game !== "undefined" && game?.i18n) return game.i18n.localize(meta.labelKey);
   return meta.label ?? meta.id;
-}
-
-function getToolbandButtonMeta(action) {
-  return TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
 }
 
 export function getConfigurableToolbandButton(action) {
@@ -130,7 +122,7 @@ export function getToolbandButtonLabel(button) {
 }
 
 export function makeToolbandButton(action, overrides = {}) {
-  const meta = getToolbandButtonMeta(action);
+  const meta = TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
   if (!meta) return { id: action, action, ...overrides };
 
   return {
