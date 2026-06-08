@@ -2,9 +2,13 @@
 // Foundry VTT v13 — Item-Aggregation (Homebrew-first) + Sortierung
 
 import { compareSkillNames } from "../codex/skill-sort.js";
+import {
+  MOSH_HOT_CACHE_ITEM_TYPES,
+  MOSH_INDEX_ONLY_ITEM_TYPES,
+  MOSH_PSG_MODULE_ID
+} from "../codex/mosh-system.js";
 import { normalizeText } from "./normalization.js";
 
-const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
 const PACK_INDEX_FIELDS = [
   "name",
   "type",
@@ -18,7 +22,7 @@ const PACK_INDEX_FIELDS = [
   "uuid"
 ];
 const PACK_LOAD_CONCURRENCY = 4;
-const INDEX_ONLY_TYPES = new Set(["skill", "class"]);
+const indexOnlyItemTypes = new Set(MOSH_INDEX_ONLY_ITEM_TYPES);
 
 /* ---------- Helpers ---------- */
 const normType = normalizeText;
@@ -36,7 +40,7 @@ function getOrCreateResolutionGroup(map, type, name) {
 }
 
 /* ---------- Cache (defensiv begrenzt) ---------- */
-const HOT_CACHE_TYPES = new Set(["skill", "class"]);
+const hotCacheItemTypes = new Set(MOSH_HOT_CACHE_ITEM_TYPES);
 const MAX_CACHED_TYPES = 4;
 const MAX_ITEMS_PER_CACHED_TYPE = 250;
 
@@ -76,7 +80,7 @@ function touchTypeLru(typeKey) {
 }
 
 function shouldCacheType(typeKey, items) {
-  if (!HOT_CACHE_TYPES.has(typeKey)) return false;
+  if (!hotCacheItemTypes.has(typeKey)) return false;
   return items.length <= MAX_ITEMS_PER_CACHED_TYPE;
 }
 
@@ -98,7 +102,7 @@ function partitionItemPacks() {
   const normalPacks = [];
   const psgPacks = [];
   for (const p of packs) {
-    const isPSG = String(p.collection || "").startsWith(`${SPECIFIC_MODULE_ID}.`);
+    const isPSG = String(p.collection || "").startsWith(`${MOSH_PSG_MODULE_ID}.`);
     (isPSG ? psgPacks : normalPacks).push(p);
   }
   return { normalPacks, psgPacks };
@@ -126,7 +130,7 @@ async function getPackIndexCached(pack) {
 }
 
 function shouldUsePackIndexOnly(itemType) {
-  return INDEX_ONLY_TYPES.has(normType(itemType));
+  return indexOnlyItemTypes.has(normType(itemType));
 }
 
 function packIndexEntryToItem(entry, pack) {
