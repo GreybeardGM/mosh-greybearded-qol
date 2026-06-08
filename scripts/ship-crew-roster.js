@@ -1,6 +1,7 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { formatCurrency } from "./utils/normalization.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
+import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const FLAG_KEY = FLAG_CREW_ROSTER;
@@ -292,7 +293,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     return {
       actorName: this.actor?.name ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.ActorName"),
-      actorImg: this.actor?.img ?? "icons/svg/mystery-man.svg",
+      actorImg: this.actor?.img ?? MOSH_FALLBACK_ACTOR_IMAGE,
       themeColor: getThemeColor(),
       activeTab: this._activeTab,
       activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.Entries"),
