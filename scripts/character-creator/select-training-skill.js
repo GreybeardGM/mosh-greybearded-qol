@@ -1,8 +1,9 @@
-import { qolWindowClasses, templatePath } from "../codex/constants.js";
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 import {
   applyInitialAvailabilityLock,
   cacheSkillTreeDom,
@@ -16,27 +17,16 @@ import {
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-training-select-skill",
-    tag: "form",
-    window: {
-      title: "MoshQoL.Toolbar.Buttons.Training",
-      contentClasses: qolWindowClasses("qol-skill-selection", "qol-training-selection"),
-      resizable: false
-    },
-    position: {
-      width: 1200,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.Toolbar.Buttons.Training",
+    windowClasses: ["qol-skill-selection", "qol-training-selection"],
+    position: { width: 1200 },
+    form: { handler: this._onSubmit },
     actions: {
       toggleSkill: this._onToggleSkill
     }
-  };
+  });
 
   static PARTS = {
     main: {
