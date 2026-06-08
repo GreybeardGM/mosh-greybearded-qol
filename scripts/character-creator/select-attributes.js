@@ -1,32 +1,21 @@
-import { qolWindowClasses, templatePath } from "../codex/constants.js";
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-creator-select-attributes",
-    tag: "form",
-    window: {
-      title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
-      contentClasses: qolWindowClasses("attribute-selection"),
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
+    windowClasses: "attribute-selection",
+    form: { handler: this._onSubmit },
     actions: {
       selectAttribute: this._onSelectAttribute
     }
-  };
+  });
 
   static PARTS = {
     form: {

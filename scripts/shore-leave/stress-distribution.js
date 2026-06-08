@@ -1,31 +1,20 @@
-import { qolWindowClasses, templatePath } from "../codex/constants.js";
+import { templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize } from "../utils/normalization.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "stress-distribution",
-    tag: "form",
-    window: {
-      title: "MoshQoL.ShoreLeave.DistributeStressConversion",
-      contentClasses: qolWindowClasses("stress-conversion-form"),
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.ShoreLeave.DistributeStressConversion",
+    windowClasses: "stress-conversion-form",
+    form: { handler: this._onSubmit },
     actions: {
       incrementAttr: this._onIncrementAttr
     }
-  };
+  });
 
   static PARTS = {
     form: {

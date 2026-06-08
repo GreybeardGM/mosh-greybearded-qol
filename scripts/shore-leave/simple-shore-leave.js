@@ -1,7 +1,6 @@
 import {
   MODULE_ID,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
-  qolWindowClasses,
   templatePath
 } from "../codex/constants.js";
 import { convertStress } from "./convert-stress.js";
@@ -12,34 +11,22 @@ import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js
 import { toRollFormula } from "../utils/to-roll-formula.js";
 import { toRollString } from "../utils/to-roll-string.js";
 import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "simple-shore-leave",
-    tag: "form",
-    window: {
-      title: "MoshQoL.ShoreLeave.SelectTier",
-      icon: "fas fa-umbrella-beach",
-      contentClasses: qolWindowClasses(),
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.ShoreLeave.SelectTier",
+    window: { icon: "fas fa-umbrella-beach" },
+    form: { handler: this._onSubmit },
     actions: {
       selectTier: this._onSelectTier,
       rollPrice: this._onRollPrice,
       rerollFlavor: this._onRerollFlavor
     }
-  };
+  });
 
   static PARTS = {
     form: {

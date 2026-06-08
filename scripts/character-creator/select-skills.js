@@ -1,8 +1,9 @@
-import { MODULE_ID, qolWindowClasses, templatePath } from "../codex/constants.js";
+import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
   cacheSkillTreeDom,
@@ -54,28 +55,17 @@ function toSkillViewModel(skill) {
 }
 
 export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-creator-select-skills",
-    tag: "form",
-    window: {
-      title: "MoshQoL.CharacterCreator.SelectSkills.Title",
-      contentClasses: qolWindowClasses("qol-skill-selection"),
-      resizable: false
-    },
-    position: {
-      width: 1200,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.CharacterCreator.SelectSkills.Title",
+    windowClasses: "qol-skill-selection",
+    position: { width: 1200 },
+    form: { handler: this._onSubmit },
     actions: {
       toggleSkill: this._onToggleSkill,
       selectOrOption: this._onSelectOrOption
     }
-  };
+  });
 
   static PARTS = {
     options: {

@@ -1,28 +1,21 @@
 import { getThemeColor } from "../utils/get-theme-color.js";
-import { MODULE_ID, qolWindowClasses, templatePath } from "../codex/constants.js";
+import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { normalizeBoolean } from "../utils/normalization.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static #active = null;
 
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: `${MODULE_ID}-apply-damage-input`,
-    tag: "form",
-    window: {
-      title: "MoshQoL.Damage.ApplyDamage",
-      contentClasses: qolWindowClasses("mosh-qol-apply-damage-input-window"),
-      resizable: false
-    },
-    position: { width: 520, height: "auto" },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: false
-    },
+    title: "MoshQoL.Damage.ApplyDamage",
+    windowClasses: "mosh-qol-apply-damage-input-window",
+    position: { width: 520 },
+    form: { handler: this._onSubmit, closeOnSubmit: false },
     actions: { cancel: this._onCancel, toggleTarget: this._onToggleTarget }
-  };
+  });
 
   static PARTS = {
     form: { template: templatePath("dialogs/apply-damage-input.html") }

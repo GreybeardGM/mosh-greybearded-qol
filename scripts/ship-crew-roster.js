@@ -1,6 +1,7 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { createQolAppDefaultOptions } from "./utils/application-options.js";
 import { formatCurrency } from "./utils/normalization.js";
-import { FLAG_CREW_ROSTER, MODULE_ID, qolWindowClasses, templatePath } from "./codex/constants.js";
+import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -166,30 +167,20 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this._lastRosterCleanupCandidate = null;
   }
 
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "ship-crew-roster",
-    tag: "form",
-    window: {
-      resizable: true,
-      title: "MoshQoL.Common.CrewRoster",
-      contentClasses: qolWindowClasses("crew-roster")
-    },
-    position: {
-      width: 680,
-      height: 640
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: true,
-      closeOnSubmit: false
-    },
+    title: "MoshQoL.Common.CrewRoster",
+    windowClasses: "crew-roster",
+    window: { resizable: true },
+    position: { width: 680, height: 640 },
+    form: { handler: this._onSubmit, submitOnChange: true, closeOnSubmit: false },
     actions: {
       setTab: this._onSetTab,
       removeEntry: this._onRemoveEntry,
       toggleActive: this._onToggleActive,
       openEntry: this._onOpenEntry
     }
-  };
+  });
 
   static PARTS = {
     body: {

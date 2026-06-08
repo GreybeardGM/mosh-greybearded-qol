@@ -1,37 +1,26 @@
-import { qolWindowClasses, templatePath } from "../codex/constants.js";
+import { templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { stripHtml, toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-creator-select-class",
-    tag: "form",
-    window: {
-      title: "MoshQoL.CharacterCreator.SelectClass.Title",
-      contentClasses: qolWindowClasses("qol-class-selection"),
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.CharacterCreator.SelectClass.Title",
+    windowClasses: "qol-class-selection",
+    form: { handler: this._onSubmit },
     actions: {
       selectClass: this._onSelectClass,
       toggleSkillView: this._onToggleSkillView
     }
-  };
+  });
 
   static PARTS = {
     form: {
