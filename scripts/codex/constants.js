@@ -1,3 +1,5 @@
+// Module-wide IDs, settings, flags, and default CSS class names belong here.
+// Keep feature-local constants in their feature module only when no other file needs them.
 export const MODULE_ID = "mosh-greybearded-qol";
 export const MODULE_PATH = `modules/${MODULE_ID}`;
 

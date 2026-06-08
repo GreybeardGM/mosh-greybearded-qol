@@ -4,8 +4,6 @@ import { getApplyDamageVisibilitySetting } from "./visibility.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_TARGET_LOGIC } from "../codex/constants.js";
 import { DEFAULT_TARGET_LOGIC, VALID_TARGET_LOGICS } from "../codex/apply-damage-target-logic.js";
 
-const TARGET_LOGIC_SETTING = SETTING_APPLY_DAMAGE_TARGET_LOGIC;
-
 /**
  * Apply-Damage-Policy für UI-Sichtbarkeit und Target-Auflösung.
  *
@@ -22,7 +20,7 @@ export function canShowApplyDamageUI(user = game.user) {
 }
 
 function getApplyDamageTargetLogicSetting() {
-  const value = game.settings.get(MODULE_ID, TARGET_LOGIC_SETTING);
+  const value = game.settings.get(MODULE_ID, SETTING_APPLY_DAMAGE_TARGET_LOGIC);
   return normalizeEnum(value, VALID_TARGET_LOGICS, DEFAULT_TARGET_LOGIC);
 }
 
