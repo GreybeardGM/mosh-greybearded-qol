@@ -60,17 +60,10 @@ const FEATURE_ACTION_ALIASES = Object.freeze({
   toolbandConfigMenu: "toolband-config"
 });
 
-export function getFeatureActionMeta(action) {
+function getFeatureActionMeta(action) {
   return FEATURE_ACTIONS[action] ?? FEATURE_ACTIONS[FEATURE_ACTION_ALIASES[action]] ?? null;
 }
 
 export function getFeatureIcon(action, fallback = "") {
   return getFeatureActionMeta(action)?.icon ?? fallback;
-}
-
-export function getFeatureLabel(action, fallback = "") {
-  const meta = getFeatureActionMeta(action);
-  if (!meta) return fallback;
-  if (meta.labelKey && typeof game !== "undefined" && game?.i18n) return game.i18n.localize(meta.labelKey);
-  return meta.label ?? fallback;
 }
