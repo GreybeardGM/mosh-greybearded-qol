@@ -20,9 +20,6 @@ import {
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export { MODULE_ID };
-export const TOOLBAND_CONFIG_SETTING = SETTING_TOOLBAND_CONFIG;
-
 export function getDefaultToolbandConfig() {
   return Object.fromEntries(
     TOOLBAND_SCOPES.map((scope) => [
@@ -58,7 +55,7 @@ function getToolbandScope(kind) {
 }
 
 export function getNormalizedToolbandConfig() {
-  return normalizeToolbandConfig(game.settings.get(MODULE_ID, TOOLBAND_CONFIG_SETTING));
+  return normalizeToolbandConfig(game.settings.get(MODULE_ID, SETTING_TOOLBAND_CONFIG));
 }
 
 export function isToolbandButtonEnabledInConfig(kind, action, config) {
@@ -99,7 +96,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
   static async _onResetDefaults(event) {
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
-      settingKey: TOOLBAND_CONFIG_SETTING,
+      settingKey: SETTING_TOOLBAND_CONFIG,
       defaults: getDefaultToolbandConfig,
       notificationKey: "MoshQoL.Toolbar.Config.ResetSuccess"
     });
@@ -119,7 +116,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
       }
     }
 
-    await setSettingAndNotify(MODULE_ID, TOOLBAND_CONFIG_SETTING, current, "MoshQoL.Toolbar.Config.UpdateSuccess");
+    await setSettingAndNotify(MODULE_ID, SETTING_TOOLBAND_CONFIG, current, "MoshQoL.Toolbar.Config.UpdateSuccess");
     this.close();
   }
 }

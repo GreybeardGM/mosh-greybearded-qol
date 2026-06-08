@@ -1,10 +1,6 @@
-import {
-  SHORE_LEAVE_CONFIG_SETTING,
-  ShoreLeaveConfigApp,
-  getDefaultShoreLeaveConfigWithTiers
-} from "./shore-leave-config.js";
-import { TOOLBAND_CONFIG_SETTING, ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
-import { APPLY_DAMAGE_CONFIG_SETTING, ApplyDamageConfigApp } from "./apply-damage-config.js";
+import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shore-leave-config.js";
+import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
+import { ApplyDamageConfigApp } from "./apply-damage-config.js";
 import { getDefaultApplyDamageConfig } from "../codex/apply-damage-config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
@@ -16,11 +12,14 @@ import {
 } from "../codex/apply-damage-target-logic.js";
 import {
   MODULE_ID,
+  SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_ENABLE_CHARACTER_CREATOR,
+  SETTING_SHORE_LEAVE_CONFIG,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   SETTING_THEME_COLOR,
-  SETTING_THEME_COLOR_OVERRIDE
+  SETTING_THEME_COLOR_OVERRIDE,
+  SETTING_TOOLBAND_CONFIG
 } from "../codex/constants.js";
 
 function getApplyDamageTargetLogicChoices() {
@@ -97,7 +96,7 @@ const MENU_DEFINITIONS = [
       restricted: true
     },
     setting: {
-      key: SHORE_LEAVE_CONFIG_SETTING,
+      key: SETTING_SHORE_LEAVE_CONFIG,
       options: {
         name: "MoshQoL.Common.ShoreLeaveConfiguration",
         type: Object,
@@ -116,7 +115,7 @@ const MENU_DEFINITIONS = [
       restricted: true
     },
     setting: {
-      key: TOOLBAND_CONFIG_SETTING,
+      key: SETTING_TOOLBAND_CONFIG,
       options: {
         name: "MoshQoL.Settings.ToolbandConfig.SettingName",
         type: Object,
@@ -135,7 +134,7 @@ const MENU_DEFINITIONS = [
       restricted: true
     },
     setting: {
-      key: APPLY_DAMAGE_CONFIG_SETTING,
+      key: SETTING_APPLY_DAMAGE_CONFIG,
       options: {
         name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
         type: Object,

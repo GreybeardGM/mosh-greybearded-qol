@@ -14,8 +14,6 @@ import {
 } from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export const APPLY_DAMAGE_CONFIG_SETTING = SETTING_APPLY_DAMAGE_CONFIG;
-
 function normalizeApplyDamageConfig(config) {
   const normalized = foundry.utils.deepClone(getDefaultApplyDamageConfig());
 
@@ -42,7 +40,7 @@ function normalizeApplyDamageConfig(config) {
 }
 
 export function getNormalizedApplyDamageConfig() {
-  return normalizeApplyDamageConfig(game.settings.get(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING));
+  return normalizeApplyDamageConfig(game.settings.get(MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG));
 }
 
 export function usesTougherArmorFromConfig(config) {
@@ -82,7 +80,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
   static async _onResetDefaults(event) {
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
-      settingKey: APPLY_DAMAGE_CONFIG_SETTING,
+      settingKey: SETTING_APPLY_DAMAGE_CONFIG,
       defaults: getDefaultApplyDamageConfig,
       notificationKey: "MoshQoL.Damage.Config.ResetSuccess"
     });
@@ -109,7 +107,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
       config.automateWoundRoll[scope] = normalizeBoolean(automateWoundRoll[scope]);
     }
 
-    await setSettingAndNotify(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, config, "MoshQoL.Damage.Config.UpdateSuccess");
+    await setSettingAndNotify(MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG, config, "MoshQoL.Damage.Config.UpdateSuccess");
     this.close();
   }
 }

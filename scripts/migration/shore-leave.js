@@ -1,11 +1,10 @@
 import {
-  MODULE_ID,
-  SHORE_LEAVE_CONFIG_SETTING,
   getDefaultShoreLeaveConfig,
   getShoreLeaveConfigWithDefaults,
   hasValidShoreLeaveTiers,
   normalizeShoreLeaveTiers
 } from "../settings/shore-leave-config.js";
+import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 
 export const SHORE_LEAVE_CONFIG_MIGRATION_SETTING = "migrations.shoreLeaveConfig";
@@ -45,7 +44,7 @@ export async function migrateLegacyShoreLeaveConfig() {
   if (!game.user?.isGM) return;
   if (game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_MIGRATION_SETTING)) return;
 
-  const config = getShoreLeaveConfigWithDefaults(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
+  const config = getShoreLeaveConfigWithDefaults(game.settings.get(MODULE_ID, SETTING_SHORE_LEAVE_CONFIG));
   const defaults = getDefaultShoreLeaveConfig();
 
   for (const [key, setting] of Object.entries(LEGACY_SHORE_LEAVE_SETTINGS.convertStress)) {
@@ -94,6 +93,6 @@ export async function migrateLegacyShoreLeaveConfig() {
 
   config.tiers = normalizeShoreLeaveTiers(config.tiers);
 
-  await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, config);
+  await game.settings.set(MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, config);
   await game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_MIGRATION_SETTING, true);
 }

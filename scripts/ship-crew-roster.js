@@ -4,7 +4,6 @@ import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js"
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const FLAG_KEY = FLAG_CREW_ROSTER;
 const TABS = ["character", "creature", "ship"];
 
 function normalizeHazardPayValue(value) {
@@ -287,7 +286,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   async _prepareContext() {
-    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_KEY) ?? {};
+    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_CREW_ROSTER) ?? {};
     const { cleanedRoster, entries, rosterChanged, summary, tabs } = await this._buildRosterContext(sourceRoster);
     this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
@@ -343,7 +342,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     if (this._cleanupInFlight) return this._cleanupInFlight;
 
     this._cleanupInFlight = (async () => {
-      const cleanupCandidate = candidate ?? await this._resolveCleanRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+      const cleanupCandidate = candidate ?? await this._resolveCleanRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
       if (!cleanupCandidate.rosterChanged) return false;
 
       return this._scheduleRosterCommit(cleanupCandidate.cleanedRoster);
@@ -394,7 +393,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this._pendingRosterCommit = null;
     const rosterToCommit = await this._normalizeRosterForCommit(pendingRoster);
 
-    await this.actor.setFlag(MODULE_ID, FLAG_KEY, rosterToCommit);
+    await this.actor.setFlag(MODULE_ID, FLAG_CREW_ROSTER, rosterToCommit);
     this.render();
     return true;
   }
@@ -429,7 +428,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const bucket = getBucketByType(droppedActor.type);
     if (!bucket) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
 
     for (const tab of TABS) {
       roster[tab] = roster[tab].filter((entry) => entry.uuid !== droppedActor.uuid);
@@ -475,7 +474,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     if (!hazardPayUpdates.size) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
     let hasChanges = false;
 
     for (const tab of TABS) {
@@ -518,7 +517,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const uuid = target?.dataset?.uuid;
     if (!tab || !uuid || !TABS.includes(tab)) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
     roster[tab] = roster[tab].filter((entry) => entry.uuid !== uuid);
     await this._scheduleRosterCommit(roster);
   }
@@ -546,7 +545,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const active = target?.checked === true;
     if (!tab || !uuid || !TABS.includes(tab)) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_KEY));
+    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
     roster[tab] = roster[tab].map((entry) => {
       if (entry.uuid !== uuid) return entry;
       return { ...entry, active };

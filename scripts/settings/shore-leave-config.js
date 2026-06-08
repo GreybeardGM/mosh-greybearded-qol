@@ -10,9 +10,6 @@ import {
 } from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export { MODULE_ID };
-export const SHORE_LEAVE_CONFIG_SETTING = SETTING_SHORE_LEAVE_CONFIG;
-
 export function getDefaultShoreLeaveConfig() {
   return {
     convertStress: {
@@ -103,7 +100,7 @@ function normalizeShoreLeaveConfig(config) {
 }
 
 export function getNormalizedShoreLeaveConfig() {
-  return getShoreLeaveConfigWithDefaults(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
+  return getShoreLeaveConfigWithDefaults(game.settings.get(MODULE_ID, SETTING_SHORE_LEAVE_CONFIG));
 }
 
 export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -127,7 +124,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
   static async _onResetDefaults(event) {
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
-      settingKey: SHORE_LEAVE_CONFIG_SETTING,
+      settingKey: SETTING_SHORE_LEAVE_CONFIG,
       defaults: () => getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS),
       notificationKey: "MoshQoL.ShoreLeave.Editor.ResetSuccess"
     });
@@ -151,7 +148,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
       notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");
     }
 
-    await setSettingAndNotify(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted, "MoshQoL.ShoreLeave.Editor.UpdateSuccess");
+    await setSettingAndNotify(MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, submitted, "MoshQoL.ShoreLeave.Editor.UpdateSuccess");
     this.close();
   }
 }
