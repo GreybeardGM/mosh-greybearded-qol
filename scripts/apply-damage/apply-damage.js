@@ -1,5 +1,5 @@
-import { getArmorCoverValues } from "../codex/armor-cover.js";
-import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
+import { getArmorCoverValues } from "./armor-cover.js";
+import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "./wound-types.js";
 import { normalizeBoolean, normalizeNumber } from "../utils/normalization.js";
 import {
   appliesArmorBrokenFromConfig,

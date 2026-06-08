@@ -1,15 +1,15 @@
 import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
-import { getDefaultApplyDamageConfig } from "../codex/apply-damage-config.js";
+import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
-import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
+import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import {
   DEFAULT_TARGET_LOGIC,
   TARGET_LOGIC_CHOICE_KEYS,
   VALID_TARGET_LOGICS
-} from "../codex/apply-damage-target-logic.js";
+} from "../apply-damage/target-logic.js";
 import {
   MODULE_ID,
   SETTING_APPLY_DAMAGE_CONFIG,

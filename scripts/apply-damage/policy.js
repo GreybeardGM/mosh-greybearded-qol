@@ -1,8 +1,8 @@
-import { APPLY_DAMAGE_VISIBILITY } from "../codex/apply-damage-config.js";
+import { APPLY_DAMAGE_VISIBILITY } from "./config.js";
 import { normalizeEnum } from "../utils/normalization.js";
 import { getApplyDamageVisibilitySetting } from "./visibility.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_TARGET_LOGIC } from "../codex/constants.js";
-import { DEFAULT_TARGET_LOGIC, VALID_TARGET_LOGICS } from "../codex/apply-damage-target-logic.js";
+import { DEFAULT_TARGET_LOGIC, VALID_TARGET_LOGICS } from "./target-logic.js";
 
 /**
  * Apply-Damage-Policy für UI-Sichtbarkeit und Target-Auflösung.

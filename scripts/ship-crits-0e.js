@@ -1,4 +1,4 @@
-import { SHIP_CRITS } from "./codex/default-ship-crits-0e.js";
+import { SHIP_CRITS } from "./ship-crits/default-crits-0e.js";
 import { chatOutput, rawChatHTML } from "./utils/chat-output.js";
 
 /**

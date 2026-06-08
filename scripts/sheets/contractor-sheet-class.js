@@ -5,7 +5,7 @@ import { parseCurrencyValue } from "../utils/normalization.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
-import { MOTIVATION_TABLE } from "../codex/default-contractor-motivation.js";
+import { MOTIVATION_TABLE } from "./contractor-motivation-table.js";
 
 export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 

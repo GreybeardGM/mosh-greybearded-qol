@@ -1,4 +1,4 @@
-import { SHORE_LEAVE_ACTIVITIES } from "../codex/default-shore-leave-activities.js";
+import { SHORE_LEAVE_ACTIVITIES } from "./default-activities.js";
 
 /**
  * Adds random flavor (label, description, icon) to the given shore leave tier.
