@@ -45,7 +45,7 @@ const itemsByTypeCache = new Map(); // normType -> sorted winners
 const cacheTypeLru = []; // keys in access order (oldest -> newest)
 let cacheInvalidationHooksRegistered = false;
 
-export function clearItemLoaderCache() {
+function clearItemLoaderCache() {
   packIndexCache.clear();
   itemsByTypeCache.clear();
   cacheTypeLru.length = 0;

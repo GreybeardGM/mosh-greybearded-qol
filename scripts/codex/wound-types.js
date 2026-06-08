@@ -1,6 +1,6 @@
 import { normalizeText } from "../utils/normalization.js";
 
-export const WOUND_TYPES = [
+const WOUND_TYPES = [
   {
     id: "bluntforce",
     settingKey: "BluntForce",

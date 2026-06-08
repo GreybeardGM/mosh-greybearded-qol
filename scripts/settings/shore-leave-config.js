@@ -36,7 +36,7 @@ function hasRequiredTierFields(tier) {
   );
 }
 
-export function getValidShoreLeaveTiers(tiers) {
+function getValidShoreLeaveTiers(tiers) {
   if (!Array.isArray(tiers) || !tiers.length) return [];
   return tiers.filter(hasRequiredTierFields);
 }
@@ -58,7 +58,7 @@ function usesDefaultShoreLeaveTiersFallback(tiers) {
   return !hasValidShoreLeaveTiers(tiers);
 }
 
-export function getNormalizedShoreLeaveTiers(config) {
+function getNormalizedShoreLeaveTiers(config) {
   return normalizeShoreLeaveTiers(config?.tiers);
 }
 
@@ -74,7 +74,7 @@ export function getDefaultShoreLeaveConfigWithTiers(defaultTiers) {
   return defaults;
 }
 
-export function normalizeShoreLeaveConfig(config) {
+function normalizeShoreLeaveConfig(config) {
   const normalized = foundry.utils.deepClone(getDefaultShoreLeaveConfig());
 
   if (config?.convertStress && typeof config.convertStress === "object") {
