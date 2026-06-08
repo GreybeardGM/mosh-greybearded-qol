@@ -1,4 +1,4 @@
-import { MODULE_ID, templatePath } from "../codex/constants.js";
+import { MODULE_ID, qolWindowClasses, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
@@ -59,7 +59,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     tag: "form",
     window: {
       title: "MoshQoL.CharacterCreator.SelectSkills.Title",
-      contentClasses: ["greybeardqol", "qol-ui", "qol-skill-selection"],
+      contentClasses: qolWindowClasses("qol-skill-selection"),
       resizable: false
     },
     position: {

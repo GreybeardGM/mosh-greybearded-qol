@@ -1,6 +1,7 @@
 import {
   MODULE_ID,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
+  qolWindowClasses,
   templatePath
 } from "../codex/constants.js";
 import { convertStress } from "./convert-stress.js";
@@ -21,7 +22,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     window: {
       title: "MoshQoL.ShoreLeave.SelectTier",
       icon: "fas fa-umbrella-beach",
-      contentClasses: ["greybeardqol", "qol-ui"],
+      contentClasses: qolWindowClasses(),
       resizable: false
     },
     position: {

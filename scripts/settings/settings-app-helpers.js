@@ -1,7 +1,5 @@
-import { templatePath } from "../codex/constants.js";
+import { qolWindowClasses, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
-
-const SETTINGS_WINDOW_CLASSES = ["greybeardqol", "qol-ui", "qolsettings-window"];
 
 export function createSettingsAppDefaultOptions({
   id,
@@ -16,7 +14,7 @@ export function createSettingsAppDefaultOptions({
     tag: "form",
     window: {
       title,
-      contentClasses: [...SETTINGS_WINDOW_CLASSES],
+      contentClasses: qolWindowClasses("qolsettings-window"),
       resizable: true
     },
     position: {

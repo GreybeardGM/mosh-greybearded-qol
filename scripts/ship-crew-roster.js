@@ -1,6 +1,6 @@
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { formatCurrency } from "./utils/normalization.js";
-import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
+import { FLAG_CREW_ROSTER, MODULE_ID, qolWindowClasses, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -172,7 +172,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     window: {
       resizable: true,
       title: "MoshQoL.Common.CrewRoster",
-      contentClasses: ["greybeardqol", "qol-ui", "crew-roster"]
+      contentClasses: qolWindowClasses("crew-roster")
     },
     position: {
       width: 680,

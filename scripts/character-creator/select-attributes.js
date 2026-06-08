@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { qolWindowClasses, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
@@ -11,7 +11,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     tag: "form",
     window: {
       title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
-      contentClasses: ["greybeardqol", "qol-ui", "attribute-selection"],
+      contentClasses: qolWindowClasses("attribute-selection"),
       resizable: false
     },
     position: {

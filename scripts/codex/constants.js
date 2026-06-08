@@ -3,6 +3,16 @@
 export const MODULE_ID = "mosh-greybearded-qol";
 export const MODULE_PATH = `modules/${MODULE_ID}`;
 
+export const QOL_UI_CLASSES = Object.freeze(["greybeardqol", "qol-ui"]);
+
+export function qolWindowClasses(...extraClasses) {
+  return [...QOL_UI_CLASSES, ...extraClasses.filter(Boolean)];
+}
+
+export function qolClassName(...extraClasses) {
+  return qolWindowClasses(...extraClasses).join(" ");
+}
+
 export function modulePath(relativePath = "") {
   const normalizedPath = String(relativePath ?? "").replace(/^\/+/, "");
   return normalizedPath ? `${MODULE_PATH}/${normalizedPath}` : MODULE_PATH;
