@@ -22,7 +22,7 @@ export function canShowApplyDamageUI(user = game.user) {
   return visibility === APPLY_DAMAGE_VISIBILITY.TRUSTED && user?.isTrusted === true;
 }
 
-export function getApplyDamageTargetLogicSetting() {
+function getApplyDamageTargetLogicSetting() {
   const value = game.settings.get(MODULE_ID, TARGET_LOGIC_SETTING);
   return normalizeEnum(value, VALID_TARGET_LOGICS, DEFAULT_TARGET_LOGIC);
 }

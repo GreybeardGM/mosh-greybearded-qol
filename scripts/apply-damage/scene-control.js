@@ -2,13 +2,7 @@ import { applyDamageToActors, getUniqueActorsFromTargets, promptDamageInput } fr
 import { normalizeNumber } from "../utils/normalization.js";
 import { canShowApplyDamageUI } from "./policy.js";
 
-export async function applyDamageToSelectedActors(
-  damageInput,
-  antiArmor,
-  woundType = null,
-  woundRollModifier = null,
-  selectedActors = null
-) {
+async function applyDamageToSelectedActors(damageInput, antiArmor, selectedActors = null) {
   const selectedActorsList = getUniqueActorsFromTargets(selectedActors ?? (canvas?.tokens?.controlled ?? []));
   if (!selectedActorsList.length) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
@@ -23,11 +17,7 @@ export async function applyDamageToSelectedActors(
 
   const normalizedPayload = {
     damage: Math.trunc(damage),
-    antiArmorHit: Boolean(antiArmor),
-    woundMetadata: {
-      woundType,
-      woundRollModifier
-    }
+    antiArmorHit: Boolean(antiArmor)
   };
 
   let applied = 0;
@@ -102,7 +92,7 @@ export function registerApplyDamageSceneControl() {
         const selectedActors = getUniqueActorsFromTargets(filteredActors);
         if (!selectedActors.length) return;
 
-        await applyDamageToSelectedActors(data.damage, data.antiArmor, null, null, selectedActors);
+        await applyDamageToSelectedActors(data.damage, data.antiArmor, selectedActors);
       }
     };
 

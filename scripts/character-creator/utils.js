@@ -3,7 +3,7 @@ export const toSkillId = value => String(value ?? "").split(".").pop();
 
 export { normalizeText, stripHtml };
 
-export function toNumberOrZero(value) {
+function toNumberOrZero(value) {
   if (value === "" || value === null || value === undefined) return 0;
   return normalizeNumber(value, { fallback: 0 });
 }
