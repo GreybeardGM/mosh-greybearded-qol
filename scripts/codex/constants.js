@@ -3,15 +3,27 @@
 export const MODULE_ID = "mosh-greybearded-qol";
 export const MODULE_PATH = `modules/${MODULE_ID}`;
 
-export const QOL_UI_CLASSES = Object.freeze(["greybeardqol", "qol-ui"]);
+export const QOL_NAMESPACE_CLASS = "greybeardqol";
+export const QOL_UI_CLASS = "qol-ui";
+export const QOL_SHEET_CLASS = "qol-sheet";
+export const CHAT_ACTION_CLASS = "chat-action";
+
+export const QOL_UI_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_UI_CLASS]);
+export const QOL_SHEET_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_SHEET_CLASS]);
 
 export function qolWindowClasses(...extraClasses) {
   return [...QOL_UI_CLASSES, ...extraClasses.filter(Boolean)];
 }
 
+export function qolSheetClasses(...extraClasses) {
+  return ["mosh", ...QOL_SHEET_CLASSES, "sheet", ...extraClasses.filter(Boolean)];
+}
+
 export function qolClassName(...extraClasses) {
   return qolWindowClasses(...extraClasses).join(" ");
 }
+
+export const CHAT_ACTION_SELECTOR = `.${QOL_NAMESPACE_CLASS} .${CHAT_ACTION_CLASS}`;
 
 export function modulePath(relativePath = "") {
   const normalizedPath = String(relativePath ?? "").replace(/^\/+/, "");

@@ -1,3 +1,4 @@
+import { qolWindowClasses } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import {
@@ -33,7 +34,7 @@ function getApplyDamageChatButtonRoll(message) {
 
 function createApplyDamageChatButtons(damageRoll) {
   const panel = document.createElement("div");
-  panel.classList.add("greybeardqol", "qol-ui", "apply-damage-chat-buttons");
+  panel.classList.add(...qolWindowClasses("apply-damage-chat-buttons"));
   panel.style.setProperty("--theme-color", getThemeColor());
 
   const buttonRow = document.createElement("div");
