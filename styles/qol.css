@@ -4,7 +4,7 @@
 
 /* Base wrapper to scope all styles to the module */
 .greybeardqol {
-  --theme-color: #f50;
+  --theme-color: var(--mosh-qol-default-theme-color);
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;

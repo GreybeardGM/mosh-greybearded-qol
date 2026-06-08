@@ -2,6 +2,7 @@
 // Keep feature-local constants in their feature module only when no other file needs them.
 export const MODULE_ID = "mosh-greybearded-qol";
 export const MODULE_PATH = `modules/${MODULE_ID}`;
+export const DEFAULT_THEME_COLOR = "#f50";
 
 export const QOL_NAMESPACE_CLASS = "greybeardqol";
 export const QOL_UI_CLASS = "qol-ui";
