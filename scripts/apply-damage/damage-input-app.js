@@ -1,8 +1,7 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { normalizeBoolean } from "../utils/normalization.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -39,7 +38,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       message: this._message,
       portraits: this._targets.map((actor, index) => ({
         index,
@@ -48,9 +47,8 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
       })),
       antiArmorLabel: game.i18n.localize("MoshQoL.Damage.AntiArmor"),
       applyLabel: game.i18n.localize("MoshQoL.Damage.Apply"),
-      cancelLabel: this._cancel?.label ?? game.i18n.localize("Cancel"),
-      themeColor: getThemeColor()
-    };
+      cancelLabel: this._cancel?.label ?? game.i18n.localize("Cancel")
+    });
   }
 
   async _onRender(context, options) {

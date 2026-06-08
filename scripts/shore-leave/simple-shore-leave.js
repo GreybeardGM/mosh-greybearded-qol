@@ -6,11 +6,10 @@ import {
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
 import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
 import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -59,7 +58,6 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     const shoreLeaveConfig = getNormalizedShoreLeaveConfig();
     const flavorDisabled = game.settings.get(MODULE_ID, SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR);
     this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? shoreLeaveConfig.simpleShoreLeave.randomFlavor);
-    this.themeColor = getThemeColor();
     this.tiers = this._loadTiers();
     this.tierById = new Map(this.tiers.map(tier => [tier.tier, tier]));
   }
@@ -107,14 +105,13 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       tiers: this.tiers.map(tier => ({
         ...tier,
         selected: tier.tier === this._selectedTier
       })),
-      themeColor: this.themeColor,
       confirmLocked: !this._selectedTier
-    };
+    });
   }
 
   static _onSelectTier(event, target) {

@@ -1,5 +1,4 @@
-import { getThemeColor } from "./utils/get-theme-color.js";
-import { createQolAppDefaultOptions } from "./utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "./utils/application-options.js";
 import { formatCurrency } from "./utils/normalization.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
@@ -281,10 +280,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const { cleanedRoster, entries, rosterChanged, summary, tabs } = await this._buildRosterContext(sourceRoster);
     this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
-    return {
+    return appendQolThemeContext({
       actorName: this.actor?.name ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.ActorName"),
       actorImg: this.actor?.img ?? MOSH_FALLBACK_ACTOR_IMAGE,
-      themeColor: getThemeColor(),
       activeTab: this._activeTab,
       activeTabLabel: tabs.find((tab) => tab.id === this._activeTab)?.label ?? game.i18n.localize("MoshQoL.CrewRoster.Fallbacks.Entries"),
       showContractorColumns: this._activeTab === "creature",
@@ -296,7 +294,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       },
       tabs,
       entries
-    };
+    });
   }
 
   _onRender(context, options) {

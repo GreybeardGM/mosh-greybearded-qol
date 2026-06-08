@@ -1,9 +1,8 @@
 import { templatePath } from "../codex/constants.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import {
   applyInitialAvailabilityLock,
   cacheSkillTreeDom,
@@ -120,14 +119,13 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "nameLower",
       defaultSkillValues: [...this.ownedSkillNames],
       showPointCounters: false,
-      themeColor: getThemeColor(),
       confirmLocked: true
-    };
+    });
   }
 
   _onRender(context, options) {

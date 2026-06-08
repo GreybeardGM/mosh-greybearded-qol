@@ -1,6 +1,5 @@
 import { templatePath } from "../codex/constants.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 
 export function createSettingsAppDefaultOptions({
   id,
@@ -39,10 +38,7 @@ export function createSettingsAppParts(relativeTemplatePath) {
 }
 
 export function appendThemeColor(context) {
-  return {
-    ...context,
-    themeColor: getThemeColor()
-  };
+  return appendQolThemeContext(context);
 }
 
 export function notifyLocalized(type, localizationKey) {

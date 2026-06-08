@@ -1,7 +1,6 @@
 import { templatePath } from "../codex/constants.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { capitalize } from "../utils/normalization.js";
-import { createQolAppDefaultOptions } from "../utils/application-options.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -48,7 +47,6 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
       body: actor.system.stats.body.value ?? 0
     };
     this.values = structuredClone(this.base);
-    this.themeColor = getThemeColor();
   }
 
   get _assignedPoints() {
@@ -86,12 +84,11 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
       };
     });
 
-    return {
+    return appendQolThemeContext({
       attrs,
-      themeColor: this.themeColor,
       remaining: this.points - this._assignedPoints,
       confirmLocked: this._assignedPoints !== this.points
-    };
+    });
   }
 
   _onRender(context, options) {
