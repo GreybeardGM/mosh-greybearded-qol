@@ -1,6 +1,6 @@
 export const TOOLBAND_SCOPES = ["character", "contractor", "creature", "ship", "stash"];
 
-export const TOOLBAND_BUTTONS = [
+const TOOLBAND_BUTTONS = [
   {
     action: "apply-damage",
     settingKey: "applyDamage",
@@ -88,7 +88,7 @@ export const TOOLBAND_BUTTONS = [
   }
 ];
 
-export const CONFIGURABLE_TOOLBAND_BUTTONS = TOOLBAND_BUTTONS.filter((button) => button.configurable);
+const CONFIGURABLE_TOOLBAND_BUTTONS = TOOLBAND_BUTTONS.filter((button) => button.configurable);
 
 function getToolbandButtonMeta(action) {
   return TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
