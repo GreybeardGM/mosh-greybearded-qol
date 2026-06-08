@@ -70,41 +70,6 @@ It streamlines repetitive workflows for both players and game masters while pres
 - GitHub repository: <https://github.com/GreybeardGM/mosh-greybearded-qol>  
 - Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json>
 
-## Development Notes
-
-### `scripts/codex/`-Projektkonvention
-
-`scripts/codex/` ist für kleine modulweite Registries und Integrationswerte reserviert, die featureübergreifend geteilt werden. Feature-spezifische Tabellen, Defaults und Helfer liegen beim verantwortlichen Feature, auch wenn Settings oder Migrationen sie zusätzlich importieren. Echte wiederverwendbare Implementierungshelfer gehören nach `scripts/utils/`.
-
-Aktuelle `scripts/codex/`-Inventarisierung:
-
-| File | Kategorie | Konvention |
-| --- | --- | --- |
-| `constants.js` | Zentrale Konstanten | Nur Modul-IDs, Setting-Keys, Flags, gemeinsame CSS-Klassen und Pfad-Builder. |
-| `feature-actions.js` | Zentrale Konstanten | Gemeinsame Feature-Action-Metadaten für mehrere UI-Einstiegspunkte. |
-| `mosh-system.js` | System-Integrationswerte | Mothership-System-/Modul-IDs, Kompendiumskennungen, Fallback-Bilder und Item-Typ-Listen. |
-| `toolband-buttons.js` | Feature-Daten | Toolband-Button-/Scope-Registry plus Lookup-Helfer; bleibt hier, solange Settings und Runtime-Toolband-Code sie gemeinsam nutzen. |
-
-Ablagebeispiele außerhalb von `scripts/codex/`:
-
-- Apply-Damage-eigene Defaults und Lookup-Daten liegen in `scripts/apply-damage/` (`config.js`, `target-logic.js`, `armor-cover.js`, `wound-types.js`).
-- Shore-Leave-Tabellen liegen in `scripts/shore-leave/` (`default-activities.js`, `default-tiers.js`).
-- Ship-Crit-Tabellen liegen in `scripts/ship-crits/` (`default-crits-0e.js`).
-- Reine Contractor-Sheet-Tabellen liegen in `scripts/sheets/` (`contractor-motivation-table.js`).
-- Echte wiederverwendbare Helfer, z. B. Skill-Sortierung, liegen in `scripts/utils/` (`skill-sort.js`).
-
-- New Foundry `ApplicationV2` UI components must use the shared QoL base classes from `QOL_UI_CLASSES` in `scripts/codex/constants.js`; prefer `qolWindowClasses(...)` for `window.contentClasses` and `qolClassName(...)` for composed `className` strings.
-
-### Developer Checklist Before New Implementations
-
-- Search for existing helpers in `scripts/utils/`, `scripts/codex/`, and `scripts/settings/` before adding new implementation code.
-- Do not introduce a new constant when a canonical value already exists in `scripts/codex/constants.js`.
-- Do not add a new helper if it is only used once and does not clearly improve readability.
-- Do not use inline HTML for chat output when `chatOutput` blocks from `scripts/utils/chat-output.js` are sufficient.
-- Do not manually build new template paths when `templatePath()` from `scripts/codex/constants.js` is sufficient.
-- Prefer existing normalization, HTML-safety, chat-output, and settings helpers from `scripts/utils/normalization.js`, `scripts/utils/html-safety.js`, `scripts/utils/chat-output.js`, and `scripts/settings/settings-app-helpers.js`.
-- Review question: Hat diese Änderung netto Komplexität entfernt oder nur verschoben?
-
 ## Maintainer Notes
 
 Developed and maintained by **GreybeardGM**. The project emphasizes modular design and practical usability for long-running campaigns.
