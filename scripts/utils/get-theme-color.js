@@ -1,8 +1,8 @@
-import { MODULE_ID, SETTING_THEME_COLOR, SETTING_THEME_COLOR_OVERRIDE } from "../codex/constants.js";
+import { DEFAULT_THEME_COLOR, MODULE_ID, SETTING_THEME_COLOR, SETTING_THEME_COLOR_OVERRIDE } from "../codex/constants.js";
 
 const cssColorProbe = new Option().style;
 let lastThemeInputs = null;
-let lastThemeResult = "#f50";
+let lastThemeResult = DEFAULT_THEME_COLOR;
 
 export function getThemeColor() {
   const global = String(game.settings.get(MODULE_ID, SETTING_THEME_COLOR) || "").trim();
@@ -12,7 +12,7 @@ export function getThemeColor() {
   const cacheKey = `${global}|${override}|${String(userColor ?? "")}`;
   if (cacheKey === lastThemeInputs) return lastThemeResult;
 
-  let result = "#f50";
+  let result = DEFAULT_THEME_COLOR;
 
   // 1. GM-Setting
   if (isValidCssColor(global)) {

@@ -1,4 +1,5 @@
 import { convertStress } from "./shore-leave/convert-stress.js";
+import { DEFAULT_THEME_COLOR } from "./codex/constants.js";
 import { registerSettings } from "./settings/register-settings.js";
 import { runReadyMigrations } from "./register/migrations.js";
 import { SimpleShoreLeave } from "./shore-leave/simple-shore-leave.js";
@@ -16,6 +17,7 @@ import { registerStatusEffects } from "./register/status-effects.js";
 import "./patches/creature-skillfix.js";
 
 Hooks.once("init", () => {
+  document.documentElement.style.setProperty("--mosh-qol-default-theme-color", DEFAULT_THEME_COLOR);
   registerDiceTerms();
   registerSettings();
   registerHandlebarsHelpers();
