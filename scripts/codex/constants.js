@@ -22,7 +22,6 @@ export const STATUS_ARMOR_BROKEN = "qol-broken-armor";
 
 export const FLAG_CHARACTER_CREATION = "greybeardCharacterCreation";
 export const FLAG_CREW_ROSTER = "crewRoster";
-export const FLAG_SCOPE_WORLD = "world";
 
 export const SETTING_ENABLE_CHARACTER_CREATOR = "enableCharacterCreator";
 export const SETTING_THEME_COLOR = "themeColor";
