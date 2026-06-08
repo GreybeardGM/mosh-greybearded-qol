@@ -1,4 +1,27 @@
-export const TOOLBAND_SCOPES = ["character", "contractor", "creature", "ship", "stash"];
+export const TOOLBAND_SCOPE_META = [
+  {
+    id: "character",
+    labelKey: "MoshQoL.Common.PlayerCharacters"
+  },
+  {
+    id: "contractor",
+    labelKey: "MoshQoL.Common.Contractor"
+  },
+  {
+    id: "creature",
+    labelKey: "MoshQoL.Toolbar.Scopes.creature"
+  },
+  {
+    id: "ship",
+    labelKey: "MoshQoL.Toolbar.Scopes.ship"
+  },
+  {
+    id: "stash",
+    labelKey: "MoshQoL.Toolbar.Scopes.stash"
+  }
+];
+
+export const TOOLBAND_SCOPES = TOOLBAND_SCOPE_META.map((scope) => scope.id);
 
 const TOOLBAND_BUTTONS = [
   {
@@ -89,6 +112,21 @@ const TOOLBAND_BUTTONS = [
 ];
 
 const CONFIGURABLE_TOOLBAND_BUTTONS = TOOLBAND_BUTTONS.filter((button) => button.configurable);
+
+export function getToolbandScopes() {
+  return TOOLBAND_SCOPE_META.map((scope) => ({ ...scope }));
+}
+
+export function getToolbandScopeMeta(scopeId) {
+  return TOOLBAND_SCOPE_META.find((scope) => scope.id === scopeId) ?? null;
+}
+
+export function getToolbandScopeLabel(scopeId) {
+  const meta = getToolbandScopeMeta(scopeId);
+  if (!meta) return scopeId ?? "";
+  if (meta.labelKey && typeof game !== "undefined" && game?.i18n) return game.i18n.localize(meta.labelKey);
+  return meta.label ?? meta.id;
+}
 
 function getToolbandButtonMeta(action) {
   return TOOLBAND_BUTTONS.find((button) => button.action === action) ?? null;
