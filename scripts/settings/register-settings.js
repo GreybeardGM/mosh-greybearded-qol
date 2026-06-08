@@ -12,12 +12,26 @@ import {
 import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import {
+  DEFAULT_TARGET_LOGIC,
+  TARGET_LOGIC_CHOICE_KEYS,
+  VALID_TARGET_LOGICS
+} from "../codex/apply-damage-target-logic.js";
+import {
   MODULE_ID,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_ENABLE_CHARACTER_CREATOR,
   SETTING_THEME_COLOR,
   SETTING_THEME_COLOR_OVERRIDE
 } from "../codex/constants.js";
+
+function getApplyDamageTargetLogicChoices() {
+  return Object.fromEntries(
+    VALID_TARGET_LOGICS.map((targetLogic) => [
+      targetLogic,
+      TARGET_LOGIC_CHOICE_KEYS[targetLogic]
+    ])
+  );
+}
 
 const WORLD_SETTING_DEFINITIONS = [
   {
@@ -56,13 +70,8 @@ const CLIENT_SETTING_DEFINITIONS = [
       name: "MoshQoL.Settings.ApplyDamageTargetLogic.Name",
       hint: "MoshQoL.Settings.ApplyDamageTargetLogic.Hint",
       type: String,
-      choices: {
-        alwaysCharacter: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.AlwaysCharacter",
-        alwaysToken: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.AlwaysToken",
-        characterFirst: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.CharacterFirst",
-        tokenFirst: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.TokenFirst"
-      },
-      default: "alwaysCharacter"
+      choices: getApplyDamageTargetLogicChoices(),
+      default: DEFAULT_TARGET_LOGIC
     }
   },
   {
