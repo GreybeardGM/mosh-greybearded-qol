@@ -1,3 +1,4 @@
+import { CHAT_ACTION_SELECTOR } from "./codex/constants.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
 
@@ -51,7 +52,7 @@ export function registerChatActions() {
 
     html.addEventListener("click", async (event) => {
       const target = event.target instanceof Element ? event.target : null;
-      const button = target?.closest(".greybeardqol .chat-action");
+      const button = target?.closest(CHAT_ACTION_SELECTOR);
       if (!button || !html.contains(button)) return;
 
       event.preventDefault();

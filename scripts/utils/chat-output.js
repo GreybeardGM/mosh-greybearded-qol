@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { qolClassName, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "./get-theme-color.js";
 import { escapeHTML, sanitizeClassList, sanitizeDataAction } from "./html-safety.js";
 
@@ -184,7 +184,8 @@ export async function chatOutput({
     icon: sanitizeClassList(icon),
     image: escapeHTML(image),
     buttons: Array.isArray(buttons) ? buttons.map(prepareButton) : [],
-    themeColor: escapeHTML(getThemeColor())
+    themeColor: escapeHTML(getThemeColor()),
+    classes: escapeHTML(qolClassName())
   });
 
   if (roll instanceof Roll) {
