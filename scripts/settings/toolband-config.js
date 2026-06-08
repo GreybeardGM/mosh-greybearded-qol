@@ -3,7 +3,6 @@ import {
   TOOLBAND_SCOPES,
   getConfigurableToolbandButton,
   getConfigurableToolbandButtonsForScope,
-  getToolbandButtonDefaultEnabled,
   getToolbandButtonLabel,
   getToolbandScopeLabel,
   getToolbandScopes,
@@ -26,7 +25,7 @@ export function getDefaultToolbandConfig() {
       scope,
       Object.fromEntries(
         getConfigurableToolbandButtonsForScope(scope)
-          .map((button) => [button.settingKey, getToolbandButtonDefaultEnabled(button, scope)])
+          .map((button) => [button.settingKey, button.defaultEnabled !== false])
       )
     ])
   );
