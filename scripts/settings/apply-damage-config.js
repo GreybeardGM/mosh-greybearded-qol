@@ -1,6 +1,12 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
+import {
+  appendThemeColor,
+  createSettingsAppDefaultOptions,
+  createSettingsAppParts,
+  resetSettingToDefaults,
+  setSettingAndNotify
+} from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export const APPLY_DAMAGE_CONFIG_SETTING = SETTING_APPLY_DAMAGE_CONFIG;
@@ -69,52 +75,34 @@ export function automatesWoundRollFromConfig(config, scope = "character") {
 }
 
 export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createSettingsAppDefaultOptions({
     id: "apply-damage-config",
-    tag: "form",
-    window: {
-      title: "MoshQoL.Settings.ApplyDamageConfig.Name",
-      contentClasses: ["greybeardqol", "qol-ui", "qolsettings-window"],
-      resizable: true
-    },
-    position: {
-      width: 550,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
-    actions: {
-      resetDefaults: this._onResetDefaults
-    }
-  };
+    title: "MoshQoL.Settings.ApplyDamageConfig.Name",
+    submitHandler: this._onSubmit,
+    resetDefaultsHandler: this._onResetDefaults
+  });
 
-  static PARTS = {
-    form: {
-      template: `modules/${MODULE_ID}/templates/settings/apply-damage-config.html`
-    }
-  };
+  static PARTS = createSettingsAppParts(MODULE_ID, "templates/settings/apply-damage-config.html");
 
   async _prepareContext() {
-    return {
+    return appendThemeColor({
       config: getNormalizedApplyDamageConfig(),
-      themeColor: getThemeColor(),
       visibilityChoices: [
         { value: APPLY_DAMAGE_VISIBILITY.DISABLED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Disabled") },
         { value: APPLY_DAMAGE_VISIBILITY.GM_ONLY, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.GMOnly") },
         { value: APPLY_DAMAGE_VISIBILITY.TRUSTED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.TrustedPlayer") },
         { value: APPLY_DAMAGE_VISIBILITY.EVERYONE, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Everyone") }
       ]
-    };
+    });
   }
 
   static async _onResetDefaults(event) {
-    event.preventDefault();
-    await game.settings.set(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, getDefaultApplyDamageConfig());
-    this.render();
-    ui.notifications.info(game.i18n.localize("MoshQoL.Damage.Config.ResetSuccess"));
+    await resetSettingToDefaults(this, event, {
+      moduleId: MODULE_ID,
+      settingKey: APPLY_DAMAGE_CONFIG_SETTING,
+      defaults: getDefaultApplyDamageConfig,
+      notificationKey: "MoshQoL.Damage.Config.ResetSuccess"
+    });
   }
 
   static async _onSubmit(event, form, formData) {
@@ -138,8 +126,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
       config.automateWoundRoll[scope] = normalizeBoolean(automateWoundRoll[scope]);
     }
 
-    await game.settings.set(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, config);
-    ui.notifications.info(game.i18n.localize("MoshQoL.Damage.Config.UpdateSuccess"));
+    await setSettingAndNotify(MODULE_ID, APPLY_DAMAGE_CONFIG_SETTING, config, "MoshQoL.Damage.Config.UpdateSuccess");
     this.close();
   }
 }
