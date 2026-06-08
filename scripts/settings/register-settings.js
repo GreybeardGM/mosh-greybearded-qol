@@ -17,6 +17,7 @@ import {
   MODULE_ID,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_ENABLE_CHARACTER_CREATOR,
+  SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   SETTING_THEME_COLOR,
   SETTING_THEME_COLOR_OVERRIDE
 } from "../codex/constants.js";
@@ -72,7 +73,7 @@ const CLIENT_SETTING_DEFINITIONS = [
     }
   },
   {
-    key: "simpleShoreLeave.disableFlavor",
+    key: SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
     options: {
       name: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Name",
       hint: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Hint",
