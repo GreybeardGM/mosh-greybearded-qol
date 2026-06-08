@@ -8,8 +8,7 @@ import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
-import { toRollFormula } from "../utils/to-roll-formula.js";
-import { toRollString } from "../utils/to-roll-string.js";
+import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
 import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
 import { createQolAppDefaultOptions } from "../utils/application-options.js";
 
