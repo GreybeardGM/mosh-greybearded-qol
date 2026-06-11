@@ -1,8 +1,20 @@
-import { upsertToolband, removeToolband } from "../toolband.js";
-import { setReady } from "../character-creator/progress.js";
+import { upsertToolband, removeToolband, refreshToolbandForActor } from "../toolband.js";
+import { CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS, setReady } from "../character-creator/progress.js";
 import { getSheetKind } from "./sheets.js";
+import { FLAG_CHARACTER_CREATION, MODULE_ID } from "../codex/constants.js";
 
 let actorHooksRegistered = false;
+
+function hasCharacterCreationProgressChange(changed) {
+  const moduleFlags = changed?.flags?.[MODULE_ID];
+  const progressChanges = moduleFlags?.[FLAG_CHARACTER_CREATION];
+  const hasProgressKey = (key) => Object.hasOwn(progressChanges ?? {}, key)
+    || Object.hasOwn(changed ?? {}, `flags.${MODULE_ID}.${FLAG_CHARACTER_CREATION}.${key}`);
+
+  return Object.hasOwn(moduleFlags ?? {}, `-=${FLAG_CHARACTER_CREATION}`)
+    || Object.hasOwn(changed ?? {}, `flags.${MODULE_ID}.-=${FLAG_CHARACTER_CREATION}`)
+    || CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS.some(hasProgressKey);
+}
 
 export function registerActorHooks() {
   if (actorHooksRegistered) return;
@@ -25,6 +37,16 @@ export function registerActorHooks() {
   Hooks.on("createActor", async (actor, options, userId) => {
     if (actor.type !== "character") return;
     await setReady(actor);
+  });
+
+  Hooks.on("updateActor", (actor, changed) => {
+    if (actor.type !== "character" || !hasCharacterCreationProgressChange(changed)) return;
+
+    try {
+      refreshToolbandForActor(actor);
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   Hooks.on("closeActorSheet", (sheet) => {

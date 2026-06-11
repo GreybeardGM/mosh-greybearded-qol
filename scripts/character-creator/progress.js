@@ -1,5 +1,10 @@
 import { FLAG_CHARACTER_CREATION, MODULE_ID } from "../codex/constants.js";
 
+const FLAG_READY = "ready";
+const FLAG_COMPLETED = "completed";
+
+export const CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS = Object.freeze([FLAG_READY, FLAG_COMPLETED]);
+
 // progress.js – Fortschrittsverwaltung für den Charaktergenerator
 
 /**
@@ -33,26 +38,26 @@ export function checkStep(actor, key) {
  * Prüft, ob der Charakter bereit für den Generator ist.
  */
 export function checkReady(actor) {
-  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.ready`) === true;
+  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.${FLAG_READY}`) === true;
 }
 
 /**
  * Setzt den Charakter auf bereit oder nicht bereit.
  */
 export async function setReady(actor, state = true) {
-  return actor.setFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.ready`, state);
+  return actor.setFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.${FLAG_READY}`, state);
 }
 
 /**
  * Prüft, ob der gesamte Ersteller abgeschlossen ist.
  */
 export function checkCompleted(actor) {
-  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.completed`) === true;
+  return actor.getFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.${FLAG_COMPLETED}`) === true;
 }
 
 /**
  * Markiert den gesamten Ersteller als abgeschlossen.
  */
 export async function setCompleted(actor, state = true) {
-  return actor.setFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.completed`, state);
+  return actor.setFlag(MODULE_ID, `${FLAG_CHARACTER_CREATION}.${FLAG_COMPLETED}`, state);
 }
