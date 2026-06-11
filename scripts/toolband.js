@@ -6,6 +6,7 @@ import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
+import { getSheetKind } from "./register/sheets.js";
 
 const CLS = "toolband";
 
@@ -51,18 +52,36 @@ function addArmorBrokenButton(buttons, actor) {
   }));
 }
 
+function forEachOpenActorSheet(actor, callback) {
+  if (!actor?.uuid) return;
+
+  for (const app of Object.values(ui.windows)) {
+    if (app.actor?.uuid === actor.uuid) callback(app);
+  }
+}
+
 export function syncArmorBrokenToolbandButton(actor) {
   const active = actor.statuses.has(STATUS_ARMOR_BROKEN);
 
-  for (const app of Object.values(ui.windows)) {
-    if (app.actor?.uuid !== actor.uuid) continue;
-
+  forEachOpenActorSheet(actor, (app) => {
     const button = app.element?.[0]?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
-    if (!button) continue;
+    if (!button) return;
 
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
-  }
+  });
+}
+
+export function refreshToolbandForActor(actor) {
+  forEachOpenActorSheet(actor, (sheet) => {
+    const root = getRoot(sheet);
+    if (!root?.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`)) return;
+
+    upsertToolband(sheet, [root], {
+      kind: getSheetKind(sheet),
+      isGM: game.user.isGM
+    });
+  });
 }
 
 function getToolbandButtons({ actor, kind, isGM }) {
@@ -131,7 +150,6 @@ async function handleMarkReadyAction(sheet) {
 
   await setReady(actor);
   ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedReady", { actorName: actor.name }));
-  return sheet.render(false);
 }
 
 async function handleMarkCompleteAction(sheet) {
@@ -140,7 +158,6 @@ async function handleMarkCompleteAction(sheet) {
 
   await setCompleted(actor);
   ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedCompleted", { actorName: actor.name }));
-  return sheet.render(false);
 }
 
 async function handleArmorBrokenAction(sheet) {
