@@ -383,6 +383,7 @@
         "UpdateSuccess": "Training configuration updated."
       },
       "SkillNotFound": "Training skill not found: {skillName}.",
+      "NotEnoughXp": "Not enough XP to learn {rankLabel} Skill {skillName}.",
       "Progressed": "{actorName} trained {skillName}: {xpValue}/{xpRequired}."
     },
     "Progress": {
