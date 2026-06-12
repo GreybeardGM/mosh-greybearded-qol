@@ -5,6 +5,7 @@ import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
+import { refreshOpenToolbands } from "../toolband.js";
 import {
   DEFAULT_TARGET_LOGIC,
   TARGET_LOGIC_CHOICE_KEYS,
@@ -120,7 +121,8 @@ const MENU_DEFINITIONS = [
       options: {
         name: "MoshQoL.Settings.ToolbandConfig.SettingName",
         type: Object,
-        default: getDefaultToolbandConfig()
+        default: getDefaultToolbandConfig(),
+        onChange: refreshOpenToolbands
       }
     }
   },
