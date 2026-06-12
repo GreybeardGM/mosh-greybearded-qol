@@ -72,16 +72,28 @@ export function syncArmorBrokenToolbandButton(actor) {
   });
 }
 
-export function refreshToolbandForActor(actor) {
-  forEachOpenActorSheet(actor, (sheet) => {
-    const root = getRoot(sheet);
-    if (!root?.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`)) return;
+function refreshToolbandForSheet(sheet) {
+  const root = getRoot(sheet);
+  if (!root?.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`)) return;
 
-    upsertToolband(sheet, [root], {
-      kind: getSheetKind(sheet),
-      isGM: game.user.isGM
-    });
+  upsertToolband(sheet, [root], {
+    kind: getSheetKind(sheet),
+    isGM: game.user.isGM
   });
+}
+
+export function refreshToolbandForActor(actor) {
+  forEachOpenActorSheet(actor, refreshToolbandForSheet);
+}
+
+export function refreshOpenToolbands() {
+  for (const sheet of Object.values(ui.windows)) {
+    try {
+      refreshToolbandForSheet(sheet);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 }
 
 function getToolbandButtons({ actor, kind, isGM }) {
