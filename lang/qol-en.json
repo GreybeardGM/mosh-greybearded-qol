@@ -156,8 +156,6 @@
       "ConvertedStress": "Converted Stress",
       "DistributeStressConversion": "Distribute Stress Conversion",
       "Editor": {
-        "ResetSuccess": "Shore Leave configuration reset to defaults.",
-        "UpdateSuccess": "Shore Leave configuration updated.",
         "GeneralTitle": "General Shore Leave",
         "TiersTitle": "Tier Formulas",
         "DefaultTiersFallback": "Submitted shore leave tiers were empty or invalid. Defaults were saved instead."
@@ -218,15 +216,8 @@
       "Notifications": {
         "AlreadyCompleted": "Character creation already completed.",
         "AttributeSelectionAborted": "Attribute selection aborted:",
-        "AttributeSelectionCancelled": "Attribute selection cancelled.",
-        "Cancelled": "Character creation cancelled.",
-        "ClassSelectionCancelled": "Class selection cancelled.",
         "ClassUuidInvalid": "Class UUID invalid. Please reselect.",
-        "Completed": "{actorName} has completed character creation.",
-        "MarkedCompleted": "{actorName} has been marked as completed manually.",
         "NoClassUuid": "No class UUID found. Please select a class.",
-        "Reset": "Character creation for {actorName} has been reset.",
-        "SkillSelectionCancelled": "Skill selection cancelled.",
         "TrainingSkillLoadFailed": "Selected training skill could not be loaded."
       },
       "SelectAttributes": {
@@ -304,10 +295,6 @@
         "Promote": "Promote",
         "Menu": "Menu"
       },
-      "Config": {
-        "ResetSuccess": "Toolbar configuration reset to defaults.",
-        "UpdateSuccess": "Toolbar configuration updated."
-      },
       "Scopes": {
         "creature": "Creatures",
         "ship": "Ships",
@@ -322,10 +309,7 @@
         "Title": "Promote Contractor",
         "Content": "<p>How would you like to promote this contractor?</p>",
         "Roll": "Roll Contractor",
-        "Manual": "Manual Promotion",
-        "Rolled": "{actorName} has been promoted and fully rolled.",
-        "ManualDone": "{actorName} has been promoted manually.",
-        "Cancelled": "Promotion canceled."
+        "Manual": "Manual Promotion"
       },
       "Actions": {
         "Title": "Contractor Actions",
@@ -346,7 +330,6 @@
       "Apply": "Apply",
       "NoTokensSelected": "No tokens selected.",
       "PositiveValueRequired": "Please enter a positive damage value.",
-      "AppliedToTokens": "Applied damage to {applied}/{total} {tokens}.",
       "TokenSingular": "token",
       "TokenPlural": "tokens",
       "MaximumWoundsReached": "Maximum Wounds Reached",
@@ -362,9 +345,7 @@
       "ApplyDamageShort": "DMG",
       "ApplyAntiArmorShort": "AA",
       "Config": {
-        "GeneralTitle": "General Apply Damage",
-        "ResetSuccess": "Apply Damage configuration reset to defaults.",
-        "UpdateSuccess": "Apply Damage configuration updated."
+        "GeneralTitle": "General Apply Damage"
       },
       "NoWoundResult": "No matching wound result found.",
       "Advantage": "Advantage",
@@ -378,22 +359,11 @@
     "Training": {
       "Learned": "{actorName} learned {skillName}.",
       "Config": {
-        "GeneralTitle": "Skill Training",
-        "ResetSuccess": "Training configuration reset to defaults.",
-        "UpdateSuccess": "Training configuration updated."
+        "GeneralTitle": "Skill Training"
       },
       "SkillNotFound": "Training skill not found: {skillName}.",
       "NotEnoughXp": "Not enough XP to learn {rankLabel} Skill {skillName}.",
       "Progressed": "{actorName} trained {skillName}: {xpValue}/{xpRequired}."
-    },
-    "Progress": {
-      "MarkedReady": "Character marked ready: {actorName}",
-      "MarkedCompleted": "Character marked completed: {actorName}"
-    },
-    "Armor": {
-      "State": "{actorName}: Armor {state}.",
-      "Broken": "broken",
-      "Intact": "intact"
     },
     "ShipCrit": {
       "NoMatch": "No match for: {value}",

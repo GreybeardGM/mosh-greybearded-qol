@@ -3,8 +3,10 @@
 ## [0.8.1-dev] - 2026-05-22
 ### Added
 - Simple Shore Leave now includes a Pay-Up button to automatically deduct credits.
+- Training tool updates: training can now use the Skill Training field on the character sheet, and preliminary auto-training is available when explicitly enabled in the settings.
 
 ### Changed
+- Removed redundant or excessive UI notifications where visible window, sheet, or highlighted UI changes already provide clear feedback.
 - Simple Shore Leave roll output was updated for easier price reading.
 - General CSS was cleaned up and styling is now more clearly split into scoped areas.
 - Setting forms were polished and unified for a consistent layout.
@@ -12,6 +14,7 @@
 - Multiple safeguards were added to prevent creature/player stats from leaking into stash sheets or contractors.
 
 ### Fixed
+- Adjusted unfavorable viewport sizing for small monitors so the Skill Selector should now remain fully visible for everyone.
 - Fixed a bug in Shore Leave tier migration.
 - Apply Damage now deduplicates duplicate actor entries so multiple tokens of the same actor are not damaged twice.
 - Armor Broken auto-arbitration was reworked and now applies status only to valid actors.

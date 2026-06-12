@@ -54,8 +54,7 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
       settingKey: SETTING_TRAINING_CONFIG,
-      defaults: getDefaultTrainingConfig,
-      notificationKey: "MoshQoL.Training.Config.ResetSuccess"
+      defaults: getDefaultTrainingConfig
     });
   }
 
@@ -67,6 +66,6 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     config.useSkillTraining = normalizeBoolean(submitted.useSkillTraining);
     config.autoTrainAfterShoreLeave = normalizeBoolean(submitted.autoTrainAfterShoreLeave);
 
-    await saveSettingAndClose(this, MODULE_ID, SETTING_TRAINING_CONFIG, config, "MoshQoL.Training.Config.UpdateSuccess");
+    await saveSettingAndClose(this, MODULE_ID, SETTING_TRAINING_CONFIG, config);
   }
 }

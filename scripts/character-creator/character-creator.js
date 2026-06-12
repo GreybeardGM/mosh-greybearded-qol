@@ -31,9 +31,7 @@ export async function startCharacterCreation(actor) {
       });
       if (resetConfirm === "reset") {
         await reset(actor);
-        ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.Reset", { actorName: actor.name }));
       } else {
-        ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.Cancelled"));
         return;
       }
     } else {
@@ -77,11 +75,9 @@ export async function startCharacterCreation(actor) {
     });
   
     if (choice === "cancel") {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.Cancelled"));
       return;
     } else if (choice === "complete") {
       await setCompleted(actor, true);
-      ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.MarkedCompleted", { actorName: actor.name }));
       return;
     } else if (choice === "overwrite") {
       await setReady(actor, true); // mark as ready and proceed
@@ -176,10 +172,7 @@ export async function startCharacterCreation(actor) {
   // If nothing was loaded -> selection dialog
   if (!selectedClass) {
     selectedClass = await ClassSelectorApp.wait({ actor });
-    if (!selectedClass) {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.ClassSelectionCancelled"));
-      return;
-    }
+    if (!selectedClass) return;
     await chatOutput({
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.ClassSelected.Title"),
       subtitle: actor.name,
@@ -200,10 +193,10 @@ export async function startCharacterCreation(actor) {
     if (choices.length > 0) {
       try {
         const adjustments = await AttributeSelectorApp.wait({ actor, attributeChoices: choices });
-        if (!adjustments) return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionCancelled"));
+        if (!adjustments) return;
       } catch (err) {
         console.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionAborted"), err);
-        return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionCancelled"));
+        return;
       }
     }
     await completeStep(actor, "selectedAttributes");
@@ -235,9 +228,7 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 7: Skill selection
   if (!checkStep(actor, "selectedSkills")) {
     const adjustments = await SkillSelectorApp.wait({ actor, selectedClass });
-    if (!adjustments || adjustments.length === 0) {
-      return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.SkillSelectionCancelled"));
-    }
+    if (!adjustments || adjustments.length === 0) return;
 
     await chatOutput({
       actor,
@@ -267,6 +258,5 @@ export async function startCharacterCreation(actor) {
      
   // ✅ Final Step: Mark character creation as completed
   await setCompleted(actor, true);
-  ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.Completed", { actorName: actor.name }));
 
 }

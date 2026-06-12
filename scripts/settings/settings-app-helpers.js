@@ -45,19 +45,13 @@ export function notifyLocalized(type, localizationKey) {
   ui.notifications[type](game.i18n.localize(localizationKey));
 }
 
-export async function setSettingAndNotify(moduleId, settingKey, value, notificationKey) {
+export async function saveSettingAndClose(app, moduleId, settingKey, value) {
   await game.settings.set(moduleId, settingKey, value);
-  notifyLocalized("info", notificationKey);
-}
-
-export async function saveSettingAndClose(app, moduleId, settingKey, value, notificationKey) {
-  await setSettingAndNotify(moduleId, settingKey, value, notificationKey);
   app.close();
 }
 
-export async function resetSettingToDefaults(app, event, { moduleId, settingKey, defaults, notificationKey }) {
+export async function resetSettingToDefaults(app, event, { moduleId, settingKey, defaults }) {
   event.preventDefault();
   await game.settings.set(moduleId, settingKey, defaults());
   app.render();
-  notifyLocalized("info", notificationKey);
 }

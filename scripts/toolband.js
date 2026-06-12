@@ -147,7 +147,6 @@ async function handleMarkReadyAction(sheet) {
   if (!actor) return;
 
   await setReady(actor);
-  ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedReady", { actorName: actor.name }));
 }
 
 async function handleMarkCompleteAction(sheet) {
@@ -155,7 +154,6 @@ async function handleMarkCompleteAction(sheet) {
   if (!actor) return;
 
   await setCompleted(actor);
-  ui.notifications?.info?.(game.i18n.format("MoshQoL.Progress.MarkedCompleted", { actorName: actor.name }));
 }
 
 async function handleArmorBrokenAction(sheet) {
@@ -167,11 +165,6 @@ async function handleArmorBrokenAction(sheet) {
   // v13: Actor.toggleStatusEffect akzeptiert die Status-ID
   await actor.toggleStatusEffect(STATUS_ARMOR_BROKEN, { active: !isActive });
   syncArmorBrokenToolbandButton(actor);
-
-  ui.notifications?.info?.(game.i18n.format("MoshQoL.Armor.State", {
-    actorName: actor.name,
-    state: game.i18n.localize(!isActive ? "MoshQoL.Armor.Broken" : "MoshQoL.Armor.Intact")
-  }));
 }
 
 async function rollContractorDetails(sheet, actor, { loyalty = false, motivation = false, loadout = false } = {}) {
@@ -218,14 +211,11 @@ async function handlePromoteContractorAction(sheet, { isGM = false } = {}) {
     case "roll":
       await markContractorNamed(actor);
       await rollContractorDetails(sheet, actor, { loyalty: true, motivation: true, loadout: true });
-      ui.notifications?.info?.(game.i18n.format("MoshQoL.Contractor.Promote.Rolled", { actorName: actor.name }));
       break;
     case "manual":
       await markContractorNamed(actor);
-      ui.notifications?.info?.(game.i18n.format("MoshQoL.Contractor.Promote.ManualDone", { actorName: actor.name }));
       break;
     default:
-      ui.notifications?.info?.(game.i18n.localize("MoshQoL.Contractor.Promote.Cancelled"));
       return;
   }
 

@@ -156,8 +156,6 @@
       "ConvertedStress": "Umgewandelter Stress",
       "DistributeStressConversion": "Stressumwandlung verteilen",
       "Editor": {
-        "ResetSuccess": "Landgang-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Landgang-Konfiguration aktualisiert.",
         "GeneralTitle": "Allgemeiner Landgang",
         "TiersTitle": "Stufenformeln",
         "DefaultTiersFallback": "Die eingereichten Landgang-Stufen waren leer oder ungültig. Stattdessen wurden Standardwerte gespeichert."
@@ -218,15 +216,8 @@
       "Notifications": {
         "AlreadyCompleted": "Charaktererstellung bereits abgeschlossen.",
         "AttributeSelectionAborted": "Attributauswahl abgebrochen:",
-        "AttributeSelectionCancelled": "Attributauswahl abgebrochen.",
-        "Cancelled": "Charaktererstellung abgebrochen.",
-        "ClassSelectionCancelled": "Klassenauswahl abgebrochen.",
         "ClassUuidInvalid": "Klassen-UUID ungültig. Bitte erneut auswählen.",
-        "Completed": "{actorName} hat die Charaktererstellung abgeschlossen.",
-        "MarkedCompleted": "{actorName} wurde manuell als abgeschlossen markiert.",
         "NoClassUuid": "Keine Klassen-UUID gefunden. Bitte wähle eine Klasse aus.",
-        "Reset": "Charaktererstellung für {actorName} wurde zurückgesetzt.",
-        "SkillSelectionCancelled": "Fertigkeitsauswahl abgebrochen.",
         "TrainingSkillLoadFailed": "Die ausgewählte Trainingsfertigkeit konnte nicht geladen werden."
       },
       "SelectAttributes": {
@@ -304,10 +295,6 @@
         "Promote": "Befördern",
         "Menu": "Menü"
       },
-      "Config": {
-        "ResetSuccess": "Werkzeugleisten-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Werkzeugleisten-Konfiguration aktualisiert."
-      },
       "Scopes": {
         "creature": "Kreaturen",
         "ship": "Schiffe",
@@ -322,10 +309,7 @@
         "Title": "Auftragnehmenden befördern",
         "Content": "<p>Wie möchtest du diese Auftragnehmende bzw. diesen Auftragnehmenden befördern?</p>",
         "Roll": "Auftragnehmenden auswürfeln",
-        "Manual": "Manuell befördern",
-        "Rolled": "{actorName} wurde befördert und vollständig ausgewürfelt.",
-        "ManualDone": "{actorName} wurde manuell befördert.",
-        "Cancelled": "Beförderung abgebrochen."
+        "Manual": "Manuell befördern"
       },
       "Actions": {
         "Title": "Auftragnehmenden-Aktionen",
@@ -346,7 +330,6 @@
       "Apply": "Anwenden",
       "NoTokensSelected": "Keine Tokens ausgewählt.",
       "PositiveValueRequired": "Bitte gib einen positiven Schadenswert ein.",
-      "AppliedToTokens": "Schaden auf {applied}/{total} {tokens} angewendet.",
       "TokenSingular": "Token",
       "TokenPlural": "Tokens",
       "MaximumWoundsReached": "Maximale Wunden erreicht",
@@ -362,9 +345,7 @@
       "ApplyDamageShort": "DMG",
       "ApplyAntiArmorShort": "AA",
       "Config": {
-        "GeneralTitle": "Allgemeiner Schaden",
-        "ResetSuccess": "Schaden-anwenden-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Schaden-anwenden-Konfiguration aktualisiert."
+        "GeneralTitle": "Allgemeiner Schaden"
       },
       "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
       "Advantage": "Vorteil",
@@ -378,22 +359,11 @@
     "Training": {
       "Learned": "{actorName} hat {skillName} gelernt.",
       "Config": {
-        "GeneralTitle": "Fertigkeitstraining",
-        "ResetSuccess": "Training-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Training-Konfiguration aktualisiert."
+        "GeneralTitle": "Fertigkeitstraining"
       },
       "SkillNotFound": "Trainingsfertigkeit nicht gefunden: {skillName}.",
       "NotEnoughXp": "Nicht genug XP, um {rankLabel} Skill {skillName} zu erlernen.",
       "Progressed": "{actorName} trainiert {skillName}: {xpValue}/{xpRequired}."
-    },
-    "Progress": {
-      "MarkedReady": "Charakter als bereit markiert: {actorName}",
-      "MarkedCompleted": "Charakter als abgeschlossen markiert: {actorName}"
-    },
-    "Armor": {
-      "State": "{actorName}: Rüstung {state}.",
-      "Broken": "beschädigt",
-      "Intact": "intakt"
     },
     "ShipCrit": {
       "NoMatch": "Kein Treffer für: {value}",
