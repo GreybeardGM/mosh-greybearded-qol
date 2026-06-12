@@ -530,7 +530,7 @@
 .greybeardqol.qol-ui.qol-skill-selection .skill-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20%;
+  gap: 15%;
 }
 
 .greybeardqol.qol-ui.qol-skill-selection .skill-card {
@@ -538,10 +538,6 @@
 }
 
 @media (max-width: 1280px), (max-height: 1024px) {
-  .greybeardqol.qol-ui.qol-skill-selection .skill-columns {
-    gap: 10%;
-  }
-
   .greybeardqol.qol-ui .pill {
     padding: 0.12rem 0.55rem;
     font-size: 0.8rem;
@@ -560,10 +556,6 @@
 }
 
 @media (max-width: 1024px), (max-height: 768px) {
-  .greybeardqol.qol-ui.qol-skill-selection .skill-columns {
-    gap: 6%;
-  }
-
   .greybeardqol.qol-ui .pill {
     padding: 0.1rem 0.45rem;
     font-size: 0.75rem;
