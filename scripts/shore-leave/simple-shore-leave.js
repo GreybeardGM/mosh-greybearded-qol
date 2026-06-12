@@ -11,6 +11,7 @@ import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
 import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { scheduleAutoTrainingAfterShoreLeave } from "../training/training-action.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -199,6 +200,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const result = await convertStress(this.actor, entry.stressFormula);
     resolveAppOnce(this, result);
+    scheduleAutoTrainingAfterShoreLeave(this.actor);
   }
 
   async close(options = {}) {

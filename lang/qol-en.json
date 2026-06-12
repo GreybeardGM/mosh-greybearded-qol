@@ -145,6 +145,10 @@
         "UseSkillTraining": {
           "Hint": "If enabled, training writes the selected skill name to the sheet training field instead of adding the skill item immediately.",
           "Name": "Use Skill Training"
+        },
+        "AutoTrainAfterShoreLeave": {
+          "Name": "Auto Train after Shore Leave",
+          "Hint": "If enabled, the training tool runs automatically after a shore leave is completed, whether the stress conversion succeeds or not."
         }
       }
     },
@@ -377,7 +381,9 @@
         "GeneralTitle": "Skill Training",
         "ResetSuccess": "Training configuration reset to defaults.",
         "UpdateSuccess": "Training configuration updated."
-      }
+      },
+      "SkillNotFound": "Training skill not found: {skillName}.",
+      "Progressed": "{actorName} trained {skillName}: {xpValue}/{xpRequired}."
     },
     "Progress": {
       "MarkedReady": "Character marked ready: {actorName}",

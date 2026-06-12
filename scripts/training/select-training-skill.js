@@ -1,6 +1,6 @@
 import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText } from "./utils.js";
+import { normalizeText } from "../character-creator/utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getNormalizedTrainingConfig } from "../settings/training-config.js";
@@ -12,7 +12,7 @@ import {
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
-} from "./skill-selector-shared.js";
+} from "../character-creator/skill-selector-shared.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 

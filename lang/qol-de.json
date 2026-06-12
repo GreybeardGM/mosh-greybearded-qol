@@ -145,6 +145,10 @@
         "UseSkillTraining": {
           "Hint": "Wenn aktiviert, schreibt Training den Namen der ausgewählten Fertigkeit in das Trainingsfeld des Bogens, statt den Fertigkeitsgegenstand sofort hinzuzufügen.",
           "Name": "Use Skill Training"
+        },
+        "AutoTrainAfterShoreLeave": {
+          "Name": "Auto-Training nach Landgang",
+          "Hint": "Wenn aktiviert, wird das Training-Tool nach einem abgeschlossenen Landgang automatisch ausgeführt, unabhängig davon, ob die Stressumwandlung erfolgreich ist."
         }
       }
     },
@@ -377,7 +381,9 @@
         "GeneralTitle": "Fertigkeitstraining",
         "ResetSuccess": "Training-Konfiguration auf Standardwerte zurückgesetzt.",
         "UpdateSuccess": "Training-Konfiguration aktualisiert."
-      }
+      },
+      "SkillNotFound": "Trainingsfertigkeit nicht gefunden: {skillName}.",
+      "Progressed": "{actorName} trainiert {skillName}: {xpValue}/{xpRequired}."
     },
     "Progress": {
       "MarkedReady": "Charakter als bereit markiert: {actorName}",

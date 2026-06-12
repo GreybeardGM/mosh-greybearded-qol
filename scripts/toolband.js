@@ -1,12 +1,12 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
-import { TrainingSkillSelectorApp } from "./character-creator/select-training-skill.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
 import { getSheetKind } from "./register/sheets.js";
+import { handleTrainingAction } from "./training/training-action.js";
 
 const CLS = "toolband";
 
@@ -140,20 +140,6 @@ function getToolbandButtons({ actor, kind, isGM }) {
   }
 
   return buttons;
-}
-
-async function handleTrainingAction(sheet) {
-  const actor = sheet?.actor;
-  if (!actor) return;
-
-  const trainedSkill = await TrainingSkillSelectorApp.wait({ actor });
-  if (!trainedSkill) return;
-
-  ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Learned", {
-    actorName: actor.name,
-    skillName: trainedSkill.name
-  }));
-  return sheet.render(false);
 }
 
 async function handleMarkReadyAction(sheet) {
