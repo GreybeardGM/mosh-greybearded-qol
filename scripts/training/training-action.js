@@ -17,6 +17,18 @@ async function findTrainingSkillByName(skillName) {
   return skill?.type === "skill" ? skill : null;
 }
 
+async function progressStoredSkillTraining(actor, skillName, currentXp, xpRequired) {
+  const xpValue = currentXp + 1;
+  await actor.update({ "system.xp.value": xpValue });
+  ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Progressed", {
+    actorName: actor.name,
+    skillName,
+    xpValue,
+    xpRequired
+  }));
+  return xpValue;
+}
+
 async function completeStoredSkillTraining(actor, skill) {
   const itemData = toEmbeddedItemData(skill);
   if (!itemData) return null;
@@ -31,28 +43,23 @@ async function completeStoredSkillTraining(actor, skill) {
 }
 
 async function handleStoredSkillTraining(actor, selectedSkillName) {
+  const currentXp = normalizeNumber(actor.system?.xp?.value, { fallback: 0 });
   const skill = await findTrainingSkillByName(selectedSkillName);
   if (!skill) {
     ui.notifications?.warn(game.i18n.format("MoshQoL.Training.SkillNotFound", {
       skillName: selectedSkillName
     }));
+    await progressStoredSkillTraining(actor, selectedSkillName, currentXp, "—");
     return null;
   }
 
   const requiredXp = TRAINING_XP_REQUIREMENTS[normalizeText(skill.system?.rank)];
-  const currentXp = normalizeNumber(actor.system?.xp?.value, { fallback: 0 });
+  const xpValue = await progressStoredSkillTraining(actor, skill.name, currentXp, requiredXp ?? "—");
 
-  if (requiredXp !== undefined && currentXp >= requiredXp) {
+  if (requiredXp !== undefined && xpValue >= requiredXp) {
     return completeStoredSkillTraining(actor, skill);
   }
 
-  await actor.update({ "system.xp.value": currentXp + 1 });
-  ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Progressed", {
-    actorName: actor.name,
-    skillName: skill.name,
-    xpValue: currentXp + 1,
-    xpRequired: requiredXp ?? "—"
-  }));
   return null;
 }
 

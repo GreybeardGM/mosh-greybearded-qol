@@ -203,7 +203,10 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     }
 
     if (getNormalizedTrainingConfig().useSkillTraining) {
-      await this.actor.update({ "system.xp.selectedSkill": selectedItem.name ?? "" });
+      await this.actor.update({
+        "system.xp.selectedSkill": selectedItem.name ?? "",
+        "system.xp.value": 1
+      });
       await this.actor.setFlag(MODULE_ID, FLAG_TRAINING_SKILL, {
         name: selectedItem.name ?? "",
         uuid: selectedItem.uuid ?? selectedUuid,
