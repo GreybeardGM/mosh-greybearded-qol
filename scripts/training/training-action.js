@@ -42,22 +42,32 @@ async function completeStoredSkillTraining(actor, skill) {
   return created;
 }
 
-async function handleStoredSkillTraining(actor, selectedSkillName) {
+async function handleStoredSkillTraining(actor, selectedSkillName, { advanceXp = false } = {}) {
   const currentXp = normalizeNumber(actor.system?.xp?.value, { fallback: 0 });
   const skill = await findTrainingSkillByName(selectedSkillName);
   if (!skill) {
     ui.notifications?.warn(game.i18n.format("MoshQoL.Training.SkillNotFound", {
       skillName: selectedSkillName
     }));
-    await progressStoredSkillTraining(actor, selectedSkillName, currentXp, "—");
+    if (advanceXp) await progressStoredSkillTraining(actor, selectedSkillName, currentXp, "—");
     return null;
   }
 
-  const requiredXp = TRAINING_XP_REQUIREMENTS[normalizeText(skill.system?.rank)];
-  const xpValue = await progressStoredSkillTraining(actor, skill.name, currentXp, requiredXp ?? "—");
+  const rank = normalizeText(skill.system?.rank);
+  const requiredXp = TRAINING_XP_REQUIREMENTS[rank];
+  const xpValue = advanceXp
+    ? await progressStoredSkillTraining(actor, skill.name, currentXp, requiredXp ?? "—")
+    : currentXp;
 
   if (requiredXp !== undefined && xpValue >= requiredXp) {
     return completeStoredSkillTraining(actor, skill);
+  }
+
+  if (!advanceXp && requiredXp !== undefined) {
+    ui.notifications?.warn(game.i18n.format("MoshQoL.Training.NotEnoughXp", {
+      rankLabel: `${rank.charAt(0).toUpperCase()}${rank.slice(1)}`,
+      skillName: skill.name
+    }));
   }
 
   return null;
@@ -66,9 +76,12 @@ async function handleStoredSkillTraining(actor, selectedSkillName) {
 async function runTrainingForActor(actor) {
   if (!actor) return null;
 
+  const trainingConfig = getNormalizedTrainingConfig();
   const selectedSkillName = String(actor.system?.xp?.selectedSkill ?? "").trim();
-  const trainedSkill = getNormalizedTrainingConfig().useSkillTraining && selectedSkillName
-    ? await handleStoredSkillTraining(actor, selectedSkillName)
+  const trainedSkill = trainingConfig.useSkillTraining && selectedSkillName
+    ? await handleStoredSkillTraining(actor, selectedSkillName, {
+      advanceXp: trainingConfig.autoTrainAfterShoreLeave
+    })
     : await TrainingSkillSelectorApp.wait({ actor });
   if (!trainedSkill) return null;
 
