@@ -1,25 +1,27 @@
 import { FLAG_TRAINING_SKILL, MODULE_ID } from "../codex/constants.js";
+import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { toEmbeddedItemData } from "../character-creator/utils.js";
 import { getNormalizedTrainingConfig } from "../settings/training-config.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeNumber, normalizeText } from "../utils/normalization.js";
+import { capitalize, normalizeNumber, normalizeText } from "../utils/normalization.js";
+import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import { TrainingSkillSelectorApp } from "./select-training-skill.js";
 
 const TRAINING_XP_REQUIREMENTS = Object.freeze({ trained: 5, expert: 10, master: 15 });
 
 async function findTrainingSkillByName(skillName) {
   const normalizedSkillName = normalizeText(skillName);
-  const skills = await loadAllItemsByType("skill");
+  const skills = await loadAllItemsByType(MOSH_ITEM_TYPE_SKILL);
   const match = skills.find(skill => normalizeText(skill?.name) === normalizedSkillName);
   if (!match) return null;
 
   const skill = match.uuid ? await fromUuid(match.uuid) : match;
-  return skill?.type === "skill" ? skill : null;
+  return skill?.type === MOSH_ITEM_TYPE_SKILL ? skill : null;
 }
 
 async function progressStoredSkillTraining(actor, skillName, currentXp, xpRequired) {
   const xpValue = currentXp + 1;
-  await actor.update({ "system.xp.value": xpValue });
+  await actor.update({ [TRAINING_XP_VALUE_PATH]: xpValue });
   ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Progressed", {
     actorName: actor.name,
     skillName,
@@ -35,15 +37,15 @@ async function completeStoredSkillTraining(actor, skill) {
 
   const [created] = await actor.createEmbeddedDocuments("Item", [itemData]);
   await actor.update({
-    "system.xp.selectedSkill": "",
-    "system.xp.value": 0
+    [TRAINING_SELECTED_SKILL_PATH]: "",
+    [TRAINING_XP_VALUE_PATH]: 0
   });
   await actor.unsetFlag(MODULE_ID, FLAG_TRAINING_SKILL);
   return created;
 }
 
 async function handleStoredSkillTraining(actor, selectedSkillName, { advanceXp = false } = {}) {
-  const currentXp = normalizeNumber(actor.system?.xp?.value, { fallback: 0 });
+  const currentXp = normalizeNumber(foundry.utils.getProperty(actor, TRAINING_XP_VALUE_PATH), { fallback: 0 });
   const skill = await findTrainingSkillByName(selectedSkillName);
   if (!skill) {
     ui.notifications?.warn(game.i18n.format("MoshQoL.Training.SkillNotFound", {
@@ -65,7 +67,7 @@ async function handleStoredSkillTraining(actor, selectedSkillName, { advanceXp =
 
   if (!advanceXp && requiredXp !== undefined) {
     ui.notifications?.warn(game.i18n.format("MoshQoL.Training.NotEnoughXp", {
-      rankLabel: `${rank.charAt(0).toUpperCase()}${rank.slice(1)}`,
+      rankLabel: capitalize(rank, { lowerRest: true }),
       skillName: skill.name
     }));
   }
@@ -77,7 +79,7 @@ async function runTrainingForActor(actor) {
   if (!actor) return null;
 
   const trainingConfig = getNormalizedTrainingConfig();
-  const selectedSkillName = String(actor.system?.xp?.selectedSkill ?? "").trim();
+  const selectedSkillName = String(foundry.utils.getProperty(actor, TRAINING_SELECTED_SKILL_PATH) ?? "").trim();
   const trainedSkill = trainingConfig.useSkillTraining && selectedSkillName
     ? await handleStoredSkillTraining(actor, selectedSkillName, {
       advanceXp: trainingConfig.autoTrainAfterShoreLeave
@@ -99,14 +101,10 @@ export async function handleTrainingAction(sheet) {
   return sheet.render(false);
 }
 
-async function runAutoTrainingAfterShoreLeave(actor) {
-  if (!getNormalizedTrainingConfig().autoTrainAfterShoreLeave) return null;
-
-  return runTrainingForActor(actor);
-}
-
 export function scheduleAutoTrainingAfterShoreLeave(actor) {
+  if (!getNormalizedTrainingConfig().autoTrainAfterShoreLeave) return;
+
   setTimeout(() => {
-    void runAutoTrainingAfterShoreLeave(actor).catch(error => console.error(error));
+    void runTrainingForActor(actor).catch(error => console.error(error));
   }, 0);
 }

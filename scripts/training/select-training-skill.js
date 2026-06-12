@@ -1,9 +1,11 @@
 import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
+import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText } from "../character-creator/utils.js";
+import { normalizeText, toEmbeddedItemData } from "../character-creator/utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getNormalizedTrainingConfig } from "../settings/training-config.js";
+import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import {
   applyInitialAvailabilityLock,
   cacheSkillTreeDom,
@@ -46,7 +48,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   static async _prepareData({ actor }) {
-    const allSkills = await loadAllItemsByType("skill");
+    const allSkills = await loadAllItemsByType(MOSH_ITEM_TYPE_SKILL);
     const sortedSkills = allSkills.map(skill => ({
       id: skill.id,
       _id: skill.id,
@@ -60,7 +62,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     const ownedSkillNames = new Set(
       actor.items
-        .filter(item => item.type === "skill")
+        .filter(item => item.type === MOSH_ITEM_TYPE_SKILL)
         .map(item => normalizeText(item.name))
     );
 
@@ -196,7 +198,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     }
 
     const selectedItem = await fromUuid(selectedUuid);
-    if (!selectedItem || selectedItem.type !== "skill") {
+    if (!selectedItem || selectedItem.type !== MOSH_ITEM_TYPE_SKILL) {
       ui.notifications?.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.TrainingSkillLoadFailed"));
       resolveAppOnce(this, null);
       return;
@@ -204,8 +206,8 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     if (getNormalizedTrainingConfig().useSkillTraining) {
       await this.actor.update({
-        "system.xp.selectedSkill": selectedItem.name ?? "",
-        "system.xp.value": 1
+        [TRAINING_SELECTED_SKILL_PATH]: selectedItem.name ?? "",
+        [TRAINING_XP_VALUE_PATH]: 1
       });
       await this.actor.setFlag(MODULE_ID, FLAG_TRAINING_SKILL, {
         name: selectedItem.name ?? "",
@@ -217,8 +219,11 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
       return;
     }
 
-    const itemData = selectedItem.toObject();
-    delete itemData._id;
+    const itemData = toEmbeddedItemData(selectedItem);
+    if (!itemData) {
+      resolveAppOnce(this, null);
+      return;
+    }
 
     const [created] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
     resolveAppOnce(this, created ?? null);
