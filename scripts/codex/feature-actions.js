@@ -46,6 +46,12 @@ export const FEATURE_ACTIONS = Object.freeze({
     icon: "fas fa-toolbox",
     label: "Toolband Configuration",
     labelKey: "MoshQoL.Settings.ToolbandConfig.Name"
+  }),
+  "training-config": Object.freeze({
+    action: "training-config",
+    icon: "fa-solid fa-dumbbell",
+    label: "Training Configuration",
+    labelKey: "MoshQoL.Settings.TrainingConfig.Name"
   })
 });
 
@@ -57,7 +63,8 @@ const FEATURE_ACTION_ALIASES = Object.freeze({
   shoreLeaveEditor: "shore-leave",
   crewRoster: "ship-crew-roster",
   shipCrit: "ship-crit",
-  toolbandConfigMenu: "toolband-config"
+  toolbandConfigMenu: "toolband-config",
+  trainingConfigMenu: "training-config"
 });
 
 function getFeatureActionMeta(action) {
