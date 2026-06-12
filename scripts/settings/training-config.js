@@ -12,15 +12,21 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export function getDefaultTrainingConfig() {
   return {
-    useSkillTraining: true
+    useSkillTraining: true,
+    autoTrainAfterShoreLeave: false
   };
 }
 
 function normalizeTrainingConfig(config) {
   const normalized = getDefaultTrainingConfig();
 
-  if (config && typeof config === "object" && typeof config.useSkillTraining === "boolean") {
-    normalized.useSkillTraining = config.useSkillTraining;
+  if (config && typeof config === "object") {
+    if (typeof config.useSkillTraining === "boolean") {
+      normalized.useSkillTraining = config.useSkillTraining;
+    }
+    if (typeof config.autoTrainAfterShoreLeave === "boolean") {
+      normalized.autoTrainAfterShoreLeave = config.autoTrainAfterShoreLeave;
+    }
   }
 
   return normalized;
@@ -59,6 +65,7 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     const config = getDefaultTrainingConfig();
 
     config.useSkillTraining = normalizeBoolean(submitted.useSkillTraining);
+    config.autoTrainAfterShoreLeave = normalizeBoolean(submitted.autoTrainAfterShoreLeave);
 
     await saveSettingAndClose(this, MODULE_ID, SETTING_TRAINING_CONFIG, config, "MoshQoL.Training.Config.UpdateSuccess");
   }
