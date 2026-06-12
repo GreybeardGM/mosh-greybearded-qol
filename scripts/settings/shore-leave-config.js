@@ -117,8 +117,7 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
       settingKey: SETTING_SHORE_LEAVE_CONFIG,
-      defaults: () => getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS),
-      notificationKey: "MoshQoL.ShoreLeave.Editor.ResetSuccess"
+      defaults: () => getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
     });
   }
 
@@ -140,6 +139,6 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
       notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");
     }
 
-    await saveSettingAndClose(this, MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, submitted, "MoshQoL.ShoreLeave.Editor.UpdateSuccess");
+    await saveSettingAndClose(this, MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, submitted);
   }
 }

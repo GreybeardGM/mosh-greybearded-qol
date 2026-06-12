@@ -87,8 +87,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
       settingKey: SETTING_TOOLBAND_CONFIG,
-      defaults: getDefaultToolbandConfig,
-      notificationKey: "MoshQoL.Toolbar.Config.ResetSuccess"
+      defaults: getDefaultToolbandConfig
     });
   }
 
@@ -100,6 +99,6 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
       normalizeBoolean(submitted?.[scope]?.[button.settingKey])
     ]);
 
-    await saveSettingAndClose(this, MODULE_ID, SETTING_TOOLBAND_CONFIG, current, "MoshQoL.Toolbar.Config.UpdateSuccess");
+    await saveSettingAndClose(this, MODULE_ID, SETTING_TOOLBAND_CONFIG, current);
   }
 }

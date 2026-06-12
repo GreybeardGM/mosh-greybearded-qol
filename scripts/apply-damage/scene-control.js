@@ -21,18 +21,11 @@ async function applyDamageToSelectedActors(damageInput, antiArmor, selectedActor
     antiArmorHit: Boolean(antiArmor)
   };
 
-  let applied = 0;
   try {
-    applied = await applyDamageToActors(selectedActorsList, normalizedPayload);
+    await applyDamageToActors(selectedActorsList, normalizedPayload);
   } catch (err) {
     console.error("applyDamage failed for selected actors", selectedActorsList, err);
   }
-
-  ui.notifications.info(game.i18n.format("MoshQoL.Damage.AppliedToTokens", {
-    applied,
-    total: selectedActorsList.length,
-    tokens: game.i18n.localize(selectedActorsList.length === 1 ? "MoshQoL.Damage.TokenSingular" : "MoshQoL.Damage.TokenPlural")
-  }));
 }
 
 function insertApplyDamageTool(tokenControls, toolDef) {

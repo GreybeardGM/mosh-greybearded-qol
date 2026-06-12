@@ -83,8 +83,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
     await resetSettingToDefaults(this, event, {
       moduleId: MODULE_ID,
       settingKey: SETTING_APPLY_DAMAGE_CONFIG,
-      defaults: getDefaultApplyDamageConfig,
-      notificationKey: "MoshQoL.Damage.Config.ResetSuccess"
+      defaults: getDefaultApplyDamageConfig
     });
   }
 
@@ -110,6 +109,6 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
       config.automateWoundRoll[scope] = normalizeBoolean(automateWoundRoll[scope]);
     }
 
-    await saveSettingAndClose(this, MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG, config, "MoshQoL.Damage.Config.UpdateSuccess");
+    await saveSettingAndClose(this, MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG, config);
   }
 }
