@@ -5,6 +5,7 @@ import { compareSkillNames } from "./skill-sort.js";
 import {
   MOSH_HOT_CACHE_ITEM_TYPES,
   MOSH_INDEX_ONLY_ITEM_TYPES,
+  MOSH_ITEM_TYPE_SKILL,
   MOSH_PSG_MODULE_ID
 } from "../codex/mosh-system.js";
 import { normalizeText } from "./normalization.js";
@@ -243,7 +244,7 @@ function winnersFromMap(map) {
 /* Sortierung */
 function sortItems(itemType, items) {
   const t = normType(itemType);
-  if (t === "skill") return items.sort((a, b) => compareSkillNames(a.name, b.name));
+  if (t === MOSH_ITEM_TYPE_SKILL) return items.sort((a, b) => compareSkillNames(a.name, b.name));
   return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }
 
