@@ -136,6 +136,16 @@
           "CharacterFirst": "Spielercharakter zuerst",
           "TokenFirst": "Token zuerst"
         }
+      },
+      "TrainingConfig": {
+        "Hint": "Lege fest, ob Training die ausgewählte Fertigkeit direkt hinzufügt oder im Fertigkeitstrainingsfeld des Charakterbogens speichert.",
+        "Label": "Training konfigurieren...",
+        "Name": "Training konfigurieren",
+        "SettingName": "Training-Konfiguration",
+        "UseSkillTraining": {
+          "Hint": "Wenn aktiviert, schreibt Training den Namen der ausgewählten Fertigkeit in das Trainingsfeld des Bogens, statt den Fertigkeitsgegenstand sofort hinzuzufügen.",
+          "Name": "Use Skill Training"
+        }
       }
     },
     "ShoreLeave": {
@@ -362,7 +372,12 @@
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."
     },
     "Training": {
-      "Learned": "{actorName} hat {skillName} gelernt."
+      "Learned": "{actorName} hat {skillName} gelernt.",
+      "Config": {
+        "GeneralTitle": "Fertigkeitstraining",
+        "ResetSuccess": "Training-Konfiguration auf Standardwerte zurückgesetzt.",
+        "UpdateSuccess": "Training-Konfiguration aktualisiert."
+      }
     },
     "Progress": {
       "MarkedReady": "Charakter als bereit markiert: {actorName}",

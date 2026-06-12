@@ -136,6 +136,16 @@
           "CharacterFirst": "Player Character First",
           "TokenFirst": "Token First"
         }
+      },
+      "TrainingConfig": {
+        "Hint": "Choose whether training adds the selected skill directly or stores it in the character skill-training field.",
+        "Label": "Configure Training...",
+        "Name": "Configure Training",
+        "SettingName": "Training Configuration",
+        "UseSkillTraining": {
+          "Hint": "If enabled, training writes the selected skill name to the sheet training field instead of adding the skill item immediately.",
+          "Name": "Use Skill Training"
+        }
       }
     },
     "ShoreLeave": {
@@ -362,7 +372,12 @@
       "NoActor": "No actor available for chat output."
     },
     "Training": {
-      "Learned": "{actorName} learned {skillName}."
+      "Learned": "{actorName} learned {skillName}.",
+      "Config": {
+        "GeneralTitle": "Skill Training",
+        "ResetSuccess": "Training configuration reset to defaults.",
+        "UpdateSuccess": "Training configuration updated."
+      }
     },
     "Progress": {
       "MarkedReady": "Character marked ready: {actorName}",

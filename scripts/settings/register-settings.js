@@ -1,6 +1,7 @@
 import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
+import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
 import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
@@ -21,7 +22,8 @@ import {
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   SETTING_THEME_COLOR,
   SETTING_THEME_COLOR_OVERRIDE,
-  SETTING_TOOLBAND_CONFIG
+  SETTING_TOOLBAND_CONFIG,
+  SETTING_TRAINING_CONFIG
 } from "../codex/constants.js";
 
 function getApplyDamageTargetLogicChoices() {
@@ -142,6 +144,25 @@ const MENU_DEFINITIONS = [
         name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
         type: Object,
         default: getDefaultApplyDamageConfig()
+      }
+    }
+  },
+  {
+    key: "trainingConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.TrainingConfig.Name",
+      label: "MoshQoL.Settings.TrainingConfig.Label",
+      hint: "MoshQoL.Settings.TrainingConfig.Hint",
+      icon: getFeatureIcon("trainingConfigMenu", "fa-solid fa-dumbbell"),
+      type: TrainingConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_TRAINING_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.TrainingConfig.SettingName",
+        type: Object,
+        default: getDefaultTrainingConfig()
       }
     }
   }

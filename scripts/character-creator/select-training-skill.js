@@ -1,8 +1,9 @@
-import { templatePath } from "../codex/constants.js";
+import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { getNormalizedTrainingConfig } from "../settings/training-config.js";
 import {
   applyInitialAvailabilityLock,
   cacheSkillTreeDom,
@@ -198,6 +199,18 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     if (!selectedItem || selectedItem.type !== "skill") {
       ui.notifications?.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.TrainingSkillLoadFailed"));
       resolveAppOnce(this, null);
+      return;
+    }
+
+    if (getNormalizedTrainingConfig().useSkillTraining) {
+      await this.actor.update({ "system.xp.selectedSkill": selectedItem.name ?? "" });
+      await this.actor.setFlag(MODULE_ID, FLAG_TRAINING_SKILL, {
+        name: selectedItem.name ?? "",
+        uuid: selectedItem.uuid ?? selectedUuid,
+        img: selectedItem.img ?? "",
+        rank: selectedItem.system?.rank ?? ""
+      });
+      resolveAppOnce(this, selectedItem);
       return;
     }
 
