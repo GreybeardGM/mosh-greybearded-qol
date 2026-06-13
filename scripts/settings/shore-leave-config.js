@@ -1,7 +1,14 @@
+import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
+import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
+import {
+  appendThemeColor,
+  createSettingsAppDefaultOptions,
+  createSettingsAppParts,
+  notifyLocalized,
+  resetSettingToDefaults,
+  saveSettingAndClose
+} from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-export const MODULE_ID = "mosh-greybearded-qol";
-export const SHORE_LEAVE_CONFIG_SETTING = "shoreLeaveConfig";
 
 export function getDefaultShoreLeaveConfig() {
   return {
@@ -13,11 +20,57 @@ export function getDefaultShoreLeaveConfig() {
     },
     simpleShoreLeave: {
       randomFlavor: true
-    }
+    },
+    tiers: foundry.utils.deepClone(SHORE_LEAVE_TIERS)
   };
 }
 
-export function normalizeShoreLeaveConfig(config) {
+function hasRequiredTierFields(tier) {
+  return (
+    tier &&
+    typeof tier === "object" &&
+    typeof tier.tier === "string" &&
+    tier.tier.trim() &&
+    typeof tier.label === "string" &&
+    tier.label.trim() &&
+    tier.baseStressConversion &&
+    typeof tier.baseStressConversion === "object" &&
+    tier.basePrice &&
+    typeof tier.basePrice === "object"
+  );
+}
+
+function getValidShoreLeaveTiers(tiers) {
+  if (!Array.isArray(tiers) || !tiers.length) return [];
+  return tiers.filter(hasRequiredTierFields);
+}
+
+export function hasValidShoreLeaveTiers(tiers) {
+  return getValidShoreLeaveTiers(tiers).length > 0;
+}
+
+export function normalizeShoreLeaveTiers(tiers, { fallbackToDefaults = true } = {}) {
+  const validTiers = getValidShoreLeaveTiers(tiers);
+  if (!validTiers.length) {
+    return fallbackToDefaults ? foundry.utils.deepClone(SHORE_LEAVE_TIERS) : [];
+  }
+
+  return foundry.utils.deepClone(validTiers);
+}
+
+export function getShoreLeaveConfigWithDefaults(config) {
+  const normalized = normalizeShoreLeaveConfig(config);
+  normalized.tiers = normalizeShoreLeaveTiers(config?.tiers);
+  return normalized;
+}
+
+export function getDefaultShoreLeaveConfigWithTiers(defaultTiers) {
+  const defaults = getDefaultShoreLeaveConfig();
+  defaults.tiers = normalizeShoreLeaveTiers(defaultTiers);
+  return defaults;
+}
+
+function normalizeShoreLeaveConfig(config) {
   const normalized = foundry.utils.deepClone(getDefaultShoreLeaveConfig());
 
   if (config?.convertStress && typeof config.convertStress === "object") {
@@ -39,69 +92,53 @@ export function normalizeShoreLeaveConfig(config) {
 }
 
 export function getNormalizedShoreLeaveConfig() {
-  return normalizeShoreLeaveConfig(game.settings.get(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING));
+  return getShoreLeaveConfigWithDefaults(game.settings.get(MODULE_ID, SETTING_SHORE_LEAVE_CONFIG));
 }
 
 export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createSettingsAppDefaultOptions({
     id: "shore-leave-config",
-    tag: "form",
-    window: {
-      title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-      contentClasses: ["greybeardqol", "qolsettings-window"],
-      resizable: true
-    },
-    position: {
-      width: 550,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
-    actions: {
-      resetDefaults: this._onResetDefaults
-    }
-  };
+    title: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+    submitHandler: this._onSubmit,
+    resetDefaultsHandler: this._onResetDefaults
+  });
 
-  static PARTS = {
-    form: {
-      template: "modules/mosh-greybearded-qol/templates/settings/shore-leave-config.html"
-    }
-  };
+  static PARTS = createSettingsAppParts("settings/shore-leave-config.html");
 
   async _prepareContext() {
-    const tiers = game.settings.get(MODULE_ID, "shoreLeaveTiers");
-    return {
-      options: getNormalizedShoreLeaveConfig(),
-      tiers: foundry.utils.deepClone(tiers)
-    };
+    const config = getNormalizedShoreLeaveConfig();
+    return appendThemeColor({
+      options: config,
+      tiers: foundry.utils.deepClone(config.tiers)
+    });
   }
 
   static async _onResetDefaults(event) {
-    event.preventDefault();
-    const module = await import("../codex/default-shore-leave-tiers.js");
-
-    await Promise.all([
-      game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, getDefaultShoreLeaveConfig()),
-      game.settings.set(MODULE_ID, "shoreLeaveTiers", module.SHORE_LEAVE_TIERS)
-    ]);
-
-    this.render();
-    ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.ResetSuccess"));
+    await resetSettingToDefaults(this, event, {
+      moduleId: MODULE_ID,
+      settingKey: SETTING_SHORE_LEAVE_CONFIG,
+      defaults: () => getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
+    });
   }
 
   static async _onSubmit(event, form, formData) {
     const expanded = foundry.utils.expandObject(formData.object ?? {});
-    const submitted = normalizeShoreLeaveConfig(expanded.shoreLeave ?? {});
+    const expandedTiers = expanded?.tiers;
+    const tiersArray = Array.isArray(expandedTiers)
+      ? expandedTiers
+      : Object.entries(expandedTiers ?? {})
+          .filter(([key]) => /^\d+$/.test(key))
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map(([, tier]) => tier);
 
-    await Promise.all([
-      game.settings.set(MODULE_ID, SHORE_LEAVE_CONFIG_SETTING, submitted),
-      game.settings.set(MODULE_ID, "shoreLeaveTiers", expanded.tiers)
-    ]);
+    const submitted = getShoreLeaveConfigWithDefaults(expanded.shoreLeave ?? {});
+    const usedDefaultTiersFallback = !hasValidShoreLeaveTiers(tiersArray);
+    submitted.tiers = normalizeShoreLeaveTiers(tiersArray);
 
-    ui.notifications.info(game.i18n.localize("MoshQoL.ShoreLeave.Editor.UpdateSuccess"));
-    this.close();
+    if (usedDefaultTiersFallback) {
+      notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");
+    }
+
+    await saveSettingAndClose(this, MODULE_ID, SETTING_SHORE_LEAVE_CONFIG, submitted);
   }
 }

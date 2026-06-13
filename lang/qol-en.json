@@ -59,17 +59,10 @@
         "Hint": "If enabled, replaces the old character creation macro with the new QoL version.",
         "Name": "Enable QoL Character Creator"
       },
-      "EnableShipCrits": {
-        "Hint": "If enabled, ship crit button appears and the 0e crit logic activates.",
-        "Name": "Enable 0e Ship Crits"
-      },
       "ShoreLeaveEditor": {
         "Hint": "Configure shore leave rules, stress conversion behavior, and tier formulas in one dialog.",
         "Label": "Configure Shore Leave...",
         "Name": "Configure Shore Leave"
-      },
-      "ShoreLeaveTiers": {
-        "Name": "Shore Leave Tier Definitions"
       },
       "SimpleShoreLeave": {
         "DisableFlavor": {
@@ -103,6 +96,10 @@
         "TougherArmor": {
           "Hint": "If enabled, armor only breaks when damage remains after armor reduction. If disabled, armor also breaks when armor reduces the damage to exactly 0.",
           "Name": "Tougher Armor"
+        },
+        "ApplyArmorBroken": {
+          "Hint": "If enabled, Apply Damage can automatically set the Armor Broken status.",
+          "Name": "Auto-apply Armor Broken"
         },
         "AutomateWoundRoll": {
           "Title": "Automate Wound Rolls",
@@ -139,17 +136,29 @@
           "CharacterFirst": "Player Character First",
           "TokenFirst": "Token First"
         }
+      },
+      "TrainingConfig": {
+        "Hint": "Choose whether training adds the selected skill directly or stores it in the character skill-training field.",
+        "Label": "Configure Training...",
+        "Name": "Configure Training",
+        "SettingName": "Training Configuration",
+        "UseSkillTraining": {
+          "Hint": "If enabled, training writes the selected skill name to the sheet training field instead of adding the skill item immediately.",
+          "Name": "Use Skill Training"
+        },
+        "AutoTrainAfterShoreLeave": {
+          "Name": "Auto Train after Shore Leave",
+          "Hint": "If enabled, the training tool runs automatically after a shore leave is completed, whether the stress conversion succeeds or not."
+        }
       }
     },
     "ShoreLeave": {
       "ConvertedStress": "Converted Stress",
       "DistributeStressConversion": "Distribute Stress Conversion",
       "Editor": {
-        "Description": "Edit shore leave rules, stress conversion behavior, and pricing formulas in one place.",
-        "ResetSuccess": "Shore Leave configuration reset to defaults.",
-        "UpdateSuccess": "Shore Leave configuration updated.",
         "GeneralTitle": "General Shore Leave",
-        "TiersTitle": "Tier Formulas"
+        "TiersTitle": "Tier Formulas",
+        "DefaultTiersFallback": "Submitted shore leave tiers were empty or invalid. Defaults were saved instead."
       },
       "InvalidTier": "Invalid tier selected.",
       "NoActorForStressConversion": "No actor available for stress conversion.",
@@ -158,12 +167,15 @@
       "PriceFormula": "Price Formula",
       "RerollFlavor": "Reroll Flavor",
       "RollPrice": "Roll Price",
-      "SelectTier": "Select Shore Leave Tier"
+      "SelectTier": "Select Shore Leave Tier",
+      "PayUp": "Pay Up",
+      "PayablePrice": "Price to pay:",
+      "CannotAfford": "{actorName} cannot afford this shore leave activity."
     },
     "CharacterCreator": {
       "Chat": {
         "ClassSelected": {
-          "Content": "{actorName} chose a class: <label class='counter'>{className}</label>",
+          "Content": "{actorName} chose a class:",
           "Title": "Class Selected"
         },
         "HealthRolled": {
@@ -204,15 +216,8 @@
       "Notifications": {
         "AlreadyCompleted": "Character creation already completed.",
         "AttributeSelectionAborted": "Attribute selection aborted:",
-        "AttributeSelectionCancelled": "Attribute selection cancelled.",
-        "Cancelled": "Character creation cancelled.",
-        "ClassSelectionCancelled": "Class selection cancelled.",
         "ClassUuidInvalid": "Class UUID invalid. Please reselect.",
-        "Completed": "{actorName} has completed character creation.",
-        "MarkedCompleted": "{actorName} has been marked as completed manually.",
         "NoClassUuid": "No class UUID found. Please select a class.",
-        "Reset": "Character creation for {actorName} has been reset.",
-        "SkillSelectionCancelled": "Skill selection cancelled.",
         "TrainingSkillLoadFailed": "Selected training skill could not be loaded."
       },
       "SelectAttributes": {
@@ -290,11 +295,6 @@
         "Promote": "Promote",
         "Menu": "Menu"
       },
-      "Config": {
-        "Description": "Toggle the buttons that the QoL toolbar may show for each sheet type. Only buttons that can actually appear on that sheet type are listed.",
-        "ResetSuccess": "Toolbar configuration reset to defaults.",
-        "UpdateSuccess": "Toolbar configuration updated."
-      },
       "Scopes": {
         "creature": "Creatures",
         "ship": "Ships",
@@ -309,10 +309,7 @@
         "Title": "Promote Contractor",
         "Content": "<p>How would you like to promote this contractor?</p>",
         "Roll": "Roll Contractor",
-        "Manual": "Manual Promotion",
-        "Rolled": "{actorName} has been promoted and fully rolled.",
-        "ManualDone": "{actorName} has been promoted manually.",
-        "Cancelled": "Promotion canceled."
+        "Manual": "Manual Promotion"
       },
       "Actions": {
         "Title": "Contractor Actions",
@@ -328,19 +325,18 @@
       "ApplyDamageToSelectedTokens": "Apply Damage to Selected Tokens",
       "EnterAmount": "Enter the amount of damage to apply:",
       "EnterAmountForActor": "Enter the amount of damage to apply to <strong>{actorName}</strong>:",
-      "EnterAmountForTokens": "Enter the amount of damage to apply to <strong>{count}</strong> selected {tokens}:",
+      "EnterAmountForTokens": "Enter the amount of damage to apply to <span class=\"counter\">{count}</span> selected {tokens}:",
       "AntiArmor": "Anti Armor",
       "Apply": "Apply",
       "NoTokensSelected": "No tokens selected.",
       "PositiveValueRequired": "Please enter a positive damage value.",
-      "AppliedToTokens": "Applied damage to {applied}/{total} {tokens}.",
       "TokenSingular": "token",
       "TokenPlural": "tokens",
       "MaximumWoundsReached": "Maximum Wounds Reached",
-      "MaximumWoundsContent": "{actorName} has reached their maximum number of wounds!<br>@Macro[Death Save]",
+      "MaximumWoundsContent": "{actorName} has reached their maximum number of wounds!",
       "WoundTaken": "Wound Taken",
       "WoundsTaken": "Wounds Taken",
-      "WoundsSuffered": "{count} {wounds} suffered.<br>@Macro[Wound Check]",
+      "WoundsSuffered": "{wounds} suffered.",
       "WoundSingular": "wound",
       "WoundPlural": "wounds",
       "ApplyToSelectedTokens": "Apply without Anti Armor",
@@ -349,29 +345,25 @@
       "ApplyDamageShort": "DMG",
       "ApplyAntiArmorShort": "AA",
       "Config": {
-        "Description": "Configure how Apply Damage processes armor and damage thresholds.",
-        "GeneralTitle": "General Apply Damage",
-        "ResetSuccess": "Apply Damage configuration reset to defaults.",
-        "UpdateSuccess": "Apply Damage configuration updated."
+        "GeneralTitle": "General Apply Damage"
       },
       "NoWoundResult": "No matching wound result found.",
       "Advantage": "Advantage",
-      "Disadvantage": "Disadvantage"
+      "Disadvantage": "Disadvantage",
+      "WoundCheckMacro": "@Macro[Wound Check]",
+      "DeathSaveMacro": "@Macro[Death Save]"
     },
     "Chat": {
       "NoActor": "No actor available for chat output."
     },
     "Training": {
-      "Learned": "{actorName} learned {skillName}."
-    },
-    "Progress": {
-      "MarkedReady": "Character marked ready: {actorName}",
-      "MarkedCompleted": "Character marked completed: {actorName}"
-    },
-    "Armor": {
-      "State": "{actorName}: Armor {state}.",
-      "Broken": "broken",
-      "Intact": "intact"
+      "Learned": "{actorName} learned {skillName}.",
+      "Config": {
+        "GeneralTitle": "Skill Training"
+      },
+      "SkillNotFound": "Training skill not found: {skillName}.",
+      "NotEnoughXp": "Not enough XP to learn {rankLabel} Skill {skillName}.",
+      "Progressed": "{actorName} trained {skillName}: {xpValue}/{xpRequired}."
     },
     "ShipCrit": {
       "NoMatch": "No match for: {value}",

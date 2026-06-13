@@ -1,33 +1,112 @@
-<div class="greybeardqol" style="--theme-color: {{themeColor}}">
+<div class="{{{classes}}}" style="--theme-color: {{{themeColor}}}">
   <div class="card chat-card">
     <!-- Header -->
     <div class="header">
       <!-- Icon or Image -->
       {{#if image}}
-        <img class="icon" src="{{image}}" alt="Chat image"/>
+        <img class="icon" src="{{{image}}}" alt="Chat image"/>
       {{else if icon}}
         <i class="icon fas {{icon}}"></i>
       {{/if}}
   
       <!-- Title and Subtitle -->
       <div class="header-text">
-        <div class="title">{{title}}</div>
+        <div class="title">{{{title}}}</div>
         {{#if subtitle}}
-          <div class="subtitle">{{subtitle}}</div>
+          <div class="subtitle">{{{subtitle}}}</div>
         {{/if}}
       </div>
     </div>
   
-    <!-- Content -->
-    <div class="chat-body">
-      {{{content}}}
-    </div>
+    <!-- Content Blocks -->
+    {{#if blocks.length}}
+      <div class="chat-body">
+        {{#each blocks}}
+          {{#if (eq this.type "text")}}
+            <p class="chat-text">{{{this.text}}}</p>
+          {{/if}}
+
+          {{#if (eq this.type "html")}}
+            <div class="chat-html">{{{this.html}}}</div>
+          {{/if}}
+
+          {{#if (eq this.type "highlight")}}
+            <p class="chat-highlight-line">
+              {{#if this.label}}<span class="chat-highlight-label">{{{this.label}}}</span>{{/if}}
+              <span class="counter">{{{this.value}}}</span>
+            </p>
+          {{/if}}
+
+          {{#if (eq this.type "counter")}}
+            <div class="chat-counter-line">
+              <span class="counter">{{{this.value}}}</span>
+              {{#if this.label}}<span class="chat-counter-label">{{{this.label}}}</span>{{/if}}
+              {{#if this.suffix}}<span class="chat-counter-suffix">{{{this.suffix}}}</span>{{/if}}
+            </div>
+          {{/if}}
+
+          {{#if (eq this.type "itemList")}}
+            <div class="chat-item-list{{#if this.compact}} is-compact{{/if}}{{#if this.nowrap}} is-nowrap{{/if}}">
+              {{#if this.title}}<h3 class="chat-section-title">{{{this.title}}}</h3>{{/if}}
+              {{#each this.items}}
+                <div class="chat-item-row">
+                  {{#if this.img}}<img class="chat-item-image" src="{{{this.img}}}" alt=""/>{{/if}}
+                  <span class="chat-item-name">{{{this.name}}}</span>
+                  {{#if this.subtitle}}<span class="chat-item-subtitle">{{{this.subtitle}}}</span>{{/if}}
+                  {{#if this.quantity}}<span class="chat-item-quantity">{{{this.quantity}}}</span>{{/if}}
+                </div>
+              {{/each}}
+            </div>
+          {{/if}}
+
+          {{#if (eq this.type "counterColumns")}}
+            <div class="chat-counter-columns">
+              {{#each this.columns}}
+                <div class="chat-counter-column">
+                  <h3 class="chat-section-title">{{{this.title}}}</h3>
+                  {{#each this.items}}
+                    <div class="chat-counter-row">
+                      <span class="counter">{{{this.value}}}</span>
+                      <span class="chat-counter-label">{{{this.label}}}</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{/each}}
+            </div>
+          {{/if}}
+
+          {{#if (eq this.type "automatedWounds")}}
+            <div class="mosh-qol-automated-wounds">
+              {{#each this.entries}}
+                <p>
+                  {{#if this.rollLabel}}{{{this.rollLabel}}}: {{/if}}
+                  {{#each this.rolls}}
+                    {{#if this.html}}{{{this.html}}}{{else}}{{{this.text}}}{{/if}}{{#unless @last}} / {{/unless}}
+                  {{/each}}
+                  <br>
+                  {{#each this.results}}
+                    {{#if this.html}}{{{this.html}}}{{else}}{{{this.text}}}{{/if}}{{#unless @last}}<br>{{/unless}}
+                  {{/each}}
+                </p>
+                {{#unless @last}}<hr>{{/unless}}
+              {{/each}}
+            </div>
+          {{/if}}
+
+          {{#if (eq this.type "separator")}}
+            <hr class="chat-separator"/>
+          {{/if}}
+        {{/each}}
+      </div>
+    {{/if}}
   
     <!-- Buttons -->
     {{#if buttons.length}}
       <div class="pill-list">
         {{#each buttons}}
-          {{{this.buttonHtml}}}
+          <div class="pill chat-action interactive" data-action="{{{this.action}}}" data-args="{{{this.args}}}">
+            <i class="fas {{{this.icon}}}"></i> {{{this.label}}}
+          </div>
         {{/each}}
       </div>
     {{/if}}

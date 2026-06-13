@@ -1,7 +1,9 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
+import { MODULE_ID, templatePath } from "../codex/constants.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, stripHtml, toSkillId, toSkillPointBundle, sumSkillPointFields } from "./utils.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
+import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
   cacheSkillTreeDom,
   cleanupSkillTreeApp,
@@ -14,66 +16,65 @@ import {
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 function resolveOrOptionSkills(option, { skillByUuid, skillMap, optionName = game.i18n.localize("MoshQoL.CharacterCreator.SelectSkills.UnknownOrOption") }) {
-  const candidates = Array.isArray(option?.from_list) ? option.from_list : [];
-  const unique = new Map();
+  return resolveSkillReferences(option?.from_list, {
+    skillByUuid,
+    skillMap,
+    includeRank: true,
+    onMissing: rawRef => console.warn(`[${MODULE_ID}] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`)
+  });
+}
 
-  for (const entry of candidates) {
-    const rawRef = typeof entry === "string" ? entry : entry?.uuid || entry?.id;
-    if (!rawRef) continue;
-
-    const byUuid = skillByUuid.get(rawRef);
-    const skill = byUuid || skillMap.get(toSkillId(rawRef));
-
-    if (!skill) {
-      console.warn(`[mosh-greybearded-qol] Could not resolve linked OR skill reference "${rawRef}" on option "${optionName}".`);
-      continue;
+function getSkillDependencies(skills) {
+  const map = new Map();
+  for (const skill of skills) {
+    for (const prereqId of skill.prereqIds ?? []) {
+      let dependents = map.get(prereqId);
+      if (!dependents) {
+        dependents = new Set();
+        map.set(prereqId, dependents);
+      }
+      dependents.add(skill.id);
     }
-
-    unique.set(skill.id, {
-      id: skill.id,
-      uuid: skill.uuid,
-      name: skill.name,
-      img: skill.img || "icons/svg/d20-grey.svg",
-      rank: normalizeText(skill?.system?.rank)
-    });
   }
+  return map;
+}
 
-  return [...unique.values()];
+function toSkillViewModel(skill) {
+  return {
+    id: skill.id,
+    _id: skill.id,
+    uuid: skill.uuid,
+    name: skill.name,
+    nameLower: normalizeText(skill.name),
+    img: skill.img,
+    system: skill.system,
+    rank: normalizeText(skill?.system?.rank),
+    prereqIds: (skill.system?.prerequisite_ids ?? []).map(toSkillId)
+  };
 }
 
 export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-creator-select-skills",
-    tag: "form",
-    window: {
-      title: "MoshQoL.CharacterCreator.SelectSkills.Title",
-      contentClasses: ["greybeardqol", "qol-skill-selection"],
-      resizable: false
-    },
-    position: {
-      width: 1200,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.CharacterCreator.SelectSkills.Title",
+    windowClasses: "qol-skill-selection",
+    position: { width: 1200 },
+    form: { handler: this._onSubmit },
     actions: {
       toggleSkill: this._onToggleSkill,
       selectOrOption: this._onSelectOrOption
     }
-  };
+  });
 
   static PARTS = {
     options: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-skills-options.html"
+      template: templatePath("character-creator/select-skills-options.html")
     },
     skilltree: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/skilltree-core.html"
+      template: templatePath("character-creator/skilltree-core.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 
@@ -86,56 +87,35 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static async _prepareData({ actor, selectedClass }) {
-    const getSkillDependencies = skills => {
-      const map = new Map();
-      for (const skill of skills) {
-        for (const prereq of skill.system.prerequisite_ids || []) {
-          const prereqId = toSkillId(prereq);
-          if (!map.has(prereqId)) map.set(prereqId, new Set());
-          map.get(prereqId).add(skill.id);
-        }
-      }
-      return map;
-    };
-
     const allSkills = await loadAllItemsByType("skill");
+    const sortedSkills = allSkills.map(toSkillViewModel);
 
-    const skillMap = new Map(allSkills.map(s => [s.id, s]));
+    const skillMap = new Map(sortedSkills.map(s => [s.id, s]));
     const skillByUuid = new Map(allSkills.map(s => [s.uuid, s]));
-    const dependencies = getSkillDependencies(allSkills);
-    const sortedSkills = allSkills.map(skill => ({
-      id: skill.id,
-      _id: skill.id,
-      uuid: skill.uuid,
-      name: skill.name,
-      nameLower: normalizeText(skill.name),
-      img: skill.img,
-      system: skill.system,
-      rank: normalizeText(skill?.system?.rank)
-    }));
+    const dependencies = getSkillDependencies(sortedSkills);
 
     const baseAnd = selectedClass.system.selected_adjustment?.choose_skill_and ?? {};
     const baseOr = selectedClass.system.selected_adjustment?.choose_skill_or ?? [];
     const granted = new Set((selectedClass.system.base_adjustment?.skills_granted ?? []).map(toSkillId));
 
-    const basePoints = toSkillPointBundle(baseAnd);
+    const basePoints = toSkillSelectionPointBundle(baseAnd);
 
     const orOptions = baseOr.flat().map((opt, i) => {
       const name = opt.name ?? `Option ${i + 1}`;
       return {
         id: `or-${i}`,
         name,
-        trained: sumSkillPointFields(opt.trained, opt.expert_full_set, opt.master_full_set),
-        expert: sumSkillPointFields(opt.expert, opt.expert_full_set, opt.master_full_set),
-        master: sumSkillPointFields(opt.master, opt.master_full_set),
+        ...toSkillSelectionPointBundle(opt),
         skills: resolveOrOptionSkills(opt, { skillByUuid, skillMap, optionName: name })
       };
     });
 
-    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions };
+    const prereqIdsBySkillId = new Map(sortedSkills.map(skill => [skill.id, skill.prereqIds]));
+
+    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions };
   }
 
-  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions }, options = {}) {
+  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions }, options = {}) {
     super(options);
     this.actor = actor;
     this.selectedClass = selectedClass;
@@ -147,6 +127,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this.skillMap = skillMap;
     this.skillByUuid = skillByUuid;
     this.dependencies = dependencies;
+    this.prereqIdsBySkillId = prereqIdsBySkillId;
     this.granted = granted;
     this.basePoints = basePoints;
     this.orOptions = orOptions;
@@ -168,7 +149,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _cacheDomReferences(root) {
-    this._dom = cacheSkillTreeDom(root, { includeOrOptions: true, includePointCounts: true });
+    this._dom = cacheSkillTreeDom(root);
   }
 
   _initializeSelectionStateFromDom() {
@@ -205,8 +186,8 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     return this._selectedSkillIds.has(skillId);
   }
 
-  _getPrereqIds(skill) {
-    return (skill?.system?.prerequisite_ids || []).map(toSkillId);
+  _getPrereqIds(skillId) {
+    return this.prereqIdsBySkillId.get(skillId) ?? [];
   }
 
   _scheduleDrawLines({ changedSkillIds = null } = {}) {
@@ -235,11 +216,11 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       for (const el of this._dom?.skillCards ?? []) cards.add(el);
     } else {
       for (const skillId of hasAffectedSkillIds ? affectedSkillIds : []) {
-        const el = this._dom?.skillCardById?.get(skillId);
+        const el = this._dom?.skillCardById.get(skillId);
         if (el) cards.add(el);
       }
       for (const rank of hasAffectedRanks ? affectedRanks : []) {
-        for (const el of this._dom?.skillCardsByRank?.get(rank) ?? []) cards.add(el);
+        for (const el of this._dom?.skillCardsByRank.get(rank) ?? []) cards.add(el);
       }
     }
 
@@ -260,8 +241,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         continue;
       }
 
-      const skill = this.skillMap.get(skillId);
-      const prereqs = (skill?.system?.prerequisite_ids || []).map(toSkillId);
+      const prereqs = this._getPrereqIds(skillId);
       const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkillIds.has(id));
       if (unlocked) {
         el.classList.remove("locked");
@@ -321,8 +301,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext() {
-    return {
-      themeColor: getThemeColor(),
+    return appendQolThemeContext({
       actor: this.actor,
       selectedClass: this.selectedClass,
       sortedSkills: this.sortedSkills,
@@ -332,7 +311,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       basePoints: this.basePoints,
       orOptions: this.orOptions,
       confirmLocked: true
-    };
+    });
   }
 
   _onRender(context, options) {
@@ -359,20 +338,16 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     if (target.classList.contains("selected")) {
       const skillId = target.dataset.skillId;
       const dependents = this.dependencies.get(skillId) || new Set();
-      const selectedDependents = [...dependents].filter(depId => {
-        const depEl = this._dom.skillCardById.get(depId);
-        return depEl?.classList.contains("selected");
-      });
+      for (const depId of dependents) {
+        if (!this._isSkillSelected(depId)) continue;
 
-      for (const depId of selectedDependents) {
+        const depPrereqs = this._getPrereqIds(depId);
+        const hasAlternatePrereq = depPrereqs.some(pid => pid !== skillId && this._isSkillSelected(pid));
+        if (hasAlternatePrereq) continue;
+
         const depSkill = this.skillMap.get(depId);
-        const depPrereqs = this._getPrereqIds(depSkill);
-        const fulfilled = depPrereqs.filter(pid => pid !== skillId && this._isSkillSelected(pid));
-
-        if (fulfilled.length === 0) {
-          ui.notifications.warn(game.i18n.format("MoshQoL.CharacterCreator.SelectSkills.DependencyNeedsSkill", { skillName: depSkill.name }));
-          return;
-        }
+        ui.notifications.warn(game.i18n.format("MoshQoL.CharacterCreator.SelectSkills.DependencyNeedsSkill", { skillName: depSkill.name }));
+        return;
       }
 
       target.classList.remove("selected");
@@ -441,10 +416,8 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const selectedItems = await Promise.all(selectedUUIDs.map(async uuid => {
       const preloaded = this.skillByUuid.get(uuid);
-      if (preloaded) {
-        const data = preloaded.toObject();
-        delete data._id;
-        return data;
+      if (typeof preloaded?.toObject === "function") {
+        return toEmbeddedItemData(preloaded);
       }
 
       const item = await fromUuid(uuid);
@@ -452,9 +425,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         console.warn("Invalid or missing skill:", uuid);
         return null;
       }
-      const itemData = item.toObject();
-      delete itemData._id;
-      return itemData;
+      return toEmbeddedItemData(item);
     }));
 
     const validItems = selectedItems.filter(Boolean);
@@ -466,7 +437,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async close(options = {}) {
-    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds"] });
+    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds", "prereqIdsBySkillId"] });
     resolveAppOnce(this, null);
     return super.close(options);
   }

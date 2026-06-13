@@ -1,0 +1,32 @@
+<div class="qolsettings" style="--theme-color: {{themeColor}};">
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.TrainingConfig.UseSkillTraining.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.TrainingConfig.UseSkillTraining.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="training.useSkillTraining" {{checked config.useSkillTraining}}>
+    </label>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.TrainingConfig.AutoTrainAfterShoreLeave.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.TrainingConfig.AutoTrainAfterShoreLeave.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="training.autoTrainAfterShoreLeave" {{checked config.autoTrainAfterShoreLeave}}>
+    </label>
+  </section>
+
+  <footer class="form-footer">
+    <button type="button" data-action="resetDefaults">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.ResetToDefault"}}
+    </button>
+    <button type="submit">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.SaveChanges"}}
+    </button>
+  </footer>
+</div>

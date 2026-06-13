@@ -59,17 +59,10 @@
         "Hint": "Wenn aktiviert, ersetzt dies das alte Charaktererstellungs-Makro durch die neue QoL-Version.",
         "Name": "QoL-Charaktergenerator aktivieren"
       },
-      "EnableShipCrits": {
-        "Hint": "Wenn aktiviert, erscheint der Schiffskrit-Button und die 0e-Krit-Logik wird aktiviert.",
-        "Name": "0e-Schiffskrits aktivieren"
-      },
       "ShoreLeaveEditor": {
         "Hint": "Konfiguriere Landgang-Regeln, Stressumwandlung und Stufenformeln in einem Dialog.",
         "Label": "Landgang konfigurieren...",
         "Name": "Landgang konfigurieren"
-      },
-      "ShoreLeaveTiers": {
-        "Name": "Definitionen der Landgang-Stufen"
       },
       "SimpleShoreLeave": {
         "DisableFlavor": {
@@ -103,6 +96,10 @@
         "TougherArmor": {
           "Hint": "Wenn aktiviert, wird Panzerung nur beschädigt, wenn nach der Panzerungsreduktion Schaden übrig bleibt. Wenn deaktiviert, wird Panzerung auch beschädigt, wenn sie den Schaden exakt auf 0 reduziert.",
           "Name": "Stabilere Panzerung"
+        },
+        "ApplyArmorBroken": {
+          "Hint": "Wenn aktiviert, kann Schaden anwenden automatisch den Status \"Armor Broken\" setzen.",
+          "Name": "Armor Broken automatisch setzen"
         },
         "AutomateWoundRoll": {
           "Title": "Wundwürfe automatisieren",
@@ -139,17 +136,29 @@
           "CharacterFirst": "Spielercharakter zuerst",
           "TokenFirst": "Token zuerst"
         }
+      },
+      "TrainingConfig": {
+        "Hint": "Lege fest, ob Training die ausgewählte Fertigkeit direkt hinzufügt oder im Fertigkeitstrainingsfeld des Charakterbogens speichert.",
+        "Label": "Training konfigurieren...",
+        "Name": "Training konfigurieren",
+        "SettingName": "Training-Konfiguration",
+        "UseSkillTraining": {
+          "Hint": "Wenn aktiviert, schreibt Training den Namen der ausgewählten Fertigkeit in das Trainingsfeld des Bogens, statt den Fertigkeitsgegenstand sofort hinzuzufügen.",
+          "Name": "Use Skill Training"
+        },
+        "AutoTrainAfterShoreLeave": {
+          "Name": "Auto-Training nach Landgang",
+          "Hint": "Wenn aktiviert, wird das Training-Tool nach einem abgeschlossenen Landgang automatisch ausgeführt, unabhängig davon, ob die Stressumwandlung erfolgreich ist."
+        }
       }
     },
     "ShoreLeave": {
       "ConvertedStress": "Umgewandelter Stress",
       "DistributeStressConversion": "Stressumwandlung verteilen",
       "Editor": {
-        "Description": "Bearbeite Landgang-Regeln, Stressumwandlung und Preisformeln an einer Stelle.",
-        "ResetSuccess": "Landgang-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Landgang-Konfiguration aktualisiert.",
         "GeneralTitle": "Allgemeiner Landgang",
-        "TiersTitle": "Stufenformeln"
+        "TiersTitle": "Stufenformeln",
+        "DefaultTiersFallback": "Die eingereichten Landgang-Stufen waren leer oder ungültig. Stattdessen wurden Standardwerte gespeichert."
       },
       "InvalidTier": "Ungültige Stufe ausgewählt.",
       "NoActorForStressConversion": "Kein Akteur für die Stressumwandlung verfügbar.",
@@ -158,12 +167,15 @@
       "PriceFormula": "Preisformel",
       "RerollFlavor": "Beschreibung neu würfeln",
       "RollPrice": "Preis würfeln",
-      "SelectTier": "Landgang-Stufe auswählen"
+      "SelectTier": "Landgang-Stufe auswählen",
+      "PayUp": "Bezahlen",
+      "PayablePrice": "Zu zahlender Preis:",
+      "CannotAfford": "{actorName} kann diese Landgang-Aktivität nicht bezahlen."
     },
     "CharacterCreator": {
       "Chat": {
         "ClassSelected": {
-          "Content": "{actorName} hat eine Klasse gewählt: <label class='counter'>{className}</label>",
+          "Content": "{actorName} hat eine Klasse gewählt:",
           "Title": "Klasse gewählt"
         },
         "HealthRolled": {
@@ -204,15 +216,8 @@
       "Notifications": {
         "AlreadyCompleted": "Charaktererstellung bereits abgeschlossen.",
         "AttributeSelectionAborted": "Attributauswahl abgebrochen:",
-        "AttributeSelectionCancelled": "Attributauswahl abgebrochen.",
-        "Cancelled": "Charaktererstellung abgebrochen.",
-        "ClassSelectionCancelled": "Klassenauswahl abgebrochen.",
         "ClassUuidInvalid": "Klassen-UUID ungültig. Bitte erneut auswählen.",
-        "Completed": "{actorName} hat die Charaktererstellung abgeschlossen.",
-        "MarkedCompleted": "{actorName} wurde manuell als abgeschlossen markiert.",
         "NoClassUuid": "Keine Klassen-UUID gefunden. Bitte wähle eine Klasse aus.",
-        "Reset": "Charaktererstellung für {actorName} wurde zurückgesetzt.",
-        "SkillSelectionCancelled": "Fertigkeitsauswahl abgebrochen.",
         "TrainingSkillLoadFailed": "Die ausgewählte Trainingsfertigkeit konnte nicht geladen werden."
       },
       "SelectAttributes": {
@@ -290,11 +295,6 @@
         "Promote": "Befördern",
         "Menu": "Menü"
       },
-      "Config": {
-        "Description": "Schalte die Schaltflächen frei, die die QoL-Werkzeugleiste je Bogentyp anzeigen darf. Es werden nur Schaltflächen gelistet, die auf diesem Bogentyp tatsächlich vorkommen können.",
-        "ResetSuccess": "Werkzeugleisten-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Werkzeugleisten-Konfiguration aktualisiert."
-      },
       "Scopes": {
         "creature": "Kreaturen",
         "ship": "Schiffe",
@@ -309,10 +309,7 @@
         "Title": "Auftragnehmenden befördern",
         "Content": "<p>Wie möchtest du diese Auftragnehmende bzw. diesen Auftragnehmenden befördern?</p>",
         "Roll": "Auftragnehmenden auswürfeln",
-        "Manual": "Manuell befördern",
-        "Rolled": "{actorName} wurde befördert und vollständig ausgewürfelt.",
-        "ManualDone": "{actorName} wurde manuell befördert.",
-        "Cancelled": "Beförderung abgebrochen."
+        "Manual": "Manuell befördern"
       },
       "Actions": {
         "Title": "Auftragnehmenden-Aktionen",
@@ -328,19 +325,18 @@
       "ApplyDamageToSelectedTokens": "Schaden auf ausgewählte Tokens anwenden",
       "EnterAmount": "Gib die Schadensmenge ein:",
       "EnterAmountForActor": "Gib die Schadensmenge für <strong>{actorName}</strong> ein:",
-      "EnterAmountForTokens": "Gib die Schadensmenge für <strong>{count}</strong> ausgewählte {tokens} ein:",
+      "EnterAmountForTokens": "Gib die Schadensmenge für <span class=\"counter\">{count}</span> ausgewählte {tokens} ein:",
       "AntiArmor": "Rüstungsbrechend",
       "Apply": "Anwenden",
       "NoTokensSelected": "Keine Tokens ausgewählt.",
       "PositiveValueRequired": "Bitte gib einen positiven Schadenswert ein.",
-      "AppliedToTokens": "Schaden auf {applied}/{total} {tokens} angewendet.",
       "TokenSingular": "Token",
       "TokenPlural": "Tokens",
       "MaximumWoundsReached": "Maximale Wunden erreicht",
-      "MaximumWoundsContent": "{actorName} hat die maximale Anzahl an Wunden erreicht!<br>@Macro[Todeswurf]",
+      "MaximumWoundsContent": "{actorName} hat die maximale Anzahl an Wunden erreicht!",
       "WoundTaken": "Wunde erlitten",
       "WoundsTaken": "Wunden erlitten",
-      "WoundsSuffered": "{count} {wounds} erlitten.<br>@Macro[Wundwurf]",
+      "WoundsSuffered": "{wounds} erlitten.",
       "WoundSingular": "Wunde",
       "WoundPlural": "Wunden",
       "ApplyToSelectedTokens": "Ohne Rüstungsbrechend anwenden",
@@ -349,29 +345,25 @@
       "ApplyDamageShort": "DMG",
       "ApplyAntiArmorShort": "AA",
       "Config": {
-        "Description": "Konfiguriere, wie Schaden anwenden Panzerung und Schadensgrenzwerte verarbeitet.",
-        "GeneralTitle": "Allgemeiner Schaden",
-        "ResetSuccess": "Schaden-anwenden-Konfiguration auf Standardwerte zurückgesetzt.",
-        "UpdateSuccess": "Schaden-anwenden-Konfiguration aktualisiert."
+        "GeneralTitle": "Allgemeiner Schaden"
       },
       "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
       "Advantage": "Vorteil",
-      "Disadvantage": "Nachteil"
+      "Disadvantage": "Nachteil",
+      "WoundCheckMacro": "@Macro[Wundwurf]",
+      "DeathSaveMacro": "@Macro[Todeswurf]"
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."
     },
     "Training": {
-      "Learned": "{actorName} hat {skillName} gelernt."
-    },
-    "Progress": {
-      "MarkedReady": "Charakter als bereit markiert: {actorName}",
-      "MarkedCompleted": "Charakter als abgeschlossen markiert: {actorName}"
-    },
-    "Armor": {
-      "State": "{actorName}: Rüstung {state}.",
-      "Broken": "beschädigt",
-      "Intact": "intakt"
+      "Learned": "{actorName} hat {skillName} gelernt.",
+      "Config": {
+        "GeneralTitle": "Fertigkeitstraining"
+      },
+      "SkillNotFound": "Trainingsfertigkeit nicht gefunden: {skillName}.",
+      "NotEnoughXp": "Nicht genug XP, um {rankLabel} Skill {skillName} zu erlernen.",
+      "Progressed": "{actorName} trainiert {skillName}: {xpValue}/{xpRequired}."
     },
     "ShipCrit": {
       "NoMatch": "Kein Treffer für: {value}",

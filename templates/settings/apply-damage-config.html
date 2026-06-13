@@ -1,6 +1,4 @@
-<div class="qolsettings">
-  <p>{{description}}</p>
-
+<div class="qolsettings" style="--theme-color: {{themeColor}};">
   <section class="card">
     <h4 class="qolsettings-heading">{{localize "MoshQoL.Damage.Config.GeneralTitle"}}</h4>
 
@@ -10,6 +8,14 @@
         <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.TougherArmor.Hint"}}</small>
       </span>
       <input type="checkbox" name="applyDamage.tougherArmor" {{checked config.tougherArmor}}>
+    </label>
+
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Settings.ApplyDamageConfig.ApplyArmorBroken.Name"}}</strong>
+        <small>{{localize "MoshQoL.Settings.ApplyDamageConfig.ApplyArmorBroken.Hint"}}</small>
+      </span>
+      <input type="checkbox" name="applyDamage.applyArmorBroken" {{checked config.applyArmorBroken}}>
     </label>
   </section>
 

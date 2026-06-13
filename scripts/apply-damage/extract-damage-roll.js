@@ -75,7 +75,7 @@ function parseEncodedRollData(encodedRoll) {
   }
 }
 
-function isDamageRoll(rollData) {
+export function isDamageRoll(rollData) {
   if (typeof rollData?.formula === "string" && rollData.formula.includes("[damage]")) return true;
 
   return Array.isArray(rollData?.terms)
@@ -114,12 +114,10 @@ function findWoundEffectText(content) {
 
     const woundHeader = [...wrapper.querySelectorAll("strong")]
       .find((element) => element.textContent?.trim().toLowerCase() === "wound effect");
-    const woundContainer = woundHeader?.parentElement ?? wrapper;
-    const woundLink = woundContainer.querySelector(".content-link");
-    if (woundLink?.textContent) return woundLink.textContent.trim();
+    if (!woundHeader?.parentElement) return null;
 
-    const fallbackLink = wrapper.querySelector(".content-link");
-    return fallbackLink?.textContent?.trim() ?? null;
+    const woundLink = woundHeader.parentElement.querySelector(".content-link");
+    return woundLink?.textContent?.trim() ?? null;
   }
 
   return findWoundEffectTextWithRegex(content);
@@ -130,15 +128,16 @@ function findWoundEffectText(content) {
  * this parser runs. In that state, a wound effect looks like
  * `@UUID[...]{Gunshot [+]}` instead of the rendered `.content-link` anchor.
  *
- * If this ever needs to become more defensive, keep this raw-content parser as
- * the first pass and add a later fallback that accepts the rendered chat HTML
- * from the render hook. That fallback should inspect the already enriched DOM for
- * `.content-link` anchors near the Wound Effect header, then pass the anchor text
- * through parseWoundEffectText just like this raw UUID path does.
+ * The rendered-chat fallback must stay constrained the same way: inspect only
+ * `.content-link` anchors in the DOM container around the Wound Effect header,
+ * then pass the anchor text through parseWoundEffectText just like this raw UUID
+ * path does.
  */
 function findWoundEffectTextFromUuidMarkup(content) {
   const woundEffectIndex = content.search(/<strong[^>]*>\s*Wound Effect\s*<\/strong>/i);
-  const searchContent = woundEffectIndex >= 0 ? content.slice(woundEffectIndex) : content;
+  if (woundEffectIndex < 0) return null;
+
+  const searchContent = content.slice(woundEffectIndex);
   const uuidMatch = searchContent.match(/@UUID\[[^\]]+\]\{([^}]+)\}/i);
   if (!uuidMatch) return null;
 
@@ -147,7 +146,9 @@ function findWoundEffectTextFromUuidMarkup(content) {
 
 function findWoundEffectTextWithRegex(content) {
   const woundEffectIndex = content.search(/<strong[^>]*>\s*Wound Effect\s*<\/strong>/i);
-  const searchContent = woundEffectIndex >= 0 ? content.slice(woundEffectIndex) : content;
+  if (woundEffectIndex < 0) return null;
+
+  const searchContent = content.slice(woundEffectIndex);
   const linkMatch = searchContent.match(/<a\b[^>]*class=(?:["'][^"']*content-link[^"']*["'])[^>]*>([\s\S]*?)<\/a>/i)
     ?? searchContent.match(/<a\b[^>]*class=(?:[^\s>]*\s)?content-link(?:\s[^>]*)?[^>]*>([\s\S]*?)<\/a>/i);
   if (!linkMatch) return null;

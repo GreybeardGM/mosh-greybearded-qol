@@ -1,7 +1,11 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
+import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
+import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText } from "./utils.js";
-import { getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { normalizeText, toEmbeddedItemData } from "../character-creator/utils.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { getNormalizedTrainingConfig } from "../settings/training-config.js";
+import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import {
   applyInitialAvailabilityLock,
   cacheSkillTreeDom,
@@ -10,39 +14,28 @@ import {
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
-} from "./skill-selector-shared.js";
+} from "../character-creator/skill-selector-shared.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-training-select-skill",
-    tag: "form",
-    window: {
-      title: "MoshQoL.Toolbar.Buttons.Training",
-      contentClasses: ["greybeardqol", "qol-skill-selection", "qol-training-selection"],
-      resizable: false
-    },
-    position: {
-      width: 1200,
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.Toolbar.Buttons.Training",
+    windowClasses: ["qol-skill-selection", "qol-training-selection"],
+    position: { width: 1200 },
+    form: { handler: this._onSubmit },
     actions: {
       toggleSkill: this._onToggleSkill
     }
-  };
+  });
 
   static PARTS = {
     main: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/skilltree-core.html"
+      template: templatePath("character-creator/skilltree-core.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 
@@ -55,7 +48,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   static async _prepareData({ actor }) {
-    const allSkills = await loadAllItemsByType("skill");
+    const allSkills = await loadAllItemsByType(MOSH_ITEM_TYPE_SKILL);
     const sortedSkills = allSkills.map(skill => ({
       id: skill.id,
       _id: skill.id,
@@ -69,7 +62,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     const ownedSkillNames = new Set(
       actor.items
-        .filter(item => item.type === "skill")
+        .filter(item => item.type === MOSH_ITEM_TYPE_SKILL)
         .map(item => normalizeText(item.name))
     );
 
@@ -129,14 +122,13 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "nameLower",
       defaultSkillValues: [...this.ownedSkillNames],
       showPointCounters: false,
-      themeColor: getThemeColor(),
       confirmLocked: true
-    };
+    });
   }
 
   _onRender(context, options) {
@@ -206,14 +198,32 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     }
 
     const selectedItem = await fromUuid(selectedUuid);
-    if (!selectedItem || selectedItem.type !== "skill") {
+    if (!selectedItem || selectedItem.type !== MOSH_ITEM_TYPE_SKILL) {
       ui.notifications?.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.TrainingSkillLoadFailed"));
       resolveAppOnce(this, null);
       return;
     }
 
-    const itemData = selectedItem.toObject();
-    delete itemData._id;
+    if (getNormalizedTrainingConfig().useSkillTraining) {
+      await this.actor.update({
+        [TRAINING_SELECTED_SKILL_PATH]: selectedItem.name ?? "",
+        [TRAINING_XP_VALUE_PATH]: 1
+      });
+      await this.actor.setFlag(MODULE_ID, FLAG_TRAINING_SKILL, {
+        name: selectedItem.name ?? "",
+        uuid: selectedItem.uuid ?? selectedUuid,
+        img: selectedItem.img ?? "",
+        rank: selectedItem.system?.rank ?? ""
+      });
+      resolveAppOnce(this, selectedItem);
+      return;
+    }
+
+    const itemData = toEmbeddedItemData(selectedItem);
+    if (!itemData) {
+      resolveAppOnce(this, null);
+      return;
+    }
 
     const [created] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
     resolveAppOnce(this, created ?? null);

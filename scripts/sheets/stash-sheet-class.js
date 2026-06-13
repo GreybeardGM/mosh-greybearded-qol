@@ -1,3 +1,4 @@
+import { qolSheetClasses, templatePath } from "../codex/constants.js";
 import { parseCurrencyValue } from "../utils/normalization.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 
@@ -5,8 +6,8 @@ export function defineStashSheet(BaseSheet) {
   return class StashSheet extends BaseSheet {
     static get defaultOptions() {
       return foundry.utils.mergeObject(super.defaultOptions, {
-        classes: ["mosh", "greybeardqol", "sheet", "actor", "stash"],
-        template: "modules/mosh-greybearded-qol/templates/sheets/stash-sheet.html",
+        classes: qolSheetClasses("actor", "stash"),
+        template: templatePath("sheets/stash-sheet.html"),
         width: 700,
         height: 700,
         tabs: [
@@ -24,6 +25,11 @@ export function defineStashSheet(BaseSheet) {
       if (creditsPath in formData) {
         formData[creditsPath] = parseCurrencyValue(formData[creditsPath]);
       }
+
+      formData["system.health.value"] = 0;
+      formData["system.health.max"] = 0;
+      formData["system.hits.value"] = 0;
+      formData["system.hits.max"] = 0;
 
       return super._updateObject(event, formData);
     }

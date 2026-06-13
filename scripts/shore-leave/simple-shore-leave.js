@@ -1,45 +1,39 @@
+import {
+  MODULE_ID,
+  SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
+  templatePath
+} from "../codex/constants.js";
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { getThemeColor } from "../utils/get-theme-color.js";
 import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
-import { toRollFormula } from "../utils/to-roll-formula.js";
-import { toRollString } from "../utils/to-roll-string.js";
+import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
+import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { scheduleAutoTrainingAfterShoreLeave } from "../training/training-action.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "simple-shore-leave",
-    tag: "form",
-    window: {
-      title: "MoshQoL.ShoreLeave.SelectTier",
-      icon: "fas fa-umbrella-beach",
-      contentClasses: ["greybeardqol"],
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.ShoreLeave.SelectTier",
+    window: { icon: "fas fa-umbrella-beach" },
+    form: { handler: this._onSubmit },
     actions: {
       selectTier: this._onSelectTier,
       rollPrice: this._onRollPrice,
       rerollFlavor: this._onRerollFlavor
     }
-  };
+  });
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/simple-shore-leave.html"
+      template: templatePath("dialogs/simple-shore-leave.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 
@@ -63,15 +57,14 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     this._selectedTier = null;
 
     const shoreLeaveConfig = getNormalizedShoreLeaveConfig();
-    const flavorDisabled = game.settings.get("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor");
+    const flavorDisabled = game.settings.get(MODULE_ID, SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR);
     this.randomFlavor = flavorDisabled ? false : (randomFlavor ?? shoreLeaveConfig.simpleShoreLeave.randomFlavor);
-    this.themeColor = getThemeColor();
     this.tiers = this._loadTiers();
     this.tierById = new Map(this.tiers.map(tier => [tier.tier, tier]));
   }
 
   _loadTiers() {
-    const config = game.settings.get("mosh-greybearded-qol", "shoreLeaveTiers");
+    const config = getNormalizedShoreLeaveConfig().tiers;
     return Object.values(config).map(tier => {
       const base = {
         tier: tier.tier,
@@ -92,14 +85,8 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     return this.tierById.get(tierKey);
   }
 
-  _getElementRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
-  }
-
   _updateSelectionUi() {
-    const root = this._getElementRoot();
+    const root = getAppRoot(this.element);
     if (!root) return;
 
     root.querySelectorAll(".card").forEach(card => {
@@ -119,14 +106,13 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       tiers: this.tiers.map(tier => ({
         ...tier,
         selected: tier.tier === this._selectedTier
       })),
-      themeColor: this.themeColor,
       confirmLocked: !this._selectedTier
-    };
+    });
   }
 
   static _onSelectTier(event, target) {
@@ -145,15 +131,30 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const roll = new Roll(entry.priceFormula);
     await roll.evaluate();
+    const rolledPrice = parseCurrencyValue(roll.total);
+    const formattedPrice = formatCurrency(rolledPrice);
 
     await chatOutput({
       actor: this.actor,
       title: entry.label,
       subtitle: entry.flavor?.label || game.i18n.localize("MoshQoL.Common.ShoreLeave"),
-      content: entry.flavor?.description || "",
+      blocks: [
+        ...(entry.flavor?.description ? [{ type: "text", text: entry.flavor.description }] : []),
+        {
+          type: "counter",
+          label: game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice"),
+          value: formattedPrice
+        }
+      ],
       icon: entry.flavor?.icon || entry.icon,
       roll,
       buttons: [
+        {
+          label: game.i18n.localize("MoshQoL.ShoreLeave.PayUp"),
+          icon: "fa-coins",
+          action: "payShoreLeave",
+          args: [rolledPrice]
+        },
         {
           label: game.i18n.localize("MoshQoL.ShoreLeave.ParticipateNow"),
           icon: "fa-dice",
@@ -198,17 +199,13 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!entry) return ui.notifications.error(game.i18n.localize("MoshQoL.ShoreLeave.InvalidTier"));
 
     const result = await convertStress(this.actor, entry.stressFormula);
-    this._resolveOnce(result);
+    resolveAppOnce(this, result);
+    scheduleAutoTrainingAfterShoreLeave(this.actor);
   }
 
   async close(options = {}) {
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }

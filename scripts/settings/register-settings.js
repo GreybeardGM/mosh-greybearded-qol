@@ -1,182 +1,204 @@
-import {
-  SHORE_LEAVE_CONFIG_SETTING,
-  ShoreLeaveConfigApp,
-  getDefaultShoreLeaveConfig
-} from "./shore-leave-config.js";
+import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shore-leave-config.js";
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
+import { ApplyDamageConfigApp } from "./apply-damage-config.js";
+import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
+import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
+import { getFeatureIcon } from "../codex/feature-actions.js";
+import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
+import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
+import { refreshOpenToolbands } from "../toolband.js";
 import {
-  APPLY_DAMAGE_CONFIG_SETTING,
-  ApplyDamageConfigApp,
-  getDefaultApplyDamageConfig
-} from "./apply-damage-config.js";
+  DEFAULT_TARGET_LOGIC,
+  TARGET_LOGIC_CHOICE_KEYS,
+  VALID_TARGET_LOGICS
+} from "../apply-damage/target-logic.js";
 import {
-  LEGACY_SHIP_CRITS_SETTING,
-  SHIP_CRITS_MIGRATION_SETTING
-} from "../migration/toolband.js";
-import { SHORE_LEAVE_CONFIG_MIGRATION_SETTING } from "../migration/shore-leave.js";
-import { SHORE_LEAVE_TIERS } from "../codex/default-shore-leave-tiers.js";
+  DEFAULT_THEME_COLOR,
+  MODULE_ID,
+  SETTING_APPLY_DAMAGE_CONFIG,
+  SETTING_APPLY_DAMAGE_TARGET_LOGIC,
+  SETTING_ENABLE_CHARACTER_CREATOR,
+  SETTING_SHORE_LEAVE_CONFIG,
+  SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
+  SETTING_THEME_COLOR,
+  SETTING_THEME_COLOR_OVERRIDE,
+  SETTING_TOOLBAND_CONFIG,
+  SETTING_TRAINING_CONFIG
+} from "../codex/constants.js";
+
+function getApplyDamageTargetLogicChoices() {
+  return Object.fromEntries(
+    VALID_TARGET_LOGICS.map((targetLogic) => [
+      targetLogic,
+      TARGET_LOGIC_CHOICE_KEYS[targetLogic]
+    ])
+  );
+}
+
+const WORLD_SETTING_DEFINITIONS = [
+  {
+    key: SETTING_THEME_COLOR,
+    options: {
+      name: "MoshQoL.Settings.ThemeColor.Name",
+      hint: "MoshQoL.Settings.ThemeColor.Hint",
+      type: String,
+      default: DEFAULT_THEME_COLOR
+    }
+  },
+  {
+    key: SETTING_ENABLE_CHARACTER_CREATOR,
+    options: {
+      name: "MoshQoL.Settings.EnableCharacterCreator.Name",
+      hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
+      type: Boolean,
+      default: true
+    }
+  }
+];
+
+const CLIENT_SETTING_DEFINITIONS = [
+  {
+    key: SETTING_THEME_COLOR_OVERRIDE,
+    options: {
+      name: "MoshQoL.Settings.ThemeColorOverride.Name",
+      hint: "MoshQoL.Settings.ThemeColorOverride.Hint",
+      type: String,
+      default: ""
+    }
+  },
+  {
+    key: SETTING_APPLY_DAMAGE_TARGET_LOGIC,
+    options: {
+      name: "MoshQoL.Settings.ApplyDamageTargetLogic.Name",
+      hint: "MoshQoL.Settings.ApplyDamageTargetLogic.Hint",
+      type: String,
+      choices: getApplyDamageTargetLogicChoices(),
+      default: DEFAULT_TARGET_LOGIC
+    }
+  },
+  {
+    key: SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
+    options: {
+      name: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Name",
+      hint: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Hint",
+      default: false,
+      type: Boolean
+    }
+  }
+];
+
+
+const MENU_DEFINITIONS = [
+  {
+    key: "shoreLeaveEditor",
+    options: {
+      name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+      label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
+      hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
+      icon: getFeatureIcon("shoreLeaveEditor", "fas fa-edit"),
+      type: ShoreLeaveConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_SHORE_LEAVE_CONFIG,
+      options: {
+        name: "MoshQoL.Common.ShoreLeaveConfiguration",
+        type: Object,
+        default: getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
+      }
+    }
+  },
+  {
+    key: "toolbandConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.ToolbandConfig.Name",
+      label: "MoshQoL.Settings.ToolbandConfig.Label",
+      hint: "MoshQoL.Settings.ToolbandConfig.Hint",
+      icon: getFeatureIcon("toolbandConfigMenu", "fas fa-toolbox"),
+      type: ToolbandConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_TOOLBAND_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.ToolbandConfig.SettingName",
+        type: Object,
+        default: getDefaultToolbandConfig(),
+        onChange: refreshOpenToolbands
+      }
+    }
+  },
+  {
+    key: "applyDamageConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.ApplyDamageConfig.Name",
+      label: "MoshQoL.Settings.ApplyDamageConfig.Label",
+      hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
+      icon: getFeatureIcon("applyDamageConfigMenu", "fas fa-heart-broken"),
+      type: ApplyDamageConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_APPLY_DAMAGE_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
+        type: Object,
+        default: getDefaultApplyDamageConfig()
+      }
+    }
+  },
+  {
+    key: "trainingConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.TrainingConfig.Name",
+      label: "MoshQoL.Settings.TrainingConfig.Label",
+      hint: "MoshQoL.Settings.TrainingConfig.Hint",
+      icon: getFeatureIcon("trainingConfigMenu", "fa-solid fa-dumbbell"),
+      type: TrainingConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_TRAINING_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.TrainingConfig.SettingName",
+        type: Object,
+        default: getDefaultTrainingConfig()
+      }
+    }
+  }
+];
 
 export function registerSettings() {
-  game.settings.register("mosh-greybearded-qol", "themeColor", {
-    name: "MoshQoL.Settings.ThemeColor.Name",
-    hint: "MoshQoL.Settings.ThemeColor.Hint",
-    scope: "world",
-    config: true,
-    type: String,
-    default: "#f50"
-  });
+  for (const menuDefinition of MENU_DEFINITIONS) {
+    game.settings.register(MODULE_ID, menuDefinition.setting.key, {
+      scope: "world",
+      config: false,
+      ...menuDefinition.setting.options
+    });
+    game.settings.registerMenu(MODULE_ID, menuDefinition.key, menuDefinition.options);
+  }
 
-  game.settings.register("mosh-greybearded-qol", "themeColorOverride", {
-    name: "MoshQoL.Settings.ThemeColorOverride.Name",
-    hint: "MoshQoL.Settings.ThemeColorOverride.Hint",
-    scope: "client",
-    config: true,
-    type: String,
-    default: ""
-  });
+  for (const settingDefinition of WORLD_SETTING_DEFINITIONS) {
+    game.settings.register(MODULE_ID, settingDefinition.key, {
+      scope: "world",
+      ...settingDefinition.options,
+      config: true
+    });
+  }
 
-  game.settings.register("mosh-greybearded-qol", "convertStress.noSanitySave", {
-    name: "MoshQoL.Settings.ConvertStress.NoSanitySave.Name",
-    hint: "MoshQoL.Settings.ConvertStress.NoSanitySave.Hint",
-    scope: "world",
-    config: false,
-    default: false,
-    type: Boolean
-  });
+  for (const settingDefinition of CLIENT_SETTING_DEFINITIONS) {
+    game.settings.register(MODULE_ID, settingDefinition.key, {
+      scope: "client",
+      ...settingDefinition.options,
+      config: true
+    });
+  }
 
-  game.settings.register("mosh-greybearded-qol", "convertStress.noStressRelieve", {
-    name: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Name",
-    hint: "MoshQoL.Settings.ConvertStress.NoStressRelieve.Hint",
-    scope: "world",
-    config: false,
-    default: false,
-    type: Boolean
-  });
-
-  game.settings.register("mosh-greybearded-qol", "convertStress.minStressConversion", {
-    name: "MoshQoL.Settings.ConvertStress.MinStressConversion.Name",
-    hint: "MoshQoL.Settings.ConvertStress.MinStressConversion.Hint",
-    scope: "world",
-    config: false,
-    default: false,
-    type: Boolean
-  });
-
-  game.settings.register("mosh-greybearded-qol", "convertStress.formula", {
-    name: "MoshQoL.Settings.ConvertStress.Formula.Name",
-    hint: "MoshQoL.Settings.ConvertStress.Formula.Hint",
-    scope: "world",
-    config: false,
-    default: "1d5",
-    type: String
-  });
-
-  game.settings.register("mosh-greybearded-qol", "simpleShoreLeave.randomFlavor", {
-    name: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Name",
-    hint: "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Hint",
-    scope: "world",
-    config: false,
-    default: true,
-    type: Boolean
-  });
-
-  game.settings.register("mosh-greybearded-qol", "simpleShoreLeave.disableFlavor", {
-    name: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Name",
-    hint: "MoshQoL.Settings.SimpleShoreLeave.DisableFlavor.Hint",
-    scope: "client",
-    config: true,
-    default: false,
-    type: Boolean
-  });
-
-  game.settings.register("mosh-greybearded-qol", SHORE_LEAVE_CONFIG_SETTING, {
-    name: "MoshQoL.Common.ShoreLeaveConfiguration",
-    scope: "world",
-    config: false,
-    type: Object,
-    default: getDefaultShoreLeaveConfig()
-  });
-
-  game.settings.register("mosh-greybearded-qol", "shoreLeaveTiers", {
-    name: "MoshQoL.Settings.ShoreLeaveTiers.Name",
-    scope: "world",
-    config: false,
-    type: Object,
-    default: SHORE_LEAVE_TIERS
-  });
-
-  game.settings.registerMenu("mosh-greybearded-qol", "shoreLeaveEditor", {
-    name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-    label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
-    hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
-    icon: "fas fa-edit",
-    type: ShoreLeaveConfigApp,
-    restricted: true
-  });
-
-  game.settings.register("mosh-greybearded-qol", "toolbandConfig", {
-    name: "MoshQoL.Settings.ToolbandConfig.SettingName",
-    scope: "world",
-    config: false,
-    type: Object,
-    default: getDefaultToolbandConfig()
-  });
-
-  game.settings.registerMenu("mosh-greybearded-qol", "toolbandConfigMenu", {
-    name: "MoshQoL.Settings.ToolbandConfig.Name",
-    label: "MoshQoL.Settings.ToolbandConfig.Label",
-    hint: "MoshQoL.Settings.ToolbandConfig.Hint",
-    icon: "fas fa-toolbox",
-    type: ToolbandConfigApp,
-    restricted: true
-  });
-
-  game.settings.register("mosh-greybearded-qol", APPLY_DAMAGE_CONFIG_SETTING, {
-    name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
-    scope: "world",
-    config: false,
-    type: Object,
-    default: getDefaultApplyDamageConfig()
-  });
-
-  game.settings.registerMenu("mosh-greybearded-qol", "applyDamageConfigMenu", {
-    name: "MoshQoL.Settings.ApplyDamageConfig.Name",
-    label: "MoshQoL.Settings.ApplyDamageConfig.Label",
-    hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
-    icon: "fas fa-heart-broken",
-    type: ApplyDamageConfigApp,
-    restricted: true
-  });
-
-  game.settings.register("mosh-greybearded-qol", "enableCharacterCreator", {
-    name: "MoshQoL.Settings.EnableCharacterCreator.Name",
-    hint: "MoshQoL.Settings.EnableCharacterCreator.Hint",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true
-  });
-
-  game.settings.register("mosh-greybearded-qol", LEGACY_SHIP_CRITS_SETTING, {
-    name: "MoshQoL.Settings.EnableShipCrits.Name",
-    hint: "MoshQoL.Settings.EnableShipCrits.Hint",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false
-  });
-
-  game.settings.register("mosh-greybearded-qol", SHIP_CRITS_MIGRATION_SETTING, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false
-  });
-
-  game.settings.register("mosh-greybearded-qol", SHORE_LEAVE_CONFIG_MIGRATION_SETTING, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false
-  });
+  for (const settingDefinition of MIGRATION_SETTING_DEFINITIONS) {
+    game.settings.register(MODULE_ID, settingDefinition.key, {
+      scope: "world",
+      config: false,
+      ...settingDefinition.options
+    });
+  }
 }

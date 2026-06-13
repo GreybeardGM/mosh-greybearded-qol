@@ -1,4 +1,6 @@
-export const WOUND_TYPES = [
+import { normalizeText } from "../utils/normalization.js";
+
+const WOUND_TYPES = [
   {
     id: "bluntforce",
     settingKey: "BluntForce",
@@ -60,8 +62,6 @@ export function getWoundTypeByTableSettingKey(tableSettingKey) {
 }
 
 function normalizeWoundTypeText(value) {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
+  return normalizeText(value)
     .replace(/[^a-z0-9]+/g, "");
 }

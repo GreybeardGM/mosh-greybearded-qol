@@ -1,38 +1,27 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
+import { templatePath } from "../codex/constants.js";
 import { normalizeNumber } from "../utils/normalization.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class AttributeSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-creator-select-attributes",
-    tag: "form",
-    window: {
-      title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
-      contentClasses: ["greybeardqol", "attribute-selection"],
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.CharacterCreator.SelectAttributes.Title",
+    windowClasses: "attribute-selection",
+    form: { handler: this._onSubmit },
     actions: {
       selectAttribute: this._onSelectAttribute
     }
-  };
+  });
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-attributes.html"
+      template: templatePath("character-creator/select-attributes.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 
@@ -59,7 +48,6 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
       stats: choice.stats
     }));
 
-    this.themeColor = getThemeColor();
     this._selectedBySet = new Map();
   }
 
@@ -90,11 +78,10 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
   }
 
   async _prepareContext() {
-    return {
+    return appendQolThemeContext({
       attributeSets: this.attributeSets,
-      themeColor: this.themeColor,
       confirmLocked: true
-    };
+    });
   }
 
   _onRender(context, options) {

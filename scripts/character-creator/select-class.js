@@ -1,66 +1,35 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
+import { templatePath } from "../codex/constants.js";
+import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { capitalize, normalizeNumber } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillId, toSkillPointBundle } from "./utils.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "./app-helpers.js";
+import { stripHtml, toSkillSelectionPointBundle } from "./utils.js";
+import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { resolveSkillReferences } from "./skill-reference-utils.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-
-function resolveSkillsFromReferences(references, { skillByUuid, skillMap }) {
-  const unique = new Map();
-
-  for (const ref of references) {
-    const rawRef = typeof ref === "string" ? ref : ref?.uuid || ref?.id;
-    if (!rawRef) continue;
-
-    const skill = skillByUuid.get(rawRef) || skillMap.get(toSkillId(rawRef));
-    if (!skill) continue;
-
-    unique.set(skill.id, {
-      id: skill.id,
-      uuid: skill.uuid,
-      name: skill.name,
-      img: skill.img || "icons/svg/d20-grey.svg"
-    });
-  }
-
-  return [...unique.values()];
-}
-
 export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "character-creator-select-class",
-    tag: "form",
-    window: {
-      title: "MoshQoL.CharacterCreator.SelectClass.Title",
-      contentClasses: ["greybeardqol", "qol-class-selection"],
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.CharacterCreator.SelectClass.Title",
+    windowClasses: "qol-class-selection",
+    form: { handler: this._onSubmit },
     actions: {
       selectClass: this._onSelectClass,
       toggleSkillView: this._onToggleSkillView
     }
-  };
+  });
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-class.html"
+      template: templatePath("character-creator/select-class.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     },
     viewToggle: {
-      template: "modules/mosh-greybearded-qol/templates/character-creator/select-class-view-toggle.html"
+      template: templatePath("character-creator/select-class-view-toggle.html")
     }
   };
 
@@ -139,22 +108,22 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const defaultSkills = {
         id: `${cls.id}-default`,
         name: game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.DefaultSkills"),
-        ...toSkillPointBundle(baseAnd),
-        skills: resolveSkillsFromReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
+        ...toSkillSelectionPointBundle(baseAnd),
+        skills: resolveSkillReferences(cls.system.base_adjustment?.skills_granted ?? [], { skillByUuid, skillMap })
       };
 
       const orOptions = (selected.choose_skill_or || []).flat().map((option, index) => ({
         id: `${cls.id}-or-${index}`,
         name: option.name || game.i18n.format("MoshQoL.CharacterCreator.SelectClass.OrOption", { index: index + 1 }),
-        ...toSkillPointBundle(option),
-        skills: resolveSkillsFromReferences(option.from_list || [], { skillByUuid, skillMap })
+        ...toSkillSelectionPointBundle(option),
+        skills: resolveSkillReferences(option.from_list || [], { skillByUuid, skillMap })
       }));
 
       return {
         id: cls.id,
         uuid: cls.uuid,
         name: cls.name,
-        img: cls.img || "icons/svg/mystery-man.svg",
+        img: cls.img || MOSH_FALLBACK_ACTOR_IMAGE,
         trauma,
         description,
         attributes: attr.join("<br>") || game.i18n.localize("MoshQoL.CharacterCreator.SelectClass.NoAttributes"),
@@ -182,7 +151,6 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     this.classes = classes;
     this.gridColumns = gridColumns;
-    this.themeColor = getThemeColor();
     this._selectedClassId = null;
     this._showSkillView = false;
   }
@@ -209,13 +177,12 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext() {
-    return {
-      themeColor: this.themeColor,
+    return appendQolThemeContext({
       gridColumns: this.gridColumns,
       classes: this.classes,
       showSkillView: this._showSkillView,
       confirmLocked: !this._selectedClassId
-    };
+    });
   }
 
   _onRender(context, options) {

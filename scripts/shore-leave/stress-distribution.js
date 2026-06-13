@@ -1,37 +1,27 @@
-import { getThemeColor } from "../utils/get-theme-color.js";
+import { templatePath } from "../codex/constants.js";
 import { capitalize } from "../utils/normalization.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class StressDistributionApp extends HandlebarsApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: "stress-distribution",
-    tag: "form",
-    window: {
-      title: "MoshQoL.ShoreLeave.DistributeStressConversion",
-      contentClasses: ["greybeardqol", "stress-conversion-form"],
-      resizable: false
-    },
-    position: {
-      width: "auto",
-      height: "auto"
-    },
-    form: {
-      handler: this._onSubmit,
-      submitOnChange: false,
-      closeOnSubmit: true
-    },
+    title: "MoshQoL.ShoreLeave.DistributeStressConversion",
+    windowClasses: "stress-conversion-form",
+    form: { handler: this._onSubmit },
     actions: {
       incrementAttr: this._onIncrementAttr
     }
-  };
+  });
 
   static PARTS = {
     form: {
-      template: "modules/mosh-greybearded-qol/templates/dialogs/stress-conversion.html"
+      template: templatePath("dialogs/stress-conversion.html")
     },
     confirm: {
-      template: "modules/mosh-greybearded-qol/templates/ui/confirm-button.html"
+      template: templatePath("ui/confirm-button.html")
     }
   };
 
@@ -57,17 +47,10 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
       body: actor.system.stats.body.value ?? 0
     };
     this.values = structuredClone(this.base);
-    this.themeColor = getThemeColor();
   }
 
   get _assignedPoints() {
     return (this.values.sanity + this.values.fear + this.values.body) - (this.base.sanity + this.base.fear + this.base.body);
-  }
-
-  _getElementRoot() {
-    if (this.element instanceof HTMLElement) return this.element;
-    if (this.element?.[0] instanceof HTMLElement) return this.element[0];
-    return null;
   }
 
   _cacheDomReferences(root) {
@@ -101,17 +84,16 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
       };
     });
 
-    return {
+    return appendQolThemeContext({
       attrs,
-      themeColor: this.themeColor,
       remaining: this.points - this._assignedPoints,
       confirmLocked: this._assignedPoints !== this.points
-    };
+    });
   }
 
   _onRender(context, options) {
     super._onRender(context, options);
-    const root = this._getElementRoot();
+    const root = getAppRoot(this.element);
     if (!root) return;
 
     this._cacheDomReferences(root);
@@ -143,7 +125,14 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
 
       const counter = dom.counters[attr];
       if (counter) {
-        counter.innerHTML = diff > 0 ? `${value} <span class="bonus">[+${diff}]</span>` : `${value}`;
+        counter.textContent = String(value);
+        if (diff > 0) {
+          counter.append(" ");
+          const bonus = document.createElement("span");
+          bonus.classList.add("bonus");
+          bonus.textContent = `[+${diff}]`;
+          counter.append(bonus);
+        }
       }
 
       const hiddenInput = dom.inputs[attr];
@@ -171,7 +160,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
   static async _onSubmit(event, form, formData) {
     if (this._assignedPoints !== this.points) return;
 
-    this._resolveOnce({
+    resolveAppOnce(this, {
       sanity: this.values.sanity,
       fear: this.values.fear,
       body: this.values.body
@@ -179,20 +168,15 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
   }
 
   async close(options = {}) {
-    const root = this._getElementRoot();
+    const root = getAppRoot(this.element);
     if (root && this._boundContextMenu) {
       root.removeEventListener("contextmenu", this._boundContextMenu);
     }
     this._boundContextMenu = null;
     this._dom = null;
 
-    this._resolveOnce(null);
+    resolveAppOnce(this, null);
     return super.close(options);
   }
 
-  _resolveOnce(value) {
-    if (this._resolved) return;
-    this._resolved = true;
-    this._resolve?.(value);
-  }
 }

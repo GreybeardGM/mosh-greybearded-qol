@@ -1,31 +1,47 @@
 // scripts/utils/item-loader.js
 // Foundry VTT v13 — Item-Aggregation (Homebrew-first) + Sortierung
 
+import { compareSkillNames } from "./skill-sort.js";
+import {
+  MOSH_HOT_CACHE_ITEM_TYPES,
+  MOSH_INDEX_ONLY_ITEM_TYPES,
+  MOSH_ITEM_TYPE_SKILL,
+  MOSH_PSG_MODULE_ID
+} from "../codex/mosh-system.js";
 import { normalizeText } from "./normalization.js";
 
-const SPECIFIC_MODULE_ID = "fvtt_mosh_1e_psg";
+const PACK_INDEX_FIELDS = [
+  "name",
+  "type",
+  "img",
+  "system.rank",
+  "system.prerequisite_ids",
+  "system.description",
+  "system.trauma_response",
+  "system.base_adjustment",
+  "system.selected_adjustment",
+  "uuid"
+];
+const PACK_LOAD_CONCURRENCY = 4;
+const indexOnlyItemTypes = new Set(MOSH_INDEX_ONLY_ITEM_TYPES);
 
 /* ---------- Helpers ---------- */
 const normType = normalizeText;
 const normName = normalizeText;
 const keyOf = (type, name) => `${normType(type)}::${normName(name)}`;
 
-/* Skill-Sortierung */
-function getSkillSortOrder() {
-  return [
-    "Linguistics", "Zoology", "Botany", "Geology", "Industrial Equipment", "Jury-Rigging",
-    "Chemistry", "Computers", "Zero-G", "Mathematics", "Art", "Archaeology", "Theology",
-    "Military Training", "Rimwise", "Athletics", "Psychology", "Pathology", "Field Medicine",
-    "Ecology", "Asteroid Mining", "Mechanical Repair", "Explosives", "Pharmacology", "Hacking",
-    "Piloting", "Physics", "Mysticism", "Wilderness Survival", "Firearms", "Hand-to-Hand Combat",
-    "Sophontology", "Exobiology", "Surgery", "Planetology", "Robotics", "Engineering", "Cybernetics",
-    "Artificial Intelligence", "Hyperspace", "Xenoesotericism", "Command"
-  ];
+function getOrCreateResolutionGroup(map, type, name) {
+  const key = keyOf(type, name);
+  let group = map.get(key);
+  if (!group) {
+    group = { world: null, normal: null, psg: null };
+    map.set(key, group);
+  }
+  return group;
 }
-const SKILL_RANK = new Map(getSkillSortOrder().map((n, i) => [normName(n), i]));
 
 /* ---------- Cache (defensiv begrenzt) ---------- */
-const HOT_CACHE_TYPES = new Set(["skill", "class"]);
+const hotCacheItemTypes = new Set(MOSH_HOT_CACHE_ITEM_TYPES);
 const MAX_CACHED_TYPES = 4;
 const MAX_ITEMS_PER_CACHED_TYPE = 250;
 
@@ -34,7 +50,7 @@ const itemsByTypeCache = new Map(); // normType -> sorted winners
 const cacheTypeLru = []; // keys in access order (oldest -> newest)
 let cacheInvalidationHooksRegistered = false;
 
-export function clearItemLoaderCache() {
+function clearItemLoaderCache() {
   packIndexCache.clear();
   itemsByTypeCache.clear();
   cacheTypeLru.length = 0;
@@ -65,7 +81,7 @@ function touchTypeLru(typeKey) {
 }
 
 function shouldCacheType(typeKey, items) {
-  if (!HOT_CACHE_TYPES.has(typeKey)) return false;
+  if (!hotCacheItemTypes.has(typeKey)) return false;
   return items.length <= MAX_ITEMS_PER_CACHED_TYPE;
 }
 
@@ -87,7 +103,7 @@ function partitionItemPacks() {
   const normalPacks = [];
   const psgPacks = [];
   for (const p of packs) {
-    const isPSG = String(p.collection || "").startsWith(`${SPECIFIC_MODULE_ID}.`);
+    const isPSG = String(p.collection || "").startsWith(`${MOSH_PSG_MODULE_ID}.`);
     (isPSG ? psgPacks : normalPacks).push(p);
   }
   return { normalPacks, psgPacks };
@@ -100,31 +116,57 @@ function collectWorldByTypeToMap(itemType, map) {
     if (!it || normType(it.type) !== t) continue;
     const nm = it.name ?? "";
     if (!nm) continue;
-    const k = keyOf(it.type, nm);
-    let g = map.get(k);
-    if (!g) {
-      g = { world: null, normal: null, psg: null };
-      map.set(k, g);
-    }
-    if (!g.world) g.world = it;
+    const group = getOrCreateResolutionGroup(map, it.type, nm);
+    if (!group.world) group.world = it;
   }
 }
 
 async function getPackIndexCached(pack) {
   const key = String(pack?.collection ?? "");
-  if (!key) return pack.getIndex({ fields: ["name"] });
+  if (!key) return pack.getIndex({ fields: PACK_INDEX_FIELDS });
   if (packIndexCache.has(key)) return packIndexCache.get(key);
-  const index = await pack.getIndex({ fields: ["name"] });
+  const index = await pack.getIndex({ fields: PACK_INDEX_FIELDS });
   packIndexCache.set(key, index);
   return index;
+}
+
+function shouldUsePackIndexOnly(itemType) {
+  return indexOnlyItemTypes.has(normType(itemType));
+}
+
+function packIndexEntryToItem(entry, pack) {
+  const id = entry?._id ?? entry?.id;
+  return {
+    ...entry,
+    id,
+    _id: id,
+    uuid: entry?.uuid ?? (id && pack?.collection ? `Compendium.${pack.collection}.${id}` : undefined),
+    img: entry?.img
+  };
+}
+
+async function mapLimited(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  const workerCount = Math.min(Math.max(1, limit), items.length);
+
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (next < items.length) {
+      const index = next++;
+      out[index] = await fn(items[index], index);
+    }
+  }));
+
+  return out;
 }
 
 async function getPackDocumentsBulk(pack, ids) {
   const out = [];
   const CHUNK_SIZE = 200;
+  const filteredIds = [...new Set(ids.filter(Boolean))];
 
-  for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
-    const chunk = ids.slice(i, i + CHUNK_SIZE);
+  for (let i = 0; i < filteredIds.length; i += CHUNK_SIZE) {
+    const chunk = filteredIds.slice(i, i + CHUNK_SIZE);
     if (!chunk.length) continue;
 
     let docs = [];
@@ -136,43 +178,57 @@ async function getPackDocumentsBulk(pack, ids) {
       docs = await Promise.all(chunk.map(id => pack.getDocument(id)));
     }
 
-    if (Array.isArray(docs) && docs.length) out.push(...docs);
+    if (Array.isArray(docs) && docs.length) out.push(...docs.filter(Boolean));
   }
 
   return out;
 }
 
+async function getPackDocumentsByType(pack, itemType) {
+  const t = normType(itemType);
+
+  if (shouldUsePackIndexOnly(itemType)) {
+    const index = await getPackIndexCached(pack);
+    return index
+      .filter(e => e?.name && e.name.trim().length && normType(e.type) === t)
+      .map(e => packIndexEntryToItem(e, pack));
+  }
+
+  try {
+    // Primär: echter Bulk-Abruf (ohne vorgelagerten Index-Fetch).
+    return await pack.getDocuments({ type: itemType });
+  } catch (_e) {
+    // Fallback: über schlanken Index nur passende IDs holen, dann gebündelt laden.
+    const index = await getPackIndexCached(pack);
+    const ids = index
+      .filter(e => e?.name && e.name.trim().length && normType(e.type) === t)
+      .map(e => e._id);
+    if (!ids.length) return [];
+    return getPackDocumentsBulk(pack, ids);
+  }
+}
+
+function collectDocumentsToMap(docs, slot, itemType, map) {
+  const t = normType(itemType);
+  for (const d of docs) {
+    if (!d || normType(d.type) !== t) continue;
+    const nm = d.name ?? "";
+    if (!nm) continue;
+    const group = getOrCreateResolutionGroup(map, d.type, nm);
+    if (!group[slot]) group[slot] = d;
+  }
+}
+
 /* Packs sammeln (Index tolerant, Typ final am Dokument prüfen) */
 async function collectPackByTypeToMap(packs, slot, itemType, map) {
-  const t = normType(itemType);
-  for (const pack of packs) {
-    let docs = [];
-    try {
-      // Primär: echter Bulk-Abruf (ohne vorgelagerten Index-Fetch).
-      docs = await pack.getDocuments({ type: itemType });
-    } catch (_e) {
-      // Fallback: über schlanken Index nur IDs mit Namen holen, dann gebündelt laden.
-      const index = await getPackIndexCached(pack);
-      const ids = index
-        .filter(e => e?.name && e.name.trim().length)
-        .map(e => e._id);
-      if (!ids.length) continue;
-      docs = await getPackDocumentsBulk(pack, ids);
-    }
+  const packDocs = await mapLimited(
+    packs,
+    PACK_LOAD_CONCURRENCY,
+    pack => getPackDocumentsByType(pack, itemType)
+  );
 
-    for (const d of docs) {
-      if (!d || normType(d.type) !== t) continue;
-      const nm = d.name ?? "";
-      if (!nm) continue;
-      const k = keyOf(d.type, nm);
-      let g = map.get(k);
-      if (!g) {
-        g = { world: null, normal: null, psg: null };
-        map.set(k, g);
-      }
-      if (!g[slot]) g[slot] = d;
-    }
-  }
+  // Merge bleibt in Pack-Reihenfolge, damit vorhandene Priorität innerhalb eines Slots stabil bleibt.
+  for (const docs of packDocs) collectDocumentsToMap(docs, slot, itemType, map);
 }
 
 /* Gewinner extrahieren */
@@ -188,14 +244,7 @@ function winnersFromMap(map) {
 /* Sortierung */
 function sortItems(itemType, items) {
   const t = normType(itemType);
-  if (t === "skill") {
-    return items.sort((a, b) => {
-      const ra = SKILL_RANK.get(normName(a.name)) ?? Number.MAX_SAFE_INTEGER;
-      const rb = SKILL_RANK.get(normName(b.name)) ?? Number.MAX_SAFE_INTEGER;
-      if (ra !== rb) return ra - rb;
-      return String(a.name).localeCompare(String(b.name));
-    });
-  }
+  if (t === MOSH_ITEM_TYPE_SKILL) return items.sort((a, b) => compareSkillNames(a.name, b.name));
   return items.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }
 
@@ -203,8 +252,10 @@ async function buildResolvedItemsByType(itemType) {
   const map = new Map();
   collectWorldByTypeToMap(itemType, map);
   const { normalPacks, psgPacks } = partitionItemPacks();
-  await collectPackByTypeToMap(normalPacks, "normal", itemType, map);
-  await collectPackByTypeToMap(psgPacks, "psg", itemType, map);
+  await Promise.all([
+    collectPackByTypeToMap(normalPacks, "normal", itemType, map),
+    collectPackByTypeToMap(psgPacks, "psg", itemType, map)
+  ]);
 
   const winners = winnersFromMap(map);
   return sortItems(itemType, winners);

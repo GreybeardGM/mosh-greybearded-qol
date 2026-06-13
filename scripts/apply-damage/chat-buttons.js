@@ -1,10 +1,13 @@
+import { qolWindowClasses } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import {
   extractDamageRollFromMessageContent,
-  extractWoundEffectFromMessageContent
+  extractWoundEffectFromMessageContent,
+  isDamageRoll
 } from "./extract-damage-roll.js";
 import { canShowApplyDamageUI } from "./policy.js";
+import { getFeatureIcon } from "../codex/feature-actions.js";
 
 function getApplyDamageChatButtonRoll(message) {
   const woundEffect = extractWoundEffectFromMessageContent(message);
@@ -29,16 +32,9 @@ function getApplyDamageChatButtonRoll(message) {
   return null;
 }
 
-function isDamageRoll(roll) {
-  if (typeof roll?.formula === "string" && roll.formula.includes("[damage]")) return true;
-
-  return Array.isArray(roll?.terms)
-    && roll.terms.some((term) => term?.options?.flavor === "damage");
-}
-
 function createApplyDamageChatButtons(damageRoll) {
   const panel = document.createElement("div");
-  panel.classList.add("greybeardqol", "apply-damage-chat-buttons");
+  panel.classList.add(...qolWindowClasses("apply-damage-chat-buttons"));
   panel.style.setProperty("--theme-color", getThemeColor());
 
   const buttonRow = document.createElement("div");
@@ -47,7 +43,7 @@ function createApplyDamageChatButtons(damageRoll) {
   const applyRegularButton = createApplyDamageButton({
     damage: damageRoll.total,
     antiArmor: false,
-    icon: "fas fa-heart-broken",
+    icon: getFeatureIcon("apply-damage", "fas fa-heart-broken"),
     label: game.i18n.localize("MoshQoL.Damage.ApplyDamageShort"),
     title: game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total }),
     flex: 2,
@@ -58,7 +54,7 @@ function createApplyDamageChatButtons(damageRoll) {
   const applyAntiArmorButton = createApplyDamageButton({
     damage: damageRoll.total,
     antiArmor: true,
-    icon: "fas fa-shield-halved",
+    icon: getFeatureIcon("armor-broken", "fas fa-shield-halved"),
     label: game.i18n.localize("MoshQoL.Damage.ApplyAntiArmorShort"),
     title: `${game.i18n.format("MoshQoL.Damage.ApplyRolledDamage", { damage: damageRoll.total })} (${game.i18n.localize("MoshQoL.Damage.AntiArmor")})`,
     flex: 1,

@@ -1,3 +1,4 @@
+import { CHAT_ACTION_SELECTOR } from "./codex/constants.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
 
@@ -20,7 +21,29 @@ function getRequiredChatActionActor() {
   return actor;
 }
 
+async function payShoreLeave(actor, amount) {
+  const creditsPath = "system.credits.value";
+  const currentCredits = Number(foundry.utils.getProperty(actor, creditsPath) ?? 0);
+  const price = Number(amount ?? 0);
+
+  if (!Number.isFinite(price) || price <= 0) return;
+
+  if (currentCredits < price) {
+    ui.notifications.warn(game.i18n.format("MoshQoL.ShoreLeave.CannotAfford", { actorName: actor.name }));
+    return;
+  }
+
+  await actor.update({
+    [creditsPath]: currentCredits - price
+  });
+}
+
+let chatActionsRegistered = false;
+
 export function registerChatActions() {
+  if (chatActionsRegistered) return;
+  chatActionsRegistered = true;
+
   Hooks.on("renderChatMessageHTML", (message, html) => {
     insertApplyDamageChatButtons(message, html);
 
@@ -29,7 +52,7 @@ export function registerChatActions() {
 
     html.addEventListener("click", async (event) => {
       const target = event.target instanceof Element ? event.target : null;
-      const button = target?.closest(".greybeardqol .chat-action");
+      const button = target?.closest(CHAT_ACTION_SELECTOR);
       if (!button || !html.contains(button)) return;
 
       event.preventDefault();
@@ -54,6 +77,12 @@ export function registerChatActions() {
           const actor = getRequiredChatActionActor();
           if (!actor) return;
           await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
+          break;
+        }
+        case "payShoreLeave": {
+          const actor = getRequiredChatActionActor();
+          if (!actor) return;
+          await payShoreLeave(actor, args[0]);
           break;
         }
         case "triggerShipCrit":

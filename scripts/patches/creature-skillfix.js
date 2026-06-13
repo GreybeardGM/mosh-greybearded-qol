@@ -1,3 +1,5 @@
+import { templatePath } from "../codex/constants.js";
+
 Hooks.once("init", () => {
   const ActorCls = CONFIG.Actor?.documentClass;
   if (!ActorCls?.prototype?.chooseAttribute) return;
@@ -30,7 +32,7 @@ Hooks.once("init", () => {
     const fallbackAttribute = activeAttributes[0]?.key ?? "combat";
 
     const content = await foundry.applications.handlebars.renderTemplate(
-      "modules/mosh-greybearded-qol/templates/patches/creature-skillfix-stat-selection-dialog.html",
+      templatePath("patches/creature-skillfix-stat-selection-dialog.html"),
       {
         showRollTypePrompt: !rollString,
         attributes: activeAttributes

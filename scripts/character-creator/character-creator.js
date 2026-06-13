@@ -1,3 +1,4 @@
+import { templatePath } from "../codex/constants.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { checkReady, setReady, checkStep, completeStep, checkCompleted, setCompleted, reset } from "./progress.js";
 import { ClassSelectorApp } from "./select-class.js";
@@ -13,9 +14,15 @@ export async function startCharacterCreation(actor) {
   // ✅ Check if character is already completed
   if (checkCompleted(actor)) {
     if (game.user.isGM) {
+      const content = await foundry.applications.handlebars.renderTemplate(
+        templatePath("character-creator/already-completed-dialog.html"),
+        {
+          content: game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name })
+        }
+      );
       const resetConfirm = await foundry.applications.api.DialogV2.wait({
         window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Title") },
-        content: `<p>${game.i18n.format("MoshQoL.CharacterCreator.Dialog.AlreadyCompleted.Content", { actorName: actor.name })}</p>`,
+        content,
         buttons: [
           { label: game.i18n.localize("MoshQoL.Common.Reset"), icon: "fa-solid fa-rotate-left", action: "reset" },
           { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
@@ -24,9 +31,7 @@ export async function startCharacterCreation(actor) {
       });
       if (resetConfirm === "reset") {
         await reset(actor);
-        ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.Reset", { actorName: actor.name }));
       } else {
-        ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.Cancelled"));
         return;
       }
     } else {
@@ -37,11 +42,14 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 1: Check if actor is marked "ready"
   if (!checkReady(actor)) {
-    const content = `
-      <p>${game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name })}</p>
-      <p>${game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk")}</p>
-      <p>${game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction")}</p>
-    `;
+    const content = await foundry.applications.handlebars.renderTemplate(
+      templatePath("character-creator/overwrite-warning-dialog.html"),
+      {
+        noValidData: game.i18n.format("MoshQoL.CharacterCreator.Dialog.Warning.NoValidData", { actorName: actor.name }),
+        overwriteRisk: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.OverwriteRisk"),
+        chooseAction: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.ChooseAction")
+      }
+    );
   
     const choice = await foundry.applications.api.DialogV2.wait({
       window: { title: game.i18n.localize("MoshQoL.CharacterCreator.Dialog.Warning.Title") },
@@ -67,11 +75,9 @@ export async function startCharacterCreation(actor) {
     });
   
     if (choice === "cancel") {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.Cancelled"));
       return;
     } else if (choice === "complete") {
       await setCompleted(actor, true);
-      ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.MarkedCompleted", { actorName: actor.name }));
       return;
     } else if (choice === "overwrite") {
       await setReady(actor, true); // mark as ready and proceed
@@ -125,29 +131,24 @@ export async function startCharacterCreation(actor) {
       }
     });
 
-    const formatBlock = (title, data) => {
-      return `
-        <div style="display: inline-block; vertical-align: top; min-width: 120px; margin-right: 24px;">
-          <u><b>${title}</b></u><br>
-          ${Object.entries(data)
-            .map(([k, v]) => `<span class="counter">${v}</span> ${k[0].toUpperCase() + k.slice(1)}`)
-            .join("<br>")}
-        </div>
-      `;
-    };
+    const formatCounterColumn = (title, data) => ({
+      title,
+      items: Object.entries(data).map(([key, value]) => ({
+        label: key[0].toUpperCase() + key.slice(1),
+        value
+      }))
+    });
 
-    const content = `
-      <div style="display: flex; gap: 32px; line-height: 1.5;">
-        ${formatBlock(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Stats"), rolledAttributes)}
-        ${formatBlock(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Saves"), rolledSaves)}
-      </div>
-    `;
+    const statColumns = [
+      formatCounterColumn(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Stats"), rolledAttributes),
+      formatCounterColumn(game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Saves"), rolledSaves)
+    ];
 
     await chatOutput({
       actor,
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.StatsRolled.Title"),
       subtitle: actor.name,
-      content,
+      blocks: [{ type: "counterColumns", columns: statColumns }],
       icon: "fa-chart-line",
       image: actor.img
     });
@@ -171,14 +172,15 @@ export async function startCharacterCreation(actor) {
   // If nothing was loaded -> selection dialog
   if (!selectedClass) {
     selectedClass = await ClassSelectorApp.wait({ actor });
-    if (!selectedClass) {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.ClassSelectionCancelled"));
-      return;
-    }
+    if (!selectedClass) return;
     await chatOutput({
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.ClassSelected.Title"),
       subtitle: actor.name,
-      content: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name, className: selectedClass.name }),
+      blocks: [{
+        type: "highlight",
+        label: game.i18n.format("MoshQoL.CharacterCreator.Chat.ClassSelected.Content", { actorName: actor.name }),
+        value: selectedClass.name
+      }],
       image: selectedClass?.img || "",
       icon: "fa-user"
     });
@@ -191,10 +193,10 @@ export async function startCharacterCreation(actor) {
     if (choices.length > 0) {
       try {
         const adjustments = await AttributeSelectorApp.wait({ actor, attributeChoices: choices });
-        if (!adjustments) return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionCancelled"));
+        if (!adjustments) return;
       } catch (err) {
         console.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionAborted"), err);
-        return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.AttributeSelectionCancelled"));
+        return;
       }
     }
     await completeStep(actor, "selectedAttributes");
@@ -217,7 +219,7 @@ export async function startCharacterCreation(actor) {
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.HealthRolled.Title"),
       subtitle: actor.name,
       icon: "fa-heart-pulse",
-      content: `<span class="counter">${total}</span> HP`
+      blocks: [{ type: "counter", value: total, label: "HP" }]
     });
   
     await completeStep(actor, "rolledHealth");
@@ -226,25 +228,18 @@ export async function startCharacterCreation(actor) {
   // ✅ Step 7: Skill selection
   if (!checkStep(actor, "selectedSkills")) {
     const adjustments = await SkillSelectorApp.wait({ actor, selectedClass });
-    if (!adjustments || adjustments.length === 0) {
-      return ui.notifications.warn(game.i18n.localize("MoshQoL.CharacterCreator.Notifications.SkillSelectionCancelled"));
-    }
+    if (!adjustments || adjustments.length === 0) return;
 
     await chatOutput({
       actor,
       title: game.i18n.localize("MoshQoL.CharacterCreator.Chat.SkillsSelected.Title"),
       subtitle: actor.name,
       icon: "fa-sitemap",
-      content: `
-          ${adjustments
-            .map(i => `
-              <div style="display:flex; align-items:center; gap:0.5em; margin:0.2em 0;">
-                <img src="${i.img}" style="height:2.5em; flex:0 0 auto;">
-                <span style="flex:1; white-space:nowrap;">${i.name}</span>
-              </div>
-            `)
-            .join("")}
-        `
+      blocks: [{
+        type: "itemList",
+        items: adjustments,
+        nowrap: true
+      }]
     });
         
     await completeStep(actor, "selectedSkills");
@@ -263,6 +258,5 @@ export async function startCharacterCreation(actor) {
      
   // ✅ Final Step: Mark character creation as completed
   await setCompleted(actor, true);
-  ui.notifications.info(game.i18n.format("MoshQoL.CharacterCreator.Notifications.Completed", { actorName: actor.name }));
 
 }

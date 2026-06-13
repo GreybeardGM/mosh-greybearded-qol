@@ -1,13 +1,25 @@
-import { getArmorCoverValues } from "../codex/armor-cover.js";
-import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "../codex/wound-types.js";
-import { normalizeNumber } from "../utils/normalization.js";
-import { automatesWoundRollFromConfig, getNormalizedApplyDamageConfig, usesTougherArmorFromConfig } from "../settings/apply-damage-config.js";
+import { getArmorCoverValues } from "./armor-cover.js";
+import { getWoundTypeById, getWoundTypeByLabel, getWoundTypeBySettingKey, getWoundTypeByTableSettingKey } from "./wound-types.js";
+import { normalizeBoolean, normalizeNumber } from "../utils/normalization.js";
+import {
+  appliesArmorBrokenFromConfig,
+  automatesWoundRollFromConfig,
+  getNormalizedApplyDamageConfig,
+  usesTougherArmorFromConfig
+} from "../settings/apply-damage-config.js";
 import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
-import { chatOutput } from "../utils/chat-output.js";
+import { chatOutput, rawChatHTML } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
+import { ApplyDamageInputApp } from "./damage-input-app.js";
+import { calculateDamageOutcome } from "./damage-outcome.js";
+import { syncArmorBrokenToolbandButton } from "../toolband.js";
+import { STATUS_ARMOR_BROKEN } from "../codex/constants.js";
+import { MOSH_ROLLTABLE_PACK_ID } from "../codex/mosh-system.js";
 
-const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
+const automatedWoundRollTableCache = new Map();
+// Cache-Invalidierung: Ein Foundry-Reload ist ausreichend, da das Modul neu geladen wird.
+// Optional kann bei Settings-/Pack-Änderungen explizit `automatedWoundRollTableCache.clear()` aufgerufen werden.
 
 /**
  * Wendet Schaden an und verrechnet HP-Reset & HITS-Zuwachs ohne Rekursion.
@@ -25,45 +37,134 @@ const MOSH_ROLLTABLE_PACK = "mosh.rolltables_1e";
  */
 export async function applyDamage(actorLike, damageInput, antiArmor = false, woundType = null, woundRollModifier = null) {
   const applyDamageConfig = getNormalizedApplyDamageConfig();
+
+  // 1) Target-Auflösung
   const targets = await resolveApplyDamageTargets(actorLike);
   if (!targets.length) return false;
 
+  // 2) Input-Normalisierung
+  const normalizedPayload = await normalizeApplyDamagePayload({
+    damageInput,
+    antiArmor,
+    woundType,
+    woundRollModifier,
+    targets
+  });
+  if (!normalizedPayload) return false;
+
+  const actorList = filterActorsBySelectedIndexes(targets, normalizedPayload.selectedTargetIndexes);
+  if (!actorList.length) return false;
+
+  // 3) Eigentliche Actor-Verarbeitung
+  const applied = await applyDamageToActors(actorList, normalizedPayload, { applyDamageConfig });
+  return applied > 0;
+}
+
+export async function applyDamageToActors(actors, payload, options = {}) {
+  const actorList = getUniqueActorsFromTargets(actors);
+  if (!actorList.length || !payload) return false;
+
+  const normalizedPayload = normalizeActorApplyDamagePayload(payload);
+  if (!normalizedPayload) return false;
+
+  const applyDamageConfig = options.applyDamageConfig ?? getNormalizedApplyDamageConfig();
+
+  let applied = 0;
+  for (const actor of actorList) {
+    const didApply = await applyDamageToActor(actor, normalizedPayload, applyDamageConfig);
+    if (didApply) applied += 1;
+  }
+
+  return applied;
+}
+
+export function getUniqueActorsFromTargets(targets) {
+  const rawList = Array.isArray(targets) ? targets : [targets];
+  const seen = new Set();
+  const uniqueActors = [];
+
+  for (const target of rawList) {
+    const actor = target?.actor ?? target;
+    if (!actor) continue;
+
+    const key = actor.uuid ?? actor.id ?? actor;
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    uniqueActors.push(actor);
+  }
+
+  return uniqueActors;
+}
+
+
+function normalizeActorApplyDamagePayload(payload) {
+  if (!payload || typeof payload !== "object") return null;
+
+  const damage = parseDamageInput(payload.damage);
+  if (damage === null) return null;
+
+  const woundMetadataInput = payload.woundMetadata ?? {};
+
+  return {
+    damage,
+    antiArmorHit: parseAntiArmorInput(payload.antiArmorHit),
+    woundMetadata: normalizeWoundMetadata(woundMetadataInput.woundType, woundMetadataInput.woundRollModifier)
+  };
+}
+
+async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, woundType = null, woundRollModifier = null, targets = [] } = {}) {
   let damageRaw = damageInput;
   let antiArmorRaw = antiArmor;
+  let selectedTargetIndexes = targets.map((_actor, index) => index);
 
-  // Falls kein Wert angegeben: über DialogV2.input abfragen
   if (damageRaw === null || damageRaw === undefined) {
     const data = await promptDamageInput({
       title: game.i18n.localize("MoshQoL.Damage.ApplyDamage"),
-      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: targets[0]?.name ?? "" })
+      message: game.i18n.format("MoshQoL.Damage.EnterAmountForActor", { actorName: targets[0]?.name ?? "" }),
+      targets
     });
 
-    // Abbruch per X liefert null → nichts tun
-    if (!data) return false;
+    if (!data) return null;
     damageRaw = data.damage;
     antiArmorRaw = data.antiArmor;
+    selectedTargetIndexes = normalizeSelectedTargetIndexes(data.selectedTargetIndexes, targets.length);
   }
 
   const damage = parseDamageInput(damageRaw);
   if (damage === null) {
     ui.notifications?.warn?.(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
-    return false;
+    return null;
   }
 
-  const woundMetadata = normalizeWoundMetadata(woundType, woundRollModifier);
-  const normalizedPayload = {
+  return {
     damage,
     antiArmorHit: parseAntiArmorInput(antiArmorRaw),
-    woundMetadata
+    woundMetadata: normalizeWoundMetadata(woundType, woundRollModifier),
+    selectedTargetIndexes
   };
+}
 
-  let applied = 0;
-  for (const target of targets) {
-    const didApply = await applyDamageToActor(target, normalizedPayload, applyDamageConfig);
-    if (didApply) applied += 1;
+function normalizeSelectedTargetIndexes(indexes, maxLength) {
+  if (!Array.isArray(indexes)) return Array.from({ length: maxLength }, (_v, index) => index);
+
+  const seen = new Set();
+  const normalized = [];
+  for (const rawIndex of indexes) {
+    const index = Number.parseInt(rawIndex, 10);
+    if (!Number.isInteger(index) || index < 0 || index >= maxLength || seen.has(index)) continue;
+    seen.add(index);
+    normalized.push(index);
   }
 
-  return applied > 0;
+  return normalized;
+}
+
+function filterActorsBySelectedIndexes(targets, selectedTargetIndexes) {
+  const normalized = normalizeSelectedTargetIndexes(selectedTargetIndexes, targets.length);
+  const selectedTargets = [];
+  for (const index of normalized) selectedTargets.push(targets[index]);
+  return getUniqueActorsFromTargets(selectedTargets);
 }
 
 async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = null) {
@@ -76,6 +177,7 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
   let   hits    = normalizeNumber(sys.hits?.value, { fallback: 0 });
   const hitsMax = normalizeNumber(sys.hits?.max, { fallback: Number.MAX_SAFE_INTEGER });
+  if (hitsMax <= 0) return false;
 
   const armorBroken = hasArmorBrokenStatus(actor);
   const coverValues = getArmorCoverValues(sys.stats?.armor?.cover);
@@ -83,6 +185,7 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   const baseArmorValue = normalizeNumber(sys.stats?.armor?.mod, { fallback: 0, min: 0 });
   const damageReduction = baseDamageReduction + coverValues.damageReduction;
   const armorValue = baseArmorValue + coverValues.armor;
+  const hasArmorValue = armorValue > 0;
   const armorReductionLimit = antiArmorHit || armorBroken
     ? damageReduction
     : Math.max(damageReduction, armorValue);
@@ -91,7 +194,13 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   const armorBrokenThresholdReached = usesTougherArmorFromConfig(applyDamageConfig)
     ? remaining > 0
     : damage >= armorReductionLimit;
-  const shouldBreakArmor = !antiArmorHit && !armorBroken && armorBrokenThresholdReached;
+  const canApplyArmorBroken = appliesArmorBrokenFromConfig(applyDamageConfig);
+  const canEverBreakArmor = hasArmorValue;
+  const shouldBreakArmor = canEverBreakArmor
+    && canApplyArmorBroken
+    && !antiArmorHit
+    && !armorBroken
+    && armorBrokenThresholdReached;
 
   const originalHp = hp;
   const originalHits = hits;
@@ -122,95 +231,78 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   }
 
   if (woundsGained > 0) {
-    const automatedWoundContent = await renderAutomatedWoundResults(automatedWoundResults);
-
-    if (hits === hitsMax) {
-      await chatOutput({
-        actor,
-        title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
-        subtitle: actor.name ?? "",
-        icon: "fa-skull",
-        content: [
-          game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }),
-          automatedWoundContent
-        ].filter(Boolean).join("<hr>")
-      });
-    } else {
-      const plural = woundsGained !== 1;
-      await chatOutput({
-        actor,
-        title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
-        subtitle: actor.name ?? "",
-        icon: "fa-heart-broken",
-        content: [
-          game.i18n.format("MoshQoL.Damage.WoundsSuffered", {
-            count: woundsGained,
-            wounds: game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular")
-          }),
-          automatedWoundContent
-        ].filter(Boolean).join("<hr>")
-      });
-    }
+    await emitWoundChatMessage({
+      actor,
+      woundsGained,
+      maximumWoundsReached: hits === hitsMax,
+      automatedWoundResults
+    });
   }
 
   return true;
 }
 
-
-function calculateDamageOutcome({ hp, hpMax, hits, hitsMax, remaining }) {
-  let woundsGained = 0;
-  const availableWounds = Math.max(0, hitsMax - hits);
-
-  if (remaining <= 0 || availableWounds <= 0) {
-    return { hp, hits, remaining, woundsGained };
-  }
-
-  if (hpMax <= 0) {
-    return { hp, hits: hits + 1, remaining: 0, woundsGained: 1 };
-  }
-
-  if (hp > 0) {
-    if (remaining < hp) {
-      return { hp: hp - remaining, hits, remaining: 0, woundsGained };
-    }
-
-    remaining -= hp;
-    woundsGained += 1;
-    hits += 1;
-    hp = hpMax;
-  }
-
-  const remainingWoundCapacity = Math.max(0, hitsMax - hits);
-  const extraWounds = Math.min(remainingWoundCapacity, Math.ceil(remaining / hpMax));
-
-  if (extraWounds > 0) {
-    woundsGained += extraWounds;
-    hits += extraWounds;
-    remaining = Math.max(0, remaining - (extraWounds * hpMax));
-    hp = hpMax;
-  }
-
-  return { hp, hits, remaining, woundsGained };
+async function enrichChatReference(content) {
+  const enriched = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content || "", {
+    async: true
+  });
+  return rawChatHTML(enriched);
 }
+
+async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached, automatedWoundResults }) {
+  const automatedWoundBlocks = await getAutomatedWoundChatBlocks(automatedWoundResults);
+
+  if (maximumWoundsReached) {
+    const deathSaveMacro = await enrichChatReference(game.i18n.localize("MoshQoL.Damage.DeathSaveMacro"));
+
+    return chatOutput({
+      actor,
+      title: game.i18n.localize("MoshQoL.Damage.MaximumWoundsReached"),
+      subtitle: actor.name ?? "",
+      icon: "fa-skull",
+      blocks: [
+        { type: "text", text: game.i18n.format("MoshQoL.Damage.MaximumWoundsContent", { actorName: actor.name }) },
+        { type: "html", html: deathSaveMacro },
+        ...automatedWoundBlocks
+      ]
+    });
+  }
+
+  const plural = woundsGained !== 1;
+  const woundsLabel = game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular");
+  const woundCheckMacro = await enrichChatReference(game.i18n.localize("MoshQoL.Damage.WoundCheckMacro"));
+
+  return chatOutput({
+    actor,
+    title: game.i18n.localize(plural ? "MoshQoL.Damage.WoundsTaken" : "MoshQoL.Damage.WoundTaken"),
+    subtitle: actor.name ?? "",
+    icon: "fa-heart-broken",
+    blocks: [
+      {
+        type: "counter",
+        value: woundsGained,
+        label: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { wounds: woundsLabel }),
+        suffix: woundCheckMacro
+      },
+      ...automatedWoundBlocks
+    ]
+  });
+}
+
+async function getAutomatedWoundChatBlocks(automatedWoundResults) {
+  const automatedWoundEntries = await buildAutomatedWoundRollEntries(automatedWoundResults);
+  return automatedWoundEntries.length
+    ? [{ type: "separator" }, { type: "automatedWounds", entries: automatedWoundEntries }]
+    : [];
+}
+
 
 /**
  * Öffnet den gemeinsamen Apply-Damage-Dialog und liefert rohe Dialogwerte zurück.
  * Die eigentliche Validierung/Normalisierung bleibt in applyDamage.
  */
-export async function promptDamageInput({ title, message, cancel = null } = {}) {
-  return foundry.applications.api.DialogV2.input({
-    window: { title: title ?? game.i18n.localize("MoshQoL.Damage.ApplyDamage") },
-    content: `
-      <p>${message ?? game.i18n.localize("MoshQoL.Damage.EnterAmount")}</p>
-      <input name="damage" type="number" min="1" step="1" autofocus style="width:100%">
-      <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
-        <input name="antiArmor" type="checkbox">
-        <span>${game.i18n.localize("MoshQoL.Damage.AntiArmor")}</span>
-      </label>
-    `,
-    ok: { label: game.i18n.localize("MoshQoL.Damage.Apply"), icon: "fa-solid fa-check" },
-    ...(cancel ? { cancel } : {})
-  });
+export async function promptDamageInput({ title, message, targets = [], cancel = null } = {}) {
+  return ApplyDamageInputApp.waitForInput({ title, message, targets, cancel });
 }
 
 /** Parsen/Validieren der Schaden-Eingabe (einziger Normalisierungspfad). */
@@ -328,28 +420,33 @@ async function resolveAutomatedWoundRollTable(tableReference) {
     return null;
   }
 
-  if (reference.startsWith("RollTable.") || reference.startsWith("Compendium.")) {
-    return resolveTableFromUuid(reference);
+  if (automatedWoundRollTableCache.has(reference)) {
+    return automatedWoundRollTableCache.get(reference) ?? null;
   }
 
-  const tableByMoshDocumentId = await resolveTableFromMoshCompendium(reference);
-  if (tableByMoshDocumentId) return tableByMoshDocumentId;
+  const resolvedTable = reference.startsWith("RollTable.") || reference.startsWith("Compendium.")
+    ? await resolveTableFromUuid(reference)
+    : await resolveNamedOrIdTableReference(reference);
 
-  const tableByWorldId = game.tables?.get(reference) ?? null;
-  if (tableByWorldId) return tableByWorldId;
-
-  const tableByName = game.tables?.getName?.(reference) ?? null;
-  if (tableByName) return tableByName;
-
-  const normalizedReference = reference.toLowerCase();
-  const tableByCaseInsensitiveName = game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
-  if (tableByCaseInsensitiveName) return tableByCaseInsensitiveName;
-  return null;
+  automatedWoundRollTableCache.set(reference, resolvedTable ?? null);
+  return resolvedTable ?? null;
 }
 
+async function resolveNamedOrIdTableReference(reference) {
+  const moshTable = await resolveTableFromMoshCompendium(reference);
+  return moshTable
+    ?? game.tables?.get(reference)
+    ?? game.tables?.getName?.(reference)
+    ?? findWorldTableByNormalizedName(reference);
+}
+
+function findWorldTableByNormalizedName(reference) {
+  const normalizedReference = reference.toLowerCase();
+  return game.tables?.find?.((table) => table?.name?.toLowerCase?.() === normalizedReference) ?? null;
+}
 
 async function resolveTableFromMoshCompendium(documentId) {
-  const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK) ?? null;
+  const pack = game.packs?.get?.(MOSH_ROLLTABLE_PACK_ID) ?? null;
   if (!pack || pack.documentName !== "RollTable") {
     return null;
   }
@@ -388,74 +485,68 @@ function getTableResultsForRoll(table, rollTotal) {
   return results;
 }
 
-async function renderAutomatedWoundResults(wounds) {
-  if (!wounds.length) return "";
+async function buildAutomatedWoundRollEntries(wounds) {
+  if (!wounds.length) return [];
 
   const entries = [];
 
   for (const wound of wounds) {
-    const rollHtml = renderWoundRolls(wound);
-    const resultHtml = await renderTableResults(wound.tableResults);
-
-    entries.push(`<p>${rollHtml}<br>${resultHtml}</p>`);
+    entries.push({
+      rollLabel: getWoundRollLabel(wound),
+      rolls: wound.rolls.map((roll) => renderRollInline(roll)),
+      results: await renderTableResults(wound.tableResults)
+    });
   }
 
-  return `<div class="mosh-qol-automated-wounds">${entries.join("<hr>")}</div>`;
+  return entries;
 }
 
-function renderWoundRolls(wound) {
-  const rollAnchors = wound.rolls.map((roll) => rollToInlineHtml(roll));
-  if (!wound.modifier) return rollAnchors[0] ?? "";
+function getWoundRollLabel(wound) {
+  if (!wound.modifier) return "";
 
-  const modifierLabel = game.i18n.localize(wound.modifier === "advantage"
+  return game.i18n.localize(wound.modifier === "advantage"
     ? "MoshQoL.Damage.Advantage"
     : "MoshQoL.Damage.Disadvantage");
-
-  return `${foundry.utils.escapeHTML(modifierLabel)}: ${rollAnchors.join(" / ")}`;
 }
 
-function rollToInlineHtml(roll) {
-  const fallback = `<span class="inline-roll"><i class="fas fa-dice-d10"></i> ${roll.total}</span>`;
+function renderRollInline(roll) {
   const anchor = typeof roll.toAnchor === "function" ? roll.toAnchor() : null;
-  if (!anchor?.outerHTML) return fallback;
+  if (anchor?.outerHTML) return rawChatHTML(anchor.outerHTML);
 
-  return anchor.outerHTML;
+  return roll.total;
 }
 
 async function renderTableResults(results) {
-  if (!results.length) return foundry.utils.escapeHTML(game.i18n.localize("MoshQoL.Damage.NoWoundResult"));
+  if (!results.length) return [game.i18n.localize("MoshQoL.Damage.NoWoundResult")];
 
   const resultText = [];
   for (const result of results) {
     resultText.push(await renderTableResult(result));
   }
 
-  return resultText.join("<br>");
+  return resultText;
 }
 
 async function renderTableResult(result) {
-  if (typeof result.getHTML === "function") return await result.getHTML();
+  if (typeof result.getHTML === "function") return rawChatHTML(await result.getHTML());
   const text = result.description ?? result.name ?? "";
-  return foundry.utils.escapeHTML(String(text));
+  return String(text);
 }
 
 function parseAntiArmorInput(antiArmor) {
   if (typeof antiArmor === "object" && antiArmor !== null) return parseAntiArmorInput(antiArmor.antiArmor);
-  if (typeof antiArmor === "string") {
-    const normalized = antiArmor.trim().toLowerCase();
-    return ["true", "on", "1", "yes"].includes(normalized);
-  }
-  return antiArmor === true;
+  return normalizeBoolean(antiArmor, { fallback: false });
 }
 
 /** Prüft, ob der Armor-Broken-Status bereits aktiv ist. */
 function hasArmorBrokenStatus(actor) {
-  return actor?.statuses?.has("qol-broken-armor") === true;
+  return actor?.statuses?.has(STATUS_ARMOR_BROKEN) === true;
 }
 
 /** Aktiviert den Armor-Broken-Status, sofern die Actor-API verfügbar ist. */
 async function setArmorBrokenStatus(actor) {
   if (typeof actor?.toggleStatusEffect === "function") {
-    await actor.toggleStatusEffect("qol-broken-armor", { active: true });
+    await actor.toggleStatusEffect(STATUS_ARMOR_BROKEN, { active: true });
+    syncArmorBrokenToolbandButton(actor);
   }
 }
