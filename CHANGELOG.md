@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.1-dev] - 2026-05-22
+## [0.8.1] - 2026-06-13
 ### Added
 - Simple Shore Leave now includes a Pay-Up button to automatically deduct credits.
 - Training tool updates: training can now use the Skill Training field on the character sheet, and preliminary auto-training is available when explicitly enabled in the settings.
