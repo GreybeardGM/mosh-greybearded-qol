@@ -1,6 +1,6 @@
 # MoSh Greybearded QoL
 
-**MoSh Greybearded QoL** is a modular quality-of-life extension for **Foundry VTT** focused on the **Mothership 1e** ruleset.  
+**MoSh Greybearded QoL (DEV)** is a development version of the modular quality-of-life extension for **Foundry VTT** focused on the **Mothership 1e** ruleset.
 It streamlines repetitive workflows for both players and game masters while preserving compatibility with homebrew-heavy tables.
 
 ## Highlights
@@ -60,7 +60,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.1`
+- **Current module version**: `0.8.2-dev`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
@@ -68,7 +68,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 ## Installation
 
 - GitHub repository: <https://github.com/GreybeardGM/mosh-greybearded-qol>  
-- Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/refs/tags/0.8.1/module.json>
+- Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/refs/heads/dev/module.json>
 
 ## Maintainer Notes
 

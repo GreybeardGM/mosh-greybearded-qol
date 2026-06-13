@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.8.2-dev] - Unreleased
+
 ## [0.8.1] - 2026-06-13
 ### Added
 - Simple Shore Leave now includes a Pay-Up button to automatically deduct credits.
