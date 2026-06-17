@@ -705,6 +705,7 @@
   height: 3rem;
   border-radius: 0.35rem;
   object-fit: cover;
+  object-position: center top;
 }
 
 .greybeardqol.qol-ui.crew-roster .crew-roster-name-cell {
@@ -896,6 +897,7 @@
   height: 56px;
   border-radius: 6px;
   object-fit: cover;
+  object-position: center top;
   border: 1px solid var(--color-border-light-2);
 }
 
@@ -1713,6 +1715,7 @@
   height: 3rem;
   border-radius: 0.35rem;
   object-fit: cover;
+  object-position: center top;
 }
 
 .greybeardqol.qol-ui.crew-roster .crew-roster-name-cell {
@@ -1904,6 +1907,7 @@
   height: 56px;
   border-radius: 6px;
   object-fit: cover;
+  object-position: center top;
   border: 1px solid var(--color-border-light-2);
 }
 
