@@ -29,6 +29,12 @@
 
 /* Contractor Sheet */
 
+.app.mosh.sheet.actor.character.qol-hide-system-character-config
+  > .window-header
+  > .header-button.configure-actor {
+  display: none;
+}
+
 .greybeardqol.qol-sheet.contractor .editor-content {
   min-height: 10em;
 }
