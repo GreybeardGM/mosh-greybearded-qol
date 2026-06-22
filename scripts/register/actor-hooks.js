@@ -1,7 +1,12 @@
 import { upsertToolband, removeToolband, refreshToolbandForActor } from "../toolband.js";
 import { CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS, setReady } from "../character-creator/progress.js";
 import { getSheetKind } from "./sheets.js";
-import { FLAG_CHARACTER_CREATION, MODULE_ID } from "../codex/constants.js";
+import {
+  FLAG_CHARACTER_CREATION,
+  HIDE_SYSTEM_CHARACTER_CONFIG_CLASS,
+  MODULE_ID,
+  SETTING_ENABLE_CHARACTER_CREATOR
+} from "../codex/constants.js";
 
 let actorHooksRegistered = false;
 
@@ -16,11 +21,24 @@ function hasCharacterCreationProgressChange(changed) {
     || CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS.some(hasProgressKey);
 }
 
+function syncCharacterGeneratorSheetClass(sheet, html) {
+  const actor = sheet?.actor;
+  const root = sheet?.element?.[0] ?? html?.[0] ?? null;
+  if (!root) return;
+
+  const hideSystemConfigureButton = actor?.type === "character"
+    && game.settings.get(MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR) === true;
+
+  root.classList.toggle(HIDE_SYSTEM_CHARACTER_CONFIG_CLASS, hideSystemConfigureButton);
+}
+
 export function registerActorHooks() {
   if (actorHooksRegistered) return;
   actorHooksRegistered = true;
 
   Hooks.on("renderActorSheet", (sheet, html) => {
+    syncCharacterGeneratorSheetClass(sheet, html);
+
     const actor = sheet.actor;
     const isGM = game.user.isGM;
     const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
