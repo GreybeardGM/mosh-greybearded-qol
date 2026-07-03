@@ -1,6 +1,11 @@
 # Changelog
 
 ## [0.8.2-dev] - Unreleased
+### Changed
+- Character, crew roster, and Apply Damage portraits now crop from the top center for better portrait framing.
+
+### Fixed
+- The system character sheet configuration button is hidden while the QoL Character Generator is enabled to avoid conflicting setup entry points.
 
 ## [0.8.1] - 2026-06-13
 ### Added
