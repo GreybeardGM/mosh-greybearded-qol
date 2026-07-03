@@ -134,15 +134,10 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       };
     });
 
-    const classCount = sortedClasses.length;
-    let gridColumns = 5;
-    if ([3, 6].includes(classCount)) gridColumns = 3;
-    else if ([4, 7, 8, 11, 12].includes(classCount)) gridColumns = 4;
-
-    return { classes, gridColumns };
+    return { classes };
   }
 
-  constructor({ actor, applyStats, resolve, classes, gridColumns }, options = {}) {
+  constructor({ actor, applyStats, resolve, classes }, options = {}) {
     super(options);
     this.actor = actor;
     this.applyStats = applyStats;
@@ -150,7 +145,6 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     this._resolved = false;
 
     this.classes = classes;
-    this.gridColumns = gridColumns;
     this._selectedClassId = null;
     this._showSkillView = false;
   }
@@ -178,7 +172,6 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   async _prepareContext() {
     return appendQolThemeContext({
-      gridColumns: this.gridColumns,
       classes: this.classes,
       showSkillView: this._showSkillView,
       confirmLocked: !this._selectedClassId

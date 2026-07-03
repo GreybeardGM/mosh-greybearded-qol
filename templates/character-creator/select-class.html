@@ -1,5 +1,5 @@
 <div class="class-selection-content" style="--theme-color: {{themeColor}};">
-  <div class="card-grid" style="--col-count: {{gridColumns}};">
+  <div class="card-grid" style="--col-count: {{classes.length}};">
     {{#each classes}}
       <div class="card dialog-card interactive class-card" data-action="selectClass" data-class-id="{{this.id}}">
         {{#unless ../showSkillView}}

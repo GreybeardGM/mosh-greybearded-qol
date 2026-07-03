@@ -3,6 +3,7 @@
 ## [0.8.2-dev] - Unreleased
 ### Changed
 - Character, crew roster, and Apply Damage portraits now crop from the top center for better portrait framing.
+- Class Selection now displays classes in a single row with horizontal scrolling instead of wrapping into multiple rows.
 
 ### Fixed
 - The system character sheet configuration button is hidden while the QoL Character Generator is enabled to avoid conflicting setup entry points.
