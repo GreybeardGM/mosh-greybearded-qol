@@ -476,6 +476,19 @@
 
 .greybeardqol.qol-ui.qol-class-selection .window-content {
   position: relative;
+  overflow-x: hidden;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-selection-content {
+  overflow-x: auto;
+  max-width: 95vw;
+  padding-bottom: 0.5rem;
+  scrollbar-gutter: stable;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .card-grid {
+  width: max-content;
+  grid-template-columns: repeat(var(--col-count), 11rem);
 }
 
 .greybeardqol.qol-ui.qol-class-selection .class-view-toggle-wrap {
@@ -1486,6 +1499,19 @@
 
 .greybeardqol.qol-ui.qol-class-selection .window-content {
   position: relative;
+  overflow-x: hidden;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-selection-content {
+  overflow-x: auto;
+  max-width: 95vw;
+  padding-bottom: 0.5rem;
+  scrollbar-gutter: stable;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .card-grid {
+  width: max-content;
+  grid-template-columns: repeat(var(--col-count), 11rem);
 }
 
 .greybeardqol.qol-ui.qol-class-selection .class-view-toggle-wrap {

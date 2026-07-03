@@ -135,9 +135,7 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     });
 
     const classCount = sortedClasses.length;
-    let gridColumns = 5;
-    if ([3, 6].includes(classCount)) gridColumns = 3;
-    else if ([4, 7, 8, 11, 12].includes(classCount)) gridColumns = 4;
+    const gridColumns = classCount;
 
     return { classes, gridColumns };
   }
