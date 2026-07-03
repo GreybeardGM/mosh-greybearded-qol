@@ -481,8 +481,9 @@
 
 .greybeardqol.qol-ui.qol-class-selection .class-selection-content {
   overflow-x: auto;
+  max-width: 95vw;
   padding-bottom: 0.5rem;
-  scrollbar-color: var(--theme-color) #0000;
+  scrollbar-gutter: stable;
 }
 
 .greybeardqol.qol-ui.qol-class-selection .card-grid {
