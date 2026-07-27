@@ -5,6 +5,9 @@
       <div class="skill-column">
         <div class="remaining-points">
           {{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}}
+          {{#if ../rankPrices}}
+            <span class="training-price">{{lookup ../rankPrices rank}}</span>
+          {{/if}}
           {{#if ../showPointCounters}}
             [ <span class="point-count" data-rank="{{rank}}">0</span> ]
           {{/if}}

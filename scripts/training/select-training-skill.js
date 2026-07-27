@@ -5,6 +5,7 @@ import { normalizeText, toEmbeddedItemData } from "../character-creator/utils.js
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getNormalizedTrainingConfig } from "../settings/training-config.js";
+import { formatCurrency } from "../utils/normalization.js";
 import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import {
   applyInitialAvailabilityLock,
@@ -122,12 +123,16 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   async _prepareContext() {
+    const prices = getNormalizedTrainingConfig().prices;
     return appendQolThemeContext({
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "nameLower",
       defaultSkillValues: [...this.ownedSkillNames],
       showPointCounters: false,
-      confirmLocked: true
+      confirmLocked: true,
+      rankPrices: Object.fromEntries(
+        Object.entries(prices).map(([rank, price]) => [rank, formatCurrency(price)])
+      )
     });
   }
 

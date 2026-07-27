@@ -19,6 +19,23 @@
     </label>
   </section>
 
+  <section class="card">
+    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
+    <small>{{localize "MoshQoL.Settings.TrainingConfig.Prices.Hint"}}</small>
+
+    {{#each (array 'trained' 'expert' 'master') as |rank|}}
+      <div class="form-group">
+        <label for="training-price-{{rank}}">
+          <strong>{{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}}</strong>
+        </label>
+        <div class="inline-row">
+          <input id="training-price-{{rank}}" type="number" min="0" step="1" name="training.prices.{{rank}}" value="{{lookup ../config.prices rank}}">
+          <span>cr</span>
+        </div>
+      </div>
+    {{/each}}
+  </section>
+
   <footer class="form-footer">
     <button type="button" data-action="resetDefaults">
       <i class="fas fa-undo" aria-hidden="true"></i>

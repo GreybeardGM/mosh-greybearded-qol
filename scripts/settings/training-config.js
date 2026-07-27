@@ -1,4 +1,4 @@
-import { normalizeBoolean } from "../utils/normalization.js";
+import { normalizeBoolean, normalizeNumber } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_TRAINING_CONFIG } from "../codex/constants.js";
 import {
   appendThemeColor,
@@ -13,7 +13,12 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export function getDefaultTrainingConfig() {
   return {
     useSkillTraining: true,
-    autoTrainAfterShoreLeave: false
+    autoTrainAfterShoreLeave: false,
+    prices: {
+      trained: 10_000,
+      expert: 50_000,
+      master: 200_000
+    }
   };
 }
 
@@ -26,6 +31,12 @@ function normalizeTrainingConfig(config) {
     }
     if (typeof config.autoTrainAfterShoreLeave === "boolean") {
       normalized.autoTrainAfterShoreLeave = config.autoTrainAfterShoreLeave;
+    }
+    for (const rank of Object.keys(normalized.prices)) {
+      normalized.prices[rank] = normalizeNumber(config.prices?.[rank], {
+        fallback: normalized.prices[rank],
+        min: 0
+      });
     }
   }
 
@@ -65,6 +76,12 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     config.useSkillTraining = normalizeBoolean(submitted.useSkillTraining);
     config.autoTrainAfterShoreLeave = normalizeBoolean(submitted.autoTrainAfterShoreLeave);
+    for (const rank of Object.keys(config.prices)) {
+      config.prices[rank] = normalizeNumber(submitted.prices?.[rank], {
+        fallback: config.prices[rank],
+        min: 0
+      });
+    }
 
     await saveSettingAndClose(this, MODULE_ID, SETTING_TRAINING_CONFIG, config);
   }
