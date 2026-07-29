@@ -149,6 +149,10 @@
         "AutoTrainAfterShoreLeave": {
           "Name": "Auto Train after Shore Leave",
           "Hint": "If enabled, the training tool runs automatically after a shore leave is completed, whether the stress conversion succeeds or not."
+        },
+        "Prices": {
+          "Title": "Training Prices",
+          "Hint": "Set the credit price shown for each skill rank in the training selection."
         }
       }
     },

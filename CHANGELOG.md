@@ -1,6 +1,9 @@
 # Changelog
 
 ## [0.8.2-dev] - Unreleased
+### Added
+- Training prices can now be configured separately for Trained, Expert, and Master skills and are displayed in the training skill selector.
+
 ### Changed
 - Character, crew roster, and Apply Damage portraits now crop from the top center for better portrait framing.
 - Class Selection now displays classes in a single row with horizontal scrolling instead of wrapping into multiple rows.

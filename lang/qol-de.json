@@ -149,6 +149,10 @@
         "AutoTrainAfterShoreLeave": {
           "Name": "Auto-Training nach Landgang",
           "Hint": "Wenn aktiviert, wird das Training-Tool nach einem abgeschlossenen Landgang automatisch ausgeführt, unabhängig davon, ob die Stressumwandlung erfolgreich ist."
+        },
+        "Prices": {
+          "Title": "Trainingspreise",
+          "Hint": "Lege den im Trainings-Auswahlfenster angezeigten Credit-Preis für jede Fertigkeitsstufe fest."
         }
       }
     },

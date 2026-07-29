@@ -408,6 +408,13 @@
   color: var(--color-remaining);
 }
 
+.greybeardqol.qol-ui.qol-training-selection .remaining-points .training-price {
+  display: block;
+  color: var(--color-bg);
+  font-family: inherit;
+  font-size: 0.75em;
+}
+
 /* Counter for Highlighting */
 .greybeardqol.qol-ui .counter {
   font-size: 1.1rem;
