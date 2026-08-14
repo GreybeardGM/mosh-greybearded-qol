@@ -1150,6 +1150,21 @@
   white-space: nowrap;
 }
 
+.greybeardqol .sbt-crew-skill-roll-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.greybeardqol .sbt-crew-skill-roll-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+
 .greybeardqol .sbt-crew-skill-roll-empty {
   color: #999;
   font-style: italic;
