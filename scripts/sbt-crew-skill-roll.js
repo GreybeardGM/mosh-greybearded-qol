@@ -5,7 +5,11 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 
 const SBT_TEMPLATE = "systems/mosh/templates/actor/ship-sheet-sbt.html";
 const SUPPORTED_STATS = new Set(["thrusters", "battle", "systems"]);
-const MANUAL_BONUSES = [10, 15, 20];
+const MANUAL_SKILLS = [
+  { rank: "Trained", bonus: 10 },
+  { rank: "Expert", bonus: 15 },
+  { rank: "Master", bonus: 20 }
+];
 
 function getSheetRoot(sheet, html) {
   if (sheet?.element instanceof HTMLElement) return sheet.element;
@@ -90,8 +94,8 @@ function createRollButton(label, icon, action, rollString, choices) {
     callback: (_event, button) => {
       const selectedId = button.form
         ?.querySelector("input[name='crewSkill']:checked")
-        ?.value ?? "none";
-      const selection = choices.get(selectedId) ?? choices.get("none");
+        ?.value ?? "manual-10";
+      const selection = choices.get(selectedId) ?? choices.get("manual-10");
 
       return {
         rollString,
@@ -112,16 +116,13 @@ async function openCrewSkillRoll(ship, statKey) {
   const stat = ship.system?.stats?.[statKey];
   const statLabel = stat?.label ?? stat?.rollLabel ?? statKey;
   const crewGroups = await getCrewSkillGroups(ship);
-  const choices = new Map([
-    ["none", { skill: null, bonus: 0 }],
-    ...MANUAL_BONUSES.map((bonus) => [
-      `manual-${bonus}`,
-      {
-        skill: game.i18n.format("MoshQoL.SbtCrewRoll.ManualSkillLabel", { bonus }),
-        bonus
-      }
-    ])
-  ]);
+  const choices = new Map(MANUAL_SKILLS.map(({ rank, bonus }) => [
+    `manual-${bonus}`,
+    {
+      skill: game.i18n.format("MoshQoL.SbtCrewRoll.ManualSkillLabel", { rank, bonus }),
+      bonus
+    }
+  ]));
 
   let choiceIndex = 0;
   const renderedCrewGroups = crewGroups.map(({ actor, skills }) => ({
@@ -149,9 +150,11 @@ async function openCrewSkillRoll(ship, statKey) {
       themeColor: getThemeColor(),
       hasCrewSkills: renderedCrewGroups.length > 0,
       crewGroups: renderedCrewGroups,
-      manualBonuses: MANUAL_BONUSES.map((bonus) => ({
+      manualSkills: MANUAL_SKILLS.map(({ rank, bonus }, index) => ({
         id: `manual-${bonus}`,
-        bonus
+        rank,
+        bonus,
+        checked: index === 0
       }))
     }
   );
@@ -229,6 +232,7 @@ export function augmentSbtShipSkillRolls(sheet, html) {
     button.type = "button";
     button.className = "gbqol-sbt-crew-roll-button";
     button.dataset.statKey = statKey;
+    button.style.setProperty("--theme-color", getThemeColor());
 
     const label = game.i18n.format("MoshQoL.SbtCrewRoll.Action", {
       stat: sheet.actor.system?.stats?.[statKey]?.label ?? statKey
