@@ -4,21 +4,13 @@
   </p>
 
   <div class="sbt-crew-skill-roll-options">
-    <label class="sbt-crew-skill-roll-option is-none">
-      <input type="radio" name="crewSkill" value="none" checked />
-      <span class="sbt-crew-skill-roll-option-main">
-        <strong>{{localize "MoshQoL.SbtCrewRoll.NoSkill"}}</strong>
-        <span class="sbt-crew-skill-roll-bonus">+0</span>
-      </span>
-    </label>
-
     <fieldset class="sbt-crew-skill-roll-group">
       <legend>{{localize "MoshQoL.SbtCrewRoll.ManualBonus"}}</legend>
-      {{#each manualBonuses}}
+      {{#each manualSkills}}
         <label class="sbt-crew-skill-roll-option">
-          <input type="radio" name="crewSkill" value="{{id}}" />
+          <input type="radio" name="crewSkill" value="{{id}}" {{#if checked}}checked{{/if}} />
           <span class="sbt-crew-skill-roll-option-main">
-            <span>{{localize "MoshQoL.SbtCrewRoll.Manual"}}</span>
+            <span>{{rank}}</span>
             <strong class="sbt-crew-skill-roll-bonus">+{{bonus}}</strong>
           </span>
         </label>
