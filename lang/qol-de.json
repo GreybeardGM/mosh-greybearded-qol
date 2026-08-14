@@ -381,6 +381,18 @@
         "Content": "<p><strong>MoSh Greybearded QoL</strong> konnte keine gültigen <em>{itemType}</em>-Gegenstände in den Welt-Gegenständen oder in einem geladenen Kompendium finden.</p><p>Installiere bitte ein kompatibles Kompendiumspaket oder erstelle eigene Gegenstände in den Welt-Gegenständen, damit die Funktion korrekt arbeiten kann.</p>",
         "Warning": "MoSh Greybearded QoL: Keine Gegenstände gefunden. Installiere ein kompatibles Kompendiumspaket oder erstelle Gegenstände in der Welt."
       }
+    },
+    "SbtCrewRoll": {
+      "Title": "{stat}: Crew-Skill",
+      "Action": "{stat} mit Crew-Skill würfeln",
+      "Intro": "Wähle einen Skill für den {stat}-Wurf und anschließend den Wurfmodus.",
+      "NoSkill": "Ohne Skill",
+      "ManualBonus": "Manueller Bonus",
+      "Manual": "Manuell",
+      "ManualSkillLabel": "Manuell +{bonus}",
+      "NoCrewSkills": "Im aktiven Crew Roster wurden keine Skills gefunden.",
+      "RollUnavailable": "Der MOSH-Schiffswurf ist nicht verfügbar.",
+      "Error": "Der Crew-Skill-Wurf konnte nicht ausgeführt werden."
     }
   }
 }
