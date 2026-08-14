@@ -1,0 +1,50 @@
+<section class="sbt-crew-skill-roll" style="--theme-color: {{themeColor}}">
+  <p class="sbt-crew-skill-roll-intro">
+    {{localize "MoshQoL.SbtCrewRoll.Intro" stat=statLabel}}
+  </p>
+
+  <div class="sbt-crew-skill-roll-options">
+    <label class="sbt-crew-skill-roll-option is-none">
+      <input type="radio" name="crewSkill" value="none" checked />
+      <span class="sbt-crew-skill-roll-option-main">
+        <strong>{{localize "MoshQoL.SbtCrewRoll.NoSkill"}}</strong>
+        <span class="sbt-crew-skill-roll-bonus">+0</span>
+      </span>
+    </label>
+
+    <fieldset class="sbt-crew-skill-roll-group">
+      <legend>{{localize "MoshQoL.SbtCrewRoll.ManualBonus"}}</legend>
+      {{#each manualBonuses}}
+        <label class="sbt-crew-skill-roll-option">
+          <input type="radio" name="crewSkill" value="{{id}}" />
+          <span class="sbt-crew-skill-roll-option-main">
+            <span>{{localize "MoshQoL.SbtCrewRoll.Manual"}}</span>
+            <strong class="sbt-crew-skill-roll-bonus">+{{bonus}}</strong>
+          </span>
+        </label>
+      {{/each}}
+    </fieldset>
+
+    {{#if hasCrewSkills}}
+      {{#each crewGroups}}
+        <fieldset class="sbt-crew-skill-roll-group">
+          <legend class="sbt-crew-skill-roll-crew">
+            <img src="{{img}}" alt="" />
+            <span>{{name}}</span>
+          </legend>
+          {{#each skills}}
+            <label class="sbt-crew-skill-roll-option">
+              <input type="radio" name="crewSkill" value="{{id}}" />
+              <span class="sbt-crew-skill-roll-option-main">
+                <span>{{name}}</span>
+                <strong class="sbt-crew-skill-roll-bonus">+{{bonus}}</strong>
+              </span>
+            </label>
+          {{/each}}
+        </fieldset>
+      {{/each}}
+    {{else}}
+      <p class="sbt-crew-skill-roll-empty">{{localize "MoshQoL.SbtCrewRoll.NoCrewSkills"}}</p>
+    {{/if}}
+  </div>
+</section>
