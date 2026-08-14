@@ -1,7 +1,11 @@
-import { FLAG_CREW_ROSTER, MODULE_ID, qolWindowClasses, templatePath } from "./codex/constants.js";
+import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
+import { getAppRoot, resolveAppOnce } from "./utils/application-helpers.js";
+import { appendQolThemeContext, createQolAppDefaultOptions } from "./utils/application-options.js";
 import { escapeHTML } from "./utils/html-safety.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const SBT_TEMPLATE = "systems/mosh/templates/actor/ship-sheet-sbt.html";
 const SUPPORTED_STATS = new Set(["thrusters", "battle", "systems"]);
@@ -10,6 +14,23 @@ const MANUAL_SKILLS = [
   { rank: "Expert", bonus: 15 },
   { rank: "Master", bonus: 20 }
 ];
+const ROLL_MODES = Object.freeze({
+  advantage: {
+    label: "Mosh.Advantage",
+    icon: "fas fa-angle-double-up",
+    rollString: "1d100 [+]"
+  },
+  normal: {
+    label: "Mosh.Normal",
+    icon: "fas fa-minus",
+    rollString: "1d100"
+  },
+  disadvantage: {
+    label: "Mosh.Disadvantage",
+    icon: "fas fa-angle-double-down",
+    rollString: "1d100 [-]"
+  }
+});
 
 function getSheetRoot(sheet, html) {
   if (sheet?.element instanceof HTMLElement) return sheet.element;
@@ -86,24 +107,129 @@ async function getCrewSkillGroups(ship) {
   ));
 }
 
-function createRollButton(label, icon, action, rollString, choices) {
-  return {
-    label,
-    icon,
-    action,
-    callback: (_event, button) => {
-      const selectedId = button.form
-        ?.querySelector("input[name='crewSkill']:checked")
-        ?.value ?? "manual-10";
-      const selection = choices.get(selectedId) ?? choices.get("manual-10");
+export class SbtCrewSkillRollApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = createQolAppDefaultOptions({
+    id: `${MODULE_ID}-sbt-crew-skill-roll`,
+    title: "MoshQoL.SbtCrewRoll.Title",
+    windowClasses: "sbt-crew-skill-roll-dialog",
+    position: { width: 640 },
+    actions: {
+      roll: this._onRoll,
+      cancel: this._onCancel
+    }
+  });
 
-      return {
-        rollString,
-        skill: selection.skill,
-        bonus: selection.bonus
-      };
+  static PARTS = {
+    form: {
+      template: templatePath("dialogs/sbt-crew-skill-roll.html")
     }
   };
+
+  static wait({ ship, statKey }) {
+    return new Promise((resolve) => {
+      const app = new this({ ship, statKey, resolve });
+      app.render({ force: true });
+    });
+  }
+
+  constructor({ ship, statKey, resolve }, options = {}) {
+    super(options);
+    this.ship = ship;
+    this.statKey = statKey;
+    this._resolve = resolve;
+    this._resolved = false;
+    this._choices = new Map();
+    this._statLabel = "";
+  }
+
+  async _prepareContext() {
+    const stat = this.ship?.system?.stats?.[this.statKey];
+    this._statLabel = stat?.label ?? stat?.rollLabel ?? this.statKey;
+    const crewGroups = await getCrewSkillGroups(this.ship);
+
+    this._choices = new Map(MANUAL_SKILLS.map(({ rank, bonus }) => [
+      `manual-${bonus}`,
+      {
+        skill: game.i18n.format("MoshQoL.SbtCrewRoll.ManualSkillLabel", { rank, bonus }),
+        bonus
+      }
+    ]));
+
+    let choiceIndex = 0;
+    const renderedCrewGroups = crewGroups.map(({ actor, skills }) => ({
+      name: actor.name,
+      img: actor.img || MOSH_FALLBACK_ACTOR_IMAGE,
+      skills: skills.map(({ item, bonus }) => {
+        const id = `crew-${choiceIndex++}`;
+        this._choices.set(id, {
+          skill: escapeHTML(`${actor.name} — ${item.name}`),
+          bonus
+        });
+
+        return {
+          id,
+          name: item.name,
+          bonus
+        };
+      })
+    }));
+
+    return appendQolThemeContext({
+      statLabel: this._statLabel,
+      hasCrewSkills: renderedCrewGroups.length > 0,
+      crewGroups: renderedCrewGroups,
+      manualSkills: MANUAL_SKILLS.map(({ rank, bonus }, index) => ({
+        id: `manual-${bonus}`,
+        rank,
+        bonus,
+        checked: index === 0
+      })),
+      rollModes: Object.entries(ROLL_MODES).map(([id, mode]) => ({
+        id,
+        label: game.i18n.localize(mode.label),
+        icon: mode.icon
+      })),
+      cancelLabel: game.i18n.localize("MoshQoL.Common.Cancel")
+    });
+  }
+
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    this.window.title = game.i18n.format("MoshQoL.SbtCrewRoll.Title", {
+      stat: this._statLabel
+    });
+  }
+
+  static async _onRoll(event, target) {
+    event?.preventDefault?.();
+
+    const mode = ROLL_MODES[target?.dataset?.rollMode];
+    if (!mode) return;
+
+    const root = getAppRoot(this.element);
+    const selectedId = root
+      ?.querySelector("input[name='crewSkill']:checked")
+      ?.value ?? "manual-10";
+    const selection = this._choices.get(selectedId) ?? this._choices.get("manual-10");
+    if (!selection) return;
+
+    resolveAppOnce(this, {
+      rollString: mode.rollString,
+      skill: selection.skill,
+      bonus: selection.bonus
+    });
+    await this.close();
+  }
+
+  static async _onCancel(event) {
+    event?.preventDefault?.();
+    await this.close();
+  }
+
+  async close(options = {}) {
+    resolveAppOnce(this, null);
+    return super.close(options);
+  }
 }
 
 async function openCrewSkillRoll(ship, statKey) {
@@ -113,92 +239,7 @@ async function openCrewSkillRoll(ship, statKey) {
     return;
   }
 
-  const stat = ship.system?.stats?.[statKey];
-  const statLabel = stat?.label ?? stat?.rollLabel ?? statKey;
-  const crewGroups = await getCrewSkillGroups(ship);
-  const choices = new Map(MANUAL_SKILLS.map(({ rank, bonus }) => [
-    `manual-${bonus}`,
-    {
-      skill: game.i18n.format("MoshQoL.SbtCrewRoll.ManualSkillLabel", { rank, bonus }),
-      bonus
-    }
-  ]));
-
-  let choiceIndex = 0;
-  const renderedCrewGroups = crewGroups.map(({ actor, skills }) => ({
-    name: actor.name,
-    img: actor.img || MOSH_FALLBACK_ACTOR_IMAGE,
-    skills: skills.map(({ item, bonus }) => {
-      const id = `crew-${choiceIndex++}`;
-      choices.set(id, {
-        skill: escapeHTML(`${actor.name} — ${item.name}`),
-        bonus
-      });
-
-      return {
-        id,
-        name: item.name,
-        bonus
-      };
-    })
-  }));
-
-  const content = await foundry.applications.handlebars.renderTemplate(
-    templatePath("dialogs/sbt-crew-skill-roll.html"),
-    {
-      statLabel,
-      themeColor: getThemeColor(),
-      hasCrewSkills: renderedCrewGroups.length > 0,
-      crewGroups: renderedCrewGroups,
-      manualSkills: MANUAL_SKILLS.map(({ rank, bonus }, index) => ({
-        id: `manual-${bonus}`,
-        rank,
-        bonus,
-        checked: index === 0
-      }))
-    }
-  );
-
-  const result = await foundry.applications.api.DialogV2.wait({
-    window: {
-      title: game.i18n.format("MoshQoL.SbtCrewRoll.Title", { stat: statLabel })
-    },
-    classes: qolWindowClasses("sbt-crew-skill-roll-dialog"),
-    position: { width: 640 },
-    content,
-    buttons: [
-      createRollButton(
-        game.i18n.localize("Mosh.Advantage"),
-        "fas fa-angle-double-up",
-        "advantage",
-        "1d100 [+]",
-        choices
-      ),
-      createRollButton(
-        game.i18n.localize("Mosh.Normal"),
-        "fas fa-minus",
-        "normal",
-        "1d100",
-        choices
-      ),
-      createRollButton(
-        game.i18n.localize("Mosh.Disadvantage"),
-        "fas fa-angle-double-down",
-        "disadvantage",
-        "1d100 [-]",
-        choices
-      ),
-      {
-        label: game.i18n.localize("MoshQoL.Common.Cancel"),
-        icon: "fas fa-times",
-        action: "cancel",
-        callback: () => null
-      }
-    ],
-    default: "normal",
-    rejectClose: false
-  });
-
+  const result = await SbtCrewSkillRollApp.wait({ ship, statKey });
   if (!result) return;
 
   await ship.rollCheck(
