@@ -385,11 +385,9 @@
     "SbtCrewRoll": {
       "Title": "{stat}: Crew Skill",
       "Action": "Roll {stat} with a crew skill",
-      "Intro": "Choose a skill for the {stat} check, then choose the roll mode.",
-      "NoSkill": "No Skill",
+      "Intro": "Choose a crew skill or manual rank for the {stat} check, then choose the roll mode.",
       "ManualBonus": "Manual Bonus",
-      "Manual": "Manual",
-      "ManualSkillLabel": "Manual +{bonus}",
+      "ManualSkillLabel": "{rank} (+{bonus})",
       "NoCrewSkills": "No skills were found on the active crew roster.",
       "RollUnavailable": "The MOSH ship roll is unavailable.",
       "Error": "The crew skill roll could not be completed."
