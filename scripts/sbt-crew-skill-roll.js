@@ -126,8 +126,18 @@ export class SbtCrewSkillRollApp extends HandlebarsApplicationMixin(ApplicationV
   };
 
   static wait({ ship, statKey }) {
+    const stat = ship?.system?.stats?.[statKey];
+    const statLabel = stat?.label ?? stat?.rollLabel ?? statKey;
+
     return new Promise((resolve) => {
-      const app = new this({ ship, statKey, resolve });
+      const app = new this(
+        { ship, statKey, resolve },
+        {
+          window: {
+            title: game.i18n.format("MoshQoL.SbtCrewRoll.Title", { stat: statLabel })
+          }
+        }
+      );
       app.render({ force: true });
     });
   }
@@ -190,13 +200,6 @@ export class SbtCrewSkillRollApp extends HandlebarsApplicationMixin(ApplicationV
         icon: mode.icon
       })),
       cancelLabel: game.i18n.localize("MoshQoL.Common.Cancel")
-    });
-  }
-
-  async _onRender(context, options) {
-    await super._onRender(context, options);
-    this.window.title = game.i18n.format("MoshQoL.SbtCrewRoll.Title", {
-      stat: this._statLabel
     });
   }
 
