@@ -1128,13 +1128,16 @@
 }
 
 .greybeardqol .sbt-crew-skill-roll-option:hover {
-  background: var(--color-bg-hover);
+  background: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg));
 }
 
 .greybeardqol .sbt-crew-skill-roll-option input {
   flex: 0 0 auto;
   margin: 0;
   accent-color: var(--theme-color);
+  &::after {
+    color: var(--theme-color);
+  }
 }
 
 .greybeardqol .sbt-crew-skill-roll-option-main {
