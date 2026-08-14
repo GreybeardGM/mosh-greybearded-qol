@@ -385,11 +385,9 @@
     "SbtCrewRoll": {
       "Title": "{stat}: Crew-Skill",
       "Action": "{stat} mit Crew-Skill würfeln",
-      "Intro": "Wähle einen Skill für den {stat}-Wurf und anschließend den Wurfmodus.",
-      "NoSkill": "Ohne Skill",
+      "Intro": "Wähle einen Crew-Skill oder einen manuellen Rang für den {stat}-Wurf und anschließend den Wurfmodus.",
       "ManualBonus": "Manueller Bonus",
-      "Manual": "Manuell",
-      "ManualSkillLabel": "Manuell +{bonus}",
+      "ManualSkillLabel": "{rank} (+{bonus})",
       "NoCrewSkills": "Im aktiven Crew Roster wurden keine Skills gefunden.",
       "RollUnavailable": "Der MOSH-Schiffswurf ist nicht verfügbar.",
       "Error": "Der Crew-Skill-Wurf konnte nicht ausgeführt werden."
