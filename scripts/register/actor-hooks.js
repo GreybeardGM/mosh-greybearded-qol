@@ -1,4 +1,5 @@
 import { upsertToolband, removeToolband, refreshToolbandForActor } from "../toolband.js";
+import { augmentSbtShipSkillRolls } from "../sbt-crew-skill-roll.js";
 import { CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS, setReady } from "../character-creator/progress.js";
 import { getSheetKind } from "./sheets.js";
 import {
@@ -43,6 +44,12 @@ export function registerActorHooks() {
     const isGM = game.user.isGM;
     const isOwner = actor?.testUserPermission?.(game.user, "OWNER") ?? false;
     if (!isGM && !isOwner) return;
+
+    try {
+      augmentSbtShipSkillRolls(sheet, html);
+    } catch (e) {
+      console.error(e);
+    }
 
     const kind = getSheetKind(sheet);
     try {
