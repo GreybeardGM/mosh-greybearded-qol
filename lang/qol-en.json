@@ -381,6 +381,18 @@
         "Content": "<p><strong>MoSh Greybearded QoL</strong> could not find any valid <em>{itemType}</em> items in your World Items collection or in any loaded compendium.</p><p>To ensure correct functionality, please install a compatible compendium pack or create your own items in the World Items collection.</p>",
         "Warning": "MoSh Greybearded QoL: No items found. Install a compatible compendium pack or create items in the World."
       }
+    },
+    "SbtCrewRoll": {
+      "Title": "{stat}: Crew Skill",
+      "Action": "Roll {stat} with a crew skill",
+      "Intro": "Choose a skill for the {stat} check, then choose the roll mode.",
+      "NoSkill": "No Skill",
+      "ManualBonus": "Manual Bonus",
+      "Manual": "Manual",
+      "ManualSkillLabel": "Manual +{bonus}",
+      "NoCrewSkills": "No skills were found on the active crew roster.",
+      "RollUnavailable": "The MOSH ship roll is unavailable.",
+      "Error": "The crew skill roll could not be completed."
     }
   }
 }
