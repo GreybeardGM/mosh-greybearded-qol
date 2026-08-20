@@ -1,0 +1,55 @@
+<section class="sbt-crew-skill-roll" style="--theme-color: {{themeColor}}">
+  <p class="sbt-crew-skill-roll-intro">
+    {{localize "MoshQoL.SbtCrewRoll.Intro" stat=statLabel}}
+  </p>
+
+  <div class="sbt-crew-skill-roll-options">
+    <fieldset class="sbt-crew-skill-roll-group">
+      <legend>{{localize "MoshQoL.SbtCrewRoll.ManualBonus"}}</legend>
+      {{#each manualSkills}}
+        <label class="sbt-crew-skill-roll-option">
+          <input type="radio" name="crewSkill" value="{{id}}" {{#if checked}}checked{{/if}} />
+          <span class="sbt-crew-skill-roll-option-main">
+            <span>{{rank}}</span>
+            <strong class="sbt-crew-skill-roll-bonus">+{{bonus}}</strong>
+          </span>
+        </label>
+      {{/each}}
+    </fieldset>
+
+    {{#if hasCrewSkills}}
+      {{#each crewGroups}}
+        <fieldset class="sbt-crew-skill-roll-group">
+          <legend class="sbt-crew-skill-roll-crew">
+            <img src="{{img}}" alt="" />
+            <span>{{name}}</span>
+          </legend>
+          {{#each skills}}
+            <label class="sbt-crew-skill-roll-option">
+              <input type="radio" name="crewSkill" value="{{id}}" />
+              <span class="sbt-crew-skill-roll-option-main">
+                <span>{{name}}</span>
+                <strong class="sbt-crew-skill-roll-bonus">+{{bonus}}</strong>
+              </span>
+            </label>
+          {{/each}}
+        </fieldset>
+      {{/each}}
+    {{else}}
+      <p class="sbt-crew-skill-roll-empty">{{localize "MoshQoL.SbtCrewRoll.NoCrewSkills"}}</p>
+    {{/if}}
+  </div>
+
+  <footer class="sbt-crew-skill-roll-actions">
+    <button type="button" data-action="cancel">
+      <i class="fas fa-times" aria-hidden="true"></i>
+      {{cancelLabel}}
+    </button>
+    {{#each rollModes}}
+      <button type="button" data-action="roll" data-roll-mode="{{id}}">
+        <i class="{{icon}}" aria-hidden="true"></i>
+        {{label}}
+      </button>
+    {{/each}}
+  </footer>
+</section>

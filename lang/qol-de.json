@@ -149,6 +149,10 @@
         "AutoTrainAfterShoreLeave": {
           "Name": "Auto-Training nach Landgang",
           "Hint": "Wenn aktiviert, wird das Training-Tool nach einem abgeschlossenen Landgang automatisch ausgeführt, unabhängig davon, ob die Stressumwandlung erfolgreich ist."
+        },
+        "Prices": {
+          "Title": "Trainingspreise",
+          "Hint": "Lege den im Trainings-Auswahlfenster angezeigten Credit-Preis für jede Fertigkeitsstufe fest."
         }
       }
     },
@@ -377,6 +381,16 @@
         "Content": "<p><strong>MoSh Greybearded QoL</strong> konnte keine gültigen <em>{itemType}</em>-Gegenstände in den Welt-Gegenständen oder in einem geladenen Kompendium finden.</p><p>Installiere bitte ein kompatibles Kompendiumspaket oder erstelle eigene Gegenstände in den Welt-Gegenständen, damit die Funktion korrekt arbeiten kann.</p>",
         "Warning": "MoSh Greybearded QoL: Keine Gegenstände gefunden. Installiere ein kompatibles Kompendiumspaket oder erstelle Gegenstände in der Welt."
       }
+    },
+    "SbtCrewRoll": {
+      "Title": "{stat}: Crew-Skill",
+      "Action": "{stat} mit Crew-Skill würfeln",
+      "Intro": "Wähle einen Crew-Skill oder einen manuellen Rang für den {stat}-Wurf und anschließend den Wurfmodus.",
+      "ManualBonus": "Manueller Bonus",
+      "ManualSkillLabel": "{rank} (+{bonus})",
+      "NoCrewSkills": "Im aktiven Crew Roster wurden keine Skills gefunden.",
+      "RollUnavailable": "Der MOSH-Schiffswurf ist nicht verfügbar.",
+      "Error": "Der Crew-Skill-Wurf konnte nicht ausgeführt werden."
     }
   }
 }

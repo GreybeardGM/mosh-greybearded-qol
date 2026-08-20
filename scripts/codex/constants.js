@@ -7,6 +7,7 @@ export const DEFAULT_THEME_COLOR = "#f50";
 export const QOL_NAMESPACE_CLASS = "greybeardqol";
 export const QOL_UI_CLASS = "qol-ui";
 export const QOL_SHEET_CLASS = "qol-sheet";
+export const HIDE_SYSTEM_CHARACTER_CONFIG_CLASS = "qol-hide-system-character-config";
 export const CHAT_ACTION_CLASS = "chat-action";
 
 export const QOL_UI_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_UI_CLASS]);

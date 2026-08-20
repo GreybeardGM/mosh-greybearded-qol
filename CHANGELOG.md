@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.2] - 2026-08-20
+### Added
+- Training prices can now be configured separately for Trained, Expert, and Master skills and are displayed in the training skill selector.
+- The module now adds Crew Roll buttons to the SBT Ship Sheet for adding either a generic skill value or any skill value from the active Crew Roster to rolls on the corresponding ship stat.
+
+### Changed
+- Character, crew roster, and Apply Damage portraits now crop from the top center for better portrait framing.
+- Class Selection now displays classes in a single row with horizontal scrolling instead of wrapping into multiple rows.
+
+### Fixed
+- The system character sheet configuration button is hidden while the QoL Character Generator is enabled to avoid conflicting setup entry points.
+
 ## [0.8.1] - 2026-06-13
 ### Added
 - Simple Shore Leave now includes a Pay-Up button to automatically deduct credits.
