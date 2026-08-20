@@ -1,9 +1,11 @@
 # Changelog
 
+## [0.8.3-dev] - Unreleased
+
 ## [0.8.2] - 2026-08-20
 ### Added
 - Training prices can now be configured separately for Trained, Expert, and Master skills and are displayed in the training skill selector.
-- The module now adds Crew Roll buttons to the SBT Ship Sheet for adding either a generic skill value or any skill value from the active Crew Roster to rolls on the corresponding ship stat.
+- The SBT Ship Sheet now initializes a Crew Roll button for adding either a generic skill value or any skill value from the active Crew Roster crew to rolls against the corresponding ship stats.
 
 ### Changed
 - Character, crew roster, and Apply Damage portraits now crop from the top center for better portrait framing.
