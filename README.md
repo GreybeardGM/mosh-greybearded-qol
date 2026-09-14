@@ -12,6 +12,11 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Feature Overview
 
+### Cyberware
+- Weapons, armor, and inventory items have a compact cyberware checkbox, slot cost (0–9), and notes field.
+- Character sheets show used slots against Strength divided by ten, rounded down; excess slots display as Overclocking.
+- Each marked item counts once, regardless of quantity or equipped status; stash sheets do not show the character indicator.
+
 ### 🧬 QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
 - Homebrew-friendly dialogs and option handling
@@ -60,7 +65,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev`
+- **Current module version**: `0.8.3-dev.1`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
@@ -68,7 +73,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 ## Installation
 
 - GitHub repository: <https://github.com/GreybeardGM/mosh-greybearded-qol>  
-- Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/refs/tags/0.8.2/module.json>
+- DEV manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/dev/module.json>
 
 ## Maintainer Notes
 

@@ -14,6 +14,7 @@ import { registerActorHooks } from "./register/actor-hooks.js";
 import { registerHandlebarsHelpers } from "./register/handlebars-helpers.js";
 import { registerActorSheets } from "./register/sheets.js";
 import { registerStatusEffects } from "./register/status-effects.js";
+import { registerCyberwareHooks } from "./cyberware/sheets.js";
 import "./patches/creature-skillfix.js";
 
 Hooks.once("init", () => {
@@ -23,6 +24,7 @@ Hooks.once("init", () => {
   registerHandlebarsHelpers();
   registerApplyDamageSceneControl();
   registerActorHooks();
+  registerCyberwareHooks();
 });
 
 Hooks.once("ready", () => {

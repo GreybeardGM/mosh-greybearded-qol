@@ -15,6 +15,7 @@ export const MOSH_LOADOUT_ROLLTABLE_IMAGES = Object.freeze({
 
 export const MOSH_INDEX_ONLY_ITEM_TYPES = Object.freeze([MOSH_ITEM_TYPE_SKILL, MOSH_ITEM_TYPE_CLASS]);
 export const MOSH_HOT_CACHE_ITEM_TYPES = Object.freeze([MOSH_ITEM_TYPE_SKILL, MOSH_ITEM_TYPE_CLASS]);
-export const MOSH_LOADOUT_CLEAR_ITEM_TYPES = Object.freeze(["weapon", "armor", "item"]);
+export const MOSH_EQUIPMENT_ITEM_TYPES = Object.freeze(["weapon", "armor", "item"]);
+export const MOSH_LOADOUT_CLEAR_ITEM_TYPES = MOSH_EQUIPMENT_ITEM_TYPES;
 
 export const MOSH_STARTING_CREDITS_FORMULA = "2d10 * 10";

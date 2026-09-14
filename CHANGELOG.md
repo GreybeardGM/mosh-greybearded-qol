@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.8.3-dev] - Unreleased
+## [0.8.3-dev.1] - Unreleased
+### Added
+- Cyberware fields on weapon, armor, and inventory item sheets, with per-item flags for enabled state, slot cost, and notes.
+- Character slot usage based on floor(Strength / 10), or Overclocking with the excess; quantities and equipped state are ignored.
+
+### Fixed
+- DEV manifest and download URLs now install the dev branch instead of release 0.8.2.
 
 ## [0.8.2] - 2026-08-20
 ### Added

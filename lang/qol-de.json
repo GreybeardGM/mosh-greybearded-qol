@@ -1,5 +1,13 @@
 {
   "MoshQoL": {
+    "Cyberware": {
+      "Label": "Cyberware",
+      "Slots": "Slots",
+      "Notes": "Cyberware-Notizen",
+      "Usage": "{used} von {max} Slots",
+      "Overclocking": "Overclocking {overclocking}",
+      "SaveError": "Cyberware-Änderungen konnten nicht gespeichert werden."
+    },
     "Common": {
       "Bonus": "Bonus",
       "Cancel": "Abbrechen",
