@@ -45,6 +45,10 @@
       "BrokenArmor": "Beschädigte Rüstung"
     },
     "Settings": {
+      "EnableCyberware": {
+        "Name": "Cyberware aktivieren",
+        "Hint": "Erweitert bei Aktivierung die Item-Verwaltung um ein Cyberware-Slot-System nach „A Pound of Flesh“."
+      },
       "ConvertStress": {
         "Formula": {
           "Hint": "Fallback-Würfelformel für die Stressumwandlung (nützlich für Homebrew-Makros).",

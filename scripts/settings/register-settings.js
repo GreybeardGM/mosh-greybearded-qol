@@ -7,6 +7,7 @@ import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import { refreshOpenToolbands } from "../toolband.js";
+import { refreshOpenCyberwareSheets } from "../cyberware/sheets.js";
 import {
   DEFAULT_TARGET_LOGIC,
   TARGET_LOGIC_CHOICE_KEYS,
@@ -18,6 +19,7 @@ import {
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_ENABLE_CHARACTER_CREATOR,
+  SETTING_ENABLE_CYBERWARE,
   SETTING_SHORE_LEAVE_CONFIG,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   SETTING_THEME_COLOR,
@@ -36,6 +38,16 @@ function getApplyDamageTargetLogicChoices() {
 }
 
 const WORLD_SETTING_DEFINITIONS = [
+  {
+    key: SETTING_ENABLE_CYBERWARE,
+    options: {
+      name: "MoshQoL.Settings.EnableCyberware.Name",
+      hint: "MoshQoL.Settings.EnableCyberware.Hint",
+      type: Boolean,
+      default: false,
+      onChange: refreshOpenCyberwareSheets
+    }
+  },
   {
     key: SETTING_THEME_COLOR,
     options: {

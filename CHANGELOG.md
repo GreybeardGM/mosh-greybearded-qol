@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.3-dev.4] - Unreleased
+### Added
+- World setting to enable the cyberware slot system based on A Pound of Flesh, disabled by default; updates open item and character sheets without deleting existing flags.
+
+### Fixed
+- Item cyberware controls now sit above the tab navigation.
+- Moved the stylesheet to styles/qol-cyberware.css, preserving the manual styling corrections and removing the obsolete in-tab layout rules.
+
 ## [0.8.3-dev.3] - Unreleased
 ### Added
 - Clickable cyberware name pills on the left of the character status row open each embedded item's sheet, using the shared interactive hover styling.

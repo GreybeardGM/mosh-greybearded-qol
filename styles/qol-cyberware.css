@@ -1,16 +1,3 @@
-/* Sheet integration: reserve space for the module row above the system tabs. */
-.mosh.sheet.item .sheet-body:has(> .greybeardqol.qol-ui.qol-cyberware-row) {
-  display: flex;
-  flex-direction: column;
-}
-
-.mosh.sheet.item .sheet-body:has(> .greybeardqol.qol-ui.qol-cyberware-row) > .tab {
-  flex: 1;
-  min-height: 0;
-  height: auto;
-  overflow-y: auto;
-}
-
 /* Appearance comes from the shared pill, form controls and checkbox ::after. */
 .greybeardqol.qol-ui.qol-cyberware-row {
   margin: 0.25rem 0 0.5rem;

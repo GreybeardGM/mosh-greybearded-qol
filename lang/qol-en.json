@@ -45,6 +45,10 @@
       "BrokenArmor": "Broken Armor"
     },
     "Settings": {
+      "EnableCyberware": {
+        "Name": "Enable Cyberware",
+        "Hint": "When enabled, extends item management with a cyberware slot system based on A Pound of Flesh."
+      },
       "ConvertStress": {
         "Formula": {
           "Hint": "Fallback dice formula used to convert stress (useful for homebrew macros).",

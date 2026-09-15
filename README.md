@@ -13,6 +13,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 ## Feature Overview
 
 ### Cyberware
+- Enable Cyberware in the module settings to add the slot system based on A Pound of Flesh; disabled by default for the world.
 - Weapons, armor, and inventory items have a compact cyberware checkbox, slot cost (0–9), and notes field.
 - Character sheets show used slots against Strength divided by ten, rounded down; excess slots display as Overclocking.
 - Each marked item counts once, regardless of quantity or equipped status; stash sheets do not show the character indicator.
@@ -66,7 +67,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev.3`
+- **Current module version**: `0.8.3-dev.4`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`

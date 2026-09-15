@@ -1,4 +1,4 @@
-import { FLAG_CYBERWARE, MODULE_ID, qolClassName } from "../codex/constants.js";
+import { FLAG_CYBERWARE, MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } from "../codex/constants.js";
 import { MOSH_EQUIPMENT_ITEM_TYPES } from "../codex/mosh-system.js";
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
@@ -15,9 +15,10 @@ function renderCyberwareItem(sheet, html) {
   const item = sheet.item;
   if (!MOSH_EQUIPMENT_ITEM_TYPES.includes(item?.type)) return;
   const root = html?.[0] ?? html;
-  const body = root?.querySelector(".sheet-body");
-  if (!body) return;
-  root.querySelector(`.${ROW_CLASS}`)?.remove();
+  root?.querySelector(`.${ROW_CLASS}`)?.remove();
+  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
+  const tabs = root?.querySelector(".sheet-tabs");
+  if (!tabs) return;
 
   const cyberware = getCyberware(item);
   const notesLabel = escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Notes"));
@@ -36,8 +37,8 @@ function renderCyberwareItem(sheet, html) {
     else input.value = cyberware[input.dataset.field];
     input.disabled = !sheet.isEditable;
   }
-  // Inside the existing body height, above all tabs; stays visible on tab changes.
-  body.prepend(row);
+  // Persistent item controls belong above the tab navigation.
+  tabs.before(row);
   row.addEventListener("keydown", event => {
     if (event.key === "Enter" && event.target.matches("input:not([type=checkbox])")) {
       event.preventDefault();
@@ -47,7 +48,8 @@ function renderCyberwareItem(sheet, html) {
   row.addEventListener("change", async event => {
     event.stopPropagation();
     const input = event.target;
-    if (!sheet.isEditable || !input.matches("input[data-field]")) return;
+    if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)
+      || !sheet.isEditable || !input.matches("input[data-field]")) return;
     if (!input.reportValidity()) return;
     const field = input.dataset.field;
     const value = input.type === "checkbox" ? input.checked
@@ -66,7 +68,7 @@ function renderCyberwareStatus(sheet, html) {
   const root = html?.[0] ?? html;
   if (!root) return;
   const existing = root.querySelector(`.${STATUS_CLASS}`);
-  if (getSheetKind(sheet) !== "character") {
+  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE) || getSheetKind(sheet) !== "character") {
     existing?.remove();
     return;
   }
@@ -104,6 +106,14 @@ function refreshCyberwareStatus(actor) {
   if (actor?.type !== "character") return;
   for (const sheet of Object.values(actor.apps ?? {})) {
     if (sheet.rendered) renderCyberwareStatus(sheet, sheet.element);
+  }
+}
+
+export function refreshOpenCyberwareSheets() {
+  for (const sheet of Object.values(ui.windows)) {
+    if (!sheet.rendered) continue;
+    if (sheet.item) renderCyberwareItem(sheet, sheet.element);
+    else if (sheet.actor) renderCyberwareStatus(sheet, sheet.element);
   }
 }
 
