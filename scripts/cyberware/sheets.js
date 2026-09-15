@@ -1,7 +1,8 @@
-import { FLAG_CYBERWARE, MODULE_ID } from "../codex/constants.js";
+import { FLAG_CYBERWARE, MODULE_ID, qolClassName } from "../codex/constants.js";
 import { MOSH_EQUIPMENT_ITEM_TYPES } from "../codex/mosh-system.js";
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
+import { getThemeColor } from "../utils/get-theme-color.js";
 import { calculateCyberwareSlots, getCyberware } from "./slots.js";
 
 const ROW_CLASS = "qol-cyberware-row";
@@ -20,12 +21,15 @@ function renderCyberwareItem(sheet, html) {
   const cyberware = getCyberware(item);
   const notesLabel = escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Notes"));
   const row = document.createElement("div");
-  row.className = ROW_CLASS;
+  row.className = qolClassName(ROW_CLASS);
+  row.style.setProperty("--theme-color", getThemeColor());
   // No form field names: only this row's change handler writes Item flags.
   row.innerHTML = `
+    <div class="pill">
     <label><input type="checkbox" data-field="enabled"> ${escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Label"))}</label>
     <label>${escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Slots"))} <input type="number" data-field="slots" min="0" max="9" step="1" inputmode="numeric"></label>
-    <input type="text" data-field="notes" aria-label="${notesLabel}" placeholder="${notesLabel}">`;
+    <input type="text" data-field="notes" aria-label="${notesLabel}" placeholder="${notesLabel}">
+    </div>`;
   for (const input of row.querySelectorAll("input")) {
     if (input.type === "checkbox") input.checked = cyberware.enabled;
     else input.value = cyberware[input.dataset.field];
@@ -68,12 +72,16 @@ function renderCyberwareStatus(sheet, html) {
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
   const status = existing ?? document.createElement("div");
-  status.className = STATUS_CLASS;
+  status.className = qolClassName(STATUS_CLASS);
+  status.style.setProperty("--theme-color", getThemeColor());
   status.setAttribute("role", "status");
   const totals = calculateCyberwareSlots(sheet.actor);
-  status.dataset.overclocking = String(totals.overclocking > 0);
-  status.textContent = game.i18n.format(totals.overclocking > 0
+  const label = status.firstElementChild ?? document.createElement("span");
+  label.className = "pill";
+  label.classList.toggle("text-highlight", totals.overclocking > 0);
+  label.textContent = game.i18n.format(totals.overclocking > 0
     ? "MoshQoL.Cyberware.Overclocking" : "MoshQoL.Cyberware.Usage", totals);
+  if (!label.parentElement) status.append(label);
   if (!existing) tabs.before(status);
 }
 

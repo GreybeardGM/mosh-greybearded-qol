@@ -1,69 +1,45 @@
-.mosh.sheet.item .sheet-body:has(> .qol-cyberware-row) {
+/* Sheet integration: reserve space for the module row above the system tabs. */
+.mosh.sheet.item .sheet-body:has(> .greybeardqol.qol-ui.qol-cyberware-row) {
   display: flex;
   flex-direction: column;
 }
 
-.mosh.sheet.item .sheet-body:has(> .qol-cyberware-row) > .tab {
+.mosh.sheet.item .sheet-body:has(> .greybeardqol.qol-ui.qol-cyberware-row) > .tab {
   flex: 1;
   min-height: 0;
   height: auto;
   overflow-y: auto;
 }
 
-.mosh.sheet.item .qol-cyberware-row {
+/* Appearance comes from the shared pill, form controls and checkbox ::after. */
+.greybeardqol.qol-ui.qol-cyberware-row {
   flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 8px;
-  padding: 4px 6px;
-  border: 1px solid currentColor;
-  font-size: 12px;
+  margin: 0.25rem 0 0.5rem;
 }
 
-.mosh.sheet.item .qol-cyberware-row label {
+.greybeardqol.qol-ui.qol-cyberware-row > .pill {
+  gap: 0.5rem;
+}
+
+.greybeardqol.qol-ui.qol-cyberware-row label {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.25rem;
   flex: 0 0 auto;
   white-space: nowrap;
 }
 
-.mosh.sheet.item .qol-cyberware-row input[type="checkbox"] {
-  margin: 0;
-  width: 16px;
-  height: 16px;
+.greybeardqol.qol-ui.qol-cyberware-row input[type="number"] {
+  width: 3em;
 }
 
-.mosh.sheet.item .qol-cyberware-row input[type="number"] {
-  width: 2.5em;
-  height: 24px;
-  text-align: center;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.mosh.sheet.item .qol-cyberware-row input[type="number"]::-webkit-inner-spin-button,
-.mosh.sheet.item .qol-cyberware-row input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.mosh.sheet.item .qol-cyberware-row input[type="text"] {
+.greybeardqol.qol-ui.qol-cyberware-row input[type="text"] {
   flex: 1 1 0;
   min-width: 0;
-  height: 24px;
 }
 
-.mosh.sheet.actor .qol-cyberware-status {
+.greybeardqol.qol-ui.qol-cyberware-status {
   flex: 0 0 auto;
-  padding: 3px 6px;
-  font-size: 12px;
-  text-align: right;
-}
-
-.mosh.sheet.actor .qol-cyberware-status[data-overclocking="true"] {
-  color: #b3261e;
-  background: #fff0ec;
-  font-weight: bold;
+  display: flex;
+  justify-content: flex-end;
 }

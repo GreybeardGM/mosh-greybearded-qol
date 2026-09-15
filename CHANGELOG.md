@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.3-dev.2] - Unreleased
+### Fixed
+- Cyberware controls now use the shared QoL namespace, pill styling, form controls and checkbox colors with the configured theme color.
+- Slot usage uses the same styling; Overclocking uses the existing theme highlight instead of fixed red colors.
+
 ## [0.8.3-dev.1] - Unreleased
 ### Added
 - Cyberware fields on weapon, armor, and inventory item sheets, with per-item flags for enabled state, slot cost, and notes.
