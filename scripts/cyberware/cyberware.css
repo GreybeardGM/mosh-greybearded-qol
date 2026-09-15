@@ -13,7 +13,6 @@
 
 /* Appearance comes from the shared pill, form controls and checkbox ::after. */
 .greybeardqol.qol-ui.qol-cyberware-row {
-  flex: 0 0 auto;
   margin: 0.25rem 0 0.5rem;
 }
 
@@ -30,19 +29,12 @@
 }
 
 .greybeardqol.qol-ui.qol-cyberware-row input[type="number"] {
-  width: 3em;
-}
-
-.greybeardqol.qol-ui.qol-cyberware-row input[type="text"] {
-  flex: 1 1 0;
-  min-width: 0;
+  text-align: center;
 }
 
 .greybeardqol.qol-ui.qol-cyberware-status {
   flex: 0 0 auto;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .greybeardqol.qol-ui.qol-cyberware-status .qol-cyberware-items {
@@ -51,11 +43,10 @@
   min-width: 0;
   gap: 0.25rem;
   overflow-x: auto;
-  padding: 0.25rem 0;
 }
 
 .greybeardqol.qol-ui.qol-cyberware-status .pill {
-  flex: 0 0 auto;
   width: auto;
   white-space: nowrap;
+  line-height: 1rem;
 }
