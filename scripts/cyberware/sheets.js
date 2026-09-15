@@ -3,10 +3,11 @@ import { MOSH_EQUIPMENT_ITEM_TYPES } from "../codex/mosh-system.js";
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
-import { calculateCyberwareSlots, getCyberware } from "./slots.js";
+import { calculateCyberwareSlots, getCyberware, getCyberwareItems } from "./slots.js";
 
 const ROW_CLASS = "qol-cyberware-row";
 const STATUS_CLASS = "qol-cyberware-status";
+const ITEMS_CLASS = "qol-cyberware-items";
 const FLAG_PATH = `flags.${MODULE_ID}.${FLAG_CYBERWARE}`;
 let registered = false;
 
@@ -74,14 +75,28 @@ function renderCyberwareStatus(sheet, html) {
   const status = existing ?? document.createElement("div");
   status.className = qolClassName(STATUS_CLASS);
   status.style.setProperty("--theme-color", getThemeColor());
-  status.setAttribute("role", "status");
   const totals = calculateCyberwareSlots(sheet.actor);
-  const label = status.firstElementChild ?? document.createElement("span");
+  const items = document.createElement("div");
+  items.className = ITEMS_CLASS;
+  for (const item of getCyberwareItems(sheet.actor)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "pill interactive";
+    button.textContent = item.name;
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      item.sheet.render({ force: true });
+    });
+    items.append(button);
+  }
+  const label = document.createElement("span");
+  label.setAttribute("role", "status");
   label.className = "pill";
-  label.classList.toggle("text-highlight", totals.overclocking > 0);
+  label.classList.toggle("selected", totals.overclocking > 0);
   label.textContent = game.i18n.format(totals.overclocking > 0
     ? "MoshQoL.Cyberware.Overclocking" : "MoshQoL.Cyberware.Usage", totals);
-  if (!label.parentElement) status.append(label);
+  status.replaceChildren(items, label);
   if (!existing) tabs.before(status);
 }
 

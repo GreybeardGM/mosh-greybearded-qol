@@ -41,5 +41,21 @@
 .greybeardqol.qol-ui.qol-cyberware-status {
   flex: 0 0 auto;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.greybeardqol.qol-ui.qol-cyberware-status .qol-cyberware-items {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding: 0.25rem 0;
+}
+
+.greybeardqol.qol-ui.qol-cyberware-status .pill {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
 }

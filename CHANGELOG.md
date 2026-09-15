@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.3-dev.3] - Unreleased
+### Added
+- Clickable cyberware name pills on the left of the character status row open each embedded item's sheet, using the shared interactive hover styling.
+
+### Fixed
+- Overclocking now uses the shared selected pill border and outline; slot usage stays on the right when the item list scrolls.
+
 ## [0.8.3-dev.2] - Unreleased
 ### Fixed
 - Cyberware controls now use the shared QoL namespace, pill styling, form controls and checkbox colors with the configured theme color.

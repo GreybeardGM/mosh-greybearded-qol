@@ -1,11 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateCyberwareSlots, getCyberware } from "../../scripts/cyberware/slots.js";
+import { calculateCyberwareSlots, getCyberware, getCyberwareItems } from "../../scripts/cyberware/slots.js";
 
 const item = (type, slots, enabled = true, system = {}) => ({
   type, system, getFlag: () => ({ enabled, slots })
 });
 const actor = (strength, items = []) => ({ system: { stats: { strength: { value: strength } } }, items });
+
+test("shortcuts retain distinct embedded items including zero-slot cyberware", () => {
+  const first = { ...item("item", 0, true, { quantity: 0 }), id: "first", name: "Implant" };
+  const second = { ...item("armor", 2, true, { equipped: false }), id: "second", name: "Implant" };
+  const character = actor(43, [first, item("weapon", 3, false), second, item("skill", 1)]);
+  const selected = getCyberwareItems(character);
+  assert.equal(selected.length, 2);
+  assert.equal(selected[0], first);
+  assert.equal(selected[1], second);
+  assert.equal(calculateCyberwareSlots(character).used, 2);
+});
 
 test("Strength 43 and six slots produce Overclocking 2; quantity/equipped are ignored", () => {
   const character = actor(43, [

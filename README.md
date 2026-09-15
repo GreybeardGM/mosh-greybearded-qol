@@ -16,6 +16,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 - Weapons, armor, and inventory items have a compact cyberware checkbox, slot cost (0–9), and notes field.
 - Character sheets show used slots against Strength divided by ten, rounded down; excess slots display as Overclocking.
 - Each marked item counts once, regardless of quantity or equipped status; stash sheets do not show the character indicator.
+- Click the cyberware name pills to open their item sheets; the single-row list scrolls horizontally while slot usage stays on the right.
 
 ### 🧬 QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
@@ -65,7 +66,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev.2`
+- **Current module version**: `0.8.3-dev.3`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
