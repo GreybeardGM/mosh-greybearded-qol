@@ -8,6 +8,14 @@
       "Overclocking": "Overclocking {overclocking}",
       "SaveError": "Cyberware changes could not be saved."
     },
+    "Slickware": {
+      "Label": "Slickware",
+      "Slots": "Slots",
+      "Notes": "Slickware notes",
+      "Usage": "{used} of {max} slots",
+      "Overclocking": "Overclocking {overclocking}",
+      "SaveError": "Slickware changes could not be saved."
+    },
     "Common": {
       "Bonus": "Bonus",
       "Cancel": "Cancel",
@@ -46,8 +54,8 @@
     },
     "Settings": {
       "EnableCyberware": {
-        "Name": "Enable Cyberware",
-        "Hint": "When enabled, extends item management with a cyberware slot system based on A Pound of Flesh."
+        "Name": "Enable Cyberware and Slickware",
+        "Hint": "When enabled, extends item management with a Cyberware and Slickware slot system based on A Pound of Flesh."
       },
       "ConvertStress": {
         "Formula": {

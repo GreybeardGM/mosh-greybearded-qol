@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.3-dev.5] - Unreleased
+### Added
+- Slickware flags, slot costs, and notes on skill and ordinary inventory item sheets under the existing Cyberware setting.
+- Separate Slickware usage based on floor(Sanity / 10), clickable Slickware item pills, and shared Overclocking from excess Cyberware and Slickware slots.
+
+### Changed
+- Cyberware and Slickware now share the existing pill, checkbox, theme-color, and sheet-row styling through the feature's common UI classes.
+
 ## [0.8.3-dev.4] - Unreleased
 ### Added
 - World setting to enable the cyberware slot system based on A Pound of Flesh, disabled by default; updates open item and character sheets without deleting existing flags.

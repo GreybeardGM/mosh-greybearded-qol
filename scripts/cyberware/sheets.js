@@ -1,44 +1,33 @@
-import { FLAG_CYBERWARE, MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } from "../codex/constants.js";
-import { MOSH_EQUIPMENT_ITEM_TYPES } from "../codex/mosh-system.js";
+import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } from "../codex/constants.js";
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
-import { calculateCyberwareSlots, getCyberware, getCyberwareItems } from "./slots.js";
+import { AUGMENTATION_DEFINITIONS } from "./config.js";
+import { calculateAugmentationState, getAugmentation, getAugmentationItems } from "./slots.js";
 
-const ROW_CLASS = "qol-cyberware-row";
-const STATUS_CLASS = "qol-cyberware-status";
-const ITEMS_CLASS = "qol-cyberware-items";
-const FLAG_PATH = `flags.${MODULE_ID}.${FLAG_CYBERWARE}`;
+const ROW_CLASS = "qol-augmentation-row";
+const STATUS_CLASS = "qol-augmentation-status";
+const ITEMS_CLASS = "qol-augmentation-items";
 let registered = false;
 
-function renderCyberwareItem(sheet, html) {
-  const item = sheet.item;
-  if (!MOSH_EQUIPMENT_ITEM_TYPES.includes(item?.type)) return;
-  const root = html?.[0] ?? html;
-  root?.querySelector(`.${ROW_CLASS}`)?.remove();
-  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
-  const tabs = root?.querySelector(".sheet-tabs");
-  if (!tabs) return;
-
-  const cyberware = getCyberware(item);
-  const notesLabel = escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Notes"));
+function createItemRow(sheet, definition) {
+  const augmentation = getAugmentation(sheet.item, definition);
+  const notesLabel = escapeHTML(game.i18n.localize(`${definition.localization}.Notes`));
   const row = document.createElement("div");
-  row.className = qolClassName(ROW_CLASS);
+  row.className = qolClassName(ROW_CLASS, `qol-${definition.id}-row`);
   row.style.setProperty("--theme-color", getThemeColor());
   // No form field names: only this row's change handler writes Item flags.
   row.innerHTML = `
     <div class="pill">
-    <label><input type="checkbox" data-field="enabled"> ${escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Label"))}</label>
-    <label>${escapeHTML(game.i18n.localize("MoshQoL.Cyberware.Slots"))} <input type="number" data-field="slots" min="0" max="9" step="1" inputmode="numeric"></label>
+    <label><input type="checkbox" data-field="enabled"> ${escapeHTML(game.i18n.localize(`${definition.localization}.Label`))}</label>
+    <label>${escapeHTML(game.i18n.localize(`${definition.localization}.Slots`))} <input type="number" data-field="slots" min="0" max="9" step="1" inputmode="numeric"></label>
     <input type="text" data-field="notes" aria-label="${notesLabel}" placeholder="${notesLabel}">
     </div>`;
   for (const input of row.querySelectorAll("input")) {
-    if (input.type === "checkbox") input.checked = cyberware.enabled;
-    else input.value = cyberware[input.dataset.field];
+    if (input.type === "checkbox") input.checked = augmentation.enabled;
+    else input.value = augmentation[input.dataset.field];
     input.disabled = !sheet.isEditable;
   }
-  // Persistent item controls belong above the tab navigation.
-  tabs.before(row);
   row.addEventListener("keydown", event => {
     if (event.key === "Enter" && event.target.matches("input:not([type=checkbox])")) {
       event.preventDefault();
@@ -55,32 +44,36 @@ function renderCyberwareItem(sheet, html) {
     const value = input.type === "checkbox" ? input.checked
       : input.type === "number" ? (input.valueAsNumber || 0) : input.value;
     try {
-      await item.update({ [`${FLAG_PATH}.${field}`]: value });
+      await sheet.item.update({ [`flags.${MODULE_ID}.${definition.id}.${field}`]: value });
     } catch (error) {
-      console.error(`${MODULE_ID} | Cyberware update failed`, error);
-      ui.notifications.error(game.i18n.localize("MoshQoL.Cyberware.SaveError"));
+      console.error(`${MODULE_ID} | ${definition.id} update failed`, error);
+      ui.notifications.error(game.i18n.localize(`${definition.localization}.SaveError`));
       sheet.render(false);
     }
   });
+  return row;
 }
 
-function renderCyberwareStatus(sheet, html) {
+function renderAugmentationItems(sheet, html) {
   const root = html?.[0] ?? html;
-  if (!root) return;
-  const existing = root.querySelector(`.${STATUS_CLASS}`);
-  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE) || getSheetKind(sheet) !== "character") {
-    existing?.remove();
-    return;
-  }
+  root?.querySelectorAll(`.${ROW_CLASS}, .qol-cyberware-row`).forEach(row => row.remove());
+  if (!root || !game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
-  const status = existing ?? document.createElement("div");
-  status.className = qolClassName(STATUS_CLASS);
+
+  for (const definition of AUGMENTATION_DEFINITIONS) {
+    if (definition.itemTypes.includes(sheet.item?.type)) tabs.before(createItemRow(sheet, definition));
+  }
+}
+
+function createStatus(sheet, definition, state) {
+  const totals = state[definition.id];
+  const status = document.createElement("div");
+  status.className = qolClassName(STATUS_CLASS, `qol-${definition.id}-status`);
   status.style.setProperty("--theme-color", getThemeColor());
-  const totals = calculateCyberwareSlots(sheet.actor);
   const items = document.createElement("div");
   items.className = ITEMS_CLASS;
-  for (const item of getCyberwareItems(sheet.actor)) {
+  for (const item of getAugmentationItems(sheet.actor, definition)) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "pill interactive";
@@ -97,33 +90,48 @@ function renderCyberwareStatus(sheet, html) {
   label.className = "pill";
   label.classList.toggle("selected", totals.overclocking > 0);
   label.textContent = game.i18n.format(totals.overclocking > 0
-    ? "MoshQoL.Cyberware.Overclocking" : "MoshQoL.Cyberware.Usage", totals);
+    ? `${definition.localization}.Overclocking` : `${definition.localization}.Usage`, {
+    ...totals,
+    overclocking: state.overclocking
+  });
   status.replaceChildren(items, label);
-  if (!existing) tabs.before(status);
+  return status;
 }
 
-function refreshCyberwareStatus(actor) {
+function renderAugmentationStatus(sheet, html) {
+  const root = html?.[0] ?? html;
+  if (!root) return;
+  root.querySelectorAll(`.${STATUS_CLASS}, .qol-cyberware-status`).forEach(status => status.remove());
+  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE) || getSheetKind(sheet) !== "character") return;
+  const tabs = root.querySelector(".sheet-tabs");
+  if (!tabs) return;
+  const state = calculateAugmentationState(sheet.actor);
+  for (const definition of AUGMENTATION_DEFINITIONS) tabs.before(createStatus(sheet, definition, state));
+}
+
+function refreshAugmentationStatus(actor) {
   if (actor?.type !== "character") return;
   for (const sheet of Object.values(actor.apps ?? {})) {
-    if (sheet.rendered) renderCyberwareStatus(sheet, sheet.element);
+    if (sheet.rendered) renderAugmentationStatus(sheet, sheet.element);
   }
 }
 
 export function refreshOpenCyberwareSheets() {
   for (const sheet of Object.values(ui.windows)) {
     if (!sheet.rendered) continue;
-    if (sheet.item) renderCyberwareItem(sheet, sheet.element);
-    else if (sheet.actor) renderCyberwareStatus(sheet, sheet.element);
+    if (sheet.item) renderAugmentationItems(sheet, sheet.element);
+    else if (sheet.actor) renderAugmentationStatus(sheet, sheet.element);
   }
 }
 
 export function registerCyberwareHooks() {
   if (registered) return;
   registered = true;
-  Hooks.on("renderMothershipItemSheet", renderCyberwareItem);
-  Hooks.on("renderActorSheet", renderCyberwareStatus);
-  Hooks.on("updateActor", refreshCyberwareStatus);
+  Hooks.on("renderMothershipItemSheet", renderAugmentationItems);
+  Hooks.on("renderMothershipSkillSheet", renderAugmentationItems);
+  Hooks.on("renderActorSheet", renderAugmentationStatus);
+  Hooks.on("updateActor", refreshAugmentationStatus);
   for (const hook of ["createItem", "updateItem", "deleteItem"]) {
-    Hooks.on(hook, item => refreshCyberwareStatus(item.parent));
+    Hooks.on(hook, item => refreshAugmentationStatus(item.parent));
   }
 }

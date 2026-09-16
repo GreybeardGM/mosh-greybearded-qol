@@ -1,58 +1,87 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateCyberwareSlots, getCyberware, getCyberwareItems } from "../../scripts/cyberware/slots.js";
+import { AUGMENTATION_DEFINITIONS } from "../../scripts/cyberware/config.js";
+import {
+  calculateAugmentationSlots,
+  calculateAugmentationState,
+  getAugmentation,
+  getAugmentationItems
+} from "../../scripts/cyberware/slots.js";
 
-const item = (type, slots, enabled = true, system = {}) => ({
-  type, system, getFlag: () => ({ enabled, slots })
+const [cyberware, slickware] = AUGMENTATION_DEFINITIONS;
+const item = (type, flags = {}, system = {}) => ({
+  type,
+  system,
+  getFlag: (_module, flag) => flags[flag]
 });
-const actor = (strength, items = []) => ({ system: { stats: { strength: { value: strength } } }, items });
-
-test("shortcuts retain distinct embedded items including zero-slot cyberware", () => {
-  const first = { ...item("item", 0, true, { quantity: 0 }), id: "first", name: "Implant" };
-  const second = { ...item("armor", 2, true, { equipped: false }), id: "second", name: "Implant" };
-  const character = actor(43, [first, item("weapon", 3, false), second, item("skill", 1)]);
-  const selected = getCyberwareItems(character);
-  assert.equal(selected.length, 2);
-  assert.equal(selected[0], first);
-  assert.equal(selected[1], second);
-  assert.equal(calculateCyberwareSlots(character).used, 2);
+const augmentation = (definition, slots, enabled = true) => ({
+  [definition.id]: { enabled, slots }
+});
+const actor = (strength, sanity, items = []) => ({
+  system: { stats: { strength: { value: strength }, sanity: { value: sanity } } },
+  items
 });
 
-test("Strength 43 and six slots produce Overclocking 2; quantity/equipped are ignored", () => {
-  const character = actor(43, [
-    item("weapon", 1, true, { equipped: false }),
-    item("armor", 2, true, { equipped: false }),
-    item("item", 3, true, { quantity: 10 })
+test("Cyberware accepts equipment while Slickware accepts skills and ordinary items", () => {
+  const shared = item("item", { ...augmentation(cyberware, 1), ...augmentation(slickware, 2) });
+  const weapon = item("weapon", augmentation(cyberware, 1));
+  const skill = item("skill", augmentation(slickware, 1));
+  const armorSlickware = item("armor", augmentation(slickware, 9));
+  const skillCyberware = item("skill", augmentation(cyberware, 9));
+  const character = actor(40, 30, [shared, weapon, skill, armorSlickware, skillCyberware]);
+
+  assert.deepEqual(getAugmentationItems(character, cyberware), [shared, weapon]);
+  assert.deepEqual(getAugmentationItems(character, slickware), [shared, skill]);
+});
+
+test("slot totals use Strength for Cyberware and Sanity for Slickware", () => {
+  const character = actor(43, 39, [
+    item("weapon", augmentation(cyberware, 6), { equipped: false }),
+    item("skill", augmentation(slickware, 2)),
+    item("item", augmentation(slickware, 1), { quantity: 10 })
   ]);
-  assert.deepEqual(calculateCyberwareSlots(character), { used: 6, max: 4, overclocking: 2 });
+  assert.deepEqual(calculateAugmentationSlots(character, cyberware), { used: 6, max: 4, overclocking: 2 });
+  assert.deepEqual(calculateAugmentationSlots(character, slickware), { used: 3, max: 3, overclocking: 0 });
 });
 
-test("the limit is rounded down and only excess slots overclock", () => {
-  for (const [strength, max, overclocking] of [[39, 3, 1], [40, 4, 0], [49, 4, 0], [50, 5, 0]]) {
-    assert.deepEqual(calculateCyberwareSlots(actor(strength, [item("item", 4)])),
-      { used: 4, max, overclocking });
-  }
+test("Overclocking combines the excess from both systems", () => {
+  const character = actor(43, 39, [
+    item("item", {
+      ...augmentation(cyberware, 6),
+      ...augmentation(slickware, 6)
+    })
+  ]);
+  assert.deepEqual(calculateAugmentationState(character), {
+    cyberware: { used: 6, max: 4, overclocking: 2 },
+    slickware: { used: 6, max: 3, overclocking: 3 },
+    overclocking: 5
+  });
 });
 
-test("unmarked equipment and other item types consume no slots", () => {
-  const character = actor(43, [item("armor", 9, false), item("skill", 9),
-    { type: "weapon", getFlag: () => undefined }]);
-  assert.deepEqual(calculateCyberwareSlots(character), { used: 0, max: 4, overclocking: 0 });
+test("each embedded item counts once regardless of quantity, equipment, or duplicate names", () => {
+  const first = { ...item("item", augmentation(cyberware, 0), { quantity: 0 }), id: "first", name: "Implant" };
+  const second = { ...item("armor", augmentation(cyberware, 2), { equipped: false }), id: "second", name: "Implant" };
+  const character = actor(43, 30, [first, second]);
+  assert.deepEqual(getAugmentationItems(character, cyberware), [first, second]);
+  assert.equal(calculateAugmentationSlots(character, cyberware).used, 2);
 });
 
-test("fresh calculation reflects flag edits, removal and Strength changes", () => {
-  const character = actor(43, [item("item", 6)]);
-  character.items[0] = item("item", 2);
-  assert.equal(calculateCyberwareSlots(character).used, 2);
-  character.system.stats.strength.value = 10;
-  assert.equal(calculateCyberwareSlots(character).overclocking, 1);
-  character.items.pop();
-  assert.deepEqual(calculateCyberwareSlots(character), { used: 0, max: 1, overclocking: 0 });
-});
-
-test("missing or malformed flags cannot poison the total", () => {
-  assert.deepEqual(getCyberware({ getFlag: () => undefined }), { enabled: false, slots: 0, notes: "" });
-  const character = actor(undefined, [item("item", NaN), item("armor", -2),
-    item("weapon", Infinity), item("item", "3"), item("item", 9, "false")]);
-  assert.deepEqual(calculateCyberwareSlots(character), { used: 3, max: 0, overclocking: 3 });
+test("malformed flags and stats cannot poison totals", () => {
+  assert.deepEqual(getAugmentation({ getFlag: () => undefined }, slickware), {
+    enabled: false,
+    slots: 0,
+    notes: ""
+  });
+  const character = actor(undefined, undefined, [
+    item("item", augmentation(cyberware, NaN)),
+    item("armor", augmentation(cyberware, -2)),
+    item("weapon", augmentation(cyberware, Infinity)),
+    item("item", augmentation(cyberware, "3")),
+    item("skill", augmentation(slickware, 9, "false"))
+  ]);
+  assert.deepEqual(calculateAugmentationState(character), {
+    cyberware: { used: 3, max: 0, overclocking: 3 },
+    slickware: { used: 0, max: 0, overclocking: 0 },
+    overclocking: 3
+  });
 });

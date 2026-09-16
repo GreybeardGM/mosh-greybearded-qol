@@ -12,12 +12,13 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Feature Overview
 
-### Cyberware
-- Enable Cyberware in the module settings to add the slot system based on A Pound of Flesh; disabled by default for the world.
-- Weapons, armor, and inventory items have a compact cyberware checkbox, slot cost (0–9), and notes field.
-- Character sheets show used slots against Strength divided by ten, rounded down; excess slots display as Overclocking.
+### Cyberware and Slickware
+- Enable the feature in the module settings to add both slot systems based on A Pound of Flesh; disabled by default for the world.
+- Weapons and armor can be Cyberware, skills can be Slickware, and ordinary inventory items can be either or both.
+- Character sheets compare Cyberware slots with Strength and Slickware slots with Sanity, each divided by ten and rounded down.
+- Excess slots from both systems are added together and displayed as the shared Overclocking value on each overloaded row.
 - Each marked item counts once, regardless of quantity or equipped status; stash sheets do not show the character indicator.
-- Click the cyberware name pills to open their item sheets; the single-row list scrolls horizontally while slot usage stays on the right.
+- Click the item name pills to open their sheets; each list scrolls horizontally while slot usage stays on the right.
 
 ### 🧬 QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
@@ -67,7 +68,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev.4`
+- **Current module version**: `0.8.3-dev.5`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
