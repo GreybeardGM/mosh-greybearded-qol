@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.3-dev.7] - Unreleased
+### Changed
+- Cyberware and Slickware slot counters now use labelled `used/max` values and receive a small gap when both rows are visible.
+
 ## [0.8.3-dev.6] - Unreleased
 ### Changed
 - Character sheets only show the Cyberware or Slickware status row when that system uses at least one slot.

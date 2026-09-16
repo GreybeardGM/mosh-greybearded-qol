@@ -4,7 +4,7 @@
       "Label": "Cyberware",
       "Slots": "Slots",
       "Notes": "Cyberware-Notizen",
-      "Usage": "{used} von {max} Slots",
+      "Usage": "Cyberware: {used}/{max}",
       "Overclocking": "Overclocking {overclocking}",
       "SaveError": "Cyberware-Änderungen konnten nicht gespeichert werden."
     },
@@ -12,7 +12,7 @@
       "Label": "Slickware",
       "Slots": "Slots",
       "Notes": "Slickware-Notizen",
-      "Usage": "{used} von {max} Slots",
+      "Usage": "Slickware: {used}/{max}",
       "Overclocking": "Overclocking {overclocking}",
       "SaveError": "Slickware-Änderungen konnten nicht gespeichert werden."
     },

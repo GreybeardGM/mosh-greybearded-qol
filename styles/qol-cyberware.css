@@ -24,6 +24,10 @@
   display: flex;
 }
 
+.greybeardqol.qol-ui.qol-cyberware-status + .greybeardqol.qol-ui.qol-slickware-status {
+  margin-top: 0.25rem;
+}
+
 .greybeardqol.qol-ui.qol-augmentation-status .qol-augmentation-items {
   display: flex;
   flex: 1;
