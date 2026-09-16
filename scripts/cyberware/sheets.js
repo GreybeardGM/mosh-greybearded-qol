@@ -106,7 +106,9 @@ function renderAugmentationStatus(sheet, html) {
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
   const state = calculateAugmentationState(sheet.actor);
-  for (const definition of AUGMENTATION_DEFINITIONS) tabs.before(createStatus(sheet, definition, state));
+  for (const definition of AUGMENTATION_DEFINITIONS) {
+    if (state[definition.id].used > 0) tabs.before(createStatus(sheet, definition, state));
+  }
 }
 
 function refreshAugmentationStatus(actor) {

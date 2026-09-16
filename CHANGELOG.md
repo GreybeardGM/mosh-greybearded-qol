@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.3-dev.6] - Unreleased
+### Changed
+- Character sheets only show the Cyberware or Slickware status row when that system uses at least one slot.
+
 ## [0.8.3-dev.5] - Unreleased
 ### Added
 - Slickware flags, slot costs, and notes on skill and ordinary inventory item sheets under the existing Cyberware setting.
