@@ -6,7 +6,10 @@
       "Notes": "Cyberware notes",
       "Usage": "Cyberware: {used}/{max}",
       "Overclocking": "Overclocking {overclocking}",
-      "SaveError": "Cyberware changes could not be saved."
+      "SaveError": "Cyberware changes could not be saved.",
+      "Config": {
+        "GeneralTitle": "General"
+      }
     },
     "Slickware": {
       "Label": "Slickware",
@@ -53,6 +56,11 @@
       "BrokenArmor": "Broken Armor"
     },
     "Settings": {
+      "CyberwareConfig": {
+        "Name": "Cyberware and Slickware",
+        "Label": "Configure",
+        "Hint": "Configure the Cyberware and Slickware slot system based on A Pound of Flesh."
+      },
       "EnableCyberware": {
         "Name": "Enable Cyberware and Slickware",
         "Hint": "When enabled, extends item management with a Cyberware and Slickware slot system based on A Pound of Flesh."

@@ -6,7 +6,10 @@
       "Notes": "Cyberware-Notizen",
       "Usage": "Cyberware: {used}/{max}",
       "Overclocking": "Overclocking {overclocking}",
-      "SaveError": "Cyberware-Änderungen konnten nicht gespeichert werden."
+      "SaveError": "Cyberware-Änderungen konnten nicht gespeichert werden.",
+      "Config": {
+        "GeneralTitle": "Allgemein"
+      }
     },
     "Slickware": {
       "Label": "Slickware",
@@ -53,6 +56,11 @@
       "BrokenArmor": "Beschädigte Rüstung"
     },
     "Settings": {
+      "CyberwareConfig": {
+        "Name": "Cyberware und Slickware",
+        "Label": "Konfigurieren",
+        "Hint": "Konfiguriert das Cyberware- und Slickware-Slot-System nach „A Pound of Flesh“."
+      },
       "EnableCyberware": {
         "Name": "Cyberware und Slickware aktivieren",
         "Hint": "Erweitert bei Aktivierung die Item-Verwaltung um ein Cyberware- und Slickware-Slot-System nach „A Pound of Flesh“."

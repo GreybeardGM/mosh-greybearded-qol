@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.3-dev.8] - Unreleased
+## [0.8.3-dev.9] - Unreleased
 ### Added
 - Optional Cyberware and Slickware slot management based on *A Pound of Flesh*, controlled by one world setting and disabled by default.
 - Cyberware controls for weapons, armor, and ordinary inventory items; Slickware controls for skills and ordinary inventory items. Each row stores its enabled state, slot cost, and notes on the item.
@@ -9,6 +9,7 @@
 - Combined Overclocking from excess Cyberware and Slickware slots, highlighted with the configured theme color.
 
 ### Changed
+- Cyberware and Slickware activation now lives in a dedicated configuration menu matching the module's other tool settings.
 - Cyberware and Slickware controls use the module's shared pill, form, checkbox, hover, and selected-state styling.
 - Persistent augmentation controls sit above the item-sheet tab navigation.
 

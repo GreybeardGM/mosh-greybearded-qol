@@ -2,6 +2,7 @@ import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shor
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
 import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
+import { CyberwareConfigApp } from "./cyberware-config.js";
 import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
@@ -38,16 +39,6 @@ function getApplyDamageTargetLogicChoices() {
 }
 
 const WORLD_SETTING_DEFINITIONS = [
-  {
-    key: SETTING_ENABLE_CYBERWARE,
-    options: {
-      name: "MoshQoL.Settings.EnableCyberware.Name",
-      hint: "MoshQoL.Settings.EnableCyberware.Hint",
-      type: Boolean,
-      default: false,
-      onChange: refreshOpenCyberwareSheets
-    }
-  },
   {
     key: SETTING_THEME_COLOR,
     options: {
@@ -101,6 +92,26 @@ const CLIENT_SETTING_DEFINITIONS = [
 
 
 const MENU_DEFINITIONS = [
+  {
+    key: "cyberwareConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.CyberwareConfig.Name",
+      label: "MoshQoL.Settings.CyberwareConfig.Label",
+      hint: "MoshQoL.Settings.CyberwareConfig.Hint",
+      icon: getFeatureIcon("cyberwareConfigMenu", "fa-solid fa-microchip"),
+      type: CyberwareConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_ENABLE_CYBERWARE,
+      options: {
+        name: "MoshQoL.Settings.EnableCyberware.Name",
+        type: Boolean,
+        default: false,
+        onChange: refreshOpenCyberwareSheets
+      }
+    }
+  },
   {
     key: "shoreLeaveEditor",
     options: {

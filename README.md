@@ -13,7 +13,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 ## Feature Overview
 
 ### A Pound of Flesh: Cyberware and Slickware
-- The optional world setting **Enable Cyberware and Slickware** adds a slot system based on *A Pound of Flesh*. It is disabled by default.
+- The dedicated **Cyberware and Slickware** configuration menu contains the optional world setting that enables the slot system based on *A Pound of Flesh*. It is disabled by default.
 - Weapon and armor sheets can mark an item as Cyberware; skill sheets can mark a skill as Slickware. Ordinary inventory items support either or both.
 - Each applicable sheet receives a compact row with an enable checkbox, a slot cost from 0–9, and notes.
 - Character sheets list every marked item as a clickable pill that opens its sheet. A status row appears only when the corresponding system uses at least one slot.
@@ -70,7 +70,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev.8`
+- **Current module version**: `0.8.3-dev.9`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
