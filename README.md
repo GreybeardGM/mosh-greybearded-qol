@@ -12,13 +12,15 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Feature Overview
 
-### Cyberware and Slickware
-- Enable the feature in the module settings to add both slot systems based on A Pound of Flesh; disabled by default for the world.
-- Weapons and armor can be Cyberware, skills can be Slickware, and ordinary inventory items can be either or both.
-- Character sheets compare Cyberware slots with Strength and Slickware slots with Sanity, each divided by ten and rounded down.
-- Excess slots from both systems are added together and displayed as the shared Overclocking value on each overloaded row.
-- Each marked item counts once, regardless of quantity or equipped status; stash sheets do not show the character indicator.
-- Click the item name pills to open their sheets; each list scrolls horizontally while slot usage stays on the right.
+### A Pound of Flesh: Cyberware and Slickware
+- The optional world setting **Enable Cyberware and Slickware** adds a slot system based on *A Pound of Flesh*. It is disabled by default.
+- Weapon and armor sheets can mark an item as Cyberware; skill sheets can mark a skill as Slickware. Ordinary inventory items support either or both.
+- Each applicable sheet receives a compact row with an enable checkbox, a slot cost from 0–9, and notes.
+- Character sheets list every marked item as a clickable pill that opens its sheet. A status row appears only when the corresponding system uses at least one slot.
+- Cyberware capacity is `floor(Strength / 10)` and Slickware capacity is `floor(Sanity / 10)`, displayed as `Cyberware: used/max` and `Slickware: used/max`.
+- Each marked document counts once; quantity and equipped state are ignored.
+- Excess Cyberware and Slickware slots are added together. Every overloaded row displays the combined **Overclocking** value.
+- The character indicator is not added to stash sheets.
 
 ### 🧬 QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
@@ -68,7 +70,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev.7`
+- **Current module version**: `0.8.3-dev.8`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`

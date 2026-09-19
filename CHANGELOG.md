@@ -1,45 +1,16 @@
 # Changelog
 
-## [0.8.3-dev.7] - Unreleased
-### Changed
-- Cyberware and Slickware slot counters now use labelled `used/max` values and receive a small gap when both rows are visible.
-
-## [0.8.3-dev.6] - Unreleased
-### Changed
-- Character sheets only show the Cyberware or Slickware status row when that system uses at least one slot.
-
-## [0.8.3-dev.5] - Unreleased
+## [0.8.3-dev.8] - Unreleased
 ### Added
-- Slickware flags, slot costs, and notes on skill and ordinary inventory item sheets under the existing Cyberware setting.
-- Separate Slickware usage based on floor(Sanity / 10), clickable Slickware item pills, and shared Overclocking from excess Cyberware and Slickware slots.
+- Optional Cyberware and Slickware slot management based on *A Pound of Flesh*, controlled by one world setting and disabled by default.
+- Cyberware controls for weapons, armor, and ordinary inventory items; Slickware controls for skills and ordinary inventory items. Each row stores its enabled state, slot cost, and notes on the item.
+- Separate character-sheet status rows with clickable item shortcuts and labelled `used/max` counters. Rows without occupied slots remain hidden.
+- Cyberware capacity based on `floor(Strength / 10)` and Slickware capacity based on `floor(Sanity / 10)`; quantity and equipped state do not affect either total.
+- Combined Overclocking from excess Cyberware and Slickware slots, highlighted with the configured theme color.
 
 ### Changed
-- Cyberware and Slickware now share the existing pill, checkbox, theme-color, and sheet-row styling through the feature's common UI classes.
-
-## [0.8.3-dev.4] - Unreleased
-### Added
-- World setting to enable the cyberware slot system based on A Pound of Flesh, disabled by default; updates open item and character sheets without deleting existing flags.
-
-### Fixed
-- Item cyberware controls now sit above the tab navigation.
-- Moved the stylesheet to styles/qol-cyberware.css, preserving the manual styling corrections and removing the obsolete in-tab layout rules.
-
-## [0.8.3-dev.3] - Unreleased
-### Added
-- Clickable cyberware name pills on the left of the character status row open each embedded item's sheet, using the shared interactive hover styling.
-
-### Fixed
-- Overclocking now uses the shared selected pill border and outline; slot usage stays on the right when the item list scrolls.
-
-## [0.8.3-dev.2] - Unreleased
-### Fixed
-- Cyberware controls now use the shared QoL namespace, pill styling, form controls and checkbox colors with the configured theme color.
-- Slot usage uses the same styling; Overclocking uses the existing theme highlight instead of fixed red colors.
-
-## [0.8.3-dev.1] - Unreleased
-### Added
-- Cyberware fields on weapon, armor, and inventory item sheets, with per-item flags for enabled state, slot cost, and notes.
-- Character slot usage based on floor(Strength / 10), or Overclocking with the excess; quantities and equipped state are ignored.
+- Cyberware and Slickware controls use the module's shared pill, form, checkbox, hover, and selected-state styling.
+- Persistent augmentation controls sit above the item-sheet tab navigation.
 
 ### Fixed
 - DEV manifest and download URLs now install the dev branch instead of release 0.8.2.
