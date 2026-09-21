@@ -1,10 +1,10 @@
 # Changelog
 
-## [0.8.3-dev.9] - Unreleased
+## [0.8.3-dev.10] - Unreleased
 ### Added
 - Optional Cyberware and Slickware slot management based on *A Pound of Flesh*, controlled by one world setting and disabled by default.
 - Cyberware controls for weapons, armor, and ordinary inventory items; Slickware controls for skills and ordinary inventory items. Each row stores its enabled state, slot cost, and notes on the item.
-- Separate character-sheet status rows with clickable item shortcuts and labelled `used/max` counters. Rows without occupied slots remain hidden.
+- Separate character-sheet status rows with clickable item shortcuts and labelled `used/max` counters. A row appears as soon as at least one corresponding item is marked, including items with a slot cost of zero.
 - Cyberware capacity based on `floor(Strength / 10)` and Slickware capacity based on `floor(Sanity / 10)`; quantity and equipped state do not affect either total.
 - Combined Overclocking from excess Cyberware and Slickware slots, highlighted with the configured theme color.
 

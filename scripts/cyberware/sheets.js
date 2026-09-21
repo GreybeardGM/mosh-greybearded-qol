@@ -66,14 +66,14 @@ function renderAugmentationItems(sheet, html) {
   }
 }
 
-function createStatus(sheet, definition, state) {
+function createStatus(definition, state, augmentationItems) {
   const totals = state[definition.id];
   const status = document.createElement("div");
   status.className = qolClassName(STATUS_CLASS, `qol-${definition.id}-status`);
   status.style.setProperty("--theme-color", getThemeColor());
   const items = document.createElement("div");
   items.className = ITEMS_CLASS;
-  for (const item of getAugmentationItems(sheet.actor, definition)) {
+  for (const item of augmentationItems) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "pill interactive";
@@ -107,7 +107,8 @@ function renderAugmentationStatus(sheet, html) {
   if (!tabs) return;
   const state = calculateAugmentationState(sheet.actor);
   for (const definition of AUGMENTATION_DEFINITIONS) {
-    if (state[definition.id].used > 0) tabs.before(createStatus(sheet, definition, state));
+    const items = getAugmentationItems(sheet.actor, definition);
+    if (items.length > 0) tabs.before(createStatus(definition, state, items));
   }
 }
 
