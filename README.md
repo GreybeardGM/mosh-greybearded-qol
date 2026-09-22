@@ -13,14 +13,9 @@ It streamlines repetitive workflows for both players and game masters while pres
 ## Feature Overview
 
 ### A Pound of Flesh: Cyberware and Slickware
-- The dedicated **Cyberware and Slickware** configuration menu contains the optional world setting that enables the slot system based on *A Pound of Flesh*. It is disabled by default.
-- Weapon and armor sheets can mark an item as Cyberware; skill sheets can mark a skill as Slickware. Ordinary inventory items support either or both.
-- Each applicable sheet receives a compact row with an enable checkbox, a slot cost from 0–9, and notes.
-- Character sheets list every marked item as a clickable pill that opens its sheet. A status row appears as soon as at least one corresponding item is marked, even when its slot cost is 0.
-- Cyberware capacity is `floor(Strength / 10)` and Slickware capacity is `floor(Sanity / 10)`, displayed as `Cyberware: used/max` and `Slickware: used/max`.
-- Each marked document counts once; quantity and equipped state are ignored.
-- Excess Cyberware and Slickware slots are added together. Every overloaded row displays the combined **Overclocking** value.
-- The character indicator is not added to stash sheets.
+- Adds an optional Cyberware and Slickware slot system based on *A Pound of Flesh*. It is disabled by default and can be enabled in the module settings.
+- Items and skills can be marked as Cyberware or Slickware with a slot cost and notes.
+- Character sheets display installed augmentations, available slots, and combined Overclocking.
 
 ### 🧬 QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
