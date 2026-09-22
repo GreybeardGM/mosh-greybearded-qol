@@ -382,8 +382,8 @@
       "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
       "Advantage": "Vorteil",
       "Disadvantage": "Nachteil",
-      "WoundCheckMacro": "@Macro[Wundwurf]",
-      "DeathSaveMacro": "@Macro[Todeswurf]"
+      "WoundRoll": "Wundwurf",
+      "DeathSave": "Todeswurf"
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."

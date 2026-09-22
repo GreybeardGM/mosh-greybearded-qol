@@ -382,8 +382,8 @@
       "NoWoundResult": "No matching wound result found.",
       "Advantage": "Advantage",
       "Disadvantage": "Disadvantage",
-      "WoundCheckMacro": "@Macro[Wound Check]",
-      "DeathSaveMacro": "@Macro[Death Save]"
+      "WoundRoll": "Wound Roll",
+      "DeathSave": "Death Save"
     },
     "Chat": {
       "NoActor": "No actor available for chat output."

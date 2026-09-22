@@ -15,7 +15,12 @@ import { ApplyDamageInputApp } from "./damage-input-app.js";
 import { calculateDamageOutcome } from "./damage-outcome.js";
 import { syncArmorBrokenToolbandButton } from "../toolband.js";
 import { STATUS_ARMOR_BROKEN } from "../codex/constants.js";
-import { MOSH_ROLLTABLE_PACK_ID } from "../codex/mosh-system.js";
+import {
+  MOSH_DEATH_SAVE_MACRO_UUID,
+  MOSH_ROLLTABLE_PACK_ID,
+  MOSH_WOUND_ROLL_MACRO_UUID
+} from "../codex/mosh-system.js";
+import { buildMoshMacroReference } from "./macro-reference.js";
 
 const automatedWoundRollTableCache = new Map();
 // Cache-Invalidierung: Ein Foundry-Reload ist ausreichend, da das Modul neu geladen wird.
@@ -242,8 +247,11 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   return true;
 }
 
-async function enrichChatReference(content) {
-  const enriched = await foundry.applications.ux.TextEditor.implementation.enrichHTML(content || "", {
+async function enrichMoshMacroReference(uuid, label) {
+  // Do not fall back to @Macro[localized name]: the system ships these macros in a compendium,
+  // and localized names neither identify that document nor work without a world-level import.
+  const reference = buildMoshMacroReference(uuid, label);
+  const enriched = await foundry.applications.ux.TextEditor.implementation.enrichHTML(reference, {
     async: true
   });
   return rawChatHTML(enriched);
@@ -253,7 +261,10 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
   const automatedWoundBlocks = await getAutomatedWoundChatBlocks(automatedWoundResults);
 
   if (maximumWoundsReached) {
-    const deathSaveMacro = await enrichChatReference(game.i18n.localize("MoshQoL.Damage.DeathSaveMacro"));
+    const deathSaveMacro = await enrichMoshMacroReference(
+      MOSH_DEATH_SAVE_MACRO_UUID,
+      game.i18n.localize("MoshQoL.Damage.DeathSave")
+    );
 
     return chatOutput({
       actor,
@@ -270,7 +281,10 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
 
   const plural = woundsGained !== 1;
   const woundsLabel = game.i18n.localize(plural ? "MoshQoL.Damage.WoundPlural" : "MoshQoL.Damage.WoundSingular");
-  const woundCheckMacro = await enrichChatReference(game.i18n.localize("MoshQoL.Damage.WoundCheckMacro"));
+  const woundRollMacro = await enrichMoshMacroReference(
+    MOSH_WOUND_ROLL_MACRO_UUID,
+    game.i18n.localize("MoshQoL.Damage.WoundRoll")
+  );
 
   return chatOutput({
     actor,
@@ -282,7 +296,7 @@ async function emitWoundChatMessage({ actor, woundsGained, maximumWoundsReached,
         type: "counter",
         value: woundsGained,
         label: game.i18n.format("MoshQoL.Damage.WoundsSuffered", { wounds: woundsLabel }),
-        suffix: woundCheckMacro
+        suffix: woundRollMacro
       },
       ...automatedWoundBlocks
     ]
