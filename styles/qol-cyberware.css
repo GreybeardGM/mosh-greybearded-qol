@@ -34,6 +34,9 @@
   min-width: 0;
   gap: 0.25rem;
   overflow-x: auto;
+  /* Keep the shared pill hover glow inside the scrollport without increasing the status-row height. */
+  padding-block: 0.35rem;
+  margin-block: -0.35rem;
 }
 
 .greybeardqol.qol-ui.qol-augmentation-status .pill {

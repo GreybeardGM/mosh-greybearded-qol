@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.3-dev.11] - Unreleased
+## [0.8.3-dev.12] - Unreleased
 ### Added
 - Optional Cyberware and Slickware slot management based on *A Pound of Flesh*, controlled by one world setting and disabled by default.
 - Cyberware controls for weapons, armor, and ordinary inventory items; Slickware controls for skills and ordinary inventory items. Each row stores its enabled state, slot cost, and notes on the item.
@@ -16,6 +16,7 @@
 ### Fixed
 - DEV manifest and download URLs now install the dev branch instead of release 0.8.2.
 - Wound Roll and Death Save links in Apply Damage chat cards now execute the bundled Mothership macros directly from their compendium, independent of language or prior world imports.
+- Cyberware and Slickware item-button hover glows are no longer clipped by their horizontal scroll container.
 
 ## [0.8.2] - 2026-08-20
 ### Added
