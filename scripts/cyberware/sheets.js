@@ -3,11 +3,10 @@ import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { AUGMENTATION_DEFINITIONS } from "./config.js";
-import { calculateAugmentationState, getAugmentation } from "./slots.js";
+import { getAugmentation } from "./slots.js";
+import { AUGMENTATION_STATUS_CLASS, getAugmentationStatusRows } from "./status.js";
 
 const ROW_CLASS = "qol-augmentation-row";
-const STATUS_CLASS = "qol-augmentation-status";
-const ITEMS_CLASS = "qol-augmentation-items";
 let registered = false;
 
 function createItemRow(sheet, definition) {
@@ -66,14 +65,13 @@ function renderAugmentationItems(sheet, html) {
   }
 }
 
-function createStatus(definition, state, augmentationItems) {
-  const totals = state[definition.id];
+function createStatus(row) {
   const status = document.createElement("div");
-  status.className = qolClassName(STATUS_CLASS, `qol-${definition.id}-status`);
+  status.className = row.className;
   status.style.setProperty("--theme-color", getThemeColor());
   const items = document.createElement("div");
-  items.className = ITEMS_CLASS;
-  for (const item of augmentationItems) {
+  items.className = row.itemsClassName;
+  for (const item of row.items) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "pill interactive";
@@ -81,41 +79,37 @@ function createStatus(definition, state, augmentationItems) {
     button.addEventListener("click", event => {
       event.preventDefault();
       event.stopPropagation();
-      item.sheet.render(true);
+      item.document.sheet.render(true);
     });
     items.append(button);
   }
   const label = document.createElement("span");
   label.setAttribute("role", "status");
   label.className = "pill";
-  label.classList.toggle("selected", totals.overclocking > 0);
-  label.textContent = game.i18n.format(totals.overclocking > 0
-    ? `${definition.localization}.Overclocking` : `${definition.localization}.Usage`, {
-    ...totals,
-    overclocking: state.overclocking
-  });
+  label.classList.toggle("selected", row.selected);
+  label.textContent = row.label;
   status.replaceChildren(items, label);
   return status;
 }
 
 function renderAugmentationStatus(sheet, html) {
+  if (getSheetKind(sheet) !== "character") return;
   const root = html?.[0] ?? html;
   if (!root) return;
-  root.querySelectorAll(`.${STATUS_CLASS}`).forEach(status => status.remove());
-  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE) || getSheetKind(sheet) !== "character") return;
+  root.querySelectorAll(`.${AUGMENTATION_STATUS_CLASS}`).forEach(status => status.remove());
+  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
-  const state = calculateAugmentationState(sheet.actor, { includeItems: true });
-  for (const definition of AUGMENTATION_DEFINITIONS) {
-    const items = state[definition.id].items;
-    if (items.length > 0) tabs.before(createStatus(definition, state, items));
-  }
+  for (const row of getAugmentationStatusRows(sheet.actor)) tabs.before(createStatus(row));
 }
 
 function refreshAugmentationStatus(actor) {
-  if (actor?.type !== "character" || !game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
+  if (!["character", "creature"].includes(actor?.type)
+    || !game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   for (const sheet of Object.values(actor.apps ?? {})) {
-    if (sheet.rendered && sheet.actor === actor) renderAugmentationStatus(sheet, sheet.element);
+    if (!sheet.rendered || sheet.actor !== actor) continue;
+    if (getSheetKind(sheet) === "contractor") sheet.render(false);
+    else if (actor.type === "character") renderAugmentationStatus(sheet, sheet.element);
   }
 }
 
@@ -150,6 +144,7 @@ export function refreshOpenCyberwareSheets() {
   for (const sheet of Object.values(ui.windows)) {
     if (!sheet.rendered) continue;
     if (sheet.item) renderAugmentationItems(sheet, sheet.element);
+    else if (getSheetKind(sheet) === "contractor") sheet.render(false);
     else if (sheet.actor) renderAugmentationStatus(sheet, sheet.element);
   }
 }
@@ -161,7 +156,9 @@ export function registerCyberwareHooks() {
   Hooks.on("renderMothershipSkillSheet", renderAugmentationItems);
   Hooks.on("renderActorSheet", renderAugmentationStatus);
   Hooks.on("updateActor", (actor, changes) => {
-    if (AUGMENTATION_DEFINITIONS.some(definition => hasChangeAtPath(changes, `system.stats.${definition.stat}.value`))) {
+    const stats = actor.type === "creature" ? ["instinct"]
+      : AUGMENTATION_DEFINITIONS.map(definition => definition.stat);
+    if (stats.some(stat => hasChangeAtPath(changes, `system.stats.${stat}.value`))) {
       refreshAugmentationStatus(actor);
     }
   });

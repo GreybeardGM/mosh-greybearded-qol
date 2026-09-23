@@ -44,6 +44,22 @@ test("slot totals use Strength for Cyberware and Sanity for Slickware", () => {
   assert.deepEqual(calculateAugmentationSlots(character, slickware), { used: 3, max: 3, overclocking: 0 });
 });
 
+test("contractors use Instinct for both slot limits and combine Overclocking", () => {
+  const contractor = {
+    type: "creature",
+    system: { stats: { instinct: { value: 43 }, sanity: { value: 90 } } },
+    items: [
+      item("weapon", augmentation(cyberware, 6)),
+      item("skill", augmentation(slickware, 7))
+    ]
+  };
+  assert.deepEqual(calculateAugmentationState(contractor), {
+    cyberware: { used: 6, max: 4, overclocking: 2 },
+    slickware: { used: 7, max: 4, overclocking: 3 },
+    overclocking: 5
+  });
+});
+
 test("Overclocking combines the excess from both systems", () => {
   const character = actor(43, 39, [
     item("item", {

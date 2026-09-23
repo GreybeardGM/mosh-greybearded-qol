@@ -15,7 +15,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 ### A Pound of Flesh: Cyberware and Slickware
 - Adds an optional Cyberware and Slickware slot system based on *A Pound of Flesh*. It is disabled by default and can be enabled in the module settings.
 - Items and skills can be marked as Cyberware or Slickware with a slot cost and notes.
-- Character sheets display installed augmentations, available slots, and combined Overclocking.
+- Character and contractor sheets display installed augmentations, available slots, and combined Overclocking. Contractors use Instinct for both slot limits.
 
 ### QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
@@ -65,7 +65,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.3-dev.13`
+- **Current module version**: `0.8.3-dev.14`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`

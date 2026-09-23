@@ -1,4 +1,5 @@
-import { qolSheetClasses, templatePath } from "../codex/constants.js";
+import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolSheetClasses, templatePath } from "../codex/constants.js";
+import { getAugmentationStatusRows } from "../cyberware/status.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { parseCurrencyValue } from "../utils/normalization.js";
@@ -72,6 +73,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
       actorData.isGM = game.user.isGM;
       actorData.themeColor = getThemeColor();
       actorData.contractorLabel = game.i18n.localize("MoshQoL.Common.Contractor");
+      actorData.augmentationStatuses = game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)
+        ? getAugmentationStatusRows(this.actor) : [];
         
       return actorData;
     }
@@ -175,6 +178,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+
+        html.on("click", ".qol-augmentation-items button[data-item-id]", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.actor.getEmbeddedDocument("Item", event.currentTarget.dataset.itemId)?.sheet.render(true);
+        });
 
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;

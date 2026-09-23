@@ -1,9 +1,9 @@
 # Changelog
 
-## [0.8.3-dev.13] - Unreleased
+## [0.8.3-dev.14] - Unreleased
 ### Added
 - Optional Cyberware and Slickware based on *A Pound of Flesh*: mark weapons, armor, items, or skills where applicable, and record slots and notes. The feature is disabled by default and has its own settings menu.
-- The character sheet lists marked items with links to their sheets. Strength and Sanity determine separate slot limits; excess slots add up to a shared Overclocking value. Quantity and equipped state do not affect slot use.
+- Character and contractor sheets list marked items with links to their sheets. Character slot limits use Strength and Sanity; both contractor limits use Instinct. Excess slots add up to a shared Overclocking value. Quantity and equipped state do not affect slot use.
 
 ### Fixed
 - Wound Roll and Death Save buttons in Apply Damage chat cards now run the bundled Mothership macros.

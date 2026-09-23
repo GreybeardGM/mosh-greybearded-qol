@@ -22,7 +22,8 @@ function summarizeAugmentation(actor, definition) {
     items.push(item);
     used += augmentation.slots;
   }
-  const stat = normalizeNumber(actor.system.stats?.[definition.stat]?.value, { min: 0 });
+  const statKey = actor.type === "creature" ? "instinct" : definition.stat;
+  const stat = normalizeNumber(actor.system.stats?.[statKey]?.value, { min: 0 });
   const max = Math.floor(stat / 10);
   return { items, used, max, overclocking: Math.max(0, used - max) };
 }

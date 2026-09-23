@@ -170,6 +170,17 @@
     </div>
   </div>
 
+  {{#each augmentationStatuses as |status|}}
+  <div class="{{status.className}}" style="--theme-color: {{../themeColor}}">
+    <div class="{{status.itemsClassName}}">
+      {{#each status.items as |item|}}
+      <button type="button" class="pill interactive" data-item-id="{{item.id}}">{{item.name}}</button>
+      {{/each}}
+    </div>
+    <span class="pill{{#if status.selected}} selected{{/if}}" role="status">{{status.label}}</span>
+  </div>
+  {{/each}}
+
   {{!-- Sheet Tab Navigation --}}
   <nav class="mosh sheet-tabs tabs" data-group="primary">
     <a class="tab-select" data-tab="skills">{{ localize 'Mosh.Skills' }}</a>
