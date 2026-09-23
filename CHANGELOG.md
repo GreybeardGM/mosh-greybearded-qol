@@ -2,23 +2,11 @@
 
 ## [0.8.3-dev.13] - Unreleased
 ### Added
-- Optional Cyberware and Slickware slot management based on *A Pound of Flesh*, controlled by one world setting and disabled by default.
-- Cyberware controls for weapons, armor, and ordinary inventory items; Slickware controls for skills and ordinary inventory items. Each row stores its enabled state, slot cost, and notes on the item.
-- Separate character-sheet status rows with clickable item shortcuts and labelled `used/max` counters. A row appears as soon as at least one corresponding item is marked, including items with a slot cost of zero.
-- Cyberware capacity based on `floor(Strength / 10)` and Slickware capacity based on `floor(Sanity / 10)`; quantity and equipped state do not affect either total.
-- Combined Overclocking from excess Cyberware and Slickware slots, highlighted with the configured theme color.
-
-### Changed
-- Cyberware and Slickware activation now lives in a dedicated configuration menu matching the module's other tool settings.
-- Cyberware and Slickware controls use the module's shared pill, form, checkbox, hover, and selected-state styling.
-- Persistent augmentation controls sit above the item-sheet tab navigation.
+- Optional Cyberware and Slickware based on *A Pound of Flesh*: mark weapons, armor, items, or skills where applicable, and record slots and notes. The feature is disabled by default and has its own settings menu.
+- The character sheet lists marked items with links to their sheets. Strength and Sanity determine separate slot limits; excess slots add up to a shared Overclocking value. Quantity and equipped state do not affect slot use.
 
 ### Fixed
-- DEV manifest and download URLs now install the dev branch instead of release 0.8.2.
-- Wound Roll and Death Save links in Apply Damage chat cards now execute the bundled Mothership macros directly from their compendium, independent of language or prior world imports.
-- Cyberware and Slickware item-button hover glows are no longer clipped by their horizontal scroll container.
-- Cyberware and Slickware item shortcuts open the Mothership item sheet reliably; stored slot costs outside 0–9 are ignored.
-- Status rows refresh only when a relevant stat, item name, or augmentation flag changes.
+- Wound Roll and Death Save buttons in Apply Damage chat cards now run the bundled Mothership macros.
 
 ## [0.8.2] - 2026-08-20
 ### Added
