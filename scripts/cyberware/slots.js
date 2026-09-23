@@ -6,34 +6,42 @@ export function getAugmentation(item, definition) {
   const flags = item.getFlag(MODULE_ID, definition.id) ?? {};
   return {
     enabled: normalizeBoolean(flags.enabled),
-    slots: normalizeNumber(flags.slots, { min: 0 }),
+    slots: normalizeNumber(flags.slots, { min: 0, max: 9 }),
     notes: String(flags.notes ?? "")
   };
 }
 
-/** Keep the item shortcuts and slot calculation on the same item selection. */
-export function getAugmentationItems(actor, definition) {
-  return actor.items.filter(item => definition.itemTypes.includes(item.type)
-    && getAugmentation(item, definition).enabled);
-}
-
 /** Count each enabled embedded document once, irrespective of quantity/equipped. */
-export function calculateAugmentationSlots(actor, definition) {
+function summarizeAugmentation(actor, definition) {
+  const items = [];
   let used = 0;
-  for (const item of getAugmentationItems(actor, definition)) {
-    used += getAugmentation(item, definition).slots;
+  for (const item of actor.items) {
+    if (!definition.itemTypes.includes(item.type)) continue;
+    const augmentation = getAugmentation(item, definition);
+    if (!augmentation.enabled) continue;
+    items.push(item);
+    used += augmentation.slots;
   }
   const stat = normalizeNumber(actor.system.stats?.[definition.stat]?.value, { min: 0 });
   const max = Math.floor(stat / 10);
-  return { used, max, overclocking: Math.max(0, used - max) };
+  return { items, used, max, overclocking: Math.max(0, used - max) };
+}
+
+export function getAugmentationItems(actor, definition) {
+  return summarizeAugmentation(actor, definition).items;
+}
+
+export function calculateAugmentationSlots(actor, definition) {
+  const { items, ...slots } = summarizeAugmentation(actor, definition);
+  return slots;
 }
 
 /** Combine excess slots while retaining separate Cyberware and Slickware totals. */
-export function calculateAugmentationState(actor) {
-  const state = Object.fromEntries(AUGMENTATION_DEFINITIONS.map(definition => [
-    definition.id,
-    calculateAugmentationSlots(actor, definition)
-  ]));
+export function calculateAugmentationState(actor, { includeItems = false } = {}) {
+  const state = Object.fromEntries(AUGMENTATION_DEFINITIONS.map(definition => {
+    const { items, ...slots } = summarizeAugmentation(actor, definition);
+    return [definition.id, includeItems ? { ...slots, items } : slots];
+  }));
   state.overclocking = AUGMENTATION_DEFINITIONS.reduce(
     (total, definition) => total + state[definition.id].overclocking,
     0

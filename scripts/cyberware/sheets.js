@@ -3,7 +3,7 @@ import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { AUGMENTATION_DEFINITIONS } from "./config.js";
-import { calculateAugmentationState, getAugmentation, getAugmentationItems } from "./slots.js";
+import { calculateAugmentationState, getAugmentation } from "./slots.js";
 
 const ROW_CLASS = "qol-augmentation-row";
 const STATUS_CLASS = "qol-augmentation-status";
@@ -56,7 +56,7 @@ function createItemRow(sheet, definition) {
 
 function renderAugmentationItems(sheet, html) {
   const root = html?.[0] ?? html;
-  root?.querySelectorAll(`.${ROW_CLASS}, .qol-cyberware-row`).forEach(row => row.remove());
+  root?.querySelectorAll(`.${ROW_CLASS}`).forEach(row => row.remove());
   if (!root || !game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
@@ -81,7 +81,7 @@ function createStatus(definition, state, augmentationItems) {
     button.addEventListener("click", event => {
       event.preventDefault();
       event.stopPropagation();
-      item.sheet.render({ force: true });
+      item.sheet.render(true);
     });
     items.append(button);
   }
@@ -101,21 +101,48 @@ function createStatus(definition, state, augmentationItems) {
 function renderAugmentationStatus(sheet, html) {
   const root = html?.[0] ?? html;
   if (!root) return;
-  root.querySelectorAll(`.${STATUS_CLASS}, .qol-cyberware-status`).forEach(status => status.remove());
+  root.querySelectorAll(`.${STATUS_CLASS}`).forEach(status => status.remove());
   if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE) || getSheetKind(sheet) !== "character") return;
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
-  const state = calculateAugmentationState(sheet.actor);
+  const state = calculateAugmentationState(sheet.actor, { includeItems: true });
   for (const definition of AUGMENTATION_DEFINITIONS) {
-    const items = getAugmentationItems(sheet.actor, definition);
+    const items = state[definition.id].items;
     if (items.length > 0) tabs.before(createStatus(definition, state, items));
   }
 }
 
 function refreshAugmentationStatus(actor) {
-  if (actor?.type !== "character") return;
+  if (actor?.type !== "character" || !game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   for (const sheet of Object.values(actor.apps ?? {})) {
-    if (sheet.rendered) renderAugmentationStatus(sheet, sheet.element);
+    if (sheet.rendered && sheet.actor === actor) renderAugmentationStatus(sheet, sheet.element);
+  }
+}
+
+function hasChangeAtPath(changes, path) {
+  if (!changes || typeof changes !== "object") return false;
+  const parts = path.split(".");
+  let current = changes;
+  for (let index = 0; index < parts.length; index++) {
+    if (!current || typeof current !== "object") return true;
+    if (Object.hasOwn(current, parts.slice(index).join("."))) return true;
+    if (!Object.hasOwn(current, parts[index])) return false;
+    current = current[parts[index]];
+  }
+  return true;
+}
+
+function refreshChangedAugmentationItem(item, changes) {
+  if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
+  if (hasChangeAtPath(changes, "type")) return refreshAugmentationStatus(item.parent);
+  const definitions = AUGMENTATION_DEFINITIONS.filter(definition => definition.itemTypes.includes(item.type));
+  if (!definitions.length) return;
+  if (definitions.some(definition => {
+    const flagPath = `flags.${MODULE_ID}.${definition.id}`;
+    return ["enabled", "slots", "-=enabled", "-=slots"].some(field => hasChangeAtPath(changes, `${flagPath}.${field}`))
+      || hasChangeAtPath(changes, `flags.${MODULE_ID}.-=${definition.id}`);
+  }) || (hasChangeAtPath(changes, "name") && definitions.some(definition => getAugmentation(item, definition).enabled))) {
+    refreshAugmentationStatus(item.parent);
   }
 }
 
@@ -133,8 +160,17 @@ export function registerCyberwareHooks() {
   Hooks.on("renderMothershipItemSheet", renderAugmentationItems);
   Hooks.on("renderMothershipSkillSheet", renderAugmentationItems);
   Hooks.on("renderActorSheet", renderAugmentationStatus);
-  Hooks.on("updateActor", refreshAugmentationStatus);
-  for (const hook of ["createItem", "updateItem", "deleteItem"]) {
-    Hooks.on(hook, item => refreshAugmentationStatus(item.parent));
+  Hooks.on("updateActor", (actor, changes) => {
+    if (AUGMENTATION_DEFINITIONS.some(definition => hasChangeAtPath(changes, `system.stats.${definition.stat}.value`))) {
+      refreshAugmentationStatus(actor);
+    }
+  });
+  for (const hook of ["createItem", "deleteItem"]) {
+    Hooks.on(hook, item => {
+      if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
+      if (AUGMENTATION_DEFINITIONS.some(definition => definition.itemTypes.includes(item.type)
+        && getAugmentation(item, definition).enabled)) refreshAugmentationStatus(item.parent);
+    });
   }
+  Hooks.on("updateItem", refreshChangedAugmentationItem);
 }

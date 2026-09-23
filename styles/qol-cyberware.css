@@ -24,7 +24,7 @@
   display: flex;
 }
 
-.greybeardqol.qol-ui.qol-cyberware-status + .greybeardqol.qol-ui.qol-slickware-status {
+.greybeardqol.qol-ui.qol-augmentation-status + .greybeardqol.qol-ui.qol-augmentation-status {
   margin-top: 0.25rem;
 }
 
@@ -34,7 +34,9 @@
   min-width: 0;
   gap: 0.25rem;
   overflow-x: auto;
-  /* Keep the shared pill hover glow inside the scrollport without increasing the status-row height. */
+  /* Leave space for the first and last pill's glow inside the scrollport. */
+  padding-inline: 0.5rem;
+  /* Keep the glow inside the scrollport without increasing the status-row height. */
   padding-block: 0.35rem;
   margin-block: -0.35rem;
 }

@@ -98,7 +98,7 @@ const MENU_DEFINITIONS = [
       name: "MoshQoL.Settings.CyberwareConfig.Name",
       label: "MoshQoL.Settings.CyberwareConfig.Label",
       hint: "MoshQoL.Settings.CyberwareConfig.Hint",
-      icon: getFeatureIcon("cyberwareConfigMenu", "fa-solid fa-microchip"),
+      icon: "fa-solid fa-microchip",
       type: CyberwareConfigApp,
       restricted: true
     },

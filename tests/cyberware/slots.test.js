@@ -66,6 +66,14 @@ test("each embedded item counts once regardless of quantity, equipment, or dupli
   assert.equal(calculateAugmentationSlots(character, cyberware).used, 2);
 });
 
+test("status data includes enabled zero-slot items alongside its slot totals", () => {
+  const zero = item("item", augmentation(cyberware, 0));
+  const paid = item("skill", augmentation(slickware, 2));
+  const state = calculateAugmentationState(actor(40, 30, [zero, paid]), { includeItems: true });
+  assert.deepEqual(state.cyberware, { used: 0, max: 4, overclocking: 0, items: [zero] });
+  assert.deepEqual(state.slickware, { used: 2, max: 3, overclocking: 0, items: [paid] });
+});
+
 test("malformed flags and stats cannot poison totals", () => {
   assert.deepEqual(getAugmentation({ getFlag: () => undefined }, slickware), {
     enabled: false,
@@ -76,6 +84,8 @@ test("malformed flags and stats cannot poison totals", () => {
     item("item", augmentation(cyberware, NaN)),
     item("armor", augmentation(cyberware, -2)),
     item("weapon", augmentation(cyberware, Infinity)),
+    item("weapon", augmentation(cyberware, 10)),
+    item("armor", augmentation(cyberware, 999)),
     item("item", augmentation(cyberware, "3")),
     item("skill", augmentation(slickware, 9, "false"))
   ]);

@@ -7,7 +7,7 @@ import {
   MOSH_WOUND_ROLL_MACRO_UUID
 } from "../../scripts/codex/mosh-system.js";
 
-test("wound-card macros use bundled compendium UUIDs instead of localized world-macro names", () => {
+test("macro reference builder links bundled compendium UUIDs independently of the visible label", () => {
   assert.equal(
     buildMoshMacroReference(MOSH_WOUND_ROLL_MACRO_UUID, "Wundwurf"),
     "@UUID[Compendium.mosh.macros_hotbar_1e.ZzKgfEmRdvDfyBMS]{Wundwurf}"
