@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.3-dev.17] - Unreleased
+## [0.8.3-dev.18] - Unreleased
 ### Added
 - Optional Cyberware and Slickware based on *A Pound of Flesh*: mark weapons, armor, items, or skills where applicable, and record slots and notes. The feature is disabled by default and has its own settings menu.
 - Character and contractor sheets list marked items with links to their sheets. Character slot limits use Strength and Sanity; both contractor limits use Instinct. Excess slots add up to a shared Overclocking value. Quantity and equipped state do not affect slot use.
@@ -10,6 +10,7 @@
 - Theme colors follow the player color, an optional personal override, and an explicitly configured global override.
 - Closing the character creator's overwrite warning no longer modifies the existing character.
 - Rapid Crew Roster edits now preserve every change, and failed saves display an error.
+- Automatic training after Shore Leave now starts only when stress conversion succeeds.
 
 ## [0.8.2] - 2026-08-20
 ### Added
