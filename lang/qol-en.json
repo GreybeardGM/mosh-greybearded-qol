@@ -286,6 +286,7 @@
       }
     },
     "CrewRoster": {
+      "SaveError": "Crew Roster changes could not be saved.",
       "Actions": {
         "RemoveEntry": "Remove from roster",
         "ToggleActive": "Toggle active status"
