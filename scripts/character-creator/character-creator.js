@@ -74,14 +74,13 @@ export async function startCharacterCreation(actor) {
       default: "cancel"
     });
   
-    if (choice === "cancel") {
-      return;
-    } else if (choice === "complete") {
+    if (choice === "complete") {
       await setCompleted(actor, true);
       return;
-    } else if (choice === "overwrite") {
-      await setReady(actor, true); // mark as ready and proceed
     }
+    // Foundry returns null when the dialog is closed; only explicit overwrite may erase items.
+    if (choice !== "overwrite") return;
+    await setReady(actor, true);
   }
 
   // ✅ Step 2: Clean slate – delete items
