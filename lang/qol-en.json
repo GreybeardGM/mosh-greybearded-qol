@@ -103,11 +103,11 @@
         }
       },
       "ThemeColor": {
-        "Hint": "If set, this will override the player colors.",
+        "Hint": "Leave blank to use player colors. A color set here also overrides individual player colors.",
         "Name": "Global Theme Color"
       },
       "ThemeColorOverride": {
-        "Hint": "If set, this will override the default color for this user.",
+        "Hint": "If set, this overrides your Foundry player color unless a global theme color is set.",
         "Name": "Player Theme Color"
       },
       "ToolbandConfig": {

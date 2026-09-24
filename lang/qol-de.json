@@ -103,11 +103,11 @@
         }
       },
       "ThemeColor": {
-        "Hint": "Wenn gesetzt, überschreibt dies die Spielerfarben.",
+        "Hint": "Leer lassen, um Spielerfarben zu verwenden. Eine hier festgelegte Farbe überschreibt auch individuelle Spielerfarben.",
         "Name": "Globale Themenfarbe"
       },
       "ThemeColorOverride": {
-        "Hint": "Wenn gesetzt, überschreibt dies die Standardfarbe für diesen Benutzer.",
+        "Hint": "Wenn gesetzt, überschreibt dies deine Foundry-Spielerfarbe, sofern keine globale Themenfarbe festgelegt ist.",
         "Name": "Spieler-Themenfarbe"
       },
       "ToolbandConfig": {

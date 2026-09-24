@@ -15,7 +15,6 @@ import {
   VALID_TARGET_LOGICS
 } from "../apply-damage/target-logic.js";
 import {
-  DEFAULT_THEME_COLOR,
   MODULE_ID,
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
@@ -45,7 +44,7 @@ const WORLD_SETTING_DEFINITIONS = [
       name: "MoshQoL.Settings.ThemeColor.Name",
       hint: "MoshQoL.Settings.ThemeColor.Hint",
       type: String,
-      default: DEFAULT_THEME_COLOR
+      default: ""
     }
   },
   {
