@@ -30,8 +30,8 @@ test("contractor rows include zero-slot items and share combined Overclocking", 
   }
 });
 
-test("dialog always lists six levels and only reached levels are active", () => {
-  assert.deepEqual(getOverclockingLevelStates(2).map(entry => entry.active), [true, true, false, false, false, false]);
-  assert.deepEqual(getOverclockingLevelStates(6).map(entry => entry.active), [true, true, true, true, true, true]);
-  assert.deepEqual(getOverclockingLevelStates(8).map(entry => entry.active), [true, true, true, true, true, true]);
+test("dialog lists the five book levels and only reached levels are active", () => {
+  assert.deepEqual(getOverclockingLevelStates(2).map(entry => entry.active), [true, true, false, false, false]);
+  assert.deepEqual(getOverclockingLevelStates(5).map(entry => entry.active), [true, true, true, true, true]);
+  assert.deepEqual(getOverclockingLevelStates(8).map(entry => entry.active), [true, true, true, true, true]);
 });

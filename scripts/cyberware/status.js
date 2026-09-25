@@ -7,7 +7,7 @@ export const AUGMENTATION_ITEMS_CLASS = "qol-augmentation-items";
 export const OVERCLOCKING_TRIGGER_CLASS = "qol-overclocking-trigger";
 
 export function getOverclockingLevelStates(total) {
-  return [1, 2, 3, 4, 5, 6].map(level => ({ level, active: level <= total }));
+  return [1, 2, 3, 4, 5].map(level => ({ level, active: level <= total }));
 }
 
 export function getAugmentationStatusRows(actor) {

@@ -16,8 +16,7 @@
           "2": "Personen in der Nähe haben [-] auf Fear Saves. Ist der Charakter ein Android, erhalten alle Umstehenden 1 Stress, wenn er einen Fear Save verfehlt.",
           "3": "Der Mindeststress steigt um weitere 2 (zusammen +3 durch Stufen 1 und 3).",
           "4": "Keine Fear Saves; keine Panic Checks, wenn andere sterben oder in Panik geraten oder der Charakter die Hoffnung verliert.",
-          "5": "Die Spielleitung übernimmt den Charakter.",
-          "6": "Das Buch nennt keine zusätzliche Wirkung. Die Folgen der vorherigen Stufen bleiben bestehen."
+          "5": "Die Spielleitung übernimmt den Charakter."
         },
         "Installation": "Einbau eines Mods über dem Slot-Limit kostet das Doppelte; Body Saves beim Einbau erfolgen mit [-].",
         "Source": "A Pound of Flesh (1e), S. 19. Erreichte Stufen wirken kumulativ."
