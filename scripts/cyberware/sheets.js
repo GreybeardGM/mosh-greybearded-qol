@@ -2,7 +2,7 @@ import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } from "../codex/cons
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
-import { AUGMENTATION_DEFINITIONS } from "./config.js";
+import { AUGMENTATION_DEFINITIONS, getSlotRule, getSlotRules } from "./config.js";
 import { getAugmentation } from "./slots.js";
 import { AUGMENTATION_STATUS_CLASS, getAugmentationStatusRows } from "./status.js";
 
@@ -156,9 +156,10 @@ export function registerCyberwareHooks() {
   Hooks.on("renderMothershipSkillSheet", renderAugmentationItems);
   Hooks.on("renderActorSheet", renderAugmentationStatus);
   Hooks.on("updateActor", (actor, changes) => {
-    const stats = actor.type === "creature" ? ["instinct"]
-      : AUGMENTATION_DEFINITIONS.map(definition => definition.stat);
-    if (stats.some(stat => hasChangeAtPath(changes, `system.stats.${stat}.value`))) {
+    if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
+    const rules = getSlotRules();
+    const stats = AUGMENTATION_DEFINITIONS.map(definition => getSlotRule(actor, definition, rules).attribute);
+    if (stats.some(stat => stat !== "none" && hasChangeAtPath(changes, `system.stats.${stat}.value`))) {
       refreshAugmentationStatus(actor);
     }
   });

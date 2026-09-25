@@ -4,7 +4,10 @@ import { getAugmentationStatusRows } from "../../scripts/cyberware/status.js";
 
 test("contractor rows include zero-slot items and share combined Overclocking", () => {
   const previousGame = globalThis.game;
-  globalThis.game = { i18n: { format: (key, values) => `${key}: ${values.overclocking}` } };
+  globalThis.game = {
+    i18n: { format: (key, values) => `${key}: ${values.overclocking}` },
+    settings: { get: () => undefined }
+  };
   try {
     const cyberware = { id: "cyber", name: "Implant", type: "item", getFlag: (_, id) =>
       id === "cyberware" ? { enabled: true, slots: 0 } : {} };

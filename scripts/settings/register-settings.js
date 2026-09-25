@@ -9,6 +9,7 @@ import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import { refreshOpenToolbands } from "../toolband.js";
 import { refreshOpenCyberwareSheets } from "../cyberware/sheets.js";
+import { getDefaultSlotRules } from "../cyberware/config.js";
 import {
   DEFAULT_TARGET_LOGIC,
   TARGET_LOGIC_CHOICE_KEYS,
@@ -18,6 +19,7 @@ import {
   MODULE_ID,
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
+  SETTING_CYBERWARE_SLOT_RULES,
   SETTING_ENABLE_CHARACTER_CREATOR,
   SETTING_ENABLE_CYBERWARE,
   SETTING_SHORE_LEAVE_CONFIG,
@@ -38,6 +40,16 @@ function getApplyDamageTargetLogicChoices() {
 }
 
 const WORLD_SETTING_DEFINITIONS = [
+  {
+    key: SETTING_CYBERWARE_SLOT_RULES,
+    options: {
+      name: "MoshQoL.Settings.CyberwareConfig.SlotRules",
+      type: Object,
+      config: false,
+      default: getDefaultSlotRules(),
+      onChange: refreshOpenCyberwareSheets
+    }
+  },
   {
     key: SETTING_THEME_COLOR,
     options: {
@@ -204,7 +216,7 @@ export function registerSettings() {
     game.settings.register(MODULE_ID, settingDefinition.key, {
       scope: "world",
       ...settingDefinition.options,
-      config: true
+      config: settingDefinition.options.config ?? true
     });
   }
 

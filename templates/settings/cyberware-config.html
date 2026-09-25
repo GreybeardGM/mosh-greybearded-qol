@@ -11,6 +11,45 @@
     </label>
   </section>
 
+  <small>{{localize "MoshQoL.Cyberware.Config.FormulaHint"}}</small>
+
+  {{#each groups as |group|}}
+    <section class="card">
+      <h4 class="qolsettings-heading">{{group.label}}</h4>
+      {{#each group.entries as |entry|}}
+        <fieldset class="qol-slot-rule">
+          <legend>{{entry.label}}</legend>
+          <div class="inline-row">
+            <label class="form-group">
+              <span>{{localize "MoshQoL.Cyberware.Config.Attribute"}}</span>
+              <select name="rules.{{group.actorType}}.{{entry.id}}.attribute">
+                {{#each entry.attributes as |option|}}
+                  <option value="{{option.value}}" {{#if option.selected}}selected{{/if}}>{{option.label}}</option>
+                {{/each}}
+              </select>
+            </label>
+            <label class="form-group">
+              <span>{{localize "MoshQoL.Cyberware.Config.Multiplier"}}</span>
+              <input type="number" name="rules.{{group.actorType}}.{{entry.id}}.multiplier" min="0" step="any" value="{{entry.rule.multiplier}}" required>
+            </label>
+            <label class="form-group">
+              <span>{{localize "MoshQoL.Cyberware.Config.Round"}}</span>
+              <select name="rules.{{group.actorType}}.{{entry.id}}.rounding">
+                {{#each entry.rounding as |option|}}
+                  <option value="{{option.value}}" {{#if option.selected}}selected{{/if}}>{{option.label}}</option>
+                {{/each}}
+              </select>
+            </label>
+            <label class="form-group">
+              <span>{{localize "MoshQoL.Cyberware.Config.FlatBonus"}}</span>
+              <input type="number" name="rules.{{group.actorType}}.{{entry.id}}.bonus" step="1" value="{{entry.rule.bonus}}" required>
+            </label>
+          </div>
+        </fieldset>
+      {{/each}}
+    </section>
+  {{/each}}
+
   <footer class="form-footer">
     <button type="button" data-action="resetDefaults">
       <i class="fas fa-undo" aria-hidden="true"></i>

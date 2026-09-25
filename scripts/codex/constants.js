@@ -54,6 +54,7 @@ export const FLAG_SLICKWARE = "slickware";
 
 export const SETTING_ENABLE_CHARACTER_CREATOR = "enableCharacterCreator";
 export const SETTING_ENABLE_CYBERWARE = "enableCyberware";
+export const SETTING_CYBERWARE_SLOT_RULES = "cyberwareSlotRules";
 export const SETTING_THEME_COLOR = "themeColor";
 export const SETTING_THEME_COLOR_OVERRIDE = "themeColorOverride";
 export const SETTING_APPLY_DAMAGE_CONFIG = "applyDamageConfig";

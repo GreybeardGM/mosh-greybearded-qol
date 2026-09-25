@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AUGMENTATION_DEFINITIONS } from "../../scripts/cyberware/config.js";
+import { AUGMENTATION_DEFINITIONS, getDefaultSlotRules, normalizeSlotRules } from "../../scripts/cyberware/config.js";
 import {
   calculateAugmentationSlots,
   calculateAugmentationState,
@@ -9,6 +9,8 @@ import {
 } from "../../scripts/cyberware/slots.js";
 
 const [cyberware, slickware] = AUGMENTATION_DEFINITIONS;
+let rules = getDefaultSlotRules();
+globalThis.game = { settings: { get: () => rules } };
 const item = (type, flags = {}, system = {}) => ({
   type,
   system,
@@ -17,8 +19,9 @@ const item = (type, flags = {}, system = {}) => ({
 const augmentation = (definition, slots, enabled = true) => ({
   [definition.id]: { enabled, slots }
 });
-const actor = (strength, sanity, items = []) => ({
-  system: { stats: { strength: { value: strength }, sanity: { value: sanity } } },
+const actor = (strength, intellect, items = []) => ({
+  type: "character",
+  system: { stats: { strength: { value: strength }, intellect: { value: intellect } } },
   items
 });
 
@@ -34,7 +37,7 @@ test("Cyberware accepts equipment while Slickware accepts skills and ordinary it
   assert.deepEqual(getAugmentationItems(character, slickware), [shared, skill]);
 });
 
-test("slot totals use Strength for Cyberware and Sanity for Slickware", () => {
+test("slot totals use Strength for Cyberware and Intellect for Slickware", () => {
   const character = actor(43, 39, [
     item("weapon", augmentation(cyberware, 6), { equipped: false }),
     item("skill", augmentation(slickware, 2)),
@@ -110,4 +113,31 @@ test("malformed flags and stats cannot poison totals", () => {
     slickware: { used: 0, max: 0, overclocking: 0 },
     overclocking: 3
   });
+});
+
+test("four rules are independent and None uses the flat bonus after rounding", () => {
+  rules = getDefaultSlotRules();
+  rules.character.cyberware = { attribute: "none", multiplier: 99, rounding: "ceil", bonus: 2 };
+  rules.character.slickware = { attribute: "intellect", multiplier: 0.25, rounding: "round", bonus: -1 };
+  rules.contractor.cyberware = { attribute: "combat", multiplier: 0.1, rounding: "ceil", bonus: 1 };
+  rules.contractor.slickware = { attribute: "none", multiplier: 0.1, rounding: "floor", bonus: 0 };
+  const character = actor(43, 30, []);
+  const contractor = { type: "creature", system: { stats: { combat: { value: 43 }, instinct: { value: 90 } } }, items: [] };
+  assert.equal(calculateAugmentationSlots(character, cyberware).max, 2);
+  assert.equal(calculateAugmentationSlots(character, slickware).max, 7);
+  assert.equal(calculateAugmentationSlots(contractor, cyberware).max, 6);
+  assert.equal(calculateAugmentationSlots(contractor, slickware).max, 0);
+  rules.character.cyberware.bonus = -2;
+  assert.equal(calculateAugmentationSlots(character, cyberware).max, 0);
+  rules = getDefaultSlotRules();
+});
+
+test("malformed rules revert to their defaults and never execute an unknown rounding method", () => {
+  const normalized = normalizeSlotRules({
+    character: { cyberware: { attribute: "instinct", multiplier: -1, rounding: "magic", bonus: "3" } },
+    contractor: { slickware: { attribute: "none", multiplier: "0.2", rounding: "floor", bonus: "5" } }
+  });
+  assert.deepEqual(normalized.character.cyberware, { attribute: "strength", multiplier: 0.1, rounding: "floor", bonus: 3 });
+  assert.deepEqual(normalized.contractor.slickware, { attribute: "none", multiplier: 0.2, rounding: "floor", bonus: 5 });
+  assert.deepEqual(normalized.character.slickware, getDefaultSlotRules().character.slickware);
 });

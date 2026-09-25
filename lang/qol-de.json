@@ -8,7 +8,20 @@
       "Overclocking": "Overclocking {overclocking}",
       "SaveError": "Cyberware-Änderungen konnten nicht gespeichert werden.",
       "Config": {
-        "GeneralTitle": "Allgemein"
+        "GeneralTitle": "Allgemein",
+        "Characters": "Charaktere · Slot-Maxima",
+        "Contractors": "Contractors · Slot-Maxima",
+        "Attribute": "Attribut",
+        "None": "Keines",
+        "Multiplier": "Faktor",
+        "Round": "Rundung",
+        "FlatBonus": "Festwert",
+        "FormulaHint": "Maximum = gerundetes (Attribut × Faktor) + Festwert, mindestens 0. Ohne Attribut zählt nur der Festwert.",
+        "Rounding": {
+          "floor": "Abrunden",
+          "ceil": "Aufrunden",
+          "round": "Kaufmännisch"
+        }
       }
     },
     "Slickware": {
@@ -59,7 +72,8 @@
       "CyberwareConfig": {
         "Name": "Cyberware und Slickware",
         "Label": "Konfigurieren",
-        "Hint": "Konfiguriert das Cyberware- und Slickware-Slot-System nach „A Pound of Flesh“."
+        "Hint": "Konfiguriert das Cyberware- und Slickware-Slot-System nach „A Pound of Flesh“.",
+        "SlotRules": "Slot-Maxima für Cyberware und Slickware"
       },
       "EnableCyberware": {
         "Name": "Cyberware und Slickware aktivieren",

@@ -1,4 +1,9 @@
 /* Appearance comes from the shared pill, form controls and checkbox ::after. */
+.greybeardqol.qol-ui.qolsettings-window .qol-slot-rule select {
+  width: auto;
+  max-width: 100%;
+}
+
 .greybeardqol.qol-ui.qol-augmentation-row {
   margin: 0.25rem 0 0.5rem;
 }
