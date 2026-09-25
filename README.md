@@ -16,6 +16,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 - Adds an optional Cyberware and Slickware slot system based on *A Pound of Flesh*. It is disabled by default and can be enabled in the module settings.
 - Items and skills can be marked as Cyberware or Slickware with a slot cost and notes.
 - Character and contractor sheets display installed augmentations, available slots, and combined Overclocking. Contractors use Instinct for both slot limits.
+- Click an Overclocking counter to see the cumulative effects from *A Pound of Flesh* and which levels currently apply.
 
 ### QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits

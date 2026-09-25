@@ -1,5 +1,6 @@
 import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolSheetClasses, templatePath } from "../codex/constants.js";
-import { getAugmentationStatusRows } from "../cyberware/status.js";
+import { getAugmentationStatusRows, OVERCLOCKING_TRIGGER_CLASS } from "../cyberware/status.js";
+import { openOverclockingDialog } from "../cyberware/overclocking-dialog.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { parseCurrencyValue } from "../utils/normalization.js";
@@ -183,6 +184,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             event.preventDefault();
             event.stopPropagation();
             this.actor.getEmbeddedDocument("Item", event.currentTarget.dataset.itemId)?.sheet.render(true);
+        });
+
+        html.on("click", `.${OVERCLOCKING_TRIGGER_CLASS}`, event => {
+            event.preventDefault();
+            event.stopPropagation();
+            openOverclockingDialog(this.actor);
         });
 
         // Everything below here is only needed if the sheet is editable

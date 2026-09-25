@@ -177,7 +177,11 @@
       <button type="button" class="pill interactive" data-item-id="{{item.id}}">{{item.name}}</button>
       {{/each}}
     </div>
-    <span class="pill{{#if status.selected}} selected{{/if}}" role="status">{{status.label}}</span>
+    {{#if status.selected}}
+      <button type="button" class="pill interactive selected {{status.actionClass}}" title="{{status.title}}">{{status.label}}</button>
+    {{else}}
+      <span class="pill" role="status">{{status.label}}</span>
+    {{/if}}
   </div>
   {{/each}}
 

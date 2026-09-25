@@ -4,6 +4,7 @@ import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { AUGMENTATION_DEFINITIONS, getSlotRule, getSlotRules } from "./config.js";
 import { getAugmentation } from "./slots.js";
+import { openOverclockingDialog } from "./overclocking-dialog.js";
 import { AUGMENTATION_STATUS_CLASS, getAugmentationStatusRows } from "./status.js";
 
 const ROW_CLASS = "qol-augmentation-row";
@@ -65,7 +66,7 @@ function renderAugmentationItems(sheet, html) {
   }
 }
 
-function createStatus(row) {
+function createStatus(row, actor) {
   const status = document.createElement("div");
   status.className = row.className;
   status.style.setProperty("--theme-color", getThemeColor());
@@ -83,10 +84,17 @@ function createStatus(row) {
     });
     items.append(button);
   }
-  const label = document.createElement("span");
-  label.setAttribute("role", "status");
-  label.className = "pill";
-  label.classList.toggle("selected", row.selected);
+  const label = document.createElement(row.selected ? "button" : "span");
+  label.className = row.selected ? `pill interactive selected ${row.actionClass}` : "pill";
+  if (row.selected) {
+    label.type = "button";
+    label.title = row.title;
+    label.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      openOverclockingDialog(actor);
+    });
+  } else label.setAttribute("role", "status");
   label.textContent = row.label;
   status.replaceChildren(items, label);
   return status;
@@ -100,7 +108,7 @@ function renderAugmentationStatus(sheet, html) {
   if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   const tabs = root.querySelector(".sheet-tabs");
   if (!tabs) return;
-  for (const row of getAugmentationStatusRows(sheet.actor)) tabs.before(createStatus(row));
+  for (const row of getAugmentationStatusRows(sheet.actor)) tabs.before(createStatus(row, sheet.actor));
 }
 
 function refreshAugmentationStatus(actor) {

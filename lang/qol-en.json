@@ -6,6 +6,22 @@
       "Notes": "Cyberware notes",
       "Usage": "Cyberware: {used}/{max}",
       "Overclocking": "Overclocking {overclocking}",
+      "OverclockDialog": {
+        "Title": "Overclocking",
+        "Open": "View Overclocking effects",
+        "Summary": "Overclocking {total} · Cyberware +{cyberware} · Slickware +{slickware}",
+        "Level": "Level",
+        "Levels": {
+          "1": "Minimum Stress increases by 1.",
+          "2": "People nearby have [-] on Fear Saves. If the character is an android, everyone nearby gains 1 Stress whenever that android fails a Fear Save.",
+          "3": "Minimum Stress increases by another 2 (a total of +3 from levels 1 and 3).",
+          "4": "No Fear Saves; no Panic Checks for witnessing death or panic, or for feeling hopeless.",
+          "5": "The Warden takes control of the character.",
+          "6": "No additional effect is specified in the book. Effects from previous levels remain."
+        },
+        "Installation": "Installing a mod beyond the slot limit costs twice as much; Body Saves during installation are at [-].",
+        "Source": "A Pound of Flesh (1e), p. 19. Effects from reached levels are cumulative."
+      },
       "SaveError": "Cyberware changes could not be saved.",
       "Config": {
         "GeneralTitle": "General",

@@ -1,0 +1,13 @@
+<div class="qol-overclocking" style="--theme-color: {{themeColor}};">
+  <div class="pill">{{summary}}</div>
+  <div class="qol-overclocking-levels">
+    {{#each levels as |entry|}}
+      <section class="card qol-overclocking-level{{#unless entry.active}} is-inactive{{/unless}}">
+        <strong>{{localize "MoshQoL.Cyberware.OverclockDialog.Level"}} {{entry.level}}</strong>
+        <p>{{entry.effect}}</p>
+      </section>
+    {{/each}}
+  </div>
+  <small>{{localize "MoshQoL.Cyberware.OverclockDialog.Installation"}}</small>
+  <small>{{localize "MoshQoL.Cyberware.OverclockDialog.Source"}}</small>
+</div>

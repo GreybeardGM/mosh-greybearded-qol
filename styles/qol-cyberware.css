@@ -51,3 +51,27 @@
   white-space: nowrap;
   line-height: 1rem;
 }
+
+.greybeardqol.qol-ui.qol-overclocking-dialog.window-content {
+  overflow-y: auto;
+  max-height: 85vh;
+}
+
+.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking,
+.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level {
+  gap: 0.35rem;
+}
+
+.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level p {
+  margin: 0;
+}
+
+.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level.is-inactive {
+  opacity: 0.55;
+}
