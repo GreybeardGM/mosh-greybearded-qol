@@ -1,5 +1,52 @@
 {
   "MoshQoL": {
+    "Cyberware": {
+      "Label": "Cyberware",
+      "Slots": "Slots",
+      "Notes": "Cyberware notes",
+      "Usage": "Cyberware: {used}/{max}",
+      "Overclocking": "Overclocking {overclocking}",
+      "OverclockDialog": {
+        "Title": "Overclocking",
+        "Open": "View Overclocking effects",
+        "Summary": "Overclocking {total} · Cyberware +{cyberware} · Slickware +{slickware}",
+        "Level": "Level",
+        "Levels": {
+          "1": "Minimum Stress increases by 1.",
+          "2": "People nearby have [-] on Fear Saves. If the character is an android, everyone nearby gains 1 Stress whenever that android fails a Fear Save.",
+          "3": "Minimum Stress increases by another 2 (a total of +3 from levels 1 and 3).",
+          "4": "No Fear Saves; no Panic Checks for witnessing death or panic, or for feeling hopeless.",
+          "5": "The Warden takes control of the character."
+        },
+        "Installation": "Installing a mod beyond the slot limit costs twice as much; Body Saves during installation are at [-].",
+        "Source": "A Pound of Flesh (1e), p. 19. Effects from reached levels are cumulative."
+      },
+      "SaveError": "Cyberware changes could not be saved.",
+      "Config": {
+        "GeneralTitle": "General",
+        "Characters": "Characters · slot limits",
+        "Contractors": "Contractors · slot limits",
+        "Attribute": "Attribute",
+        "None": "None",
+        "Multiplier": "Multiplier",
+        "Round": "Round",
+        "FlatBonus": "Flat bonus",
+        "FormulaHint": "Maximum = rounded (attribute × multiplier) + flat bonus, minimum 0. Without an attribute, only the flat bonus counts.",
+        "Rounding": {
+          "floor": "Down",
+          "ceil": "Up",
+          "round": "Nearest"
+        }
+      }
+    },
+    "Slickware": {
+      "Label": "Slickware",
+      "Slots": "Slots",
+      "Notes": "Slickware notes",
+      "Usage": "Slickware: {used}/{max}",
+      "Overclocking": "Overclocking {overclocking}",
+      "SaveError": "Slickware changes could not be saved."
+    },
     "Common": {
       "Bonus": "Bonus",
       "Cancel": "Cancel",
@@ -37,6 +84,16 @@
       "BrokenArmor": "Broken Armor"
     },
     "Settings": {
+      "CyberwareConfig": {
+        "Name": "Cyberware and Slickware",
+        "Label": "Configure",
+        "Hint": "Configure the Cyberware and Slickware slot system based on A Pound of Flesh.",
+        "SlotRules": "Cyberware and Slickware slot limits"
+      },
+      "EnableCyberware": {
+        "Name": "Enable Cyberware and Slickware",
+        "Hint": "When enabled, extends item management with a Cyberware and Slickware slot system based on A Pound of Flesh."
+      },
       "ConvertStress": {
         "Formula": {
           "Hint": "Fallback dice formula used to convert stress (useful for homebrew macros).",
@@ -75,11 +132,11 @@
         }
       },
       "ThemeColor": {
-        "Hint": "If set, this will override the player colors.",
+        "Hint": "Leave blank to use player colors. A color set here also overrides individual player colors.",
         "Name": "Global Theme Color"
       },
       "ThemeColorOverride": {
-        "Hint": "If set, this will override the default color for this user.",
+        "Hint": "If set, this overrides your Foundry player color unless a global theme color is set.",
         "Name": "Player Theme Color"
       },
       "ToolbandConfig": {
@@ -258,6 +315,7 @@
       }
     },
     "CrewRoster": {
+      "SaveError": "Crew Roster changes could not be saved.",
       "Actions": {
         "RemoveEntry": "Remove from roster",
         "ToggleActive": "Toggle active status"
@@ -354,8 +412,8 @@
       "NoWoundResult": "No matching wound result found.",
       "Advantage": "Advantage",
       "Disadvantage": "Disadvantage",
-      "WoundCheckMacro": "@Macro[Wound Check]",
-      "DeathSaveMacro": "@Macro[Death Save]"
+      "WoundRoll": "Wound Roll",
+      "DeathSave": "Death Save"
     },
     "Chat": {
       "NoActor": "No actor available for chat output."

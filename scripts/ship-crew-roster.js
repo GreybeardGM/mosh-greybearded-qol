@@ -159,9 +159,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     this._activeTab = "character";
     this._boundDrop = this._onDrop.bind(this);
     this._boundHazardChange = this._onHazardChange.bind(this);
-    this._pendingRosterCommit = null;
-    this._commitInFlight = null;
-    this._commitScheduled = false;
+    this._rosterDraft = null;
+    this._commitInFlight = Promise.resolve();
     this._cleanupInFlight = null;
     this._lastRosterCleanupCandidate = null;
   }
@@ -276,7 +275,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   async _prepareContext() {
-    const sourceRoster = this.actor?.getFlag(MODULE_ID, FLAG_CREW_ROSTER) ?? {};
+    const sourceRoster = this._rosterDraft ?? this.actor?.getFlag(MODULE_ID, FLAG_CREW_ROSTER) ?? {};
     const { cleanedRoster, entries, rosterChanged, summary, tabs } = await this._buildRosterContext(sourceRoster);
     this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
@@ -327,21 +326,28 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   _cleanupRosterFlagIfNeeded(candidate = null) {
-    if (!this.actor) return Promise.resolve(false);
+    if (!this.actor || this._rosterDraft) return Promise.resolve(false);
     if (this._cleanupInFlight) return this._cleanupInFlight;
 
-    this._cleanupInFlight = (async () => {
-      const cleanupCandidate = candidate ?? await this._resolveCleanRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
-      if (!cleanupCandidate.rosterChanged) return false;
+    const cleanup = (async () => {
+      // A render candidate may predate a completed save; resolve the current flag before cleaning it.
+      const cleanupCandidate = candidate?.rosterChanged || !candidate
+        ? await this._resolveCleanRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER))
+        : candidate;
+      if (!cleanupCandidate.rosterChanged || this._rosterDraft) return false;
 
       return this._scheduleRosterCommit(cleanupCandidate.cleanedRoster);
-    })();
-
-    this._cleanupInFlight.finally(() => {
-      this._cleanupInFlight = null;
+    })().catch(error => {
+      this._reportSaveError(error);
+      return false;
     });
 
-    return this._cleanupInFlight;
+    this._cleanupInFlight = cleanup;
+    void cleanup.then(() => {
+      if (this._cleanupInFlight === cleanup) this._cleanupInFlight = null;
+    });
+
+    return cleanup;
   }
 
   async _normalizeRosterForCommit(roster) {
@@ -349,42 +355,33 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     return cleanedRoster;
   }
 
+  _getRosterForEdit() {
+    return normalizeRoster(this._rosterDraft ?? this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
+  }
+
+  _reportSaveError(error) {
+    console.error(`[${MODULE_ID}] Crew Roster could not be saved`, error);
+    ui.notifications.error(game.i18n.localize("MoshQoL.CrewRoster.SaveError"));
+  }
+
   _scheduleRosterCommit(nextRoster) {
     if (!this.actor) return Promise.resolve(false);
 
-    this._pendingRosterCommit = normalizeRoster(nextRoster);
-
-    if (!this._commitScheduled) {
-      this._commitScheduled = true;
-      queueMicrotask(() => {
-        this._commitScheduled = false;
-
-        if (this._commitInFlight) return;
-
-        this._commitInFlight = this._flushRosterCommit();
-        this._commitInFlight.finally(() => {
-          this._commitInFlight = null;
-          if (this._pendingRosterCommit) {
-            this._scheduleRosterCommit(this._pendingRosterCommit);
-          }
-        });
-      });
-    }
-
-    if (this._commitInFlight) return this._commitInFlight;
-    return Promise.resolve(true);
-  }
-
-  async _flushRosterCommit() {
-    if (!this.actor || !this._pendingRosterCommit) return false;
-
-    const pendingRoster = this._pendingRosterCommit;
-    this._pendingRosterCommit = null;
-    const rosterToCommit = await this._normalizeRosterForCommit(pendingRoster);
-
-    await this.actor.setFlag(MODULE_ID, FLAG_CREW_ROSTER, rosterToCommit);
-    this.render();
-    return true;
+    const roster = normalizeRoster(nextRoster);
+    this._rosterDraft = roster;
+    this._commitInFlight = this._commitInFlight.then(async () => {
+      const cleanedRoster = await this._normalizeRosterForCommit(roster);
+      await this.actor.setFlag(MODULE_ID, FLAG_CREW_ROSTER, cleanedRoster);
+      if (this._rosterDraft === roster) this._rosterDraft = null;
+      this.render();
+      return true;
+    }).catch(error => {
+      if (this._rosterDraft === roster) this._rosterDraft = null;
+      this._reportSaveError(error);
+      this.render();
+      return false;
+    });
+    return this._commitInFlight;
   }
 
   _onDragOver = (event) => {
@@ -417,7 +414,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const bucket = getBucketByType(droppedActor.type);
     if (!bucket) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
+    const roster = this._getRosterForEdit();
 
     for (const tab of TABS) {
       roster[tab] = roster[tab].filter((entry) => entry.uuid !== droppedActor.uuid);
@@ -463,7 +460,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     if (!hazardPayUpdates.size) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
+    const roster = this._getRosterForEdit();
     let hasChanges = false;
 
     for (const tab of TABS) {
@@ -506,7 +503,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const uuid = target?.dataset?.uuid;
     if (!tab || !uuid || !TABS.includes(tab)) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
+    const roster = this._getRosterForEdit();
     roster[tab] = roster[tab].filter((entry) => entry.uuid !== uuid);
     await this._scheduleRosterCommit(roster);
   }
@@ -534,7 +531,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const active = target?.checked === true;
     if (!tab || !uuid || !TABS.includes(tab)) return;
 
-    const roster = normalizeRoster(this.actor.getFlag(MODULE_ID, FLAG_CREW_ROSTER));
+    const roster = this._getRosterForEdit();
     roster[tab] = roster[tab].map((entry) => {
       if (entry.uuid !== uuid) return entry;
       return { ...entry, active };

@@ -200,7 +200,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const result = await convertStress(this.actor, entry.stressFormula);
     resolveAppOnce(this, result);
-    scheduleAutoTrainingAfterShoreLeave(this.actor);
+    if (result?.result === "success") scheduleAutoTrainingAfterShoreLeave(this.actor);
   }
 
   async close(options = {}) {

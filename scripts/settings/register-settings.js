@@ -2,22 +2,26 @@ import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shor
 import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
 import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
+import { CyberwareConfigApp } from "./cyberware-config.js";
 import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import { refreshOpenToolbands } from "../toolband.js";
+import { refreshOpenCyberwareSheets } from "../cyberware/sheets.js";
+import { getDefaultSlotRules } from "../cyberware/config.js";
 import {
   DEFAULT_TARGET_LOGIC,
   TARGET_LOGIC_CHOICE_KEYS,
   VALID_TARGET_LOGICS
 } from "../apply-damage/target-logic.js";
 import {
-  DEFAULT_THEME_COLOR,
   MODULE_ID,
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
+  SETTING_CYBERWARE_SLOT_RULES,
   SETTING_ENABLE_CHARACTER_CREATOR,
+  SETTING_ENABLE_CYBERWARE,
   SETTING_SHORE_LEAVE_CONFIG,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   SETTING_THEME_COLOR,
@@ -37,12 +41,22 @@ function getApplyDamageTargetLogicChoices() {
 
 const WORLD_SETTING_DEFINITIONS = [
   {
+    key: SETTING_CYBERWARE_SLOT_RULES,
+    options: {
+      name: "MoshQoL.Settings.CyberwareConfig.SlotRules",
+      type: Object,
+      config: false,
+      default: getDefaultSlotRules(),
+      onChange: refreshOpenCyberwareSheets
+    }
+  },
+  {
     key: SETTING_THEME_COLOR,
     options: {
       name: "MoshQoL.Settings.ThemeColor.Name",
       hint: "MoshQoL.Settings.ThemeColor.Hint",
       type: String,
-      default: DEFAULT_THEME_COLOR
+      default: ""
     }
   },
   {
@@ -89,6 +103,26 @@ const CLIENT_SETTING_DEFINITIONS = [
 
 
 const MENU_DEFINITIONS = [
+  {
+    key: "cyberwareConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.CyberwareConfig.Name",
+      label: "MoshQoL.Settings.CyberwareConfig.Label",
+      hint: "MoshQoL.Settings.CyberwareConfig.Hint",
+      icon: "fa-solid fa-microchip",
+      type: CyberwareConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_ENABLE_CYBERWARE,
+      options: {
+        name: "MoshQoL.Settings.EnableCyberware.Name",
+        type: Boolean,
+        default: false,
+        onChange: refreshOpenCyberwareSheets
+      }
+    }
+  },
   {
     key: "shoreLeaveEditor",
     options: {
@@ -182,7 +216,7 @@ export function registerSettings() {
     game.settings.register(MODULE_ID, settingDefinition.key, {
       scope: "world",
       ...settingDefinition.options,
-      config: true
+      config: settingDefinition.options.config ?? true
     });
   }
 

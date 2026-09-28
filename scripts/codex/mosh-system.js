@@ -3,6 +3,12 @@
 
 export const MOSH_PSG_MODULE_ID = "fvtt_mosh_1e_psg";
 export const MOSH_ROLLTABLE_PACK_ID = "mosh.rolltables_1e";
+export const MOSH_HOTBAR_MACRO_PACK_ID = "mosh.macros_hotbar_1e";
+
+// These are the stable IDs of the bundled 1e system macros. Keep direct compendium UUIDs here:
+// localized @Macro[name] links only resolve imported world macros and broke the wound-card actions.
+export const MOSH_WOUND_ROLL_MACRO_UUID = `Compendium.${MOSH_HOTBAR_MACRO_PACK_ID}.ZzKgfEmRdvDfyBMS`;
+export const MOSH_DEATH_SAVE_MACRO_UUID = `Compendium.${MOSH_HOTBAR_MACRO_PACK_ID}.NsRHfRuuNGPfkYVf`;
 export const MOSH_FALLBACK_ACTOR_IMAGE = "icons/svg/mystery-man.svg";
 export const MOSH_ITEM_TYPE_CLASS = "class";
 export const MOSH_ITEM_TYPE_SKILL = "skill";
@@ -15,6 +21,8 @@ export const MOSH_LOADOUT_ROLLTABLE_IMAGES = Object.freeze({
 
 export const MOSH_INDEX_ONLY_ITEM_TYPES = Object.freeze([MOSH_ITEM_TYPE_SKILL, MOSH_ITEM_TYPE_CLASS]);
 export const MOSH_HOT_CACHE_ITEM_TYPES = Object.freeze([MOSH_ITEM_TYPE_SKILL, MOSH_ITEM_TYPE_CLASS]);
-export const MOSH_LOADOUT_CLEAR_ITEM_TYPES = Object.freeze(["weapon", "armor", "item"]);
+export const MOSH_EQUIPMENT_ITEM_TYPES = Object.freeze(["weapon", "armor", "item"]);
+export const MOSH_SLICKWARE_ITEM_TYPES = Object.freeze([MOSH_ITEM_TYPE_SKILL, "item"]);
+export const MOSH_LOADOUT_CLEAR_ITEM_TYPES = MOSH_EQUIPMENT_ITEM_TYPES;
 
 export const MOSH_STARTING_CREDITS_FORMULA = "2d10 * 10";

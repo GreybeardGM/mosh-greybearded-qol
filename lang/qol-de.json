@@ -1,5 +1,52 @@
 {
   "MoshQoL": {
+    "Cyberware": {
+      "Label": "Cyberware",
+      "Slots": "Slots",
+      "Notes": "Cyberware-Notizen",
+      "Usage": "Cyberware: {used}/{max}",
+      "Overclocking": "Overclocking {overclocking}",
+      "OverclockDialog": {
+        "Title": "Overclocking",
+        "Open": "Overclocking-Auswirkungen ansehen",
+        "Summary": "Overclocking {total} · Cyberware +{cyberware} · Slickware +{slickware}",
+        "Level": "Stufe",
+        "Levels": {
+          "1": "Der Mindeststress steigt um 1.",
+          "2": "Personen in der Nähe haben [-] auf Fear Saves. Ist der Charakter ein Android, erhalten alle Umstehenden 1 Stress, wenn er einen Fear Save verfehlt.",
+          "3": "Der Mindeststress steigt um weitere 2 (zusammen +3 durch Stufen 1 und 3).",
+          "4": "Keine Fear Saves; keine Panic Checks, wenn andere sterben oder in Panik geraten oder der Charakter die Hoffnung verliert.",
+          "5": "Die Spielleitung übernimmt den Charakter."
+        },
+        "Installation": "Einbau eines Mods über dem Slot-Limit kostet das Doppelte; Body Saves beim Einbau erfolgen mit [-].",
+        "Source": "A Pound of Flesh (1e), S. 19. Erreichte Stufen wirken kumulativ."
+      },
+      "SaveError": "Cyberware-Änderungen konnten nicht gespeichert werden.",
+      "Config": {
+        "GeneralTitle": "Allgemein",
+        "Characters": "Charaktere · Slot-Maxima",
+        "Contractors": "Contractors · Slot-Maxima",
+        "Attribute": "Attribut",
+        "None": "Keines",
+        "Multiplier": "Faktor",
+        "Round": "Rundung",
+        "FlatBonus": "Festwert",
+        "FormulaHint": "Maximum = gerundetes (Attribut × Faktor) + Festwert, mindestens 0. Ohne Attribut zählt nur der Festwert.",
+        "Rounding": {
+          "floor": "Abrunden",
+          "ceil": "Aufrunden",
+          "round": "Kaufmännisch"
+        }
+      }
+    },
+    "Slickware": {
+      "Label": "Slickware",
+      "Slots": "Slots",
+      "Notes": "Slickware-Notizen",
+      "Usage": "Slickware: {used}/{max}",
+      "Overclocking": "Overclocking {overclocking}",
+      "SaveError": "Slickware-Änderungen konnten nicht gespeichert werden."
+    },
     "Common": {
       "Bonus": "Bonus",
       "Cancel": "Abbrechen",
@@ -37,6 +84,16 @@
       "BrokenArmor": "Beschädigte Rüstung"
     },
     "Settings": {
+      "CyberwareConfig": {
+        "Name": "Cyberware und Slickware",
+        "Label": "Konfigurieren",
+        "Hint": "Konfiguriert das Cyberware- und Slickware-Slot-System nach „A Pound of Flesh“.",
+        "SlotRules": "Slot-Maxima für Cyberware und Slickware"
+      },
+      "EnableCyberware": {
+        "Name": "Cyberware und Slickware aktivieren",
+        "Hint": "Erweitert bei Aktivierung die Item-Verwaltung um ein Cyberware- und Slickware-Slot-System nach „A Pound of Flesh“."
+      },
       "ConvertStress": {
         "Formula": {
           "Hint": "Fallback-Würfelformel für die Stressumwandlung (nützlich für Homebrew-Makros).",
@@ -75,11 +132,11 @@
         }
       },
       "ThemeColor": {
-        "Hint": "Wenn gesetzt, überschreibt dies die Spielerfarben.",
+        "Hint": "Leer lassen, um Spielerfarben zu verwenden. Eine hier festgelegte Farbe überschreibt auch individuelle Spielerfarben.",
         "Name": "Globale Themenfarbe"
       },
       "ThemeColorOverride": {
-        "Hint": "Wenn gesetzt, überschreibt dies die Standardfarbe für diesen Benutzer.",
+        "Hint": "Wenn gesetzt, überschreibt dies deine Foundry-Spielerfarbe, sofern keine globale Themenfarbe festgelegt ist.",
         "Name": "Spieler-Themenfarbe"
       },
       "ToolbandConfig": {
@@ -258,6 +315,7 @@
       }
     },
     "CrewRoster": {
+      "SaveError": "Änderungen an der Mannschaftsliste konnten nicht gespeichert werden.",
       "Actions": {
         "RemoveEntry": "Aus der Liste entfernen",
         "ToggleActive": "Aktivstatus umschalten"
@@ -354,8 +412,8 @@
       "NoWoundResult": "Kein passendes Wundenergebnis gefunden.",
       "Advantage": "Vorteil",
       "Disadvantage": "Nachteil",
-      "WoundCheckMacro": "@Macro[Wundwurf]",
-      "DeathSaveMacro": "@Macro[Todeswurf]"
+      "WoundRoll": "Wundwurf",
+      "DeathSave": "Todeswurf"
     },
     "Chat": {
       "NoActor": "Kein Akteur für die Chat-Ausgabe verfügbar."

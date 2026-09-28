@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.3] - 2026-09-28
+### Added
+- Optional Cyberware and Slickware based on *A Pound of Flesh*: mark weapons, armor, items, or skills where applicable, and record slots and notes. The feature is disabled by default and has its own settings menu.
+- Character and contractor sheets list marked items with links to their sheets. All four slot limits have separate configurable attribute, multiplier, rounding, and flat bonus settings; choosing None uses only the flat bonus. Defaults use Strength and Intellect for characters and Instinct for both contractor limits. Excess slots add up to a shared Overclocking value. Quantity and equipped state do not affect slot use.
+- Clicking Overclocking on either sheet opens a dialog with cumulative effects from *A Pound of Flesh*, highlighting reached levels and showing later levels dimmed.
+
+### Fixed
+- Wound Roll and Death Save buttons in Apply Damage chat cards now run the bundled Mothership macros.
+- Closing the character creator's overwrite warning no longer modifies the existing character.
+- Rapid Crew Roster edits now preserve every change, and failed saves display an error.
+- Automatic training after Shore Leave now starts only when stress conversion succeeds.
+
 ## [0.8.2] - 2026-08-20
 ### Added
 - Training prices can now be configured separately for Trained, Expert, and Master skills and are displayed in the training skill selector.
