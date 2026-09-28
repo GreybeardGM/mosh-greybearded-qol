@@ -8,7 +8,6 @@
 
 ### Fixed
 - Wound Roll and Death Save buttons in Apply Damage chat cards now run the bundled Mothership macros.
-- Theme colors follow the player color, an optional personal override, and an explicitly configured global override.
 - Closing the character creator's overwrite warning no longer modifies the existing character.
 - Rapid Crew Roster edits now preserve every change, and failed saves display an error.
 - Automatic training after Shore Leave now starts only when stress conversion succeeds.
