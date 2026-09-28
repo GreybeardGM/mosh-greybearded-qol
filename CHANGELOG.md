@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.4] - Unreleased
+### Changes
+- Placeholder for upcoming development.
+
 ## [0.8.3] - 2026-09-28
 ### Added
 - Optional Cyberware and Slickware based on *A Pound of Flesh*: mark weapons, armor, items, or skills where applicable, and record slots and notes. The feature is disabled by default and has its own settings menu.
