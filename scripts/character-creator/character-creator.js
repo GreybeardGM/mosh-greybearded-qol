@@ -5,6 +5,7 @@ import { ClassSelectorApp } from "./select-class.js";
 import { AttributeSelectorApp } from "./select-attributes.js";
 import { SkillSelectorApp } from "./select-skills.js";
 import { rollLoadout } from "./roll-loadout.js";
+import { readCurrency } from "../utils/currency.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
@@ -85,13 +86,15 @@ export async function startCharacterCreation(actor) {
 
   // ✅ Step 2: Clean slate – delete items
   if (!checkStep(actor, "preparation")) {
+    const resetCredits = await readCurrency(0);
+    if (resetCredits === null) return;
     await actor.update({
       system: {
         class: { value: "", uuid: "" },
         other: { stressdesc: { value: "" }, stress: { value: 2, min: 2 } },
         hits: { value: 0, max: 2 },
         health: { value: "", max: "" },
-        credits: { value: "" }
+        credits: { value: resetCredits }
       }
     });
   
@@ -250,9 +253,8 @@ export async function startCharacterCreation(actor) {
       rollCredits: true,
       clearItems: false
     });
-    if (loadoutSuccess) {
-      await completeStep(actor, "rolledLoadout");
-    }
+    if (!loadoutSuccess) return;
+    await completeStep(actor, "rolledLoadout");
   }
      
   // ✅ Final Step: Mark character creation as completed

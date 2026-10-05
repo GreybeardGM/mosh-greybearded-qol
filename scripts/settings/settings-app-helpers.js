@@ -7,7 +7,8 @@ export function createSettingsAppDefaultOptions({
   submitHandler,
   resetDefaultsHandler,
   width = 550,
-  height = "auto"
+  height = "auto",
+  closeOnSubmit = true
 }) {
   return createQolAppDefaultOptions({
     id,
@@ -21,7 +22,8 @@ export function createSettingsAppDefaultOptions({
       height
     },
     form: {
-      handler: submitHandler
+      handler: submitHandler,
+      closeOnSubmit
     },
     actions: {
       resetDefaults: resetDefaultsHandler

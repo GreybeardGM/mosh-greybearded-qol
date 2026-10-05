@@ -29,7 +29,7 @@
           <strong>{{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}}</strong>
         </label>
         <div class="inline-row">
-          <input id="training-price-{{rank}}" type="number" min="0" step="1" name="training.prices.{{rank}}" value="{{lookup ../config.prices rank}}">
+          <input id="training-price-{{rank}}" type="text" name="training.prices.{{rank}}" value="{{lookup ../config.prices rank}}">
           <span>cr</span>
         </div>
       </div>

@@ -5,7 +5,8 @@ import { normalizeText, toEmbeddedItemData } from "../character-creator/utils.js
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getNormalizedTrainingConfig } from "../settings/training-config.js";
-import { formatCurrency } from "../utils/normalization.js";
+import { formatCurrency } from "../utils/currency-parser.js";
+import { readCurrency } from "../utils/currency.js";
 import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import {
   applyInitialAvailabilityLock,
@@ -42,6 +43,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static async wait({ actor }) {
     const prep = await this._prepareData({ actor });
+    if (prep === null) return null;
     return new Promise(resolve => {
       const app = new this({ actor, resolve, ...prep });
       app.render(true);
@@ -49,6 +51,14 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   static async _prepareData({ actor }) {
+    const rankPrices = {};
+    for (const [rank, rawPrice] of Object.entries(getNormalizedTrainingConfig().prices)) {
+      const price = await readCurrency(rawPrice, {
+        label: game.i18n.localize(`MoshQoL.CharacterCreator.Skills.${rank[0].toUpperCase() + rank.slice(1)}`)
+      });
+      if (price === null) return null;
+      rankPrices[rank] = formatCurrency(price);
+    }
     const allSkills = await loadAllItemsByType(MOSH_ITEM_TYPE_SKILL);
     const sortedSkills = allSkills.map(skill => ({
       id: skill.id,
@@ -67,15 +77,16 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
         .map(item => normalizeText(item.name))
     );
 
-    return { sortedSkills, ownedSkillNames };
+    return { sortedSkills, ownedSkillNames, rankPrices };
   }
 
-  constructor({ actor, resolve, sortedSkills, ownedSkillNames }, options = {}) {
+  constructor({ actor, resolve, sortedSkills, ownedSkillNames, rankPrices }, options = {}) {
     super(options);
     this.actor = actor;
     this._resolve = resolve;
     this._resolved = false;
 
+    this.rankPrices = rankPrices;
     this.sortedSkills = sortedSkills;
     this._skillById = new Map(sortedSkills.map(skill => [skill.id, skill]));
     this.ownedSkillNames = ownedSkillNames;
@@ -123,16 +134,13 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   async _prepareContext() {
-    const prices = getNormalizedTrainingConfig().prices;
     return appendQolThemeContext({
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "nameLower",
       defaultSkillValues: [...this.ownedSkillNames],
       showPointCounters: false,
       confirmLocked: true,
-      rankPrices: Object.fromEntries(
-        Object.entries(prices).map(([rank, price]) => [rank, formatCurrency(price)])
-      )
+      rankPrices: this.rankPrices
     });
   }
 

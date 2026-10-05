@@ -1,4 +1,5 @@
-import { normalizeBoolean, normalizeNumber } from "../utils/normalization.js";
+import { readCurrency } from "../utils/currency.js";
+import { normalizeBoolean } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_TRAINING_CONFIG } from "../codex/constants.js";
 import {
   appendThemeColor,
@@ -33,10 +34,9 @@ function normalizeTrainingConfig(config) {
       normalized.autoTrainAfterShoreLeave = config.autoTrainAfterShoreLeave;
     }
     for (const rank of Object.keys(normalized.prices)) {
-      normalized.prices[rank] = normalizeNumber(config.prices?.[rank], {
-        fallback: normalized.prices[rank],
-        min: 0
-      });
+      // Preserve stored currency input for explicit resolution; invalid values
+      // must never silently turn into defaults or zero.
+      if (Object.hasOwn(config.prices ?? {}, rank)) normalized.prices[rank] = config.prices[rank];
     }
   }
 
@@ -52,6 +52,7 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     id: "training-config",
     title: "MoshQoL.Settings.TrainingConfig.Name",
     submitHandler: this._onSubmit,
+    closeOnSubmit: false,
     resetDefaultsHandler: this._onResetDefaults
   });
 
@@ -77,10 +78,11 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
     config.useSkillTraining = normalizeBoolean(submitted.useSkillTraining);
     config.autoTrainAfterShoreLeave = normalizeBoolean(submitted.autoTrainAfterShoreLeave);
     for (const rank of Object.keys(config.prices)) {
-      config.prices[rank] = normalizeNumber(submitted.prices?.[rank], {
-        fallback: config.prices[rank],
-        min: 0
+      const price = await readCurrency(submitted.prices?.[rank], {
+        label: game.i18n.localize(`MoshQoL.CharacterCreator.Skills.${rank[0].toUpperCase() + rank.slice(1)}`)
       });
+      if (price === null) return; // Do not save any part of this form after cancellation.
+      config.prices[rank] = price;
     }
 
     await saveSettingAndClose(this, MODULE_ID, SETTING_TRAINING_CONFIG, config);

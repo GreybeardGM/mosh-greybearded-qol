@@ -1,3 +1,5 @@
+import { readCurrency } from "./utils/currency.js";
+import { classifyCurrency } from "./utils/currency-parser.js";
 import { convertStress } from "./shore-leave/convert-stress.js";
 import { DEFAULT_THEME_COLOR } from "./codex/constants.js";
 import { registerSettings } from "./settings/register-settings.js";
@@ -33,7 +35,9 @@ Hooks.once("ready", () => {
     SimpleShoreLeave,
     triggerShipCrit,
     startCharacterCreation,
-    applyDamage
+    applyDamage,
+    readCurrency,
+    classifyCurrency
   });
 
   registerChatActions();

@@ -1,8 +1,11 @@
 # Changelog
 
 ## [0.8.4] - Unreleased
-### Changes
-- Placeholder for upcoming development.
+### Added
+- Shared currency parser for Credits, kCR, MCR, and GCR with German and English notation. Ambiguous values prompt for a notation; invalid values show the original input and allow repeated correction. Cancelling aborts the action without saving currency changes.
+
+### Fixed
+- Currency handling in stash and contractor forms, Shore Leave payments, starting Credits, training prices, and Crew Roster salaries now uses the shared parser instead of silently rounding, stripping characters, or falling back to zero. Pending payments reject changed balances and duplicate clicks.
 
 ## [0.8.3] - 2026-09-28
 ### Added

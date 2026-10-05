@@ -9,6 +9,7 @@ export const QOL_UI_CLASS = "qol-ui";
 export const QOL_SHEET_CLASS = "qol-sheet";
 export const HIDE_SYSTEM_CHARACTER_CONFIG_CLASS = "qol-hide-system-character-config";
 export const CHAT_ACTION_CLASS = "chat-action";
+export const CURRENCY_DIALOG_CLASS = "qol-currency-resolution";
 
 export const QOL_UI_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_UI_CLASS]);
 export const QOL_SHEET_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_SHEET_CLASS]);

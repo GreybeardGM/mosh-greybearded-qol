@@ -1,0 +1,18 @@
+<section class="card" style="--theme-color: {{themeColor}};">
+  {{#if label}}<p><strong>{{label}}</strong></p>{{/if}}
+  <p>{{#if ambiguous}}{{localize "MoshQoL.Currency.Unclear"}}{{else}}{{localize "MoshQoL.Currency.Invalid"}}{{/if}}</p>
+  <pre>{{raw}}</pre>
+  {{#if ambiguous}}
+    <ul>
+      {{#each candidates}}
+        <li>{{label}}: {{credits}} {{localize "MoshQoL.Currency.CandidateUnit"}}</li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p>{{reason}}</p>
+    <div class="form-group">
+      <label for="qol-currency-input">{{localize "MoshQoL.Currency.Correction"}}</label>
+      <input id="qol-currency-input" type="text" name="currencyInput" value="{{raw}}" autocomplete="off" autofocus>
+    </div>
+  {{/if}}
+</section>

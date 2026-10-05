@@ -449,6 +449,31 @@
       "NoCrewSkills": "No skills were found on the active crew roster.",
       "RollUnavailable": "The MOSH ship roll is unavailable.",
       "Error": "The crew skill roll could not be completed."
+    },
+    "Currency": {
+      "Title": "Resolve currency value",
+      "Unclear": "The notation is ambiguous. Is this German or English notation?",
+      "Invalid": "Invalid character sequence.",
+      "Correction": "Correct the currency value",
+      "Submit": "Submit",
+      "CandidateUnit": "Credits (decimal separator: .)",
+      "Changed": "The currency value changed while this action was pending. No changes were saved. Please try again.",
+      "Cancelled": "Currency resolution was cancelled. Close this window and try again when the value is clarified.",
+      "Notation": {
+        "de": "German",
+        "en": "English"
+      },
+      "Errors": {
+        "not_finite": "The value must be finite.",
+        "negative_credits": "Negative Credits are not supported.",
+        "fractional_credits": "The value contains fractions of a Credit after applying its unit. Enter a whole number of Credits.",
+        "integer_out_of_range": "The value exceeds the largest safely supported integer (9,007,199,254,740,991 Credits).",
+        "unsupported_type": "Enter a currency value as text or a number.",
+        "empty": "The currency value is empty.",
+        "forbidden_character": "The input contains unsupported characters. Use digits, dots, commas and optionally k, M, G or CR.",
+        "invalid_structure": "Units and the optional single space must occur once, at the end of the number.",
+        "invalid_notation": "The separators do not follow a valid German or English notation."
+      }
     }
   }
 }

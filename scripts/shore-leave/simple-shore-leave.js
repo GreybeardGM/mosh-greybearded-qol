@@ -8,7 +8,8 @@ import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
 import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
-import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+import { formatCurrency } from "../utils/currency-parser.js";
+import { readCurrency } from "../utils/currency.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { scheduleAutoTrainingAfterShoreLeave } from "../training/training-action.js";
@@ -131,7 +132,8 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const roll = new Roll(entry.priceFormula);
     await roll.evaluate();
-    const rolledPrice = parseCurrencyValue(roll.total);
+    const rolledPrice = await readCurrency(roll.total, { label: entry.label });
+    if (rolledPrice === null) return;
     const formattedPrice = formatCurrency(rolledPrice);
 
     await chatOutput({

@@ -4,11 +4,22 @@ import {
   MOSH_STARTING_CREDITS_FORMULA
 } from "../codex/mosh-system.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { formatCurrency } from "../utils/normalization.js";
+import { formatCurrency } from "../utils/currency-parser.js";
+import { readCurrency } from "../utils/currency.js";
 import { toEmbeddedItemData } from "./utils.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;
+
+  // Resolve credits before any inventory mutation: cancelling currency repair
+  // must not leave a half-applied loadout or mark the generator step complete.
+  let startingCredits;
+  if (rollCredits) {
+    const creditRoll = new Roll(MOSH_STARTING_CREDITS_FORMULA);
+    await creditRoll.evaluate();
+    startingCredits = await readCurrency(creditRoll.total, { label: actor.name });
+    if (startingCredits === null) return false;
+  }
 
   const classData = selectedClass.system ?? selectedClass; // Support for Item or raw data
   const tableUUIDs = [
@@ -88,9 +99,6 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
 
   // Roll for Starting Credits
   if (rollCredits) {
-    const creditRoll = new Roll(MOSH_STARTING_CREDITS_FORMULA);
-    await creditRoll.evaluate();
-    const startingCredits = creditRoll.total;
     await actor.update({ system: { credits: { value: startingCredits } } });
     blocks.push({
       type: "counter",

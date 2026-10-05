@@ -1,12 +1,12 @@
-import { formatCurrency, parseCurrencyValue } from "./normalization.js";
+import { classifyCurrency, formatCurrency } from "./currency-parser.js";
 
 function showCurrencyDisplay(input) {
-  const raw = parseCurrencyValue(input.value);
-  input.value = String(raw);
-
+  // Display is read-only: actual input resolution belongs to the awaited form
+  // save. Never overwrite text merely by rendering, focusing, or blurring it.
+  const parsed = classifyCurrency(input.value);
   const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
   if (display) {
-    display.textContent = formatCurrency(raw);
+    display.textContent = parsed.status === "success" ? formatCurrency(parsed.value) : input.value;
     display.style.display = "flex";
   }
 
@@ -14,9 +14,6 @@ function showCurrencyDisplay(input) {
 }
 
 function showCurrencyInput(input) {
-  const raw = parseCurrencyValue(input.value);
-  input.value = String(raw);
-
   const display = input.closest(".currency-field")?.querySelector("[data-currency-display]");
   if (display) display.style.display = "none";
 

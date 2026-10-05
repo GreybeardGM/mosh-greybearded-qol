@@ -1,6 +1,8 @@
 import { CHAT_ACTION_SELECTOR } from "./codex/constants.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
+import { MOSH_CREDITS_PATH } from "./codex/mosh-system.js";
+import { readCurrency } from "./utils/currency.js";
 
 function getChatActionArgs(button) {
   if (!button.dataset.args) return [];
@@ -21,21 +23,37 @@ function getRequiredChatActionActor() {
   return actor;
 }
 
-async function payShoreLeave(actor, amount) {
-  const creditsPath = "system.credits.value";
-  const currentCredits = Number(foundry.utils.getProperty(actor, creditsPath) ?? 0);
-  const price = Number(amount ?? 0);
+const paymentsInFlight = new WeakSet();
 
-  if (!Number.isFinite(price) || price <= 0) return;
+export async function payShoreLeave(actor, amount) {
+  // Duplicate clicks must not spend the same snapshot while an update is pending.
+  if (paymentsInFlight.has(actor)) return;
+  paymentsInFlight.add(actor);
+  try {
+    const originalCredits = foundry.utils.getProperty(actor, MOSH_CREDITS_PATH);
+    const currentCredits = await readCurrency(originalCredits, { label: actor.name });
+    if (currentCredits === null) return;
+    const price = await readCurrency(amount, { label: game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice") });
+    if (price === null || price <= 0) return;
 
-  if (currentCredits < price) {
-    ui.notifications.warn(game.i18n.format("MoshQoL.ShoreLeave.CannotAfford", { actorName: actor.name }));
-    return;
+    // A dialog may stay open while another user changes the balance. Never
+    // overwrite that newer value with arithmetic based on the previous snapshot.
+    if (!Object.is(originalCredits, foundry.utils.getProperty(actor, MOSH_CREDITS_PATH))) {
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
+      return;
+    }
+
+    if (currentCredits < price) {
+      ui.notifications.warn(game.i18n.format("MoshQoL.ShoreLeave.CannotAfford", { actorName: actor.name }));
+      return;
+    }
+
+    await actor.update({
+      [MOSH_CREDITS_PATH]: currentCredits - price
+    });
+  } finally {
+    paymentsInFlight.delete(actor);
   }
-
-  await actor.update({
-    [creditsPath]: currentCredits - price
-  });
 }
 
 let chatActionsRegistered = false;

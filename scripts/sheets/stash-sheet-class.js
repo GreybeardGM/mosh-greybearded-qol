@@ -1,5 +1,6 @@
 import { qolSheetClasses, templatePath } from "../codex/constants.js";
-import { parseCurrencyValue } from "../utils/normalization.js";
+import { readCurrency } from "../utils/currency.js";
+import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 
 export function defineStashSheet(BaseSheet) {
@@ -21,9 +22,16 @@ export function defineStashSheet(BaseSheet) {
     }
 
     async _updateObject(event, formData) {
-      const creditsPath = "system.credits.value";
-      if (creditsPath in formData) {
-        formData[creditsPath] = parseCurrencyValue(formData[creditsPath]);
+      if (MOSH_CREDITS_PATH in formData) {
+        const originalValue = foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH);
+        const credits = await readCurrency(formData[MOSH_CREDITS_PATH], { label: this.actor.name });
+        // Cancellation aborts the entire form update, including other fields.
+        if (credits === null) return;
+        if (!Object.is(originalValue, foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH))) {
+          ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
+          return;
+        }
+        formData[MOSH_CREDITS_PATH] = credits;
       }
 
       formData["system.health.value"] = 0;
@@ -49,7 +57,7 @@ export function defineStashSheet(BaseSheet) {
       // Everything below here is only needed if the sheet is editable
       if (!this.options.editable) return;
 
-            attachCurrencyFieldHandlers(html);
+      attachCurrencyFieldHandlers(html);
 
     }
   };

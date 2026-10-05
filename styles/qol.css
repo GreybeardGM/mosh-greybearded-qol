@@ -345,6 +345,12 @@
   pointer-events: none;
 }
 
+/* Preserve whitespace in invalid currency values without overflowing the dialog. */
+.greybeardqol.qol-ui.qol-currency-resolution pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* Dialog Cards */
 .greybeardqol.qol-ui .dialog-card {
   text-align: center;

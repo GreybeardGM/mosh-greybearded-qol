@@ -1,7 +1,8 @@
 import { appendQolThemeContext, createQolAppDefaultOptions } from "./utils/application-options.js";
-import { formatCurrency } from "./utils/normalization.js";
+import { formatCurrency } from "./utils/currency-parser.js";
+import { readCurrency } from "./utils/currency.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
-import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
+import { MOSH_FALLBACK_ACTOR_IMAGE, MOSH_CONTRACTOR_SALARY_PATH } from "./codex/mosh-system.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const TABS = ["character", "creature", "ship"];
@@ -105,26 +106,6 @@ function getJobLabel(actor) {
   return "";
 }
 
-function getSalaryLabel(actor) {
-  const numericSalary = getNumericSalary(actor);
-  if (!Number.isFinite(numericSalary)) return "";
-  return formatCurrency(numericSalary);
-}
-
-function getNumericSalary(actor) {
-  if (!actor) return null;
-
-  const rawSalary = actor.system?.contractor?.baseSalary;
-  if (rawSalary === undefined || rawSalary === null || rawSalary === "") return null;
-
-  const numericSalary = typeof rawSalary === "number"
-    ? rawSalary
-    : Number.parseInt(String(rawSalary).replace(/[^\d.-]/g, ""), 10);
-
-  if (!Number.isFinite(numericSalary)) return null;
-  return numericSalary;
-}
-
 function sortEntries(entries) {
   return entries.sort((left, right) => {
     if (left.active !== right.active) {
@@ -223,11 +204,19 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   async _buildRosterContext(sourceRoster = {}) {
     const { actorsByUuid, cleanedRoster, rosterChanged } = await this._resolveCleanRoster(sourceRoster);
     const entries = { character: [], creature: [], ship: [] };
-    const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
+    const summary = { activeCrewCount: 0, totalSalary: 0n, totalHazardPay: 0n };
 
     for (const tab of TABS) {
       for (const rosterEntry of cleanedRoster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
+        const rawSalary = foundry.utils.getProperty(actor, MOSH_CONTRACTOR_SALARY_PATH);
+        let salary = null;
+        // Actors without a salary do not supply a currency value. Any supplied
+        // value, including zero or malformed text, goes through the same resolver.
+        if (rawSalary !== undefined) {
+          salary = await readCurrency(rawSalary, { label: actor.name });
+          if (salary === null) return null;
+        }
 
         entries[tab].push({
           uuid: rosterEntry.uuid,
@@ -236,8 +225,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           hazardPayDisplay: Number.isInteger(rosterEntry.hazardPay) ? String(rosterEntry.hazardPay) : "",
           name: actor.name,
           job: getJobLabel(actor),
-          salary: getSalaryLabel(actor),
-          salaryValue: getNumericSalary(actor),
+          salary: salary === null ? "" : formatCurrency(salary),
+          salaryValue: salary,
           img: actor.img
         });
       }
@@ -250,7 +239,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           if (!entry.active) continue;
           summary.activeCrewCount += 1;
           if (Number.isFinite(entry.salaryValue)) {
-            summary.totalSalary += entry.salaryValue;
+            summary.totalSalary += BigInt(entry.salaryValue);
           }
         }
       }
@@ -260,9 +249,18 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           if (!entry.active) continue;
           if (!Number.isFinite(entry.salaryValue)) continue;
           if (!Number.isInteger(entry.hazardPay)) continue;
-          summary.totalHazardPay += entry.salaryValue * entry.hazardPay;
+          summary.totalHazardPay += BigInt(entry.salaryValue) * BigInt(entry.hazardPay);
         }
       }
+    }
+
+    // Sum exactly before the safe-integer check; do not round large payrolls.
+    for (const key of ["totalSalary", "totalHazardPay"]) {
+      const total = await readCurrency(summary[key].toString(), {
+        label: game.i18n.localize(`MoshQoL.CrewRoster.Summary.${key === "totalSalary" ? "TotalSalaries" : "TotalHazardPay"}`)
+      });
+      if (total === null) return null;
+      summary[key] = total;
     }
 
     const tabs = [
@@ -276,7 +274,13 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   async _prepareContext() {
     const sourceRoster = this._rosterDraft ?? this.actor?.getFlag(MODULE_ID, FLAG_CREW_ROSTER) ?? {};
-    const { cleanedRoster, entries, rosterChanged, summary, tabs } = await this._buildRosterContext(sourceRoster);
+    const rosterContext = await this._buildRosterContext(sourceRoster);
+    this._currencyCancelled = rosterContext === null;
+    if (this._currencyCancelled) {
+      this._lastRosterCleanupCandidate = null;
+      return appendQolThemeContext({ currencyCancelled: true });
+    }
+    const { cleanedRoster, entries, rosterChanged, summary, tabs } = rosterContext;
     this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
     return appendQolThemeContext({
@@ -304,6 +308,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
     root.removeEventListener("change", this._boundHazardChange);
+    if (context.currencyCancelled) return;
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
     root.addEventListener("change", this._boundHazardChange);
@@ -365,7 +370,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   _scheduleRosterCommit(nextRoster) {
-    if (!this.actor) return Promise.resolve(false);
+    if (!this.actor || this._currencyCancelled) return Promise.resolve(false);
 
     const roster = normalizeRoster(nextRoster);
     this._rosterDraft = roster;
