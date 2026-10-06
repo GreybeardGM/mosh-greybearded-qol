@@ -372,7 +372,7 @@ test("stored Pay Up buttons hide immediately and on render, and restore when ena
   assert.equal(button.style.display, "");
 });
 
-test("disabled handler omits new payment buttons and skips starting Credits while other features continue", async () => {
+test("disabled handler omits new payment buttons while character generation remains available", async () => {
   settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: false, notation: "de" };
   globalThis.ChatMessage = { getSpeaker: () => ({}), create: async () => ({}) };
   Roll.prototype.toMessage = async () => ({});
@@ -381,31 +381,68 @@ test("disabled handler omits new payment buttons and skips starting Credits whil
   await SimpleShoreLeave._onRollPrice.call(app, null, { dataset: { tier: "X" } });
   assert.deepEqual(contexts[0].buttons.map(button => button.action), ["convertStress"]);
   assert.equal(contexts[0].blocks[0].value, "0,2 kcr");
-  rollTotal = NaN; // This roll must not even be read when automatic Credits are disabled.
   assert.equal(await rollLoadout(target, { system: {} }, { rollCredits: true }), true);
-  assert.deepEqual(target.writes, []);
+  assert.deepEqual(target.writes, [{ system: { credits: { value: 200 } } }]);
   assert.equal(dialogs.length, 0);
 });
 
-test("character preparation leaves existing Credits untouched when the handler is off", async () => {
+test("character preparation intentionally resets Credits even when the handler is off", async () => {
   settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: false, notation: "en" };
-  const target = actor(777);
+  const target = actor("unreadable old balance");
   target.getFlag = (_module, key) => key.endsWith(".ready") ? true : undefined;
   const preparation = new Error("stop after preparation payload");
   target.update = async data => { target.writes.push(data); throw preparation; };
   await assert.rejects(startCharacterCreation(target), preparation);
-  assert.equal(Object.hasOwn(target.writes[0].system, "credits"), false);
-  assert.equal(target.system.credits.value, 777);
+  assert.equal(target.writes[0].system.credits.value, 0);
+  assert.equal(dialogs.length, 0);
 });
 
-test("disabling the handler during a loadout also blocks its later credit write", async () => {
+test("disabling the handler during character generation does not suppress starting Credits", async () => {
   const target = actor(777);
   globalThis.fromUuid = async () => {
     settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: false, notation: "en" };
     return { roll: async () => ({ results: [] }) };
   };
   assert.equal(await rollLoadout(target, { system: { roll_tables: { loadout: "table" } } }, { rollCredits: true }), true);
-  assert.deepEqual(target.writes, []);
+  assert.deepEqual(target.writes, [{ system: { credits: { value: 200 } } }]);
+});
+
+test("all starting Credit rolls overwrite old balances without notation conflicts, with the handler on or off", async () => {
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async () => ({}) };
+  for (const notation of ["en", "de", "fr", "ch"]) {
+    for (const enabled of [true, false]) {
+      settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled, notation };
+      for (rollTotal = 20; rollTotal <= 200; rollTotal += 10) {
+        const target = actor("old value intentionally not parsed");
+        assert.equal(await rollLoadout(target, { system: {} }, { rollCredits: true }), true);
+        assert.deepEqual(target.writes, [{ system: { credits: { value: rollTotal } } }]);
+      }
+    }
+  }
+  assert.equal(dialogs.length, 0);
+});
+
+test("the generator exception still validates invalid rolls before any mutation", async () => {
+  settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: false, notation: "en" };
+  for (const value of [NaN, Infinity, -20, 20.5, Number.MAX_SAFE_INTEGER + 1]) {
+    rollTotal = value;
+    responses = [null];
+    const target = actor(777);
+    assert.equal(await rollLoadout(target, { system: {} }, { rollCredits: true, clearItems: true }), false);
+    assert.deepEqual(target.writes, []);
+  }
+});
+
+test("loadouts without requested starting Credits never change a balance", async () => {
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async () => ({}) };
+  for (const enabled of [true, false]) {
+    settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled, notation: "en" };
+    rollTotal = NaN; // No Credit roll is requested by contractor loadouts.
+    const target = actor(777);
+    assert.equal(await rollLoadout(target, { system: {} }, { rollCredits: false }), true);
+    assert.deepEqual(target.writes, []);
+  }
+  assert.equal(dialogs.length, 0);
 });
 
 class SettingsRoot {

@@ -481,7 +481,7 @@
       },
       "Config": {
         "Enabled": "Credit Handler",
-        "EnabledHint": "Enable automatic credit changes, including Pay Up and starting Credits. When disabled, Credits can still be edited manually.",
+        "EnabledHint": "Enable automatic credit changes such as Pay Up. When disabled, manual edits and starting Credits from character generation remain available.",
         "Notation": "Currency notation",
         "NotationHint": "Used to read and display currency for everyone in this world, even when the Credit Handler is disabled. The interface language has no effect.",
         "WarningTitle": "Change currency notation?",

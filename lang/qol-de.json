@@ -481,7 +481,7 @@
       },
       "Config": {
         "Enabled": "Credit Handler",
-        "EnabledHint": "Automatische Credit-Änderungen einschließlich Pay Up und Start-Credits aktivieren. Bei Deaktivierung bleiben manuelle Eingaben möglich.",
+        "EnabledHint": "Automatische Credit-Änderungen wie Pay Up aktivieren. Bei Deaktivierung bleiben manuelle Eingaben und Start-Credits aus dem Charaktergenerator möglich.",
         "Notation": "Währungsschreibweise",
         "NotationHint": "Gilt beim Lesen und Anzeigen von Währung für alle in dieser Welt, auch bei deaktiviertem Credit Handler. Die Oberflächensprache hat keinen Einfluss.",
         "WarningTitle": "Währungsschreibweise ändern?",

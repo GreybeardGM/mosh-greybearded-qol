@@ -20,7 +20,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ### Currency Utilities
 - World settings select English (default), German, French, or Swiss notation for reading and displaying Credits, kCR, MCR, and GCR. Invalid values require manual correction; cancelling stops the action.
-- The Credit Handler is enabled by default. Disabling it stops automatic credit changes and hides Pay Up; currency display still follows the selected notation.
+- The Credit Handler is enabled by default. Disabling it stops automatic credit changes and hides Pay Up; manual edits and character generation remain available. Currency display still follows the selected notation.
 
 ### QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
@@ -70,7 +70,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.4-dev.3`
+- **Current module version**: `0.8.4-dev.4`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
