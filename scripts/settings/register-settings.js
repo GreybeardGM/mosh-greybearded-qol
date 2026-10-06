@@ -3,6 +3,9 @@ import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.j
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
 import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
 import { CyberwareConfigApp } from "./cyberware-config.js";
+import { CreditHandlerConfigApp } from "./credit-handler-config.js";
+import { getDefaultCreditConfig } from "../currency/config.js";
+import { refreshCreditPaymentButtons } from "../chat-actions.js";
 import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
@@ -20,6 +23,7 @@ import {
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_CYBERWARE_SLOT_RULES,
+  SETTING_CREDIT_HANDLER_CONFIG,
   SETTING_ENABLE_CHARACTER_CREATOR,
   SETTING_ENABLE_CYBERWARE,
   SETTING_SHORE_LEAVE_CONFIG,
@@ -103,6 +107,26 @@ const CLIENT_SETTING_DEFINITIONS = [
 
 
 const MENU_DEFINITIONS = [
+  {
+    key: "creditHandlerConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.CreditHandlerConfig.Name",
+      label: "MoshQoL.Settings.CreditHandlerConfig.Label",
+      hint: "MoshQoL.Settings.CreditHandlerConfig.Hint",
+      icon: "fa-solid fa-coins",
+      type: CreditHandlerConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_CREDIT_HANDLER_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.CreditHandlerConfig.Name",
+        type: Object,
+        default: getDefaultCreditConfig(),
+        onChange: () => refreshCreditPaymentButtons()
+      }
+    }
+  },
   {
     key: "cyberwareConfigMenu",
     options: {

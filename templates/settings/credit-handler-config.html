@@ -1,0 +1,34 @@
+<div class="qolsettings" style="--theme-color: {{themeColor}};">
+  <section class="card">
+    <label class="pill interactive qolsettings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Currency.Config.Enabled"}}</strong>
+        <small>{{localize "MoshQoL.Currency.Config.EnabledHint"}}</small>
+      </span>
+      <input type="checkbox" name="enabled" {{checked enabled}}>
+    </label>
+  </section>
+
+  <section class="card">
+    <label class="form-group">
+      <span>{{localize "MoshQoL.Currency.Config.Notation"}}</span>
+      <select name="notation">
+        {{#each notations}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} — {{example}}</option>
+        {{/each}}
+      </select>
+    </label>
+    <small>{{localize "MoshQoL.Currency.Config.NotationHint"}}</small>
+  </section>
+
+  <footer class="form-footer">
+    <button type="button" data-action="resetDefaults">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.ResetToDefault"}}
+    </button>
+    <button type="submit">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      {{localize "MoshQoL.Common.SaveChanges"}}
+    </button>
+  </footer>
+</div>

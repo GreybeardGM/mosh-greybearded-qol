@@ -1,5 +1,6 @@
 import {
   MODULE_ID,
+  CHAT_ACTION_PAY_SHORE_LEAVE,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   templatePath
 } from "../codex/constants.js";
@@ -10,6 +11,7 @@ import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js
 import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
 import { formatCurrency } from "../utils/currency-parser.js";
 import { readCurrency } from "../utils/currency.js";
+import { isCreditHandlerEnabled } from "../currency/config.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { scheduleAutoTrainingAfterShoreLeave } from "../training/training-action.js";
@@ -151,12 +153,12 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       icon: entry.flavor?.icon || entry.icon,
       roll,
       buttons: [
-        {
+        ...(isCreditHandlerEnabled() ? [{
           label: game.i18n.localize("MoshQoL.ShoreLeave.PayUp"),
           icon: "fa-coins",
-          action: "payShoreLeave",
+          action: CHAT_ACTION_PAY_SHORE_LEAVE,
           args: [rolledPrice]
-        },
+        }] : []),
         {
           label: game.i18n.localize("MoshQoL.ShoreLeave.ParticipateNow"),
           icon: "fa-dice",

@@ -6,6 +6,7 @@ import { AttributeSelectorApp } from "./select-attributes.js";
 import { SkillSelectorApp } from "./select-skills.js";
 import { rollLoadout } from "./roll-loadout.js";
 import { readCurrency } from "../utils/currency.js";
+import { isCreditHandlerEnabled } from "../currency/config.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
@@ -94,7 +95,8 @@ export async function startCharacterCreation(actor) {
         other: { stressdesc: { value: "" }, stress: { value: 2, min: 2 } },
         hits: { value: 0, max: 2 },
         health: { value: "", max: "" },
-        credits: { value: resetCredits }
+        // Disabling the handler also protects existing Credits during character reset.
+        ...(isCreditHandlerEnabled() ? { credits: { value: resetCredits } } : {})
       }
     });
   

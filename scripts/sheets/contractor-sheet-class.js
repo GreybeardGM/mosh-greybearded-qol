@@ -4,6 +4,7 @@ import { openOverclockingDialog } from "../cyberware/overclocking-dialog.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { readCurrency } from "../utils/currency.js";
+import { isCreditHandlerEnabled } from "../currency/config.js";
 import { MOSH_CONTRACTOR_SALARY_PATH } from "../codex/mosh-system.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
@@ -26,10 +27,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     async _updateObject(event, formData) {
-        if (MOSH_CONTRACTOR_SALARY_PATH in formData) {
+        if (isCreditHandlerEnabled() && MOSH_CONTRACTOR_SALARY_PATH in formData) {
             const originalValue = foundry.utils.getProperty(this.actor, MOSH_CONTRACTOR_SALARY_PATH);
             const salary = await readCurrency(formData[MOSH_CONTRACTOR_SALARY_PATH], { label: this.actor.name });
             if (salary === null) return;
+            if (!isCreditHandlerEnabled()) return;
             if (!Object.is(originalValue, foundry.utils.getProperty(this.actor, MOSH_CONTRACTOR_SALARY_PATH))) {
               ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
               return;

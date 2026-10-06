@@ -211,6 +211,11 @@
           "Title": "Trainingspreise",
           "Hint": "Lege den im Trainings-Auswahlfenster angezeigten Credit-Preis für jede Fertigkeitsstufe fest."
         }
+      },
+      "CreditHandlerConfig": {
+        "Name": "Credit Handler",
+        "Label": "Credit Handler konfigurieren",
+        "Hint": "Automatische Credit-Verwaltung und die Währungsschreibweise für diese Welt festlegen."
       }
     },
     "ShoreLeave": {
@@ -452,16 +457,16 @@
     },
     "Currency": {
       "Title": "Währungswert klären",
-      "Unclear": "Die Schreibweise ist nicht eindeutig erkannt. Ist das deutsche oder englische Schreibweise?",
       "Invalid": "Ungültige Zeichenfolge.",
       "Correction": "Währungswert korrigieren",
       "Submit": "Eingabe",
-      "CandidateUnit": "Credits (Dezimaltrennzeichen: .)",
-      "Changed": "Der Währungswert wurde während dieser Aktion geändert. Es wurde nichts gespeichert. Bitte erneut versuchen.",
+      "Changed": "Der Währungswert oder die Schreibweise wurde während dieser Aktion geändert. Es wurde nichts gespeichert. Bitte erneut versuchen.",
       "Cancelled": "Die Klärung des Währungswerts wurde abgebrochen. Schließe dieses Fenster und versuche es erneut, sobald der Wert geklärt ist.",
       "Notation": {
         "de": "Deutsch",
-        "en": "Englisch"
+        "en": "Englisch",
+        "fr": "Französisch",
+        "ch": "Schweizerisch"
       },
       "Errors": {
         "not_finite": "Der Wert muss eine endliche Zahl sein.",
@@ -470,9 +475,17 @@
         "integer_out_of_range": "Der Wert überschreitet die größte sicher unterstützte Ganzzahl (9.007.199.254.740.991 Credits).",
         "unsupported_type": "Gib den Währungswert als Text oder Zahl ein.",
         "empty": "Der Währungswert ist leer.",
-        "forbidden_character": "Die Eingabe enthält nicht unterstützte Zeichen. Erlaubt sind Ziffern, Punkte, Kommata und optional k, M, G oder CR.",
+        "forbidden_character": "Die Eingabe enthält nicht unterstützte Zeichen. Erlaubt sind Ziffern, die Trennzeichen der gewählten Schreibweise und optional k, M, G oder CR.",
         "invalid_structure": "Einheit und das optionale einzelne Leerzeichen dürfen nur einmal am Ende der Zahl stehen.",
-        "invalid_notation": "Die Trennzeichen entsprechen keiner gültigen deutschen oder englischen Schreibweise."
+        "invalid_notation": "Die Zahl entspricht nicht der für diese Welt eingestellten Währungsschreibweise."
+      },
+      "Config": {
+        "Enabled": "Credit Handler",
+        "EnabledHint": "Automatische Credit-Änderungen einschließlich Pay Up und Start-Credits aktivieren. Bei Deaktivierung bleiben manuelle Eingaben möglich.",
+        "Notation": "Währungsschreibweise",
+        "NotationHint": "Gilt beim Lesen und Anzeigen von Währung für alle in dieser Welt, auch bei deaktiviertem Credit Handler. Die Oberflächensprache hat keinen Einfluss.",
+        "WarningTitle": "Währungsschreibweise ändern?",
+        "Warning": "Eine Umstellung im laufenden Betrieb kann zur Fehlinterpretation bestehender Währungsstrings führen. Vorhandene Werte werden nicht automatisch umgewandelt. Im Zweifel lieber die bisherige Schreibweise beibehalten. Bestätigen übernimmt die Auswahl; erst Änderungen speichern wendet sie für die Welt an."
       }
     }
   }

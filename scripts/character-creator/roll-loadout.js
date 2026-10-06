@@ -6,10 +6,12 @@ import {
 import { chatOutput } from "../utils/chat-output.js";
 import { formatCurrency } from "../utils/currency-parser.js";
 import { readCurrency } from "../utils/currency.js";
+import { isCreditHandlerEnabled } from "../currency/config.js";
 import { toEmbeddedItemData } from "./utils.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;
+  rollCredits = rollCredits && isCreditHandlerEnabled();
 
   // Resolve credits before any inventory mutation: cancelling currency repair
   // must not leave a half-applied loadout or mark the generator step complete.
@@ -98,7 +100,7 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
     }));
 
   // Roll for Starting Credits
-  if (rollCredits) {
+  if (rollCredits && isCreditHandlerEnabled()) {
     await actor.update({ system: { credits: { value: startingCredits } } });
     blocks.push({
       type: "counter",

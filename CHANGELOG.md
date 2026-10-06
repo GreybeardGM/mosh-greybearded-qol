@@ -2,7 +2,8 @@
 
 ## [0.8.4] - Unreleased
 ### Added
-- Shared currency parser for Credits, kCR, MCR, and GCR with German and English notation. Ambiguous values prompt for a notation; invalid values show the original input and allow repeated correction. Cancelling aborts the action without saving currency changes.
+- Credit Handler settings with a world-wide English (default), German, French, or Swiss currency notation. Invalid values require manual correction; cancelling aborts the action. Currency output follows the selected notation independently of automation.
+- Automatic credit handling can be disabled, including Pay Up and starting Credits. Changing notation prompts for confirmation immediately in the settings menu because stored strings may be misinterpreted.
 
 ### Fixed
 - Currency handling in stash and contractor forms, Shore Leave payments, starting Credits, training prices, and Crew Roster salaries now uses the shared parser instead of silently rounding, stripping characters, or falling back to zero. Pending payments reject changed balances and duplicate clicks.

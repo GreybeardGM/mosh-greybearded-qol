@@ -1,8 +1,19 @@
-import { CHAT_ACTION_SELECTOR } from "./codex/constants.js";
+import { CHAT_ACTION_PAY_SHORE_LEAVE, CHAT_ACTION_SELECTOR } from "./codex/constants.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
 import { MOSH_CREDITS_PATH } from "./codex/mosh-system.js";
 import { readCurrency } from "./utils/currency.js";
+import { getCreditConfig, isCreditHandlerEnabled } from "./currency/config.js";
+
+// Applies both to stored cards on render and to currently visible cards after a setting change.
+export function refreshCreditPaymentButtons(root = globalThis.document) {
+  root?.querySelectorAll(`${CHAT_ACTION_SELECTOR}[data-action="${CHAT_ACTION_PAY_SHORE_LEAVE}"]`)
+    .forEach(button => {
+      button.hidden = !isCreditHandlerEnabled();
+      // Explicit display also wins against the card's styled button display rules.
+      button.style.display = button.hidden ? "none" : "";
+    });
+}
 
 function getChatActionArgs(button) {
   if (!button.dataset.args) return [];
@@ -27,7 +38,8 @@ const paymentsInFlight = new WeakSet();
 
 export async function payShoreLeave(actor, amount) {
   // Duplicate clicks must not spend the same snapshot while an update is pending.
-  if (paymentsInFlight.has(actor)) return;
+  if (!isCreditHandlerEnabled() || paymentsInFlight.has(actor)) return;
+  const notation = getCreditConfig().notation;
   paymentsInFlight.add(actor);
   try {
     const originalCredits = foundry.utils.getProperty(actor, MOSH_CREDITS_PATH);
@@ -35,6 +47,12 @@ export async function payShoreLeave(actor, amount) {
     if (currentCredits === null) return;
     const price = await readCurrency(amount, { label: game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice") });
     if (price === null || price <= 0) return;
+    // A GM may disable the handler or change notation while a correction dialog is open.
+    if (!isCreditHandlerEnabled()) return;
+    if (getCreditConfig().notation !== notation) {
+      ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
+      return;
+    }
 
     // A dialog may stay open while another user changes the balance. Never
     // overwrite that newer value with arithmetic based on the previous snapshot.
@@ -64,6 +82,7 @@ export function registerChatActions() {
 
   Hooks.on("renderChatMessageHTML", (message, html) => {
     insertApplyDamageChatButtons(message, html);
+    refreshCreditPaymentButtons(html);
 
     if (html.dataset.moshQolChatActionsBound) return;
     html.dataset.moshQolChatActionsBound = "true";
@@ -97,7 +116,8 @@ export function registerChatActions() {
           await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
           break;
         }
-        case "payShoreLeave": {
+        case CHAT_ACTION_PAY_SHORE_LEAVE: {
+          if (!isCreditHandlerEnabled()) return;
           const actor = getRequiredChatActionActor();
           if (!actor) return;
           await payShoreLeave(actor, args[0]);

@@ -1,5 +1,7 @@
-/** Pure currency interpreter. Never guess, truncate, round, or discard input characters. */
-export function classifyCurrency(input, { notation = null } = {}) {
+import { CURRENCY_NOTATIONS, getCreditConfig } from "../currency/config.js";
+
+/** Never guess, truncate, round, or discard input characters. Only the chosen notation applies. */
+export function classifyCurrency(input, { notation = getCreditConfig().notation } = {}) {
   const invalid = code => ({ status: "invalid", code });
   if (typeof input === "number") {
     if (!Number.isFinite(input)) return invalid("not_finite");
@@ -10,67 +12,36 @@ export function classifyCurrency(input, { notation = null } = {}) {
   }
   if (typeof input !== "string") return invalid("unsupported_type");
   if (!input.length) return invalid("empty");
-  if (/[^0-9.,GMkCcRr ]/.test(input)) return invalid("forbidden_character");
+  if (/[^0-9.,'\u2019\u00a0\u202fGMkCcRr ]/.test(input)) return invalid("forbidden_character");
 
-  const match = input.match(/^([0-9]+(?:[.,][0-9]+)*)(?: ?([GMk](?:[cC][rR])?|[cC][rR]))?$/);
+  const match = input.match(/^([0-9]+(?:[., '\u2019\u00a0\u202f][0-9]+)*)(?: ?([GMk](?:[cC][rR])?|[cC][rR]))?$/);
   if (!match) return invalid("invalid_structure");
   const [, numericPart, suffix = ""] = match;
+  const rule = Object.hasOwn(CURRENCY_NOTATIONS, notation) ? CURRENCY_NOTATIONS[notation] : null;
+  if (!rule?.pattern.test(numericPart)) return invalid("invalid_notation");
   const multiplier = suffix.startsWith("G") ? 1_000_000_000n
     : suffix.startsWith("M") ? 1_000_000n : suffix.startsWith("k") ? 1_000n : 1n;
-  const notations = [
-    { id: "de", pattern: /^(?:[0-9]+|[0-9]{1,3}(?:\.[0-9]{3})+)(?:,[0-9]+)?$/, group: ".", decimal: "," },
-    { id: "en", pattern: /^(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?$/, group: ",", decimal: "." }
-  ];
-  if (notation !== null && !notations.some(item => item.id === notation)) return invalid("invalid_notation");
-  const interpretations = [];
-  for (const rule of notations) {
-    if (notation !== null && rule.id !== notation) continue;
-    if (!rule.pattern.test(numericPart)) continue;
-    const [whole, fraction = ""] = numericPart.split(rule.group).join("").split(rule.decimal);
-    const numerator = BigInt(whole + fraction) * multiplier;
-    const denominator = 10n ** BigInt(fraction.length);
-    const integerPart = numerator / denominator;
-    const remainder = numerator % denominator;
-    const decimalPart = remainder === 0n ? ""
-      : remainder.toString().padStart(fraction.length, "0").replace(/0+$/, "");
-    interpretations.push({
-      notation: rule.id,
-      credits: integerPart.toString() + (decimalPart ? "." + decimalPart : ""),
-      integerPart,
-      remainder
-    });
-  }
-  if (!interpretations.length) return invalid("invalid_notation");
-
-  // Keep fractional candidates until the user chooses a notation: the integer
-  // requirement must never silently turn 1,234 into a thousands interpretation.
-  if (new Set(interpretations.map(item => item.credits)).size > 1) {
-    return {
-      status: "unclear", code: "ambiguous_separator",
-      candidates: interpretations.map(({ notation: id, credits }) => ({ notation: id, credits }))
-    };
-  }
-  const result = interpretations[0];
-  const notationsFound = interpretations.map(item => item.notation);
-  if (result.remainder !== 0n) {
-    return { ...invalid("fractional_credits"), notations: notationsFound, credits: result.credits };
-  }
-  if (result.integerPart > BigInt(Number.MAX_SAFE_INTEGER)) {
-    return { ...invalid("integer_out_of_range"), notations: notationsFound, credits: result.credits };
-  }
-  return { status: "success", value: Number(result.integerPart), notations: notationsFound };
+  const [whole, fraction = ""] = numericPart.replace(rule.groups, "").split(rule.decimal);
+  const numerator = BigInt(whole + fraction) * multiplier;
+  const denominator = 10n ** BigInt(fraction.length);
+  if (numerator % denominator !== 0n) return invalid("fractional_credits");
+  const amount = numerator / denominator;
+  if (amount > BigInt(Number.MAX_SAFE_INTEGER)) return invalid("integer_out_of_range");
+  return { status: "success", value: Number(amount) };
 }
 
-/** Display only. External input must first be resolved with readCurrency(). */
-export function formatCurrency(value, { locale = globalThis.game?.i18n?.lang } = {}) {
-  const parsed = classifyCurrency(value);
-  if (parsed.status !== "success") throw new RangeError(`Unresolved currency: ${parsed.code}`);
-  const amount = parsed.value;
-  const options = { minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: true };
-  for (const [divisor, suffix] of [[1_000_000_000, "Gcr"], [1_000_000, "Mcr"], [1_000, "kcr"]]) {
-    if (amount !== 0 && amount % (divisor / 10) === 0) {
-      return `${(amount / divisor).toLocaleString(locale, options)} ${suffix}`;
+/** Display only. The world notation applies even when automatic credit handling is off. */
+export function formatCurrency(value, { notation = getCreditConfig().notation } = {}) {
+  const parsed = classifyCurrency(value, { notation });
+  const rule = Object.hasOwn(CURRENCY_NOTATIONS, notation) ? CURRENCY_NOTATIONS[notation] : null;
+  if (parsed.status !== "success" || !rule) throw new RangeError(`Unresolved currency: ${parsed.code ?? "invalid_notation"}`);
+  const amount = BigInt(parsed.value);
+  const grouped = digits => digits.replace(/\B(?=(\d{3})+(?!\d))/g, rule.group);
+  // Integer arithmetic keeps display and re-reading exact, including near MAX_SAFE_INTEGER.
+  for (const [divisor, suffix] of [[1_000_000_000n, "Gcr"], [1_000_000n, "Mcr"], [1_000n, "kcr"]]) {
+    if (amount !== 0n && amount % (divisor / 10n) === 0n) {
+      return `${grouped((amount / divisor).toString())}${rule.decimal}${(amount % divisor) / (divisor / 10n)} ${suffix}`;
     }
   }
-  return `${amount.toLocaleString(locale, { useGrouping: true })} cr`;
+  return `${grouped(amount.toString())} cr`;
 }

@@ -27,6 +27,7 @@ export function qolClassName(...extraClasses) {
 }
 
 export const CHAT_ACTION_SELECTOR = `.${QOL_NAMESPACE_CLASS} .${CHAT_ACTION_CLASS}`;
+export const CHAT_ACTION_PAY_SHORE_LEAVE = "payShoreLeave";
 
 export function modulePath(relativePath = "") {
   const normalizedPath = String(relativePath ?? "").replace(/^\/+/, "");
@@ -64,3 +65,4 @@ export const SETTING_SHORE_LEAVE_CONFIG = "shoreLeaveConfig";
 export const SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR = "simpleShoreLeave.disableFlavor";
 export const SETTING_TOOLBAND_CONFIG = "toolbandConfig";
 export const SETTING_TRAINING_CONFIG = "trainingConfig";
+export const SETTING_CREDIT_HANDLER_CONFIG = "creditHandlerConfig";
