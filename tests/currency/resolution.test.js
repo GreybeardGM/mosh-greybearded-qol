@@ -153,7 +153,31 @@ test("a cancelled or absent payable amount never becomes a zero or deducted paym
 test("resolved actor and manual payment amounts are used exactly once", async () => {
   const target = actor("1.5 MCR");
   await payShoreLeave(target, "250 kcr");
-  assert.deepEqual(target.writes, [{ "system.credits.value": 1250000 }]);
+  assert.deepEqual(target.writes, [{ "system.credits.value": "1,250.0 kcr" }]);
+});
+
+test("payments store the world notation and can spend the formatted balance again without precision loss", async () => {
+  const grouped = { en: "1,234,567 cr", de: "1.234.567 cr", fr: "1\u202f234\u202f567 cr", ch: "1\u2019234\u2019567 cr" };
+  for (const notation of ["en", "de", "fr", "ch"]) {
+    settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: true, notation };
+    for (const remaining of [0, 99, 1500, 1234567, 1500000, 1500000000, Number.MAX_SAFE_INTEGER - 1]) {
+      const target = actor(remaining + 1, { persist: true });
+      await payShoreLeave(target, 1);
+      const stored = target.system.credits.value;
+      assert.equal(typeof stored, "string");
+      assert.deepEqual(classifyCurrency(stored), { status: "success", value: remaining });
+      if (remaining === 1234567) assert.equal(stored, grouped[notation]);
+      if (remaining === 1500) assert.equal(stored, notation === "de" || notation === "fr" ? "1,5 kcr" : "1.5 kcr");
+      if (remaining === 1500000) assert.equal(stored, notation === "de" || notation === "fr" ? "1,5 Mcr" : "1.5 Mcr");
+      if (remaining === 1500000000) assert.equal(stored, notation === "de" || notation === "fr" ? "1,5 Gcr" : "1.5 Gcr");
+      if (remaining > 0) {
+        await payShoreLeave(target, 1);
+        assert.equal(classifyCurrency(target.system.credits.value).value, remaining - 1);
+        assert.equal(target.writes.length, 2);
+      }
+    }
+  }
+  assert.equal(dialogs.length, 0);
 });
 
 test("insufficient funds and zero price do not write currency", async () => {
@@ -182,9 +206,9 @@ test("duplicate clicks cannot deduct a stale balance during a slow save", async 
   await entered;
   await payShoreLeave(target, 100);
   release(); await first;
-  assert.deepEqual(target.writes, [{ "system.credits.value": 900 }]);
+  assert.deepEqual(target.writes, [{ "system.credits.value": "0.9 kcr" }]);
   await payShoreLeave(target, 100);
-  assert.equal(target.system.credits.value, 800);
+  assert.equal(target.system.credits.value, "0.8 kcr");
 });
 
 test("failed payments release their guard so a subsequent action can run", async () => {
@@ -439,7 +463,7 @@ test("disabled handler omits new payment buttons while character generation rema
   assert.deepEqual(contexts[0].buttons.map(button => button.action), ["convertStress"]);
   assert.equal(contexts[0].blocks[0].value, "0,2 kcr");
   assert.equal(await rollLoadout(target, { system: {} }, { rollCredits: true }), true);
-  assert.deepEqual(target.writes, [{ system: { credits: { value: 200 } } }]);
+  assert.deepEqual(target.writes, [{ system: { credits: { value: "0,2 kcr" } } }]);
   assert.equal(dialogs.length, 0);
 });
 
@@ -450,7 +474,7 @@ test("character preparation intentionally resets Credits even when the handler i
   const preparation = new Error("stop after preparation payload");
   target.update = async data => { target.writes.push(data); throw preparation; };
   await assert.rejects(startCharacterCreation(target), preparation);
-  assert.equal(target.writes[0].system.credits.value, 0);
+  assert.equal(target.writes[0].system.credits.value, "0 cr");
   assert.equal(dialogs.length, 0);
 });
 
@@ -461,7 +485,7 @@ test("disabling the handler during character generation does not suppress starti
     return { roll: async () => ({ results: [] }) };
   };
   assert.equal(await rollLoadout(target, { system: { roll_tables: { loadout: "table" } } }, { rollCredits: true }), true);
-  assert.deepEqual(target.writes, [{ system: { credits: { value: 200 } } }]);
+  assert.deepEqual(target.writes, [{ system: { credits: { value: "0.2 kcr" } } }]);
 });
 
 test("all starting Credit rolls overwrite old balances without notation conflicts, with the handler on or off", async () => {
@@ -472,7 +496,8 @@ test("all starting Credit rolls overwrite old balances without notation conflict
       for (rollTotal = 20; rollTotal <= 200; rollTotal += 10) {
         const target = actor("old value intentionally not parsed");
         assert.equal(await rollLoadout(target, { system: {} }, { rollCredits: true }), true);
-        assert.deepEqual(target.writes, [{ system: { credits: { value: rollTotal } } }]);
+        assert.deepEqual(target.writes, [{ system: { credits: { value: formatCurrency(rollTotal) } } }]);
+        assert.equal(classifyCurrency(target.writes[0].system.credits.value).value, rollTotal);
       }
     }
   }

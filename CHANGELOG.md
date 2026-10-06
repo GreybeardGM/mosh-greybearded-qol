@@ -5,6 +5,7 @@
 - Credit Handler for safe currency input and consistent output. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler; manual edits and character generation remain available.
 
 ### Changed
+- Automatic credit writes, including character generation, use the configured currency notation with grouping and unit prefixes, preserving the exact value.
 - Separated feature configuration from settings menus and removed obsolete sheet code and duplicate helpers.
 
 ### Fixed

@@ -100,11 +100,12 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
   // Character generation intentionally replaces Credits, even with the Credit
   // Handler disabled. The numeric roll is validated above; the old balance is irrelevant.
   if (rollCredits) {
-    await actor.update({ system: { credits: { value: startingCredits } } });
+    const formattedCredits = formatCurrency(startingCredits);
+    await actor.update({ system: { credits: { value: formattedCredits } } });
     blocks.push({
       type: "counter",
       label: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits"),
-      value: formatCurrency(startingCredits)
+      value: formattedCredits
     });
   }
   

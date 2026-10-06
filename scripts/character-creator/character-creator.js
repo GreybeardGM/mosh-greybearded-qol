@@ -6,6 +6,7 @@ import { AttributeSelectorApp } from "./select-attributes.js";
 import { SkillSelectorApp } from "./select-skills.js";
 import { rollLoadout } from "./roll-loadout.js";
 import { readCurrency } from "../utils/currency.js";
+import { formatCurrency } from "../utils/currency-parser.js";
 
 export async function startCharacterCreation(actor) {
   if (!actor) {
@@ -95,7 +96,7 @@ export async function startCharacterCreation(actor) {
         hits: { value: 0, max: 2 },
         health: { value: "", max: "" },
         // Intentional generator reset: exempt from the Credit Handler automation switch.
-        credits: { value: resetCredits }
+        credits: { value: formatCurrency(resetCredits) }
       }
     });
   

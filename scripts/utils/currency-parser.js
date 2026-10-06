@@ -30,7 +30,7 @@ export function classifyCurrency(input, { notation = getCreditConfig().notation 
   return { status: "success", value: Number(amount) };
 }
 
-/** Display only. The world notation applies even when automatic credit handling is off. */
+/** Exact display and storage text; the world notation also applies with credit handling off. */
 export function formatCurrency(value, { notation = getCreditConfig().notation } = {}) {
   const parsed = classifyCurrency(value, { notation });
   const rule = Object.hasOwn(CURRENCY_NOTATIONS, notation) ? CURRENCY_NOTATIONS[notation] : null;

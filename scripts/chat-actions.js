@@ -3,6 +3,7 @@ import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
 import { MOSH_CREDITS_PATH } from "./codex/mosh-system.js";
 import { readCurrency } from "./utils/currency.js";
+import { formatCurrency } from "./utils/currency-parser.js";
 import { getCreditConfig, isCreditHandlerEnabled } from "./currency/config.js";
 
 // Applies both to stored cards on render and to currently visible cards after a setting change.
@@ -67,7 +68,7 @@ export async function payShoreLeave(actor, amount) {
     }
 
     await actor.update({
-      [MOSH_CREDITS_PATH]: currentCredits - price
+      [MOSH_CREDITS_PATH]: formatCurrency(currentCredits - price, { notation })
     });
   } finally {
     paymentsInFlight.delete(actor);
