@@ -1,5 +1,5 @@
 // Module-wide IDs, settings, flags, and default CSS class names belong here.
-// Keep feature-local constants in their feature module only when no other file needs them.
+// Feature-specific defaults and helpers stay with their feature, even when settings import them.
 export const MODULE_ID = "mosh-greybearded-qol";
 export const MODULE_PATH = `modules/${MODULE_ID}`;
 export const DEFAULT_THEME_COLOR = "#f50";
@@ -30,7 +30,7 @@ export const CHAT_ACTION_SELECTOR = `.${QOL_NAMESPACE_CLASS} .${CHAT_ACTION_CLAS
 export const CHAT_ACTION_PAY_SHORE_LEAVE = "payShoreLeave";
 
 export function modulePath(relativePath = "") {
-  const normalizedPath = String(relativePath ?? "").replace(/^\/+/, "");
+  const normalizedPath = normalizeRelativePath(relativePath);
   return normalizedPath ? `${MODULE_PATH}/${normalizedPath}` : MODULE_PATH;
 }
 

@@ -7,7 +7,7 @@ import {
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
+import { getNormalizedShoreLeaveConfig } from "./config.js";
 import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
 import { formatCurrency } from "../utils/currency-parser.js";
 import { readCurrency } from "../utils/currency.js";

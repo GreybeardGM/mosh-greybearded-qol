@@ -1,10 +1,11 @@
 import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, toEmbeddedItemData } from "../character-creator/utils.js";
+import { normalizeText } from "../utils/normalization.js";
+import { toEmbeddedItemData } from "../utils/item-data.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { getNormalizedTrainingConfig } from "../settings/training-config.js";
+import { getNormalizedTrainingConfig } from "./config.js";
 import { formatCurrency } from "../utils/currency-parser.js";
 import { readCurrency } from "../utils/currency.js";
 import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";

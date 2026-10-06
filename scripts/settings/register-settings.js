@@ -1,14 +1,16 @@
-import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shore-leave-config.js";
-import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
+import { ShoreLeaveConfigApp } from "./shore-leave-config.js";
+import { getDefaultShoreLeaveConfig } from "../shore-leave/config.js";
+import { ToolbandConfigApp } from "./toolband-config.js";
+import { getDefaultToolbandConfig } from "../toolband/config.js";
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
-import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
+import { TrainingConfigApp } from "./training-config.js";
+import { getDefaultTrainingConfig } from "../training/config.js";
 import { CyberwareConfigApp } from "./cyberware-config.js";
 import { CreditHandlerConfigApp } from "./credit-handler-config.js";
 import { getDefaultCreditConfig } from "../currency/config.js";
 import { refreshCreditPaymentButtons } from "../chat-actions.js";
 import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
-import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import { refreshOpenToolbands } from "../toolband.js";
 import { refreshOpenCyberwareSheets } from "../cyberware/sheets.js";
@@ -162,7 +164,7 @@ const MENU_DEFINITIONS = [
       options: {
         name: "MoshQoL.Common.ShoreLeaveConfiguration",
         type: Object,
-        default: getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
+        default: getDefaultShoreLeaveConfig()
       }
     }
   },

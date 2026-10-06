@@ -6,7 +6,7 @@ import {
   automatesWoundRollFromConfig,
   getNormalizedApplyDamageConfig,
   usesTougherArmorFromConfig
-} from "../settings/apply-damage-config.js";
+} from "./config.js";
 import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
 
 import { chatOutput, rawChatHTML } from "../utils/chat-output.js";

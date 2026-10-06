@@ -1,3 +1,5 @@
+import { stripHtml } from "../utils/normalization.js";
+
 /**
  * Extracts the first valid damage roll embedded in a chat message's HTML content.
  *
@@ -154,10 +156,6 @@ function findWoundEffectTextWithRegex(content) {
   if (!linkMatch) return null;
 
   return stripHtml(decodeHtmlAttribute(linkMatch[1])).trim();
-}
-
-function stripHtml(value) {
-  return value.replace(/<[^>]*>/g, "");
 }
 
 function parseWoundEffectText(text) {

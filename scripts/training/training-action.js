@@ -1,7 +1,7 @@
 import { FLAG_TRAINING_SKILL, MODULE_ID } from "../codex/constants.js";
 import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
-import { toEmbeddedItemData } from "../character-creator/utils.js";
-import { getNormalizedTrainingConfig } from "../settings/training-config.js";
+import { toEmbeddedItemData } from "../utils/item-data.js";
+import { getNormalizedTrainingConfig } from "./config.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { capitalize, normalizeNumber, normalizeText } from "../utils/normalization.js";
 import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";

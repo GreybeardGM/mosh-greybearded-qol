@@ -2,11 +2,14 @@
 
 ## [0.8.4] - Unreleased
 ### Added
-- Credit Handler settings with a world-wide English (default), German, French, or Swiss currency notation. Invalid values require manual correction; cancelling aborts the action. Currency output follows the selected notation independently of automation.
-- Automatic credit handling can be disabled, including Pay Up. Character generation deliberately resets and writes starting Credits regardless of this setting. Changing notation prompts for confirmation immediately in the settings menu because stored strings may be misinterpreted.
+- Credit Handler for safe currency input and consistent output. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler; manual edits and character generation remain available.
+
+### Changed
+- Separated feature configuration from settings menus and removed obsolete sheet code and duplicate helpers.
 
 ### Fixed
-- Shared currency checks protect manual field edits and automatic payments without rewriting valid stash or contractor input. Unchanged values remain untouched; confirmed corrections replace invalid text. Sheet and Crew Roster rendering never opens correction dialogs; invalid wages remain visible and affected totals show as not calculable. Payments reject changed balances and duplicate clicks.
+- Invalid currency input requires correction or cancellation; valid stash and contractor text remains unchanged, and the Crew Roster indicates totals it cannot calculate.
+- Contractor item creation now uses Foundry's current item data structure.
 
 ## [0.8.3] - 2026-09-28
 ### Added

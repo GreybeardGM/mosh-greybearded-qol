@@ -1,11 +1,12 @@
 import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolSheetClasses, templatePath } from "../codex/constants.js";
-import { getAugmentationStatusRows, OVERCLOCKING_TRIGGER_CLASS } from "../cyberware/status.js";
+import { AUGMENTATION_ITEMS_CLASS, getAugmentationStatusRows, OVERCLOCKING_TRIGGER_CLASS } from "../cyberware/status.js";
 import { openOverclockingDialog } from "../cyberware/overclocking-dialog.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { validateCurrencyFieldUpdate } from "../utils/currency.js";
 import { MOSH_CONTRACTOR_SALARY_PATH } from "../codex/mosh-system.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
+import { capitalize } from "../utils/normalization.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "./contractor-motivation-table.js";
@@ -14,7 +15,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
     /** @override */
     static get defaultOptions() {
-        var options = {
+        const options = {
             classes: qolSheetClasses("actor", "creature", "contractor"),
             template: templatePath("sheets/contractor-sheet.html"),
             width: 700,
@@ -45,8 +46,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     async getData() {
       const sheetData = await super.getData();
-      sheetData.dtypes = ["String", "Number", "Boolean"];
-      let actorData = sheetData.data;
+      const actorData = sheetData.data;
     
       this._prepareContractorItems(sheetData);
         
@@ -78,15 +78,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         ? getAugmentationStatusRows(this.actor) : [];
         
       return actorData;
-    }
-
-    /**
-     * Get the remaining wounds of the creature
-     * @param {JQuery} html 
-     * @returns {int} hits.max - hits.value
-     */
-    getWoundsLeft(html){
-        return html.find(`input[name="system.hits.max"]`).prop('value') - html.find(`input[name="system.hits.value"]`).prop('value'); 
     }
 
     _duplicateEmbeddedItem(itemId) {
@@ -121,7 +112,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // Iterate through items, allocating to containers
         for (let i of sheetData.items) {
             const item = i.system;
-            i.img = i.img || DEFAULT_TOKEN;
+            i.img = i.img || CONST.DEFAULT_TOKEN;
     
             if (i.type === 'ability') {
                 abilities.push(i);
@@ -180,7 +171,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     activateListeners(html) {
         super.activateListeners(html);
 
-        html.on("click", ".qol-augmentation-items button[data-item-id]", event => {
+        html.on("click", `.${AUGMENTATION_ITEMS_CLASS} button[data-item-id]`, event => {
             event.preventDefault();
             event.stopPropagation();
             this.actor.getEmbeddedDocument("Item", event.currentTarget.dataset.itemId)?.sheet.render(true);
@@ -419,46 +410,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
      */
     _onItemCreate(event) {
         event.preventDefault();
-        const header = event.currentTarget;
-        // Get the type of item to create.
-        const type = header.dataset.type;
-        // Grab any data associated with this control.
-        const data = foundry.utils.duplicate(header.dataset);
-        // Initialize a default name.
-        const name = `New ${type.capitalize()}`;
-        // Prepare the item object.
-        const itemData = {
-            name: name,
-            type: type,
-            data: data
-        };
-        // Remove the type from the dataset since it's in the itemData.type prop.
-        delete itemData.data["type"];
-
-        // Finally, create the item!
-        return this.actor.createEmbeddedDocuments("Item", [itemData]);
-    }
-
-
-    /**
-     * Handle clickable rolls.
-     * @param {Event} event   The originating click event
-     * @private
-     */
-    _onRoll(event) {
-        event.preventDefault();
-        const element = event.currentTarget;
-        const dataset = element.dataset;
-
-
-        if (dataset.roll) {
-            let roll = new Roll(dataset.roll, this.actor.system);
-            let label = dataset.label ? `Rolling ${dataset.label} to score under ${dataset.target}` : '';
-            roll.roll().toMessage({
-                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-                flavor: label
-            });
-        }
+        const { type, ...system } = event.currentTarget.dataset;
+        // Foundry v13 stores subtype fields in system; the legacy data key must
+        // not swallow defaults supplied by the create button's dataset.
+        return this.actor.createEmbeddedDocuments("Item", [{
+            name: `New ${capitalize(type)}`, type, system
+        }]);
     }
 
   /**

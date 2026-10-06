@@ -37,11 +37,6 @@ export function defineStashSheet(BaseSheet) {
       return this.actor.name || "Stash";
     }
 
-    getData(options = {}) {
-      const data = super.getData(options);
-      return data;
-    }
-
     activateListeners(html) {
       super.activateListeners(html);
 
@@ -49,7 +44,6 @@ export function defineStashSheet(BaseSheet) {
       if (!this.options.editable) return;
 
       attachCurrencyFieldHandlers(html);
-
     }
   };
 }

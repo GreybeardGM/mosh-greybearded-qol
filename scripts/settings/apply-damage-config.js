@@ -3,7 +3,8 @@ import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
 import {
   APPLY_DAMAGE_ACTOR_SCOPES,
   APPLY_DAMAGE_VISIBILITY,
-  getDefaultApplyDamageConfig
+  getDefaultApplyDamageConfig,
+  getNormalizedApplyDamageConfig
 } from "../apply-damage/config.js";
 import {
   appendThemeColor,
@@ -13,49 +14,6 @@ import {
   saveSettingAndClose
 } from "./settings-app-helpers.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-function normalizeApplyDamageConfig(config) {
-  const normalized = foundry.utils.deepClone(getDefaultApplyDamageConfig());
-
-  if (config && typeof config === "object") {
-    if (typeof config.tougherArmor === "boolean") {
-      normalized.tougherArmor = config.tougherArmor;
-    }
-    if (typeof config.applyArmorBroken === "boolean") {
-      normalized.applyArmorBroken = config.applyArmorBroken;
-    }
-    normalized.visibility = normalizeEnum(
-      config.visibility,
-      Object.values(APPLY_DAMAGE_VISIBILITY),
-      normalized.visibility
-    );
-    if (config.automateWoundRoll && typeof config.automateWoundRoll === "object") {
-      for (const scope of APPLY_DAMAGE_ACTOR_SCOPES) {
-        if (typeof config.automateWoundRoll[scope] === "boolean") {
-          normalized.automateWoundRoll[scope] = config.automateWoundRoll[scope];
-        }
-      }
-    }
-  }
-
-  return normalized;
-}
-
-export function getNormalizedApplyDamageConfig() {
-  return normalizeApplyDamageConfig(game.settings.get(MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG));
-}
-
-export function usesTougherArmorFromConfig(config) {
-  return config?.tougherArmor === true;
-}
-
-export function appliesArmorBrokenFromConfig(config) {
-  return config?.applyArmorBroken === true;
-}
-
-export function automatesWoundRollFromConfig(config, scope = "character") {
-  return config?.automateWoundRoll?.[scope] === true;
-}
 
 export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = createSettingsAppDefaultOptions({

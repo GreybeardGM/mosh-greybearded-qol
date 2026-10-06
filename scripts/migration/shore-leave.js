@@ -3,7 +3,7 @@ import {
   getShoreLeaveConfigWithDefaults,
   hasValidShoreLeaveTiers,
   normalizeShoreLeaveTiers
-} from "../settings/shore-leave-config.js";
+} from "../shore-leave/config.js";
 import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
 import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 

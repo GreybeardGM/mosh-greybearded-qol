@@ -1,7 +1,7 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
-import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
+import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./toolband/config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";

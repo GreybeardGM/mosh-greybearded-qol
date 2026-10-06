@@ -6,7 +6,7 @@ import {
 import { chatOutput } from "../utils/chat-output.js";
 import { formatCurrency } from "../utils/currency-parser.js";
 import { readCurrency } from "../utils/currency.js";
-import { toEmbeddedItemData } from "./utils.js";
+import { toEmbeddedItemData } from "../utils/item-data.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;

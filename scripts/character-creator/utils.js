@@ -1,7 +1,5 @@
-import { normalizeNumber, normalizeText, stripHtml } from "../utils/normalization.js";
+import { normalizeNumber } from "../utils/normalization.js";
 export const toSkillId = value => String(value ?? "").split(".").pop();
-
-export { normalizeText, stripHtml };
 
 function toNumberOrZero(value) {
   if (value === "" || value === null || value === undefined) return 0;
@@ -21,12 +19,4 @@ export function toSkillSelectionPointBundle(source = {}) {
     expert: toNumberOrZero(source.expert) + toNumberOrZero(source.expert_full_set) + toNumberOrZero(source.master_full_set),
     master: toNumberOrZero(source.master) + toNumberOrZero(source.master_full_set)
   };
-}
-
-export function toEmbeddedItemData(document, source = true) {
-  if (typeof document?.toObject !== "function") return null;
-
-  const itemData = document.toObject(source);
-  delete itemData._id;
-  return itemData;
 }

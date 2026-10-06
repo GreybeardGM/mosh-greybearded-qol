@@ -1,8 +1,8 @@
 import { templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
-import { capitalize, normalizeNumber } from "../utils/normalization.js";
+import { capitalize, normalizeNumber, stripHtml } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { stripHtml, toSkillSelectionPointBundle } from "./utils.js";
+import { toSkillSelectionPointBundle } from "./utils.js";
 import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
