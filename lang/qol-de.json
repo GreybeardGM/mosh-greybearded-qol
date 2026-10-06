@@ -320,6 +320,7 @@
       }
     },
     "CrewRoster": {
+      "UnknownSalary": "Unbekannt",
       "SaveError": "Änderungen an der Mannschaftsliste konnten nicht gespeichert werden.",
       "Actions": {
         "RemoveEntry": "Aus der Liste entfernen",

@@ -209,8 +209,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       for (const rosterEntry of cleanedRoster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
         const rawSalary = foundry.utils.getProperty(actor, MOSH_CONTRACTOR_SALARY_PATH);
-        // Rendering never asks for repairs or writes to a Contractor. Preserve
-        // malformed text; only successfully interpreted values enter arithmetic.
+        // Rendering never asks for repairs or writes to a Contractor. Invalid
+        // salaries are unknown; only successfully interpreted values enter arithmetic.
         const parsed = classifyCurrency(rawSalary);
         const salary = parsed.status === "success" ? parsed.value : null;
 
@@ -221,7 +221,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           hazardPayDisplay: Number.isInteger(rosterEntry.hazardPay) ? String(rosterEntry.hazardPay) : "",
           name: actor.name,
           job: getJobLabel(actor),
-          salary: salary === null ? String(rawSalary ?? "") : formatCurrency(salary),
+          salary: salary === null
+            ? (rawSalary === undefined ? "" : game.i18n.localize("MoshQoL.CrewRoster.UnknownSalary"))
+            : formatCurrency(salary),
           salaryValue: salary,
           salaryInvalid: rawSalary !== undefined && parsed.status !== "success",
           img: actor.img

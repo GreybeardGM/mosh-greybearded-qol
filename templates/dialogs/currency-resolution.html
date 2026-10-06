@@ -4,8 +4,6 @@
   <pre>{{raw}}</pre>
   <p>{{reason}}</p>
   <p>{{localize "MoshQoL.Currency.Config.Notation"}}: {{notationLabel}}</p>
-  <div class="form-group">
-    <label for="qol-currency-input">{{localize "MoshQoL.Currency.Correction"}}</label>
-    <input id="qol-currency-input" type="text" name="currencyInput" value="{{raw}}" autocomplete="off" autofocus>
-  </div>
+  <p id="qol-currency-correction-label">{{localize "MoshQoL.Currency.Correction"}}</p>
+  <input type="text" name="currencyInput" aria-labelledby="qol-currency-correction-label" value="{{raw}}" autocomplete="off" autofocus>
 </section>

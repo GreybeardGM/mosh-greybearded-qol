@@ -345,7 +345,13 @@
   pointer-events: none;
 }
 
-/* Preserve whitespace in invalid currency values without overflowing the dialog. */
+/* Currency dialogs use a bounded width; wrap long explanations and raw values. */
+.greybeardqol.qol-ui.qol-currency-resolution .card {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .greybeardqol.qol-ui.qol-currency-resolution pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -885,7 +891,7 @@
   width: 5em;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-wide-input input[type="text"] {
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-wide-input :is(input[type="text"], select) {
   width: 100%;
 }
 

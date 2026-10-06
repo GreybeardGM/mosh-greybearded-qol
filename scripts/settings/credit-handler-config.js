@@ -1,5 +1,5 @@
 import { CURRENCY_DIALOG_CLASS, MODULE_ID, SETTING_CREDIT_HANDLER_CONFIG, qolWindowClasses, templatePath } from "../codex/constants.js";
-import { CURRENCY_NOTATIONS, getCreditConfig, getDefaultCreditConfig } from "../currency/config.js";
+import { CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, getDefaultCreditConfig } from "../currency/config.js";
 import { getAppRoot } from "../utils/application-helpers.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 import { appendThemeColor, createSettingsAppDefaultOptions, createSettingsAppParts, resetSettingToDefaults, saveSettingAndClose } from "./settings-app-helpers.js";
@@ -55,6 +55,7 @@ export class CreditHandlerConfigApp extends HandlebarsApplicationMixin(Applicati
       );
       const choice = await DialogV2.wait({
         window: { title: game.i18n.localize("MoshQoL.Currency.Config.WarningTitle"), contentClasses: qolWindowClasses(CURRENCY_DIALOG_CLASS) },
+        position: { width: CURRENCY_DIALOG_WIDTH, height: "auto" },
         content,
         buttons: [
           { action: "confirm", label: game.i18n.localize("MoshQoL.Common.Confirm") },

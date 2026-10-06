@@ -1,6 +1,8 @@
 import { MODULE_ID, SETTING_CREDIT_HANDLER_CONFIG } from "../codex/constants.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 
+export const CURRENCY_DIALOG_WIDTH = 480;
+
 // Explicit currency conventions, independent of each client's UI language.
 export const CURRENCY_NOTATIONS = Object.freeze({
   en: { group: ",", decimal: ".", pattern: /^(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?$/, groups: /,/g, example: "1,234.5 kCR" },

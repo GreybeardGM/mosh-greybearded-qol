@@ -19,7 +19,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 - Click an Overclocking counter to see the cumulative effects from *A Pound of Flesh* and which levels currently apply.
 
 ### Currency Utilities
-- World settings select English (default), German, French, or Swiss notation for reading and displaying Credits, kCR, MCR, and GCR. Stash and contractor fields preserve valid input text; invalid edits require correction and can be cancelled. Displaying values never opens correction dialogs.
+- World settings select English (default), German, French, or Swiss notation for reading and displaying Credits, kCR, MCR, and GCR. Cancelling a correction keeps and saves the entered stash or contractor text; automatic payments still abort. Displaying values never opens correction dialogs.
 - The Credit Handler is enabled by default. Disabling it stops automatic credit changes and hides Pay Up; manual edits and character generation remain available. Currency display still follows the selected notation.
 
 ### QoL Character Generator

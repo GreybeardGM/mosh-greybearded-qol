@@ -8,7 +8,8 @@
 - Separated feature configuration from settings menus and removed obsolete sheet code and duplicate helpers.
 
 ### Fixed
-- Invalid currency input requires correction or cancellation; valid stash and contractor text remains unchanged, and the Crew Roster indicates totals it cannot calculate.
+- Stash and contractor edits preserve their input text; declining a correction saves it unchanged without another prompt on closing. Automatic payments still abort on cancellation, and invalid roster salaries are shown as unknown with affected totals not calculable.
+- Credit Handler notation selection fills its row; currency dialogs use compact widths and plain correction text.
 - Contractor item creation now uses Foundry's current item data structure.
 
 ## [0.8.3] - 2026-09-28

@@ -5,7 +5,7 @@ import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
 import { validateCurrencyFieldUpdate } from "../utils/currency.js";
 import { MOSH_CONTRACTOR_SALARY_PATH } from "../codex/mosh-system.js";
-import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
+import { attachCurrencyFieldHandlers, syncCurrencyFieldBaseline } from "../utils/currency-field.js";
 import { capitalize } from "../utils/normalization.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
@@ -38,6 +38,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         await actor.update(updateData, {
             diff: false
         });
+        syncCurrencyFieldBaseline(this, formData, MOSH_CONTRACTOR_SALARY_PATH);
     }
 
     /* -------------------------------------------- */

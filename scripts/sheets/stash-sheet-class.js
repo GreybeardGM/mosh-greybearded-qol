@@ -1,7 +1,7 @@
 import { qolSheetClasses, templatePath } from "../codex/constants.js";
 import { validateCurrencyFieldUpdate } from "../utils/currency.js";
 import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
-import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
+import { attachCurrencyFieldHandlers, syncCurrencyFieldBaseline } from "../utils/currency-field.js";
 
 export function defineStashSheet(BaseSheet) {
   return class StashSheet extends BaseSheet {
@@ -22,7 +22,8 @@ export function defineStashSheet(BaseSheet) {
     }
 
     async _updateObject(event, formData) {
-      // Manual edits are checked even with automation off; cancellation saves nothing.
+      // Manual edits are checked even with automation off; declining a correction
+      // keeps the entered text. Automatic payments retain their separate abort rule.
       if (!await validateCurrencyFieldUpdate(this, formData, MOSH_CREDITS_PATH)) return;
 
       formData["system.health.value"] = 0;
@@ -30,7 +31,9 @@ export function defineStashSheet(BaseSheet) {
       formData["system.hits.value"] = 0;
       formData["system.hits.max"] = 0;
 
-      return super._updateObject(event, formData);
+      const result = await super._updateObject(event, formData);
+      syncCurrencyFieldBaseline(this, formData, MOSH_CREDITS_PATH);
+      return result;
     }
 
     get title() {

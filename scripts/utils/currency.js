@@ -1,15 +1,17 @@
 import { CURRENCY_DIALOG_CLASS, qolWindowClasses, templatePath } from "../codex/constants.js";
 import { appendQolThemeContext } from "./application-options.js";
 import { classifyCurrency } from "./currency-parser.js";
-import { getCreditConfig } from "../currency/config.js";
+import { CURRENCY_DIALOG_WIDTH, getCreditConfig } from "../currency/config.js";
 
 /**
- * Resolve external currency input. null means cancelled, never zero.
+ * Numeric reads abort with null, never zero.
  * Callers must check null before continuing or writing anything. Corrections
  * are returned to the action, never saved to an actor or setting by this utility.
  * preserveInput returns the accepted original/corrected text instead of its integer value.
+ * Only manual sheet edits opt into keepInvalidOnCancel: declining a correction
+ * keeps the original field text. Payments and other numeric consumers still abort.
  */
-export async function readCurrency(value, { label = "", preserveInput = false } = {}) {
+export async function readCurrency(value, { label = "", preserveInput = false, keepInvalidOnCancel = false } = {}) {
   let input = value;
   const notation = getCreditConfig().notation;
   // A loop deliberately replaces recursive dialogs so repeated errors cannot grow the stack.
@@ -36,9 +38,13 @@ export async function readCurrency(value, { label = "", preserveInput = false } 
     buttons.push({ action: "cancel", label: game.i18n.localize("MoshQoL.Common.Cancel") });
     const choice = await foundry.applications.api.DialogV2.wait({
       window: { title: game.i18n.localize("MoshQoL.Currency.Title"), contentClasses: qolWindowClasses(CURRENCY_DIALOG_CLASS) },
+      position: { width: CURRENCY_DIALOG_WIDTH, height: "auto" },
       content, buttons, modal: true, rejectClose: false
     });
-    // Closing, Escape, or an unexpected response must abort just like the Cancel button.
+    if (choice == null || choice === "cancel") {
+      return preserveInput && keepInvalidOnCancel && typeof value === "string" ? value : null;
+    }
+    // Unexpected responses never authorize even the manual text-preservation exception.
     if (!choice || typeof choice.input !== "string") return null;
     input = choice.input;
   }
@@ -61,14 +67,16 @@ export async function validateCurrencyFieldUpdate(sheet, formData, path) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
     return false;
   }
-  const corrected = await readCurrency(formData[path], { label: sheet.actor.name, preserveInput: true });
+  const corrected = await readCurrency(formData[path], {
+    label: sheet.actor.name, preserveInput: true, keepInvalidOnCancel: true
+  });
   if (corrected === null) return false;
   if (!Object.is(originalValue, foundry.utils.getProperty(sheet.actor, path))) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
     return false;
   }
   formData[path] = corrected;
-  // A confirmed correction belongs in the editable field as well as the update.
+  // Both confirmed corrections and deliberately retained raw text belong in the update.
   if (input) input.value = String(corrected);
   return true;
 }

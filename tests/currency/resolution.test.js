@@ -79,15 +79,25 @@ test.beforeEach(() => {
   dialogs.length = contexts.length = warnings.length = settingsWrites.length = 0;
   responses = []; settings = {}; rollTotal = 200;
 });
-function actor(balance = 1000) {
+function actor(balance = 1000, { persist = false } = {}) {
   const writes = [];
-  return {
+  const target = {
     name: "Crewmember", writes, items: [{ id: "old", type: "item" }],
     system: { credits: { value: balance }, contractor: { baseSalary: balance } },
-    update: async data => writes.push(data),
+    update: async data => {
+      writes.push(data);
+      if (persist) {
+        const update = expandObject(data);
+        for (const [field, values] of Object.entries(update.system ?? {})) {
+          target.system[field] = { ...target.system[field], ...values };
+        }
+        if (update.name !== undefined) target.name = update.name;
+      }
+    },
     deleteEmbeddedDocuments: async () => writes.push("delete"),
     createEmbeddedDocuments: async () => writes.push("create")
   };
+  return target;
 }
 
 test("numeric input, including zero, is passed through without UI", async () => {
@@ -186,18 +196,32 @@ test("failed payments release their guard so a subsequent action can run", async
   assert.equal(target.writes.length, 1);
 });
 
-test("stash and contractor forms cancel all fields and preserve pending edits", async () => {
-  for (const [Sheet, path] of [[defineStashSheet(BaseSheet), "system.credits.value"], [QoLContractorSheet, "system.contractor.baseSalary"]]) {
-    const target = actor(); const sheet = new Sheet(target);
-    const form = { [path]: "bad", name: "New name" };
-    responses = ["cancel"];
-    await sheet._updateObject(null, form);
-    assert.deepEqual(target.writes, []);
-    assert.deepEqual(form, { [path]: "bad", name: "New name" });
-    responses = [{ input: "1.5 Mcr" }];
-    await sheet._updateObject(null, form);
-    assert.equal(property(expandObject(form), path), "1.5 Mcr");
-    assert.equal(target.writes.length, 1);
+test("manual cancellation persists identical raw text in Stash and Contractor, including on close and reopen", async () => {
+  for (const enabled of [true, false]) {
+    settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled, notation: "en" };
+    for (const response of ["cancel", null, undefined]) {
+      for (const [Sheet, path] of [[defineStashSheet(BaseSheet), "system.credits.value"], [QoLContractorSheet, "system.contractor.baseSalary"]]) {
+        const target = actor(1000, { persist: true });
+        const sheet = new Sheet(target);
+        const input = { defaultValue: "1000", value: "bad" };
+        sheet.form = { elements: { namedItem: () => input } };
+        responses = [response];
+        await sheet._updateObject(null, { [path]: input.value, name: "New name" });
+        assert.equal(property(target, path), "bad");
+        assert.equal(input.value, "bad");
+        assert.equal(input.defaultValue, "bad");
+        assert.equal(target.name, "New name");
+        const count = dialogs.length;
+        // Foundry can submit the form again when closing. The saved text is not a new edit.
+        await sheet._updateObject(null, { [path]: input.value });
+        const reopened = new Sheet(target);
+        await reopened._updateObject(null, { [path]: String(property(target, path)) });
+        assert.equal(dialogs.length, count);
+        assert.equal(property(target, path), "bad");
+        assert.equal(path in target.writes[1], false);
+        assert.equal(property(target.writes[1], path), undefined);
+      }
+    }
   }
 });
 
@@ -211,6 +235,33 @@ test("form submissions do not overwrite a salary or balance changed during clari
     }];
     await sheet._updateObject(null, { [path]: "bad" });
     assert.deepEqual(target.writes, []);
+  }
+});
+
+test("failed manual saves keep the old baseline instead of silently accepting pending text", async () => {
+  for (const [Sheet, path] of [[defineStashSheet(BaseSheet), "system.credits.value"], [QoLContractorSheet, "system.contractor.baseSalary"]]) {
+    const target = actor();
+    target.update = async () => { throw new Error("save failed"); };
+    const sheet = new Sheet(target);
+    const input = { defaultValue: "1000", value: "bad" };
+    sheet.form = { elements: { namedItem: () => input } };
+    responses = ["cancel"];
+    await assert.rejects(sheet._updateObject(null, { [path]: input.value }), /save failed/);
+    assert.equal(input.defaultValue, "1000");
+    assert.equal(property(target, path), 1000);
+  }
+});
+
+test("deliberately retained invalid sheet text still blocks automatic payments on cancellation", async () => {
+  for (const [Sheet, path] of [[defineStashSheet(BaseSheet), "system.credits.value"], [QoLContractorSheet, "system.contractor.baseSalary"]]) {
+    const target = actor(1000, { persist: true });
+    responses = ["cancel"];
+    await new Sheet(target)._updateObject(null, { [path]: "bad" });
+    assert.equal(property(target, path), "bad");
+    responses = ["cancel"];
+    await payShoreLeave(target, path.includes("baseSalary") ? property(target, path) : 100);
+    assert.equal(target.writes.length, 1);
+    assert.equal(property(target, path), "bad");
   }
 });
 
@@ -264,14 +315,14 @@ test("roster salaries use the interpreter and sum exactly without punctuation st
   assert.equal(context.summary.totalHazardPay, 10500);
 });
 
-test("invalid salaries remain visible on repeated roster renders without dialogs or actor writes", async () => {
+test("invalid salaries are shown as unknown on repeated roster renders without dialogs or actor writes", async () => {
   const member = { ...actor("bad"), documentName: "Actor", type: "creature" };
   globalThis.fromUuid = async () => member;
   const ship = { getFlag: () => ({ creature: [{ uuid: "Actor.A", active: true, hazardPay: 2 }] }) };
   const app = new ShipCrewRosterApp({ actor: ship });
   for (let render = 0; render < 2; render++) {
     const context = await app._prepareContext();
-    assert.equal(context.entries.creature[0].salary, "bad");
+    assert.equal(context.entries.creature[0].salary, "MoshQoL.CrewRoster.UnknownSalary");
     assert.equal(context.summary.totalSalary, "MoshQoL.Currency.Unavailable");
     assert.equal(context.summary.totalHazardPay, "MoshQoL.Currency.Unavailable");
   }
@@ -581,23 +632,25 @@ test("unchanged malformed, blank and numeric fields are omitted from unrelated s
   assert.equal(dialogs.length, 0);
 });
 
-test("confirmed repeated corrections update the editable field; cancelling preserves both field and actor", async () => {
+test("cancelling a later manual correction saves the sheet's original text, not a failed dialog attempt", async () => {
   for (const [Sheet, path] of [[defineStashSheet(BaseSheet), "system.credits.value"], [QoLContractorSheet, "system.contractor.baseSalary"]]) {
-    const target = actor("old malformed value");
+    const target = actor("old malformed value", { persist: true });
     const sheet = new Sheet(target);
     const input = { defaultValue: "old malformed value", value: "new invalid value" };
     sheet.form = { elements: { namedItem: () => input } };
     const form = { [path]: input.value, name: "Pending rename" };
     responses = [{ input: "still bad" }, null];
     await sheet._updateObject(null, form);
-    assert.deepEqual(target.writes, []);
+    assert.equal(property(target, path), "new invalid value");
     assert.equal(input.value, "new invalid value");
-    assert.equal(form[path], "new invalid value");
+    assert.equal(input.defaultValue, "new invalid value");
+    input.value = "another invalid entry";
     responses = [{ input: "still bad" }, { input: "1.5 kCR" }];
-    await sheet._updateObject(null, form);
+    await sheet._updateObject(null, { [path]: input.value });
     assert.equal(input.value, "1.5 kCR");
-    assert.equal(form[path], "1.5 kCR");
-    assert.equal(target.writes.length, 1);
+    assert.equal(input.defaultValue, "1.5 kCR");
+    assert.equal(property(target, path), "1.5 kCR");
+    assert.equal(target.writes.length, 2);
   }
 });
 
@@ -646,7 +699,7 @@ test("inactive invalid wages do not spoil valid roster totals; active invalid wa
     ] });
     assert.equal(context.summary.totalSalary, active ? null : 1500);
     assert.equal(context.summary.totalHazardPay, active ? null : 3000);
-    assert.equal(context.entries.creature.find(entry => entry.uuid === "Actor.B").salary, "bad");
+    assert.equal(context.entries.creature.find(entry => entry.uuid === "Actor.B").salary, "MoshQoL.CrewRoster.UnknownSalary");
   }
   assert.equal(dialogs.length, 0);
 });
