@@ -3,8 +3,7 @@ import { getAugmentationStatusRows, OVERCLOCKING_TRIGGER_CLASS } from "../cyberw
 import { openOverclockingDialog } from "../cyberware/overclocking-dialog.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { readCurrency } from "../utils/currency.js";
-import { isCreditHandlerEnabled } from "../currency/config.js";
+import { validateCurrencyFieldUpdate } from "../utils/currency.js";
 import { MOSH_CONTRACTOR_SALARY_PATH } from "../codex/mosh-system.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
@@ -27,17 +26,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     async _updateObject(event, formData) {
-        if (isCreditHandlerEnabled() && MOSH_CONTRACTOR_SALARY_PATH in formData) {
-            const originalValue = foundry.utils.getProperty(this.actor, MOSH_CONTRACTOR_SALARY_PATH);
-            const salary = await readCurrency(formData[MOSH_CONTRACTOR_SALARY_PATH], { label: this.actor.name });
-            if (salary === null) return;
-            if (!isCreditHandlerEnabled()) return;
-            if (!Object.is(originalValue, foundry.utils.getProperty(this.actor, MOSH_CONTRACTOR_SALARY_PATH))) {
-              ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
-              return;
-            }
-            formData[MOSH_CONTRACTOR_SALARY_PATH] = salary;
-        }
+        // Salary entry is an explicit user edit, independent of automatic payments.
+        if (!await validateCurrencyFieldUpdate(this, formData, MOSH_CONTRACTOR_SALARY_PATH)) return;
         formData["system.health.value"] = 0;
         formData["system.health.max"] = 0;
 
@@ -60,10 +50,11 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     
       this._prepareContractorItems(sheetData);
         
-      // Feste Settings als Platzhalter
+      // Prepare display defaults without replacing absent salaries with real zero wages.
       actorData.system.contractor = {
+        ...actorData.system.contractor,
         isNamed: this.actor.system.contractor?.isNamed ?? false,
-        baseSalary: this.actor.system.contractor?.baseSalary ?? 0,
+        baseSalary: this.actor.system.contractor?.baseSalary ?? "",
         role: this.actor.system.contractor?.role ?? "",
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""

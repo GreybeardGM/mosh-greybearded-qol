@@ -1,6 +1,5 @@
 import { appendQolThemeContext, createQolAppDefaultOptions } from "./utils/application-options.js";
-import { formatCurrency } from "./utils/currency-parser.js";
-import { readCurrency } from "./utils/currency.js";
+import { classifyCurrency, formatCurrency } from "./utils/currency-parser.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE, MOSH_CONTRACTOR_SALARY_PATH } from "./codex/mosh-system.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -210,13 +209,10 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       for (const rosterEntry of cleanedRoster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
         const rawSalary = foundry.utils.getProperty(actor, MOSH_CONTRACTOR_SALARY_PATH);
-        let salary = null;
-        // Actors without a salary do not supply a currency value. Any supplied
-        // value, including zero or malformed text, goes through the same resolver.
-        if (rawSalary !== undefined) {
-          salary = await readCurrency(rawSalary, { label: actor.name });
-          if (salary === null) return null;
-        }
+        // Rendering never asks for repairs or writes to a Contractor. Preserve
+        // malformed text; only successfully interpreted values enter arithmetic.
+        const parsed = classifyCurrency(rawSalary);
+        const salary = parsed.status === "success" ? parsed.value : null;
 
         entries[tab].push({
           uuid: rosterEntry.uuid,
@@ -225,8 +221,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           hazardPayDisplay: Number.isInteger(rosterEntry.hazardPay) ? String(rosterEntry.hazardPay) : "",
           name: actor.name,
           job: getJobLabel(actor),
-          salary: salary === null ? "" : formatCurrency(salary),
+          salary: salary === null ? String(rawSalary ?? "") : formatCurrency(salary),
           salaryValue: salary,
+          salaryInvalid: rawSalary !== undefined && parsed.status !== "success",
           img: actor.img
         });
       }
@@ -238,7 +235,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
         for (const entry of entries[tab]) {
           if (!entry.active) continue;
           summary.activeCrewCount += 1;
-          if (Number.isFinite(entry.salaryValue)) {
+          if (entry.salaryInvalid) summary.totalSalary = null;
+          else if (summary.totalSalary !== null && Number.isFinite(entry.salaryValue)) {
             summary.totalSalary += BigInt(entry.salaryValue);
           }
         }
@@ -247,20 +245,20 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       if (tab === "creature") {
         for (const entry of entries[tab]) {
           if (!entry.active) continue;
-          if (!Number.isFinite(entry.salaryValue)) continue;
           if (!Number.isInteger(entry.hazardPay)) continue;
-          summary.totalHazardPay += BigInt(entry.salaryValue) * BigInt(entry.hazardPay);
+          if (entry.salaryInvalid) summary.totalHazardPay = null;
+          else if (summary.totalHazardPay !== null && Number.isFinite(entry.salaryValue)) {
+            summary.totalHazardPay += BigInt(entry.salaryValue) * BigInt(entry.hazardPay);
+          }
         }
       }
     }
 
-    // Sum exactly before the safe-integer check; do not round large payrolls.
+    // Derived totals are display data, never editable currency inputs. Unknown
+    // wages or unsafe totals must not appear as a misleading partial sum or zero.
     for (const key of ["totalSalary", "totalHazardPay"]) {
-      const total = await readCurrency(summary[key].toString(), {
-        label: game.i18n.localize(`MoshQoL.CrewRoster.Summary.${key === "totalSalary" ? "TotalSalaries" : "TotalHazardPay"}`)
-      });
-      if (total === null) return null;
-      summary[key] = total;
+      const parsed = classifyCurrency(summary[key]?.toString());
+      summary[key] = parsed.status === "success" ? parsed.value : null;
     }
 
     const tabs = [
@@ -275,11 +273,6 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   async _prepareContext() {
     const sourceRoster = this._rosterDraft ?? this.actor?.getFlag(MODULE_ID, FLAG_CREW_ROSTER) ?? {};
     const rosterContext = await this._buildRosterContext(sourceRoster);
-    this._currencyCancelled = rosterContext === null;
-    if (this._currencyCancelled) {
-      this._lastRosterCleanupCandidate = null;
-      return appendQolThemeContext({ currencyCancelled: true });
-    }
     const { cleanedRoster, entries, rosterChanged, summary, tabs } = rosterContext;
     this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
@@ -292,8 +285,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       tableColumnCount: this._activeTab === "creature" ? 6 : 4,
       summary: {
         activeCrewCount: summary.activeCrewCount,
-        totalSalary: formatCurrency(summary.totalSalary),
-        totalHazardPay: formatCurrency(summary.totalHazardPay)
+        totalSalary: summary.totalSalary === null ? game.i18n.localize("MoshQoL.Currency.Unavailable") : formatCurrency(summary.totalSalary),
+        totalHazardPay: summary.totalHazardPay === null ? game.i18n.localize("MoshQoL.Currency.Unavailable") : formatCurrency(summary.totalHazardPay)
       },
       tabs,
       entries
@@ -308,7 +301,6 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     root.removeEventListener("dragover", this._onDragOver);
     root.removeEventListener("drop", this._boundDrop);
     root.removeEventListener("change", this._boundHazardChange);
-    if (context.currencyCancelled) return;
     root.addEventListener("dragover", this._onDragOver);
     root.addEventListener("drop", this._boundDrop);
     root.addEventListener("change", this._boundHazardChange);
@@ -370,7 +362,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   _scheduleRosterCommit(nextRoster) {
-    if (!this.actor || this._currencyCancelled) return Promise.resolve(false);
+    if (!this.actor) return Promise.resolve(false);
 
     const roster = normalizeRoster(nextRoster);
     this._rosterDraft = roster;

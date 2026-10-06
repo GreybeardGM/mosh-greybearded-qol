@@ -461,7 +461,6 @@
       "Correction": "Währungswert korrigieren",
       "Submit": "Eingabe",
       "Changed": "Der Währungswert oder die Schreibweise wurde während dieser Aktion geändert. Es wurde nichts gespeichert. Bitte erneut versuchen.",
-      "Cancelled": "Die Klärung des Währungswerts wurde abgebrochen. Schließe dieses Fenster und versuche es erneut, sobald der Wert geklärt ist.",
       "Notation": {
         "de": "Deutsch",
         "en": "Englisch",
@@ -486,7 +485,8 @@
         "NotationHint": "Gilt beim Lesen und Anzeigen von Währung für alle in dieser Welt, auch bei deaktiviertem Credit Handler. Die Oberflächensprache hat keinen Einfluss.",
         "WarningTitle": "Währungsschreibweise ändern?",
         "Warning": "Eine Umstellung im laufenden Betrieb kann zur Fehlinterpretation bestehender Währungsstrings führen. Vorhandene Werte werden nicht automatisch umgewandelt. Im Zweifel lieber die bisherige Schreibweise beibehalten. Bestätigen übernimmt die Auswahl; erst Änderungen speichern wendet sie für die Welt an."
-      }
+      },
+      "Unavailable": "Nicht berechenbar"
     }
   }
 }

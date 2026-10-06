@@ -1,6 +1,5 @@
 import { qolSheetClasses, templatePath } from "../codex/constants.js";
-import { readCurrency } from "../utils/currency.js";
-import { isCreditHandlerEnabled } from "../currency/config.js";
+import { validateCurrencyFieldUpdate } from "../utils/currency.js";
 import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
 import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
 
@@ -23,19 +22,8 @@ export function defineStashSheet(BaseSheet) {
     }
 
     async _updateObject(event, formData) {
-      // With the handler off, explicit manual sheet edits remain raw system inputs.
-      if (isCreditHandlerEnabled() && MOSH_CREDITS_PATH in formData) {
-        const originalValue = foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH);
-        const credits = await readCurrency(formData[MOSH_CREDITS_PATH], { label: this.actor.name });
-        // Cancellation aborts the entire form update, including other fields.
-        if (credits === null) return;
-        if (!isCreditHandlerEnabled()) return;
-        if (!Object.is(originalValue, foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH))) {
-          ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
-          return;
-        }
-        formData[MOSH_CREDITS_PATH] = credits;
-      }
+      // Manual edits are checked even with automation off; cancellation saves nothing.
+      if (!await validateCurrencyFieldUpdate(this, formData, MOSH_CREDITS_PATH)) return;
 
       formData["system.health.value"] = 0;
       formData["system.health.max"] = 0;

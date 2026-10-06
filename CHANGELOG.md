@@ -6,7 +6,7 @@
 - Automatic credit handling can be disabled, including Pay Up. Character generation deliberately resets and writes starting Credits regardless of this setting. Changing notation prompts for confirmation immediately in the settings menu because stored strings may be misinterpreted.
 
 ### Fixed
-- Currency handling in stash and contractor forms, Shore Leave payments, starting Credits, training prices, and Crew Roster salaries now uses the shared parser instead of silently rounding, stripping characters, or falling back to zero. Pending payments reject changed balances and duplicate clicks.
+- Shared currency checks protect manual field edits and automatic payments without rewriting valid stash or contractor input. Unchanged values remain untouched; confirmed corrections replace invalid text. Sheet and Crew Roster rendering never opens correction dialogs; invalid wages remain visible and affected totals show as not calculable. Payments reject changed balances and duplicate clicks.
 
 ## [0.8.3] - 2026-09-28
 ### Added

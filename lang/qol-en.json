@@ -461,7 +461,6 @@
       "Correction": "Correct the currency value",
       "Submit": "Submit",
       "Changed": "The currency value or notation changed while this action was pending. No changes were saved. Please try again.",
-      "Cancelled": "Currency resolution was cancelled. Close this window and try again when the value is clarified.",
       "Notation": {
         "de": "German",
         "en": "English",
@@ -486,7 +485,8 @@
         "NotationHint": "Used to read and display currency for everyone in this world, even when the Credit Handler is disabled. The interface language has no effect.",
         "WarningTitle": "Change currency notation?",
         "Warning": "Changing the notation in an existing world can cause stored currency strings to be misinterpreted. Existing values are not converted automatically. If in doubt, keep the current notation. Confirming accepts the selection; Save Changes applies it to the world."
-      }
+      },
+      "Unavailable": "Not calculable"
     }
   }
 }
