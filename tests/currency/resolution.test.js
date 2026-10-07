@@ -106,6 +106,21 @@ test("numeric input, including zero, is passed through without UI", async () => 
   assert.equal(dialogs.length, 0);
 });
 
+test("negative balances resolve and save normally in both sheets in every world notation", async () => {
+  for (const notation of ["en", "de", "fr", "ch"]) {
+    settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: true, notation };
+    const raw = notation === "de" || notation === "fr" ? "-1,5 Mcr" : "-1.5 Mcr";
+    assert.equal(await readCurrency(-1500000), -1500000);
+    assert.equal(await readCurrency(raw), -1500000);
+    for (const [Sheet, path] of [[defineStashSheet(BaseSheet), "system.credits.value"], [QoLContractorSheet, "system.contractor.baseSalary"]]) {
+      const target = actor(1000, { persist: true });
+      await new Sheet(target)._updateObject(null, { [path]: raw });
+      assert.equal(property(target, path), raw);
+    }
+  }
+  assert.equal(dialogs.length, 0);
+});
+
 test("only the configured world notation is read, with no ambiguity dialog", async () => {
   assert.equal(await readCurrency("10,123"), 10123);
   assert.equal(dialogs.length, 0);
@@ -186,6 +201,17 @@ test("insufficient funds and zero price do not write currency", async () => {
   await payShoreLeave(target, 0);
   assert.deepEqual(target.writes, []);
   assert.equal(warnings.length, 1);
+});
+
+test("negative balances cannot pay and negative prices cannot become refunds", async () => {
+  const indebted = actor("-1.5 kcr");
+  await payShoreLeave(indebted, 100);
+  assert.deepEqual(indebted.writes, []);
+  assert.equal(warnings.length, 1);
+  const target = actor(1000);
+  for (const amount of [-100, "-0.1 kcr"]) await payShoreLeave(target, amount);
+  assert.deepEqual(target.writes, []);
+  assert.equal(dialogs.length, 0);
 });
 
 test("balance changes while a dialog is open abort the pending payment", async () => {
@@ -356,11 +382,13 @@ test("invalid salaries are shown as unknown on repeated roster renders without d
 });
 
 test("payroll overflow never rounds or prompts for a manual replacement total", async () => {
-  const member = { ...actor(Number.MAX_SAFE_INTEGER), documentName: "Actor", type: "creature" };
-  globalThis.fromUuid = async () => member;
-  const context = await new ShipCrewRosterApp()._buildRosterContext({ creature: [{ uuid: "Actor.A", active: true, hazardPay: 2 }] });
-  assert.equal(context.summary.totalSalary, Number.MAX_SAFE_INTEGER);
-  assert.equal(context.summary.totalHazardPay, null);
+  for (const salary of [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]) {
+    const member = { ...actor(salary), documentName: "Actor", type: "creature" };
+    globalThis.fromUuid = async () => member;
+    const context = await new ShipCrewRosterApp()._buildRosterContext({ creature: [{ uuid: "Actor.A", active: true, hazardPay: 2 }] });
+    assert.equal(context.summary.totalSalary, salary);
+    assert.equal(context.summary.totalHazardPay, null);
+  }
   assert.equal(dialogs.length, 0);
 });
 
@@ -506,7 +534,7 @@ test("all starting Credit rolls overwrite old balances without notation conflict
 
 test("the generator exception still validates invalid rolls before any mutation", async () => {
   settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: false, notation: "en" };
-  for (const value of [NaN, Infinity, -20, 20.5, Number.MAX_SAFE_INTEGER + 1]) {
+  for (const value of [NaN, Infinity, 20.5, Number.MAX_SAFE_INTEGER + 1]) {
     rollTotal = value;
     responses = [null];
     const target = actor(777);

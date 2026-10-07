@@ -470,13 +470,12 @@
       },
       "Errors": {
         "not_finite": "The value must be finite.",
-        "negative_credits": "Negative Credits are not supported.",
         "fractional_credits": "The value contains fractions of a Credit after applying its unit. Enter a whole number of Credits.",
-        "integer_out_of_range": "The value exceeds the largest safely supported integer (9,007,199,254,740,991 Credits).",
+        "integer_out_of_range": "The value is outside the safely supported integer range (-9,007,199,254,740,991 to 9,007,199,254,740,991 Credits).",
         "unsupported_type": "Enter a currency value as text or a number.",
         "empty": "The currency value is empty.",
-        "forbidden_character": "The input contains unsupported characters. Use digits, the selected notation’s separators and optionally k, M, G or CR.",
-        "invalid_structure": "Units and the optional single space must occur once, at the end of the number.",
+        "forbidden_character": "The input contains unsupported characters. Use digits, the selected notation’s separators, an optional leading minus and optionally k, M, G or CR.",
+        "invalid_structure": "A minus may occur once, directly before the number. Units and the optional single space must occur once, at the end of the number.",
         "invalid_notation": "The number does not match the currency notation configured for this world."
       },
       "Config": {

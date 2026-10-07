@@ -470,13 +470,12 @@
       },
       "Errors": {
         "not_finite": "Der Wert muss eine endliche Zahl sein.",
-        "negative_credits": "Negative Credits werden nicht unterstützt.",
         "fractional_credits": "Nach Anwendung der Einheit enthält der Wert Bruchteile eines Credits. Gib eine ganze Anzahl Credits ein.",
-        "integer_out_of_range": "Der Wert überschreitet die größte sicher unterstützte Ganzzahl (9.007.199.254.740.991 Credits).",
+        "integer_out_of_range": "Der Wert liegt außerhalb des sicher unterstützten Ganzzahlbereichs (-9.007.199.254.740.991 bis 9.007.199.254.740.991 Credits).",
         "unsupported_type": "Gib den Währungswert als Text oder Zahl ein.",
         "empty": "Der Währungswert ist leer.",
-        "forbidden_character": "Die Eingabe enthält nicht unterstützte Zeichen. Erlaubt sind Ziffern, die Trennzeichen der gewählten Schreibweise und optional k, M, G oder CR.",
-        "invalid_structure": "Einheit und das optionale einzelne Leerzeichen dürfen nur einmal am Ende der Zahl stehen.",
+        "forbidden_character": "Die Eingabe enthält nicht unterstützte Zeichen. Erlaubt sind Ziffern, die Trennzeichen der gewählten Schreibweise, ein optionales führendes Minus und optional k, M, G oder CR.",
+        "invalid_structure": "Ein Minus darf nur einmal direkt vor der Zahl stehen. Einheit und das optionale einzelne Leerzeichen dürfen nur einmal am Ende der Zahl stehen.",
         "invalid_notation": "Die Zahl entspricht nicht der für diese Welt eingestellten Währungsschreibweise."
       },
       "Config": {

@@ -23,6 +23,41 @@ test("notation is explicit: decimal fractions never fall back to thousands", () 
   assert.equal(classifyCurrency("123", { notation: "toString" }).status, "invalid");
 });
 
+test("a leading minus preserves every unsigned lab case's value and validation rules", () => {
+  for (const fixture of currencyTestCases) {
+    const input = fixture.input;
+    if (!(typeof input === "number" && input >= 0) && !(typeof input === "string" && /^[0-9]/.test(input))) continue;
+    const options = { notation: fixture.notation ?? "en" };
+    const unsigned = classifyCurrency(input, options);
+    const signed = classifyCurrency(typeof input === "number" ? -input : `-${input}`, options);
+    assert.equal(signed.status, unsigned.status, String(input));
+    if (unsigned.status === "success") {
+      const expected = unsigned.value === 0 && typeof input === "string" ? 0 : -unsigned.value;
+      assert.equal(signed.value, expected, String(input));
+    } else assert.equal(signed.code, unsigned.code, String(input));
+  }
+});
+
+test("minus is allowed once immediately before the number, never as an expression", () => {
+  for (const notation of ["en", "de", "fr", "ch"]) {
+    for (const input of ["-", "--123", "- 123", "123-", "12-3", "-12-3", "1-2k", "-+123", "+-123", "(123)", "−123"]) {
+      assert.equal(classifyCurrency(input, { notation }).status, "invalid", input);
+    }
+    for (const input of ["-0", "-000", "-0 CR", "-0 Gcr"]) {
+      assert.deepEqual(classifyCurrency(input, { notation }), { status: "success", value: 0 });
+    }
+  }
+});
+
+test("negative safe-integer boundaries are exact and overflow is rejected before conversion", () => {
+  assert.deepEqual(classifyCurrency(Number.MIN_SAFE_INTEGER), { status: "success", value: Number.MIN_SAFE_INTEGER });
+  assert.equal(classifyCurrency("-9007199.254740991 GCR").value, Number.MIN_SAFE_INTEGER);
+  for (const input of [Number.MIN_SAFE_INTEGER - 1, "-9007199254740992", "-9007199.254740992 GCR"]) {
+    assert.deepEqual(classifyCurrency(input), { status: "invalid", code: "integer_out_of_range" });
+  }
+  assert.deepEqual(classifyCurrency(-123.5), { status: "invalid", code: "fractional_credits" });
+});
+
 test("French spacing and Swiss apostrophes are supported only in their configured notation", () => {
   for (const group of [" ", "\u00a0", "\u202f"]) {
     const input = `1${group}234${group}567,89 kCr`;
@@ -45,7 +80,11 @@ test("canonical formatting is deterministic and exact in all four conventions", 
   const samples = { en: "1,234,567 cr", de: "1.234.567 cr", fr: "1\u202f234\u202f567 cr", ch: "1’234’567 cr" };
   for (const notation of Object.keys(samples)) {
     assert.equal(formatCurrency(1234567, { notation }), samples[notation]);
-    for (const value of [0, 99, 100, 1234, 1234567, 100000000, 1350000000, Number.MAX_SAFE_INTEGER]) {
+    assert.equal(formatCurrency(-1234567, { notation }), `-${samples[notation]}`);
+    assert.equal(formatCurrency(-900, { notation }), notation === "de" || notation === "fr" ? "-0,9 kcr" : "-0.9 kcr");
+    assert.equal(formatCurrency(-0, { notation }), "0 cr");
+    for (const value of [0, 99, 100, 1234, 1234567, 100000000, 1350000000, Number.MAX_SAFE_INTEGER,
+      -99, -100, -1234, -1234567, -100000000, -1350000000, Number.MIN_SAFE_INTEGER]) {
       const display = formatCurrency(value, { notation });
       assert.equal(classifyCurrency(display, { notation }).value, value, display);
     }
@@ -55,6 +94,10 @@ test("canonical formatting is deterministic and exact in all four conventions", 
         const amount = value * scale + value;
         assert.equal(classifyCurrency(formatCurrency(amount, { notation }), { notation }).value, amount);
         assert.equal(classifyCurrency(formatCurrency(value * scale, { notation }), { notation }).value, value * scale);
+        if (value > 0) {
+          assert.equal(classifyCurrency(formatCurrency(-amount, { notation }), { notation }).value, -amount);
+          assert.equal(classifyCurrency(formatCurrency(-value * scale, { notation }), { notation }).value, -value * scale);
+        }
       }
     }
   }
