@@ -478,6 +478,22 @@
         "invalid_structure": "A minus may occur once, directly before the number. Units and the optional single space must occur once, at the end of the number.",
         "invalid_notation": "The number does not match the currency notation configured for this world."
       },
+      "App": {
+        "Title": "Credits",
+        "Balance": "Balance",
+        "Amount": "Amount",
+        "Receive": "Receive",
+        "Pay": "Pay",
+        "Before": "Previous balance",
+        "After": "New balance",
+        "Hint": "Enter an amount, e.g. 7k. A minus is only valid with Pay.",
+        "NoPermission": "You do not have permission to modify this actor’s Credits.",
+        "SignConflict": "A negative amount conflicts with Receive. Use Pay or enter a positive amount.",
+        "CannotAfford": "{actorName} has insufficient Credits.",
+        "Disabled": "The Credit Handler is disabled. No Credits were changed.",
+        "SaveError": "Credits could not be saved.",
+        "ChatError": "Credits were saved, but the chat receipt could not be posted. Do not repeat the transaction."
+      },
       "Config": {
         "Enabled": "Credit Handler",
         "EnabledHint": "Enable automatic credit changes such as Pay Up. When disabled, manual edits and starting Credits from character generation remain available.",

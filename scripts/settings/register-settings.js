@@ -125,7 +125,7 @@ const MENU_DEFINITIONS = [
         name: "MoshQoL.Settings.CreditHandlerConfig.Name",
         type: Object,
         default: getDefaultCreditConfig(),
-        onChange: () => refreshCreditPaymentButtons()
+        onChange: () => { refreshCreditPaymentButtons(); refreshOpenToolbands(); }
       }
     }
   },

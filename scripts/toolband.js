@@ -3,10 +3,13 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./toolband/config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
+import { FEATURE_ACTIONS } from "./codex/feature-actions.js";
 import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
 import { getSheetKind } from "./register/sheets.js";
 import { handleTrainingAction } from "./training/training-action.js";
+import { CreditsApp } from "./currency/credits-app.js";
+import { isCreditHandlerEnabled } from "./currency/config.js";
 
 const CLS = "toolband";
 
@@ -139,6 +142,9 @@ function getToolbandButtons({ actor, kind, isGM }) {
       break;
   }
 
+  if (["character", "stash"].includes(kind) && actor?.isOwner && isCreditHandlerEnabled()) {
+    buttons.push(makeToolbandButton(FEATURE_ACTIONS.credits.action));
+  }
   return buttons;
 }
 
@@ -257,6 +263,9 @@ function handleToolbandAction(action, sheet, ctx = {}) {
   const actor = sheet?.actor;
 
   switch (action) {
+    case FEATURE_ACTIONS.credits.action:
+      if (!actor?.isOwner || !isCreditHandlerEnabled()) return;
+      return new CreditsApp({ actor }).render(true);
     case "ship-crit":
       if (!actor) return;
       return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);

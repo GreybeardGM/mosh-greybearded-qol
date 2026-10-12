@@ -1,4 +1,8 @@
 export const FEATURE_ACTIONS = Object.freeze({
+  credits: Object.freeze({
+    action: "credits", settingKey: "credits", icon: "fa-solid fa-coins",
+    label: "Credits", labelKey: "MoshQoL.Currency.App.Title"
+  }),
   "apply-damage": Object.freeze({
     action: "apply-damage",
     settingKey: "applyDamage",

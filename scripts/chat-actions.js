@@ -1,10 +1,8 @@
 import { CHAT_ACTION_PAY_SHORE_LEAVE, CHAT_ACTION_SELECTOR } from "./codex/constants.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
-import { MOSH_CREDITS_PATH } from "./codex/mosh-system.js";
-import { readCurrency } from "./utils/currency.js";
-import { formatCurrency } from "./utils/currency-parser.js";
-import { getCreditConfig, isCreditHandlerEnabled } from "./currency/config.js";
+import { CREDIT_PAY, isCreditHandlerEnabled } from "./currency/config.js";
+import { changeCredits } from "./currency/credit-transactions.js";
 
 // Applies both to stored cards on render and to currently visible cards after a setting change.
 export function refreshCreditPaymentButtons(root = globalThis.document) {
@@ -35,44 +33,8 @@ function getRequiredChatActionActor() {
   return actor;
 }
 
-const paymentsInFlight = new WeakSet();
-
 export async function payShoreLeave(actor, amount) {
-  // Duplicate clicks must not spend the same snapshot while an update is pending.
-  if (!isCreditHandlerEnabled() || paymentsInFlight.has(actor)) return;
-  const notation = getCreditConfig().notation;
-  paymentsInFlight.add(actor);
-  try {
-    const originalCredits = foundry.utils.getProperty(actor, MOSH_CREDITS_PATH);
-    const currentCredits = await readCurrency(originalCredits, { label: actor.name });
-    if (currentCredits === null) return;
-    const price = await readCurrency(amount, { label: game.i18n.localize("MoshQoL.ShoreLeave.PayablePrice") });
-    if (price === null || price <= 0) return;
-    // A GM may disable the handler or change notation while a correction dialog is open.
-    if (!isCreditHandlerEnabled()) return;
-    if (getCreditConfig().notation !== notation) {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
-      return;
-    }
-
-    // A dialog may stay open while another user changes the balance. Never
-    // overwrite that newer value with arithmetic based on the previous snapshot.
-    if (!Object.is(originalCredits, foundry.utils.getProperty(actor, MOSH_CREDITS_PATH))) {
-      ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
-      return;
-    }
-
-    if (currentCredits < price) {
-      ui.notifications.warn(game.i18n.format("MoshQoL.ShoreLeave.CannotAfford", { actorName: actor.name }));
-      return;
-    }
-
-    await actor.update({
-      [MOSH_CREDITS_PATH]: formatCurrency(currentCredits - price, { notation })
-    });
-  } finally {
-    paymentsInFlight.delete(actor);
-  }
+  return changeCredits(actor, amount, { operation: CREDIT_PAY });
 }
 
 let chatActionsRegistered = false;

@@ -19,6 +19,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 - Click an Overclocking counter to see the cumulative effects from *A Pound of Flesh* and which levels currently apply.
 
 ### Currency Utilities
+- The Credits toolbar button on character and stash sheets opens a simple Receive/Pay dialog. Both the amount and current balance are validated before saving; successful transactions post a chat receipt.
 - World settings select English (default), German, French, or Swiss notation for reading and displaying Credits, kCR, MCR, and GCR, including negative balances. Cancelling a correction keeps and saves the entered stash or contractor text; automatic payments still abort. Displaying values never opens correction dialogs.
 - The Credit Handler is enabled by default. Disabling it stops automatic credit changes and hides Pay Up; manual edits and character generation remain available. Currency display still follows the selected notation.
 
@@ -70,7 +71,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.4-dev.9`
+- **Current module version**: `0.8.4-dev.10`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`

@@ -357,6 +357,17 @@
   overflow-wrap: anywhere;
 }
 
+/* Credits app: use shared cards and pills with bounded, readable form fields. */
+.greybeardqol.qol-ui.qol-credits-app .card {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.greybeardqol.qol-ui.qol-credits-app input[type="text"] {
+  width: 100%;
+}
+
 /* Dialog Cards */
 .greybeardqol.qol-ui .dialog-card {
   text-align: center;

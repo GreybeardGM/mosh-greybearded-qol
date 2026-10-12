@@ -478,6 +478,22 @@
         "invalid_structure": "Ein Minus darf nur einmal direkt vor der Zahl stehen. Einheit und das optionale einzelne Leerzeichen dürfen nur einmal am Ende der Zahl stehen.",
         "invalid_notation": "Die Zahl entspricht nicht der für diese Welt eingestellten Währungsschreibweise."
       },
+      "App": {
+        "Title": "Credits",
+        "Balance": "Guthaben",
+        "Amount": "Betrag",
+        "Receive": "Erhalten",
+        "Pay": "Bezahlen",
+        "Before": "Bisheriges Guthaben",
+        "After": "Neues Guthaben",
+        "Hint": "Gib einen Betrag ein, z. B. 7k. Ein Minus ist nur bei Bezahlen möglich.",
+        "NoPermission": "Du darfst die Credits dieses Actors nicht ändern.",
+        "SignConflict": "Ein negativer Betrag widerspricht Erhalten. Nutze Bezahlen oder gib einen positiven Betrag ein.",
+        "CannotAfford": "{actorName} hat nicht genügend Credits.",
+        "Disabled": "Der Credit Handler ist deaktiviert. Es wurden keine Credits geändert.",
+        "SaveError": "Die Credits konnten nicht gespeichert werden.",
+        "ChatError": "Die Credits wurden gespeichert, aber die Chatkarte konnte nicht erstellt werden. Wiederhole die Buchung nicht."
+      },
       "Config": {
         "Enabled": "Credit Handler",
         "EnabledHint": "Automatische Credit-Änderungen wie Pay Up aktivieren. Bei Deaktivierung bleiben manuelle Eingaben und Start-Credits aus dem Charaktergenerator möglich.",

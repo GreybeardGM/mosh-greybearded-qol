@@ -2,6 +2,7 @@
 
 ## [0.8.4] - Unreleased
 ### Added
+- Credits toolbar app for character and stash sheets: receive or pay a validated amount, save the formatted balance, and post a chat receipt. Disabled with the Credit Handler.
 - Credit Handler for safe currency input and consistent output, including negative balances. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler; manual edits and character generation remain available.
 
 ### Changed
