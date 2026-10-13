@@ -486,7 +486,7 @@
         "Pay": "Pay",
         "Before": "Previous balance",
         "After": "New balance",
-        "Hint": "Enter an amount, e.g. 7k. A minus is only valid with Pay.",
+        "Hint": "{notation}: {example} · Shorthand: k, M, G",
         "NoPermission": "You do not have permission to modify this actor’s Credits.",
         "SignConflict": "A negative amount conflicts with Receive. Use Pay or enter a positive amount.",
         "CannotAfford": "{actorName} has insufficient Credits.",

@@ -1,17 +1,19 @@
-<section class="card" style="--theme-color: {{themeColor}};">
-  <h3>{{actorName}}</h3>
-  <p>{{localize "MoshQoL.Currency.App.Balance"}}: <span class="counter">{{balance}}</span></p>
-  <p>{{localize "MoshQoL.Currency.App.Amount"}}</p>
-  <input type="text" name="creditAmount" aria-label="{{localize 'MoshQoL.Currency.App.Amount'}}" autocomplete="off" autofocus>
-  <p>{{localize "MoshQoL.Currency.App.Hint"}}</p>
-  <div class="pill-list">
+<div style="--theme-color: {{themeColor}};">
+  <section class="card">
+    <h3>{{actorName}}</h3>
+    <p>{{localize "MoshQoL.Currency.App.Balance"}}: <span class="counter">{{balance}}</span></p>
+    <p>{{localize "MoshQoL.Currency.App.Amount"}}</p>
+    <input type="text" name="creditAmount" aria-label="{{localize 'MoshQoL.Currency.App.Amount'}}" autocomplete="off" autofocus>
+    <small>{{hint}}</small>
+  </section>
+  <footer class="form-footer">
     {{#each buttons}}
-      <button type="button" class="pill interactive" data-action="{{action}}" data-credit-operation>
-        <i class="fa-solid {{icon}}" aria-hidden="true"></i><span>{{label}}</span>
+      <button type="button" data-action="{{action}}" data-credit-operation>
+        <i class="fa-solid {{icon}}" aria-hidden="true"></i> <span>{{label}}</span>
       </button>
     {{/each}}
-    <button type="button" class="pill interactive" data-action="cancel">
-      <i class="fa-solid fa-xmark" aria-hidden="true"></i><span>{{localize "MoshQoL.Common.Cancel"}}</span>
+    <button type="button" data-action="cancel">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i> <span>{{localize "MoshQoL.Common.Cancel"}}</span>
     </button>
-  </div>
-</section>
+  </footer>
+</div>

@@ -486,7 +486,7 @@
         "Pay": "Bezahlen",
         "Before": "Bisheriges Guthaben",
         "After": "Neues Guthaben",
-        "Hint": "Gib einen Betrag ein, z. B. 7k. Ein Minus ist nur bei Bezahlen möglich.",
+        "Hint": "{notation}: {example} · Kurzformen: k, M, G",
         "NoPermission": "Du darfst die Credits dieses Actors nicht ändern.",
         "SignConflict": "Ein negativer Betrag widerspricht Erhalten. Nutze Bezahlen oder gib einen positiven Betrag ein.",
         "CannotAfford": "{actorName} hat nicht genügend Credits.",

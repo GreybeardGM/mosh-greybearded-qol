@@ -4,7 +4,7 @@ import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { classifyCurrency, formatCurrency } from "../utils/currency-parser.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { CREDIT_OPERATIONS, CREDIT_PAY, CREDIT_RECEIVE, CURRENCY_DIALOG_WIDTH, isCreditHandlerEnabled } from "./config.js";
+import { CREDIT_OPERATIONS, CREDIT_PAY, CREDIT_RECEIVE, CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
 import { changeCredits } from "./credit-transactions.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -30,10 +30,15 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const raw = foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH);
     const parsed = classifyCurrency(raw);
+    const { notation } = getCreditConfig();
     // Opening the app is read-only; only a deliberate transaction opens repairs.
     return appendQolThemeContext({
       actorName: this.actor.name,
       balance: parsed.status === "success" ? formatCurrency(parsed.value) : String(raw ?? ""),
+      hint: game.i18n.format("MoshQoL.Currency.App.Hint", {
+        notation: game.i18n.localize(`MoshQoL.Currency.Notation.${notation}`),
+        example: CURRENCY_NOTATIONS[notation]?.example ?? ""
+      }),
       buttons: Object.entries(CREDIT_OPERATIONS).map(([action, meta]) => ({
         action, icon: meta.icon, label: game.i18n.localize(meta.labelKey)
       }))

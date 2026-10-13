@@ -951,7 +951,8 @@
   word-break: break-word;
 }
 
-.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-input-actions {
+.greybeardqol.qol-ui.mosh-qol-apply-damage-input-window .mosh-qol-apply-damage-input-actions,
+.greybeardqol.qol-ui.qol-credits-app .form-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
