@@ -110,65 +110,6 @@ const CLIENT_SETTING_DEFINITIONS = [
 
 const MENU_DEFINITIONS = [
   {
-    key: "creditHandlerConfigMenu",
-    options: {
-      name: "MoshQoL.Settings.CreditHandlerConfig.Name",
-      label: "MoshQoL.Settings.CreditHandlerConfig.Label",
-      hint: "MoshQoL.Settings.CreditHandlerConfig.Hint",
-      icon: "fa-solid fa-coins",
-      type: CreditHandlerConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_CREDIT_HANDLER_CONFIG,
-      options: {
-        name: "MoshQoL.Settings.CreditHandlerConfig.Name",
-        type: Object,
-        default: getDefaultCreditConfig(),
-        onChange: () => { refreshCreditPaymentButtons(); refreshOpenToolbands(); }
-      }
-    }
-  },
-  {
-    key: "cyberwareConfigMenu",
-    options: {
-      name: "MoshQoL.Settings.CyberwareConfig.Name",
-      label: "MoshQoL.Settings.CyberwareConfig.Label",
-      hint: "MoshQoL.Settings.CyberwareConfig.Hint",
-      icon: "fa-solid fa-microchip",
-      type: CyberwareConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_ENABLE_CYBERWARE,
-      options: {
-        name: "MoshQoL.Settings.EnableCyberware.Name",
-        type: Boolean,
-        default: false,
-        onChange: refreshOpenCyberwareSheets
-      }
-    }
-  },
-  {
-    key: "shoreLeaveEditor",
-    options: {
-      name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-      label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
-      hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
-      icon: getFeatureIcon("shoreLeaveEditor", "fas fa-edit"),
-      type: ShoreLeaveConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_SHORE_LEAVE_CONFIG,
-      options: {
-        name: "MoshQoL.Common.ShoreLeaveConfiguration",
-        type: Object,
-        default: getDefaultShoreLeaveConfig()
-      }
-    }
-  },
-  {
     key: "toolbandConfigMenu",
     options: {
       name: "MoshQoL.Settings.ToolbandConfig.Name",
@@ -208,6 +149,25 @@ const MENU_DEFINITIONS = [
     }
   },
   {
+    key: "shoreLeaveEditor",
+    options: {
+      name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+      label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
+      hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
+      icon: getFeatureIcon("shoreLeaveEditor", "fas fa-edit"),
+      type: ShoreLeaveConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_SHORE_LEAVE_CONFIG,
+      options: {
+        name: "MoshQoL.Common.ShoreLeaveConfiguration",
+        type: Object,
+        default: getDefaultShoreLeaveConfig()
+      }
+    }
+  },
+  {
     key: "trainingConfigMenu",
     options: {
       name: "MoshQoL.Settings.TrainingConfig.Name",
@@ -223,6 +183,46 @@ const MENU_DEFINITIONS = [
         name: "MoshQoL.Settings.TrainingConfig.SettingName",
         type: Object,
         default: getDefaultTrainingConfig()
+      }
+    }
+  },
+  {
+    key: "creditHandlerConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.CreditHandlerConfig.Name",
+      label: "MoshQoL.Settings.CreditHandlerConfig.Label",
+      hint: "MoshQoL.Settings.CreditHandlerConfig.Hint",
+      icon: "fa-solid fa-coins",
+      type: CreditHandlerConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_CREDIT_HANDLER_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.CreditHandlerConfig.Name",
+        type: Object,
+        default: getDefaultCreditConfig(),
+        onChange: () => { refreshCreditPaymentButtons(); refreshOpenToolbands(); }
+      }
+    }
+  },
+  {
+    key: "cyberwareConfigMenu",
+    options: {
+      name: "MoshQoL.Settings.CyberwareConfig.Name",
+      label: "MoshQoL.Settings.CyberwareConfig.Label",
+      hint: "MoshQoL.Settings.CyberwareConfig.Hint",
+      icon: "fa-solid fa-microchip",
+      type: CyberwareConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_ENABLE_CYBERWARE,
+      options: {
+        name: "MoshQoL.Settings.EnableCyberware.Name",
+        type: Boolean,
+        default: false,
+        onChange: refreshOpenCyberwareSheets
       }
     }
   }
