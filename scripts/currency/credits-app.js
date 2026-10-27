@@ -4,8 +4,9 @@ import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { classifyCurrency, formatCurrency } from "../utils/currency-parser.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { CREDIT_OPERATIONS, CREDIT_PAY, CREDIT_RECEIVE, CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
+import { CREDIT_OPERATIONS, CREDIT_PAY, CREDIT_RECEIVE, CREDIT_STASH, CREDIT_TRANSFER, CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
 import { changeCredits } from "./credit-transactions.js";
+import { getCreditRecipients } from "./recipients.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -15,7 +16,10 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     windowClasses: [CREDITS_APP_CLASS], window: { icon: FEATURE_ACTIONS.credits.icon },
     position: { width: CURRENCY_DIALOG_WIDTH },
     form: { handler: () => {}, closeOnSubmit: false },
-    actions: { [CREDIT_RECEIVE]: this._onTransaction, [CREDIT_PAY]: this._onTransaction, cancel: this._onCancel }
+    actions: {
+      [CREDIT_RECEIVE]: this._onTransaction, [CREDIT_PAY]: this._onTransaction,
+      [CREDIT_STASH]: this._onTransaction, [CREDIT_TRANSFER]: () => {}, cancel: this._onCancel
+    }
   });
 
   static PARTS = { form: { template: templatePath("dialogs/credits.html") } };
@@ -31,6 +35,7 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const raw = foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH);
     const parsed = classifyCurrency(raw);
     const { notation } = getCreditConfig();
+    const recipients = getCreditRecipients(this.actor);
     // Opening the app is read-only; only a deliberate transaction opens repairs.
     return appendQolThemeContext({
       actorName: this.actor.name,
@@ -39,7 +44,10 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
         notation: game.i18n.localize(`MoshQoL.Currency.Notation.${notation}`),
         example: CURRENCY_NOTATIONS[notation]?.example ?? ""
       }),
-      buttons: Object.entries(CREDIT_OPERATIONS).map(([action, meta]) => ({
+      stashRecipients: recipients[CREDIT_STASH], transferRecipients: recipients[CREDIT_TRANSFER],
+      stashAction: CREDIT_STASH, transferAction: CREDIT_TRANSFER,
+      stashIcon: CREDIT_OPERATIONS[CREDIT_STASH].icon,
+      buttons: Object.entries(CREDIT_OPERATIONS).filter(([action]) => action !== CREDIT_STASH).map(([action, meta]) => ({
         action, icon: meta.icon, label: game.i18n.localize(meta.labelKey)
       }))
     });
@@ -54,13 +62,17 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const operation = target.dataset.action;
     const input = this.form?.elements.namedItem("creditAmount");
     if (!input) return;
+    const recipient = operation === CREDIT_STASH
+      ? game.actors?.get(this.form.elements.namedItem("stashActor")?.value) : null;
     this._busy = true;
     input.readOnly = true;
-    const buttons = this.form.querySelectorAll("[data-credit-operation]");
-    buttons.forEach(button => { button.disabled = true; });
+    const controls = Array.from(this.form.querySelectorAll("[data-credit-operation], select"), control => ({
+      control, disabled: control.disabled
+    }));
+    controls.forEach(({ control }) => { control.disabled = true; });
     try {
       const result = await changeCredits(this.actor, input.value, {
-        operation, allowNegativeAmount: true, canProceed: () => !this._cancelled
+        operation, recipient, allowNegativeAmount: true, canProceed: () => !this._cancelled
       });
       if (!result) return;
       // A successful save consumes this app before posting the receipt. A chat
@@ -75,7 +87,12 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
           blocks: [
             { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Amount"), value: formatCurrency(result.amount * meta.sign, { notation }) },
             { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Before"), value: formatCurrency(result.before, { notation }) },
-            { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.After"), value: formatCurrency(result.after, { notation }) }
+            { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.After"), value: formatCurrency(result.after, { notation }) },
+            ...(result.recipient ? [
+              { type: "text", text: result.recipient.name },
+              { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Before"), value: formatCurrency(result.recipientBefore, { notation }) },
+              { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.After"), value: formatCurrency(result.recipientAfter, { notation }) }
+            ] : [])
           ]
         });
       } catch (error) {
@@ -88,7 +105,7 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     } finally {
       this._busy = false;
       input.readOnly = false;
-      buttons.forEach(button => { button.disabled = false; });
+      controls.forEach(({ control, disabled }) => { control.disabled = disabled; });
     }
   }
 

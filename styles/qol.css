@@ -357,7 +357,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Credits app: use shared cards and pills with bounded, readable form fields. */
+/* Credits app: bounded, readable form fields with shared cards and action rows. */
 .greybeardqol.qol-ui.qol-credits-app .card {
   min-width: 0;
   white-space: normal;
@@ -366,6 +366,11 @@
 
 .greybeardqol.qol-ui.qol-credits-app input[type="text"] {
   width: 100%;
+}
+
+.greybeardqol.qol-ui.qol-credits-app .form-footer select {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Dialog Cards */

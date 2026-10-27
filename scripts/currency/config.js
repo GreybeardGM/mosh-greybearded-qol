@@ -4,9 +4,12 @@ import { normalizeBoolean } from "../utils/normalization.js";
 export const CURRENCY_DIALOG_WIDTH = 480;
 export const CREDIT_RECEIVE = "receive";
 export const CREDIT_PAY = "pay";
+export const CREDIT_STASH = "stash";
+export const CREDIT_TRANSFER = "transfer";
 export const CREDIT_OPERATIONS = Object.freeze({
   [CREDIT_RECEIVE]: Object.freeze({ sign: 1, icon: "fa-circle-plus", labelKey: "MoshQoL.Currency.App.Receive" }),
-  [CREDIT_PAY]: Object.freeze({ sign: -1, icon: "fa-circle-minus", labelKey: "MoshQoL.Currency.App.Pay" })
+  [CREDIT_PAY]: Object.freeze({ sign: -1, icon: "fa-circle-minus", labelKey: "MoshQoL.Currency.App.Pay" }),
+  [CREDIT_STASH]: Object.freeze({ sign: -1, icon: "fa-box-archive", labelKey: "MoshQoL.Currency.App.Stash" })
 });
 
 // Explicit currency conventions, independent of each client's UI language.
