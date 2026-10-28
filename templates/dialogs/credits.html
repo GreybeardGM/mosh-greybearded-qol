@@ -1,4 +1,4 @@
-<div style="--theme-color: {{themeColor}};">
+<div class="card-grid" style="--col-count: 1; --theme-color: {{themeColor}};">
   <section class="card">
     <h3>{{actorName}}</h3>
     <p>{{localize "MoshQoL.Currency.App.Balance"}}: <span class="counter">{{balance}}</span></p>
@@ -6,38 +6,46 @@
     <input type="text" name="creditAmount" aria-label="{{localize 'MoshQoL.Currency.App.Amount'}}" autocomplete="off" autofocus>
     <small>{{hint}}</small>
   </section>
-  <footer class="form-footer">
-    {{#each buttons}}
-      <button type="button" data-action="{{action}}" data-credit-operation>
-        <i class="fa-solid {{icon}}" aria-hidden="true"></i> <span>{{label}}</span>
+  <section class="card">
+    <div class="form-footer">
+      {{#each buttons}}
+        <button type="button" data-action="{{action}}" data-credit-operation>
+          <i class="fa-solid {{icon}}" aria-hidden="true"></i> <span>{{label}}</span>
+        </button>
+      {{/each}}
+    </div>
+  </section>
+  <section class="card">
+    <div class="form-footer">
+      <select name="stashActor" aria-label="{{localize 'MoshQoL.Currency.App.Stash'}}" {{#unless stashRecipients.length}}disabled{{/unless}}>
+        {{#each stashRecipients}}
+          <option value="{{id}}">{{name}}</option>
+        {{else}}
+          <option value="">{{localize "MoshQoL.Currency.App.NoStashes"}}</option>
+        {{/each}}
+      </select>
+      <button type="button" data-action="{{stashAction}}" data-credit-operation {{#unless stashRecipients.length}}disabled{{/unless}}>
+        <i class="fa-solid {{stashIcon}}" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Stash"}}
       </button>
-    {{/each}}
+    </div>
+  </section>
+  <section class="card">
+    <div class="form-footer">
+      <select name="transferActor" aria-label="{{localize 'MoshQoL.Currency.App.Transfer'}}" {{#unless transferRecipients.length}}disabled{{/unless}}>
+        {{#each transferRecipients}}
+          <option value="{{id}}">{{name}}</option>
+        {{else}}
+          <option value="">{{localize "MoshQoL.Currency.App.NoCharacters"}}</option>
+        {{/each}}
+      </select>
+      <button type="button" data-action="{{transferAction}}" title="{{localize 'MoshQoL.Currency.App.TransferPending'}}" disabled>
+        <i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Transfer"}}
+      </button>
+    </div>
+  </section>
+  <footer class="form-footer">
     <button type="button" data-action="cancel">
       <i class="fa-solid fa-xmark" aria-hidden="true"></i> <span>{{localize "MoshQoL.Common.Cancel"}}</span>
     </button>
   </footer>
-  <div class="form-footer">
-    <select name="stashActor" aria-label="{{localize 'MoshQoL.Currency.App.Stash'}}" {{#unless stashRecipients.length}}disabled{{/unless}}>
-      {{#each stashRecipients}}
-        <option value="{{id}}">{{name}}</option>
-      {{else}}
-        <option value="">{{localize "MoshQoL.Currency.App.NoStashes"}}</option>
-      {{/each}}
-    </select>
-    <button type="button" data-action="{{stashAction}}" data-credit-operation {{#unless stashRecipients.length}}disabled{{/unless}}>
-      <i class="fa-solid {{stashIcon}}" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Stash"}}
-    </button>
-  </div>
-  <div class="form-footer">
-    <select name="transferActor" aria-label="{{localize 'MoshQoL.Currency.App.Transfer'}}" {{#unless transferRecipients.length}}disabled{{/unless}}>
-      {{#each transferRecipients}}
-        <option value="{{id}}">{{name}}</option>
-      {{else}}
-        <option value="">{{localize "MoshQoL.Currency.App.NoCharacters"}}</option>
-      {{/each}}
-    </select>
-    <button type="button" data-action="{{transferAction}}" title="{{localize 'MoshQoL.Currency.App.TransferPending'}}" disabled>
-      <i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Transfer"}}
-    </button>
-  </div>
 </div>
