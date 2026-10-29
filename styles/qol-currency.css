@@ -1,0 +1,21 @@
+/* Currency dialogs use a bounded width; wrap long explanations and raw values. */
+.greybeardqol.qol-ui.qol-currency-resolution .card,
+.greybeardqol.qol-ui.qol-credits-app .card {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.greybeardqol.qol-ui.qol-currency-resolution pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.greybeardqol.qol-ui.qol-credits-app input[type="text"] {
+  width: 100%;
+}
+
+.greybeardqol.qol-ui.qol-credits-app .form-footer select {
+  flex: 1;
+  min-width: 0;
+}

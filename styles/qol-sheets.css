@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Sheet Styling
+   ========================================================================== */
+
+/* Contractor Sheet */
+
+.app.mosh.sheet.actor.character.qol-hide-system-character-config
+  > .window-header
+  > .header-button.configure-actor {
+  display: none;
+}
+
+.greybeardqol.qol-sheet.contractor .editor-content {
+  min-height: 10em;
+}
+
+.greybeardqol.qol-sheet.contractor .mainstatlabel {
+  padding: 0.5rem;
+}
+
+.greybeardqol.qol-sheet.contractor .grid-1col {
+  margin: auto 0;
+}
+
+.greybeardqol.qol-sheet .highlighted-input {
+  color: var(--theme-color);
+  border: none;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.greybeardqol.qol-sheet .description-input {
+  margin-bottom: 0.5em;
+}
+
+.greybeardqol.qol-sheet .contractor-flag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.greybeardqol.qol-sheet .creaturedescription {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  overflow: visible;
+}
+
+.greybeardqol.qol-sheet .creature-header-grid {
+  flex-grow: 1;
+}
+
+.greybeardqol.qol-sheet .creature-abilities {
+  scrollbar-width: none;
+}
+
+/* Stash Sheet currency overlay: keep visible on dark header areas */
+.greybeardqol.qol-sheet .currency-field {
+  position: relative;
+}
+
+.greybeardqol.qol-sheet .currency-display {
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: text;
+  font-family: 'Roboto';
+}
+
+.greybeardqol.qol-sheet .stash-currency-display {
+  color: #111;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.greybeardqol.qol-sheet .sheet-body {
+  height: auto;
+}

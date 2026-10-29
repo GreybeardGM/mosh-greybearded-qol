@@ -1,0 +1,29 @@
+/* Toolband-Overlay: null-height, klick-transparent; Buttons verschieben sich in den Bogen */
+.greybeardqol.qol-ui.toolband {
+  height: 0;
+  display: flex;
+  flex: 0 0 0;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 100;
+  justify-content: center;
+}
+
+.greybeardqol.qol-ui.toolband .toolband-btn {
+  pointer-events: auto;
+  width: 8rem;
+  margin: 1px 2px;
+  color: var(--color-text);
+  box-shadow: unset;
+  line-height: 1rem;
+  padding: 1px 0.5rem;
+}
+
+.greybeardqol.qol-ui.toolband .toolband-btn:hover {
+  line-height: 2rem;
+}
+
+.greybeardqol.qol-ui.toolband .is-active {
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 8px var(--theme-color) !important;
+}

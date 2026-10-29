@@ -1,0 +1,84 @@
+/* Shared settings dialogs */
+.greybeardqol.qol-ui.qolsettings-window.window-content {
+  overflow-y: auto;
+  max-height: 85vh;
+  scrollbar-gutter: stable;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-heading {
+  font-size: 0.82rem;
+  margin: 0;
+  color: var(--theme-color);
+  font-family: Monospace;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings fieldset {
+  margin-bottom: 0.75em;
+  border: 1px solid #666;
+  border-radius: 6px;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings fieldset:last-child {
+  margin-bottom: 0;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.1em;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-group label {
+  font-size: 0.9em;
+  margin-bottom: 0.25em;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings small {
+  display: block;
+  font-size: 0.8em;
+  opacity: 0.75;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .inline-row,
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings-toggle > span {
+  flex: 1;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings :is(input[type="number"], input[type="text"], select) {
+  width: 5em;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-wide-input :is(input[type="text"], select) {
+  width: 100%;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-field select {
+  width: 100%;
+  max-width: 16rem;
+}
+
+.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}

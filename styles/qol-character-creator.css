@@ -1,0 +1,146 @@
+/* Character creation and the skill tree shared with Training. */
+.greybeardqol.qol-ui.qol-skill-selection.window-content {
+  overflow-y: auto;
+  max-height: 85vh;
+}
+
+.greybeardqol.qol-ui.qol-training-selection .training-intro {
+  margin: 0 0 0.75rem;
+  text-align: center;
+  font-style: italic;
+}
+
+.greybeardqol.qol-ui.qol-training-selection .remaining-points .training-price {
+  display: block;
+  color: var(--color-bg);
+  font-family: inherit;
+  font-size: 0.75em;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .or-option-row .or-option {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .or-option-skill-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .or-option-skill-pill {
+  gap: 0.5rem;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .or-option-skill-pill span {
+  white-space: nowrap;
+}
+
+/* Class selection */
+.greybeardqol.qol-ui.qol-class-selection .attributes-container {
+  height: 6rem;
+  font-family: monospace;
+  text-align: left;
+  overflow: hidden;
+  font-size: 0.75rem;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .trauma-response {
+  height: 4.5rem;
+  color: var(--theme-color);
+  font-style: italic;
+  overflow: hidden;
+  font-size: 0.75rem;
+}
+
+.greybeardqol.qol-ui.qol-class-selection.window-content {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-selection-content {
+  overflow-x: auto;
+  max-width: 95vw;
+  padding-bottom: 0.5rem;
+  scrollbar-color: var(--theme-color) #0000;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle-wrap {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  z-index: 5;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle {
+  margin: 0;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  color: var(--color-text);
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle.active {
+  border-color: var(--theme-color);
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-skill-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-skill-option-card {
+  gap: 0.25rem;
+  padding: 0.4rem;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-skill-option-card h4 {
+  font-size: 0.7rem;
+  margin: 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: Monospace;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-skill-list {
+  margin: 0;
+  padding-left: 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.75rem;
+}
+
+.greybeardqol.qol-ui.qol-class-selection .class-skill-linked-heading {
+  margin: 0;
+  text-align: left;
+  font-size: 0.7rem;
+  color: var(--theme-color);
+  font-family: Monospace;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .skill-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15%;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .skill-card {
+  padding-right: 2.5rem;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .skill-area-wrapper {
+  position: relative;
+}
+
+.greybeardqol.qol-ui.qol-skill-selection .skill-arrow-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
