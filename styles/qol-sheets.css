@@ -163,3 +163,25 @@
 .greybeardqol.qol-sheet .skill-name.qol-armor-name {
   flex-grow: 2.55;
 }
+
+/* Creature skill-check dialog: retain MoSh layout and scope patch overrides. */
+.qol-creature-stat-pick .qol-creature-stat-intro {
+  padding-left: 8px;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-option {
+  padding-left: 3px;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-grid {
+  align-items: center;
+  grid-template-columns: 20px 60px auto;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-image {
+  padding: 5px 0;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-icon {
+  border: none;
+}
