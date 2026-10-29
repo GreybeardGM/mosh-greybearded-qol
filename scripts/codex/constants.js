@@ -72,3 +72,13 @@ export const SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR = "simpleShoreLeave.disab
 export const SETTING_TOOLBAND_CONFIG = "toolbandConfig";
 export const SETTING_TRAINING_CONFIG = "trainingConfig";
 export const SETTING_CREDIT_HANDLER_CONFIG = "creditHandlerConfig";
+
+// Keep menu keys stable so existing settings links continue to resolve.
+export const SETTING_MENU_KEYS = Object.freeze({
+  toolband: "toolbandConfigMenu",
+  applyDamage: "applyDamageConfigMenu",
+  shoreLeave: "shoreLeaveEditor",
+  training: "trainingConfigMenu",
+  creditHandler: "creditHandlerConfigMenu",
+  cyberware: "cyberwareConfigMenu"
+});

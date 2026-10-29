@@ -2,10 +2,10 @@ import { QOL_STATE_CLASSES, MODULE_ID, templatePath } from "../codex/constants.j
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "../utils/normalization.js";
 import { toEmbeddedItemData } from "../utils/item-data.js";
-import { toSkillId, toSkillSelectionPointBundle } from "./utils.js";
+import { toSkillSelectionPointBundle } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { resolveSkillReferences } from "./skill-reference-utils.js";
+import { resolveSkillReferences, toSkillId } from "../skill-tree/references.js";
 import {
   cacheSkillTreeDom,
   cleanupSkillTreeApp,
@@ -13,7 +13,7 @@ import {
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
-} from "./skill-selector-shared.js";
+} from "../skill-tree/selection.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -73,7 +73,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       template: templatePath("character-creator/select-skills-options.html")
     },
     skilltree: {
-      template: templatePath("character-creator/skilltree-core.html")
+      template: templatePath("skill-tree/selection.html")
     },
     confirm: {
       template: templatePath("ui/confirm-button.html")

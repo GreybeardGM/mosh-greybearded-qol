@@ -27,6 +27,7 @@ Ablagebeispiele außerhalb von `scripts/codex/`:
 - Shore-Leave-Tabellen liegen in `scripts/shore-leave/` (`default-activities.js`, `default-tiers.js`).
 - Ship-Crit-Tabellen liegen in `scripts/ship-crits/` (`default-crits-0e.js`).
 - Reine Contractor-Sheet-Tabellen liegen in `scripts/sheets/` (`contractor-motivation-table.js`).
+- Gemeinsame Skillbaum-Helfer und Renderer liegen in `scripts/skill-tree/`, das Template in `templates/skill-tree/`; Generator und Training verwenden dieselben Komponenten.
 - Gemeinsame Crew-Roster-Datennormalisierung liegt in `scripts/crew-roster/roster-data.js` und wird auch von den SBT-Crew-Würfen verwendet.
 - Echte wiederverwendbare Helfer, z. B. Skill-Sortierung, liegen in `scripts/utils/` (`skill-sort.js`).
 

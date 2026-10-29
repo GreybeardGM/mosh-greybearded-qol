@@ -83,6 +83,15 @@ test("Credit Handler registration is GM-only, world scoped and enabled with Engl
   game.settings.registerMenu = (...args) => menus.push(args);
   const { registerSettings } = await import("../../scripts/settings/register-settings.js");
   registerSettings();
+  // Assert the public IDs literally: centralization must not rename existing menus or change their order/icons.
+  assert.deepEqual(menus.map(entry => [entry[1], entry[2].icon]), [
+    ["toolbandConfigMenu", "fas fa-toolbox"],
+    ["applyDamageConfigMenu", "fas fa-heart-broken"],
+    ["shoreLeaveEditor", "fas fa-umbrella-beach"],
+    ["trainingConfigMenu", "fa-solid fa-dumbbell"],
+    ["creditHandlerConfigMenu", "fa-solid fa-coins"],
+    ["cyberwareConfigMenu", "fa-solid fa-microchip"]
+  ]);
   const definition = registered.find(entry => entry[1] === SETTING_CREDIT_HANDLER_CONFIG)[2];
   assert.equal(definition.scope, "world");
   assert.equal(definition.config, false);

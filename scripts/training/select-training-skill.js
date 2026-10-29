@@ -17,7 +17,7 @@ import {
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
-} from "../character-creator/skill-selector-shared.js";
+} from "../skill-tree/selection.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -35,7 +35,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static PARTS = {
     main: {
-      template: templatePath("character-creator/skilltree-core.html")
+      template: templatePath("skill-tree/selection.html")
     },
     confirm: {
       template: templatePath("ui/confirm-button.html")

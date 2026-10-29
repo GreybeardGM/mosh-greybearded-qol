@@ -7,7 +7,7 @@ import {
   getNormalizedApplyDamageConfig,
   usesTougherArmorFromConfig
 } from "./config.js";
-import { QoLContractorSheet } from "../sheets/contractor-sheet-class.js";
+import { getSheetKind } from "../register/sheets.js";
 
 import { chatOutput, rawChatHTML } from "../utils/chat-output.js";
 import { resolveApplyDamageTargets } from "./policy.js";
@@ -169,7 +169,7 @@ async function applyDamageToActor(actor, normalizedPayload, applyDamageConfig = 
   if (actor.type === "ship") return false;
 
   const { damage, antiArmorHit, woundMetadata } = normalizedPayload;
-  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata, getApplyDamageActorScope(actor), applyDamageConfig);
+  const automatedWoundRoll = getAutomatedWoundRoll(woundMetadata, getSheetKind(actor.sheet, actor), applyDamageConfig);
   const sys     = actor.system ?? {};
   const hpMax   = normalizeNumber(sys.health?.max, { fallback: 0 });
   let   hp      = normalizeNumber(sys.health?.value, { fallback: 0 });
@@ -353,22 +353,6 @@ function getWoundRollFormula(modifier = null) {
   if (modifier === "advantage") return "{1d10z,1d10z}kh";
   if (modifier === "disadvantage") return "{1d10z,1d10z}kl";
   return "1d10z";
-}
-
-function getApplyDamageActorScope(actor) {
-  if (actor?.type === "character") return "character";
-  if (actor?.type === "creature") {
-    return isContractorActor(actor) ? "contractor" : "creature";
-  }
-  return null;
-}
-
-function isContractorActor(actor) {
-  const sheet = actor?.sheet ?? null;
-  if (sheet instanceof QoLContractorSheet) return true;
-
-  const sheetClass = actor?.getFlag?.("core", "sheetClass");
-  return typeof sheetClass === "string" && sheetClass.includes("QoLContractorSheet");
 }
 
 function getAutomatedWoundRoll(woundMetadata, actorScope, applyDamageConfig = null) {

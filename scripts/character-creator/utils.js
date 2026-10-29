@@ -1,5 +1,4 @@
 import { normalizeNumber } from "../utils/normalization.js";
-export const toSkillId = value => String(value ?? "").split(".").pop();
 
 function toNumberOrZero(value) {
   if (value === "" || value === null || value === undefined) return 0;

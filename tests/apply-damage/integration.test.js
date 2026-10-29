@@ -87,3 +87,29 @@ test("scene controls forward raw damage through the shared validator for the sel
   assert.deepEqual(first.writes, []);
   assert.ok(warnings.includes("MoshQoL.Damage.PositiveValueRequired"));
 });
+
+test("damage uses the Contractor wound policy for both native sheets and assigned-class fallbacks", async t => {
+  const previousActor = Actor, previousGet = game.settings.get;
+  globalThis.Actor = class {};
+  t.after(() => { globalThis.Actor = previousActor; game.settings.get = previousGet; });
+  const { applyDamageToActors } = await import("../../scripts/apply-damage/apply-damage.js");
+  const { QoLContractorSheet } = await import("../../scripts/sheets/contractor-sheet-class.js");
+  const reads = [];
+  game.settings.get = (module, key) => { reads.push([module, key]); return null; };
+  for (const kind of ["instance", "flag", "creature"]) {
+    for (const enabledScope of ["contractor", "creature"]) {
+      reads.length = 0;
+      const target = damageActor();
+      target.type = "creature";
+      target.sheet = kind === "instance" ? new QoLContractorSheet(target) : null;
+      target.getFlag = () => kind === "flag" ? "mosh-greybearded-qol.QoLContractorSheet" : null;
+      const result = await applyDamageToActors([target], { damage: 5, woundMetadata: { woundType: "bleeding" } }, {
+        applyDamageConfig: { automateWoundRoll: { [enabledScope]: true } }
+      });
+      assert.equal(result, 1);
+      const expectedScope = kind === "creature" ? "creature" : "contractor";
+      assert.deepEqual(reads, enabledScope === expectedScope ? [["mosh", "table1eWoundBleeding"]] : []);
+      assert.deepEqual(target.writes, [{ "system.health.value": 8, "system.hits.value": 0 }]);
+    }
+  }
+});

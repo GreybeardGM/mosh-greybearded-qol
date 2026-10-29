@@ -1,6 +1,6 @@
 import { QOL_STATE_CLASSES } from "../codex/constants.js";
-import { toSkillId } from "./utils.js";
-import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
+import { toSkillId } from "./references.js";
+import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./renderer.js";
 
 const EMPTY_LINE_META = () => ({});
 

@@ -5,7 +5,7 @@ import { loadAllItemsByType } from "../utils/item-loader.js";
 import { toSkillSelectionPointBundle } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { resolveSkillReferences } from "./skill-reference-utils.js";
+import { resolveSkillReferences } from "../skill-tree/references.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 

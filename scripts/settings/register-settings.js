@@ -22,6 +22,7 @@ import {
 } from "../apply-damage/target-logic.js";
 import {
   MODULE_ID,
+  SETTING_MENU_KEYS,
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_CYBERWARE_SLOT_RULES,
@@ -110,12 +111,12 @@ const CLIENT_SETTING_DEFINITIONS = [
 
 const MENU_DEFINITIONS = [
   {
-    key: "toolbandConfigMenu",
+    key: SETTING_MENU_KEYS.toolband,
     options: {
       name: "MoshQoL.Settings.ToolbandConfig.Name",
       label: "MoshQoL.Settings.ToolbandConfig.Label",
       hint: "MoshQoL.Settings.ToolbandConfig.Hint",
-      icon: getFeatureIcon("toolbandConfigMenu", "fas fa-toolbox"),
+      icon: getFeatureIcon(SETTING_MENU_KEYS.toolband, "fas fa-toolbox"),
       type: ToolbandConfigApp,
       restricted: true
     },
@@ -130,12 +131,12 @@ const MENU_DEFINITIONS = [
     }
   },
   {
-    key: "applyDamageConfigMenu",
+    key: SETTING_MENU_KEYS.applyDamage,
     options: {
       name: "MoshQoL.Settings.ApplyDamageConfig.Name",
       label: "MoshQoL.Settings.ApplyDamageConfig.Label",
       hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
-      icon: getFeatureIcon("applyDamageConfigMenu", "fas fa-heart-broken"),
+      icon: getFeatureIcon(SETTING_MENU_KEYS.applyDamage, "fas fa-heart-broken"),
       type: ApplyDamageConfigApp,
       restricted: true
     },
@@ -149,12 +150,12 @@ const MENU_DEFINITIONS = [
     }
   },
   {
-    key: "shoreLeaveEditor",
+    key: SETTING_MENU_KEYS.shoreLeave,
     options: {
       name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
       label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
       hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
-      icon: getFeatureIcon("shoreLeaveEditor", "fas fa-edit"),
+      icon: getFeatureIcon(SETTING_MENU_KEYS.shoreLeave, "fas fa-edit"),
       type: ShoreLeaveConfigApp,
       restricted: true
     },
@@ -168,12 +169,12 @@ const MENU_DEFINITIONS = [
     }
   },
   {
-    key: "trainingConfigMenu",
+    key: SETTING_MENU_KEYS.training,
     options: {
       name: "MoshQoL.Settings.TrainingConfig.Name",
       label: "MoshQoL.Settings.TrainingConfig.Label",
       hint: "MoshQoL.Settings.TrainingConfig.Hint",
-      icon: getFeatureIcon("trainingConfigMenu", "fa-solid fa-dumbbell"),
+      icon: getFeatureIcon(SETTING_MENU_KEYS.training, "fa-solid fa-dumbbell"),
       type: TrainingConfigApp,
       restricted: true
     },
@@ -187,7 +188,7 @@ const MENU_DEFINITIONS = [
     }
   },
   {
-    key: "creditHandlerConfigMenu",
+    key: SETTING_MENU_KEYS.creditHandler,
     options: {
       name: "MoshQoL.Settings.CreditHandlerConfig.Name",
       label: "MoshQoL.Settings.CreditHandlerConfig.Label",
@@ -207,7 +208,7 @@ const MENU_DEFINITIONS = [
     }
   },
   {
-    key: "cyberwareConfigMenu",
+    key: SETTING_MENU_KEYS.cyberware,
     options: {
       name: "MoshQoL.Settings.CyberwareConfig.Name",
       label: "MoshQoL.Settings.CyberwareConfig.Label",

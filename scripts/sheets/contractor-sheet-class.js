@@ -81,13 +81,13 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
       return actorData;
     }
 
-    _duplicateEmbeddedItem(itemId) {
-        return foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", itemId));
+    _getItemFromEvent(event) {
+        const itemId = event.currentTarget.closest(".item")?.dataset.itemId;
+        return itemId ? this.actor.getEmbeddedDocument("Item", itemId) : null;
     }
 
     _duplicateItemFromEvent(event) {
-        const li = event.currentTarget.closest(".item");
-        return this._duplicateEmbeddedItem(li.dataset.itemId);
+        return foundry.utils.duplicate(this._getItemFromEvent(event));
     }
 
     /**
@@ -221,10 +221,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         html.on('mousedown', '.treatment-button', async ev => {
             ev.preventDefault();
-            const li = ev.currentTarget.closest(".item");
-            if (!li?.dataset?.itemId) return;
-
-            const item = this._duplicateEmbeddedItem(li.dataset.itemId);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
 
             const treatment = item.system.treatment ?? {};
             const current = Number(treatment.value ?? 0);
@@ -237,16 +235,14 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
                 next = Math.max(0, current - 1);
             }
 
-            item.system.treatment = { ...treatment, value: next, max };
-            await this.actor.updateEmbeddedDocuments('Item', [item]);
+            // Patch only the edited field; a full Item snapshot can overwrite concurrent edits.
+            if (next !== current) await item.update({ "system.treatment.value": next });
         });
 
         html.on('mousedown', '.severity, .severity-button', async ev => {
             ev.preventDefault();
-            const li = ev.currentTarget.closest(".item");
-            if (!li?.dataset?.itemId) return;
-
-            const item = this._duplicateEmbeddedItem(li.dataset.itemId);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
 
             const severity = Number(item.system.severity ?? 0);
             const maxSeverity = Number(item.system.maxSeverity ?? 4);
@@ -258,22 +254,14 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
                 nextSeverity = Math.max(0, severity - 1);
             }
 
-            item.system.severity = nextSeverity;
-            await this.actor.updateEmbeddedDocuments('Item', [item]);
+            if (nextSeverity !== severity) await item.update({ "system.severity": nextSeverity });
         });
 
         //Quantity adjuster
         html.on('mousedown', '.item-quantity', ev => {
-          const item = this._duplicateItemFromEvent(ev);
-          const amount = item.system.quantity;
-    
-          if (ev.button == 0) {
-            item.system.quantity = Number(amount) + 1;
-          } else if (ev.button == 2) {
-            item.system.quantity = Number(amount) - 1;
-          }
-    
-          this.actor.updateEmbeddedDocuments('Item', [item]);
+          const item = this._getItemFromEvent(ev);
+          if (!item || (ev.button !== 0 && ev.button !== 2)) return;
+          return item.update({ "system.quantity": Number(item.system.quantity) + (ev.button === 0 ? 1 : -1) });
         });        
 
         // Rollable Item/Anything with a description that we want to click on.
@@ -299,37 +287,23 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         //increase ammo
         html.on('mousedown', '.weapon-ammo', ev => {
-            const item = this._duplicateItemFromEvent(ev);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
             const amount = item.system.ammo;
-            //increase ammo
-            if (ev.button == 0) {
-                if (amount >= 0) {
-                    item.system.ammo = Number(amount) + 1;
-                }
-            } else if (ev.button == 2) {
-                if (amount > 0) {
-                    item.system.ammo = Number(amount) - 1;
-                }
-            }
-            //update ammo count
-            this.actor.updateEmbeddedDocuments('Item', [item]);
+            if (ev.button === 0 && amount >= 0) return item.update({ "system.ammo": Number(amount) + 1 });
+            if (ev.button === 2 && amount > 0) return item.update({ "system.ammo": Number(amount) - 1 });
         });
         
         //increase shots
         html.on('mousedown', '.weapon-shots', ev => {
-            const item = this._duplicateItemFromEvent(ev);
-            if (ev.button == 0) {
-                if (item.system.curShots >= 0 && item.system.curShots < item.system.shots && item.system.ammo > 0) {
-                    item.system.curShots = Number(item.system.curShots) + 1;
-                    item.system.ammo = Number(item.system.ammo) - 1;
-                }
-            } else if (ev.button == 2) {
-                if (item.system.curShots > 0) {
-                    item.system.curShots = Number(item.system.curShots) - 1;
-                    item.system.ammo = Number(item.system.ammo) + 1;
-                }
-            }
-            this.actor.updateEmbeddedDocuments('Item', [item]);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
+            const { curShots, shots, ammo } = item.system;
+            let change;
+            if (ev.button === 0 && curShots >= 0 && curShots < shots && ammo > 0) change = 1;
+            else if (ev.button === 2 && curShots > 0) change = -1;
+            else return;
+            return item.update({ "system.curShots": Number(curShots) + change, "system.ammo": Number(ammo) - change });
         });
 
         //Reload Shots
@@ -341,26 +315,17 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // ARMOR
         // Equip
         html.find('.item-equip').click(ev => {
-          const item = this._duplicateItemFromEvent(ev);
-    
-          item.system.equipped = !item.system.equipped;
-          this.actor.updateEmbeddedDocuments('Item', [item]);
+          const item = this._getItemFromEvent(ev);
+          if (item) return item.update({ "system.equipped": !item.system.equipped });
         });
         
         //increase oxygen
         html.on('mousedown', '.armor-oxy', ev => {
-          const item = this._duplicateItemFromEvent(ev);
+          const item = this._getItemFromEvent(ev);
+          if (!item) return;
           const amount = item.system.oxygenCurrent;
-          if (ev.button == 0) {
-            if (amount < item.system.oxygenMax) {
-              item.system.oxygenCurrent = Number(amount) + 1;
-            }
-          } else if (ev.button == 2) {
-            if (amount > 0) {
-              item.system.oxygenCurrent = Number(amount) - 1;
-            }
-          }
-          this.actor.updateEmbeddedDocuments('Item', [item]);
+          if (ev.button === 0 && amount < item.system.oxygenMax) return item.update({ "system.oxygenCurrent": Number(amount) + 1 });
+          if (ev.button === 2 && amount > 0) return item.update({ "system.oxygenCurrent": Number(amount) - 1 });
         });
     
         // Clicking on Armor
