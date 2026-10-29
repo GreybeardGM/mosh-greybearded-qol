@@ -1,6 +1,5 @@
 /* Currency dialogs use a bounded width; wrap long explanations and raw values. */
-.greybeardqol.qol-ui.qol-currency-resolution .card,
-.greybeardqol.qol-ui.qol-credits-app .card {
+.greybeardqol.qol-ui.qol-currency-resolution .card {
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;

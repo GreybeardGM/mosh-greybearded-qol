@@ -1,6 +1,6 @@
-<div class="settings" style="--theme-color: {{themeColor}};">
-  <section class="card">
-    <h4 class="settings-heading">{{localize "MoshQoL.Cyberware.Config.GeneralTitle"}}</h4>
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Cyberware.Config.GeneralTitle"}}</h4>
 
     <label class="pill interactive settings-toggle">
       <span>
@@ -14,8 +14,8 @@
   <small>{{localize "MoshQoL.Cyberware.Config.FormulaHint"}}</small>
 
   {{#each groups as |group|}}
-    <section class="card">
-      <h4 class="settings-heading">{{group.label}}</h4>
+    <section class="box">
+      <h4 class="box-heading">{{group.label}}</h4>
       {{#each group.entries as |entry|}}
         <fieldset class="qol-slot-rule">
           <legend>{{entry.label}}</legend>

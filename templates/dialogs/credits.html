@@ -1,12 +1,12 @@
-<div class="card-column" style="--theme-color: {{themeColor}};">
-  <section class="card">
-    <h3>{{actorName}}</h3>
+<div class="box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <h3 class="box-heading">{{actorName}}</h3>
     <p>{{localize "MoshQoL.Currency.App.Balance"}}: <span class="counter">{{balance}}</span></p>
     <p>{{localize "MoshQoL.Currency.App.Amount"}}</p>
     <input type="text" name="creditAmount" aria-label="{{localize 'MoshQoL.Currency.App.Amount'}}" autocomplete="off" autofocus>
     <small>{{hint}}</small>
   </section>
-  <section class="card">
+  <section class="box">
     <div class="form-footer">
       {{#each buttons}}
         <button type="button" data-action="{{action}}" data-credit-operation>
@@ -15,7 +15,7 @@
       {{/each}}
     </div>
   </section>
-  <section class="card">
+  <section class="box">
     <div class="form-footer">
       <select name="stashActor" aria-label="{{localize 'MoshQoL.Currency.App.Stash'}}" {{#unless stashRecipients.length}}disabled{{/unless}}>
         {{#each stashRecipients}}
@@ -29,7 +29,7 @@
       </button>
     </div>
   </section>
-  <section class="card">
+  <section class="box">
     <div class="form-footer">
       <select name="transferActor" aria-label="{{localize 'MoshQoL.Currency.App.Transfer'}}" {{#unless transferRecipients.length}}disabled{{/unless}}>
         {{#each transferRecipients}}

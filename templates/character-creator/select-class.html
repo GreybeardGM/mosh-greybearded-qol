@@ -9,9 +9,9 @@
         <div class="class-attributes">{{{this.attributes}}}</div>
         <p class="trauma-response">{{this.trauma}}</p>
         {{#if ../showSkillView}}
-          <div class="class-skill-view">
-            <div class="card class-skill-option-card">
-              <h4>{{this.skillView.defaultSkills.name}}</h4>
+          <div class="box-list">
+            <div class="box">
+              <h4 class="box-heading">{{this.skillView.defaultSkills.name}}</h4>
               <ul class="class-skill-list">
                 {{#if this.skillView.defaultSkills.trained}}<li>{{this.skillView.defaultSkills.trained}} {{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</li>{{/if}}
                 {{#if this.skillView.defaultSkills.expert}}<li>{{this.skillView.defaultSkills.expert}} {{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</li>{{/if}}
@@ -27,8 +27,8 @@
               {{/if}}
             </div>
             {{#each this.skillView.orOptions}}
-              <div class="card class-skill-option-card">
-                <h4>{{this.name}}</h4>
+              <div class="box">
+                <h4 class="box-heading">{{this.name}}</h4>
                 <ul class="class-skill-list">
                   {{#if this.trained}}<li>{{this.trained}} {{localize "MoshQoL.CharacterCreator.Skills.Trained"}}</li>{{/if}}
                   {{#if this.expert}}<li>{{this.expert}} {{localize "MoshQoL.CharacterCreator.Skills.Expert"}}</li>{{/if}}

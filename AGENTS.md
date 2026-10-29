@@ -33,7 +33,8 @@ Neue Foundry-`ApplicationV2`-UI-Komponenten müssen die gemeinsamen QoL-Basiskla
 
 ## CSS-Namenskonvention
 
-- Gemeinsame Bausteine wie `card`, `pill` und `card-column` behalten ihre kurzen Namen; eigene Feature-Elemente heißen in kebab-case `<feature>-<element>`.
+- Gemeinsame Bausteine wie `card`, `pill`, `box` und `box-list` behalten ihre kurzen Namen; eigene Feature-Elemente heißen in kebab-case `<feature>-<element>`.
+- `card` bleibt für Einzelkarten und Kartenraster; vertikale Dialogabschnitte verwenden `box-list`, `box` und bei Bedarf `box-heading`, abschließende Aktionszeilen stehen außerhalb der Boxes.
 - Im Modul-UI bevorzugt `.greybeardqol.qol-ui .feature-element` verwenden; zusätzliche Vorfahren nur für notwendige Unterscheidungen oder Regelprioritäten ergänzen.
 - In fremde Sheets injizierte Elemente außerhalb des Modul-Namespace bekommen das Präfix `qol-`; benötigte Foundry-/MoSh-Klassen bleiben erhalten.
 - Eigene Zustände heißen `is-*`; JavaScript verwendet dafür `QOL_STATE_CLASSES`, native Attribute und Datenfelder werden nicht umbenannt.

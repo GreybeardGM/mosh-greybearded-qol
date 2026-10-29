@@ -84,25 +84,6 @@
   border-color: var(--theme-color);
 }
 
-.greybeardqol.qol-ui.qol-class-selection .class-skill-view {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.greybeardqol.qol-ui.qol-class-selection .class-skill-option-card {
-  gap: 0.25rem;
-  padding: 0.4rem;
-}
-
-.greybeardqol.qol-ui.qol-class-selection .class-skill-option-card h4 {
-  font-size: 0.7rem;
-  margin: 0;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-family: Monospace;
-}
-
 .greybeardqol.qol-ui.qol-class-selection .class-skill-list {
   margin: 0;
   padding-left: 1rem;

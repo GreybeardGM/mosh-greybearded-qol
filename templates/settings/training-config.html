@@ -1,6 +1,6 @@
-<div class="settings" style="--theme-color: {{themeColor}};">
-  <section class="card">
-    <h4 class="settings-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
 
     <label class="pill interactive settings-toggle">
       <span>
@@ -19,8 +19,8 @@
     </label>
   </section>
 
-  <section class="card">
-    <h4 class="settings-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
     <small>{{localize "MoshQoL.Settings.TrainingConfig.Prices.Hint"}}</small>
 
     {{#each (array 'trained' 'expert' 'master') as |rank|}}

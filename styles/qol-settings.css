@@ -5,25 +5,6 @@
   scrollbar-gutter: stable;
 }
 
-.greybeardqol.qol-ui .settings {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.greybeardqol.qol-ui .settings-heading {
-  font-size: 0.82rem;
-  margin: 0;
-  color: var(--theme-color);
-  font-family: Monospace;
-}
-
-.greybeardqol.qol-ui .settings-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
 .greybeardqol.qol-ui .settings fieldset {
   margin-bottom: 0.75em;
   border: 1px solid #666;
@@ -75,11 +56,4 @@
 .greybeardqol.qol-ui .settings-field select {
   width: 100%;
   max-width: 16rem;
-}
-
-.greybeardqol.qol-ui .settings .form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
 }

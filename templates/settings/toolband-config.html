@@ -1,8 +1,8 @@
-<div class="settings" style="--theme-color: {{themeColor}};">
-  <div class="settings-stack">
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <div class="box-list">
     {{#each scopes as |scope|}}
-      <section class="card">
-        <h4 class="settings-heading">{{scope.label}}</h4>
+      <section class="box">
+        <h4 class="box-heading">{{scope.label}}</h4>
         <div class="pill-list">
           {{#each scope.buttons as |button|}}
             <label class="pill interactive settings-toggle">
