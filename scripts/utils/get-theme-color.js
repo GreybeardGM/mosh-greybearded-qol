@@ -12,6 +12,7 @@ export function getThemeColor() {
     if (isValidCssColor(color)) return ensureContrast(color, "#111");
   }
 
+  // Actual fallback when configured and player colors are missing or invalid.
   return DEFAULT_THEME_COLOR;
 }
 

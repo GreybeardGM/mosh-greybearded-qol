@@ -8,8 +8,8 @@
   --color-text: #ccc;
   --color-border: #666;
   --color-bg: #111;
-  --color-bg-hover: #222; /* fallback */
-  --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg)); /* preferred */
+  /* Resolved on this wrapper before inheritance; not recalculated for child overrides. */
+  --color-bg-hover: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg));
   --color-counter: #fc6;
   --color-remaining: #596;
 
@@ -155,6 +155,9 @@
 
 .greybeardqol.qol-ui .interactive:hover {
   border-color: var(--theme-color) !important;
+  /* Required: templates can override --theme-color below the wrapper, after
+     --color-bg-hover has resolved there. Mix locally to use the current theme;
+     this is not a retry or fallback for getThemeColor(). */
   background-color: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg));
 }
 

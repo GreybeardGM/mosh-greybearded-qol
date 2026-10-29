@@ -96,6 +96,7 @@
 }
 
 .greybeardqol .sbt-crew-skill-roll-option:hover {
+  /* Required for the template's local --theme-color; see .interactive:hover in qol.css. */
   background: color-mix(in srgb, var(--theme-color) 10%, var(--color-bg));
 }
 
