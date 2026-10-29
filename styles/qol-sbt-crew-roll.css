@@ -2,14 +2,14 @@
    SBT Ship Crew Skill Rolls
    ========================================================================== */
 
-.app.mosh.sheet.actor.ship .gbqol-sbt-crew-roll-anchor {
+.mosh .qol-sbt-crew-roll-anchor {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
 }
 
-.app.mosh.sheet.actor.ship .gbqol-sbt-crew-roll-button {
+.mosh .qol-sbt-crew-roll-button {
   display: inline-flex;
   flex: 0 0 1.45rem;
   align-items: center;
@@ -28,8 +28,8 @@
   cursor: pointer;
 }
 
-.app.mosh.sheet.actor.ship .gbqol-sbt-crew-roll-button:hover,
-.app.mosh.sheet.actor.ship .gbqol-sbt-crew-roll-button:focus-visible {
+.mosh .qol-sbt-crew-roll-button:hover,
+.mosh .qol-sbt-crew-roll-button:focus-visible {
   border-color: var(--theme-color, var(--mosh-qol-default-theme-color));
   box-shadow: 0 0 0.25rem var(--theme-color, var(--mosh-qol-default-theme-color));
 }

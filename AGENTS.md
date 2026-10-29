@@ -31,6 +31,14 @@ Ablagebeispiele außerhalb von `scripts/codex/`:
 
 Neue Foundry-`ApplicationV2`-UI-Komponenten müssen die gemeinsamen QoL-Basisklassen aus `QOL_UI_CLASSES` in `scripts/codex/constants.js` nutzen; für `window.contentClasses` bevorzugt `qolWindowClasses(...)` und für zusammengesetzte `className`-Strings `qolClassName(...)` verwenden.
 
+## CSS-Namenskonvention
+
+- Gemeinsame Bausteine wie `card`, `pill` und `card-column` behalten ihre kurzen Namen; eigene Feature-Elemente heißen in kebab-case `<feature>-<element>`.
+- Im Modul-UI bevorzugt `.greybeardqol.qol-ui .feature-element` verwenden; zusätzliche Vorfahren nur für notwendige Unterscheidungen oder Regelprioritäten ergänzen.
+- In fremde Sheets injizierte Elemente außerhalb des Modul-Namespace bekommen das Präfix `qol-`; benötigte Foundry-/MoSh-Klassen bleiben erhalten.
+- Eigene Zustände heißen `is-*`; JavaScript verwendet dafür `QOL_STATE_CLASSES`, native Attribute und Datenfelder werden nicht umbenannt.
+- Bei umbenannten Chat-Klassen CSS-Aliase für bereits gespeichertes `ChatMessage`-HTML beibehalten.
+
 ## Entwickler-Checkliste vor neuen Implementierungen
 
 - Bestehende Helfer in `scripts/utils/`, `scripts/codex/`, `scripts/settings/` und feature-lokalen Utilities suchen, bevor neuer Implementierungscode ergänzt wird.

@@ -13,7 +13,7 @@ export function createSettingsAppDefaultOptions({
   return createQolAppDefaultOptions({
     id,
     title,
-    windowClasses: "qolsettings-window",
+    windowClasses: "settings-window",
     window: {
       resizable: true
     },

@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { capitalize, normalizeNumber, stripHtml } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
@@ -159,14 +159,14 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     root.querySelectorAll(".class-card").forEach(card => {
       const selected = card.dataset.classId === this._selectedClassId;
-      card.classList.toggle("selected", selected);
+      card.classList.toggle(QOL_STATE_CLASSES.selected, selected);
     });
 
     const confirm = root.querySelector("#confirm-button");
     if (!confirm) return;
 
     const locked = !this._selectedClassId;
-    confirm.classList.toggle("locked", locked);
+    confirm.classList.toggle(QOL_STATE_CLASSES.locked, locked);
     confirm.disabled = locked;
   }
 

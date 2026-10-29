@@ -1,4 +1,4 @@
-import { templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, templatePath } from "../codex/constants.js";
 import { capitalize } from "../utils/normalization.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
@@ -143,7 +143,7 @@ export class StressDistributionApp extends HandlebarsApplicationMixin(Applicatio
 
     if (!dom.confirmBtn) return;
     const locked = this._assignedPoints !== this.points;
-    dom.confirmBtn.classList.toggle("locked", locked);
+    dom.confirmBtn.classList.toggle(QOL_STATE_CLASSES.locked, locked);
     dom.confirmBtn.disabled = locked;
   }
 

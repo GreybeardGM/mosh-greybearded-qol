@@ -1,8 +1,8 @@
-<div class="qolsettings" style="--theme-color: {{themeColor}};">
+<div class="settings" style="--theme-color: {{themeColor}};">
   <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
+    <h4 class="settings-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.TrainingConfig.UseSkillTraining.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.TrainingConfig.UseSkillTraining.Hint"}}</small>
@@ -10,7 +10,7 @@
       <input type="checkbox" name="training.useSkillTraining" {{checked config.useSkillTraining}}>
     </label>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.TrainingConfig.AutoTrainAfterShoreLeave.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.TrainingConfig.AutoTrainAfterShoreLeave.Hint"}}</small>
@@ -20,7 +20,7 @@
   </section>
 
   <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
+    <h4 class="settings-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
     <small>{{localize "MoshQoL.Settings.TrainingConfig.Prices.Hint"}}</small>
 
     {{#each (array 'trained' 'expert' 'master') as |rank|}}

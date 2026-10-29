@@ -1,82 +1,83 @@
 /* Shared settings dialogs */
-.greybeardqol.qol-ui.qolsettings-window.window-content {
+.greybeardqol.qol-ui.settings-window.window-content {
   overflow-y: auto;
   max-height: 85vh;
   scrollbar-gutter: stable;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings {
+.greybeardqol.qol-ui .settings {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings-heading {
+.greybeardqol.qol-ui .settings-heading {
   font-size: 0.82rem;
   margin: 0;
   color: var(--theme-color);
   font-family: Monospace;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings-stack {
+.greybeardqol.qol-ui .settings-stack {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings fieldset {
+.greybeardqol.qol-ui .settings fieldset {
   margin-bottom: 0.75em;
   border: 1px solid #666;
   border-radius: 6px;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings fieldset:last-child {
+.greybeardqol.qol-ui .settings fieldset:last-child {
   margin-bottom: 0;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-group {
+.greybeardqol.qol-ui .settings .form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 0.1em;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-group label {
+.greybeardqol.qol-ui .settings .form-group label {
   font-size: 0.9em;
   margin-bottom: 0.25em;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings small {
+.greybeardqol.qol-ui .settings small {
   display: block;
   font-size: 0.8em;
   opacity: 0.75;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .inline-row,
-.greybeardqol.qol-ui.qolsettings-window .qolsettings-toggle {
+.greybeardqol.qol-ui .settings .inline-row,
+.greybeardqol.qol-ui .settings-toggle {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5em;
   align-items: center;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings-toggle > span {
+.greybeardqol.qol-ui .settings-toggle > span {
   flex: 1;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings :is(input[type="number"], input[type="text"], select) {
+/* Keep defaults below named field modifiers without repeating window wrappers. */
+.greybeardqol.qol-ui .settings :where(input[type="number"], input[type="text"], select) {
   width: 5em;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-wide-input :is(input[type="text"], select) {
+.greybeardqol.qol-ui .settings-wide-input :is(input[type="text"], select) {
   width: 100%;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .qolsettings-field select {
+.greybeardqol.qol-ui .settings-field select {
   width: 100%;
   max-width: 16rem;
 }
 
-.greybeardqol.qol-ui.qolsettings-window .qolsettings .form-footer {
+.greybeardqol.qol-ui .settings .form-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;

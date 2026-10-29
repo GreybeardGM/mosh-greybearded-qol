@@ -1,8 +1,8 @@
-<div class="qolsettings" style="--theme-color: {{themeColor}};">
+<div class="settings" style="--theme-color: {{themeColor}};">
   <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Cyberware.Config.GeneralTitle"}}</h4>
+    <h4 class="settings-heading">{{localize "MoshQoL.Cyberware.Config.GeneralTitle"}}</h4>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.EnableCyberware.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.EnableCyberware.Hint"}}</small>
@@ -15,7 +15,7 @@
 
   {{#each groups as |group|}}
     <section class="card">
-      <h4 class="qolsettings-heading">{{group.label}}</h4>
+      <h4 class="settings-heading">{{group.label}}</h4>
       {{#each group.entries as |entry|}}
         <fieldset class="qol-slot-rule">
           <legend>{{entry.label}}</legend>

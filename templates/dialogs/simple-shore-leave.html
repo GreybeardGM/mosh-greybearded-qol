@@ -1,6 +1,6 @@
 <div class="card-grid" style="--col-count: {{tiers.length}}; --theme-color: {{themeColor}};">
   {{#each tiers as |tier|}}
-    <label class="card dialog-card interactive {{#if tier.selected}}selected{{/if}}" data-action="selectTier" data-tier="{{tier.tier}}">
+    <label class="card dialog-card interactive {{#if tier.selected}}is-selected{{/if}}" data-action="selectTier" data-tier="{{tier.tier}}">
       <input
         type="radio"
         name="shore-tier"
@@ -18,13 +18,13 @@
       <h3>{{tier.label}}</h3>
 
       {{#if tier.flavor.label}}
-        <div class="flavor-label text-highlight">
+        <div class="shore-leave-flavor-label text-highlight">
           {{tier.flavor.label}}
         </div>
       {{/if}}
 
       {{#if tier.flavor.description}}
-        <div class="flavor-description">
+        <div class="shore-leave-flavor-description">
           {{tier.flavor.description}}
         </div>
       {{/if}}

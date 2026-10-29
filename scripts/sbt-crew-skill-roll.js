@@ -8,6 +8,8 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const SBT_TEMPLATE = "systems/mosh/templates/actor/ship-sheet-sbt.html";
+const SBT_CREW_ROLL_ANCHOR_CLASS = "qol-sbt-crew-roll-anchor";
+const SBT_CREW_ROLL_BUTTON_CLASS = "qol-sbt-crew-roll-button";
 const SUPPORTED_STATS = new Set(["thrusters", "battle", "systems"]);
 const MANUAL_SKILLS = [
   { rank: "Trained", bonus: 10 },
@@ -266,15 +268,15 @@ export function augmentSbtShipSkillRolls(sheet, html) {
     if (!SUPPORTED_STATS.has(statKey)) continue;
 
     const anchor = statLabel.parentElement;
-    if (!anchor || anchor.querySelector(`.gbqol-sbt-crew-roll-button[data-stat-key="${statKey}"]`)) {
+    if (!anchor || anchor.querySelector(`.${SBT_CREW_ROLL_BUTTON_CLASS}[data-stat-key="${statKey}"]`)) {
       continue;
     }
 
-    anchor.classList.add("gbqol-sbt-crew-roll-anchor");
+    anchor.classList.add(SBT_CREW_ROLL_ANCHOR_CLASS);
 
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "gbqol-sbt-crew-roll-button";
+    button.className = SBT_CREW_ROLL_BUTTON_CLASS;
     button.dataset.statKey = statKey;
     button.style.setProperty("--theme-color", getThemeColor());
 

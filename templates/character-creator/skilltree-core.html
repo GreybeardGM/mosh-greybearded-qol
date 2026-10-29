@@ -18,9 +18,9 @@
               <div
                 class="pill interactive skill-card
                   {{#if (eq ../../defaultSkillMode 'id')}}
-                    {{#if (includes ../../defaultSkillValues this.id)}}default-skill selected locked{{/if}}
+                    {{#if (includes ../../defaultSkillValues this.id)}}default-skill is-selected is-locked{{/if}}
                   {{else}}
-                    {{#if (includes ../../defaultSkillValues this.nameLower)}}default-skill selected locked{{/if}}
+                    {{#if (includes ../../defaultSkillValues this.nameLower)}}default-skill is-selected is-locked{{/if}}
                   {{/if}}"
                 data-action="toggleSkill"
                 data-rank="{{this.rank}}"

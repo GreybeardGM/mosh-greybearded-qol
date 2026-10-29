@@ -38,7 +38,7 @@
 }
 
 /* Class selection */
-.greybeardqol.qol-ui.qol-class-selection .attributes-container {
+.greybeardqol.qol-ui .class-attributes {
   height: 6rem;
   font-family: monospace;
   text-align: left;
@@ -80,7 +80,7 @@
   color: var(--color-text);
 }
 
-.greybeardqol.qol-ui.qol-class-selection .class-view-toggle.active {
+.greybeardqol.qol-ui.qol-class-selection .class-view-toggle.is-active {
   border-color: var(--theme-color);
 }
 

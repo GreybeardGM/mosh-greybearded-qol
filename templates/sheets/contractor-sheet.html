@@ -178,7 +178,7 @@
       {{/each}}
     </div>
     {{#if status.selected}}
-      <button type="button" class="pill interactive selected {{status.actionClass}}" title="{{status.title}}">{{status.label}}</button>
+      <button type="button" class="pill interactive is-selected {{status.actionClass}}" title="{{status.title}}">{{status.label}}</button>
     {{else}}
       <span class="pill" role="status">{{status.label}}</span>
     {{/if}}

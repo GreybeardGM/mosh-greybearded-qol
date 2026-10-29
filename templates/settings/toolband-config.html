@@ -1,12 +1,12 @@
-<div class="qolsettings" style="--theme-color: {{themeColor}};">
-  <div class="qolsettings-stack">
+<div class="settings" style="--theme-color: {{themeColor}};">
+  <div class="settings-stack">
     {{#each scopes as |scope|}}
       <section class="card">
-        <h4 class="qolsettings-heading">{{scope.label}}</h4>
+        <h4 class="settings-heading">{{scope.label}}</h4>
         <div class="pill-list">
           {{#each scope.buttons as |button|}}
-            <label class="pill interactive qolsettings-toggle">
-              <span class="qolsettings-label">
+            <label class="pill interactive settings-toggle">
+              <span class="settings-label">
                 <i class="{{button.icon}}" aria-hidden="true"></i>
                 <span>{{button.labelText}}</span>
               </span>

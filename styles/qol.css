@@ -108,22 +108,22 @@
 }
 
 /* Grey-out or Highlight */
-.greybeardqol.qol-ui .locked {
+.greybeardqol.qol-ui .is-locked {
   pointer-events: none;
 }
 
-.greybeardqol.qol-ui .selected {
+.greybeardqol.qol-ui .is-selected {
   border-color: var(--theme-color) !important;
   outline: 2px solid var(--theme-color);
   outline-offset: 1px;
 }
 
-.greybeardqol.qol-ui .locked.selected {
+.greybeardqol.qol-ui .is-locked.is-selected {
   border-color: var(--color-border);
   color: var(--color-text);
 }
 
-.greybeardqol.qol-ui .locked:not(.selected) {
+.greybeardqol.qol-ui .is-locked:not(.is-selected) {
   border-color: #444;
   color: #777;
 }
@@ -137,12 +137,12 @@
   font-size: 1.2rem;
 }
 
-.greybeardqol.qol-ui .confirm-button:not(.locked) {
+.greybeardqol.qol-ui .confirm-button:not(.is-locked) {
   outline: 2px solid var(--color-border);
   outline-offset: 1px;
 }
 
-.greybeardqol.qol-ui .confirm-button:hover:not(.locked) {
+.greybeardqol.qol-ui .confirm-button:hover:not(.is-locked) {
   outline-color: var(--theme-color);
   transform: scale(1.02);
 }
@@ -273,24 +273,28 @@
   font-weight: normal;
 }
 
-/* Chat output */
+/* Chat output: legacy .chat-card selectors also style stored content/flavor. */
+.greybeardqol.qol-ui .chat-header,
 .greybeardqol.qol-ui .chat-card .header {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
+.greybeardqol.qol-ui .chat-icon,
 .greybeardqol.qol-ui .chat-card .icon {
   width: 3rem;
   height: 3rem;
   font-size: 2.5rem;
 }
 
+.greybeardqol.qol-ui .chat-title,
 .greybeardqol.qol-ui .chat-card .title {
   font-size: 1.2rem;
   font-weight: bold;
 }
 
+.greybeardqol.qol-ui .chat-subtitle,
 .greybeardqol.qol-ui .chat-card .subtitle {
   font-style: italic;
   color: var(--theme-color);

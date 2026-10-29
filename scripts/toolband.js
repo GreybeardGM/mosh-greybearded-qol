@@ -4,7 +4,7 @@ import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./toolband/config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
 import { FEATURE_ACTIONS } from "./codex/feature-actions.js";
-import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
+import { MODULE_ID, QOL_STATE_CLASSES, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
 import { getSheetKind } from "./register/sheets.js";
 import { handleTrainingAction } from "./training/training-action.js";
@@ -28,7 +28,7 @@ function renderToolbandButton(button) {
   const el = document.createElement("button");
   el.type = "button";
   el.classList.add(`${CLS}-btn`, "pill", "interactive");
-  el.classList.toggle("is-active", pressed);
+  el.classList.toggle(QOL_STATE_CLASSES.active, pressed);
   el.setAttribute("data-action", sanitizeDataAction(button?.id));
   el.setAttribute("title", label);
   el.setAttribute("aria-pressed", String(pressed));
@@ -70,7 +70,7 @@ export function syncArmorBrokenToolbandButton(actor) {
     const button = app.element?.[0]?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
     if (!button) return;
 
-    button.classList.toggle("is-active", active);
+    button.classList.toggle(QOL_STATE_CLASSES.active, active);
     button.setAttribute("aria-pressed", String(active));
   });
 }

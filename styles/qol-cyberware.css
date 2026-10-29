@@ -1,5 +1,5 @@
 /* Appearance comes from the shared pill, form controls and checkbox ::after. */
-.greybeardqol.qol-ui.qolsettings-window .qol-slot-rule select {
+.greybeardqol.qol-ui .qol-slot-rule select {
   width: auto;
   max-width: 100%;
 }
@@ -29,7 +29,7 @@
   display: flex;
 }
 
-.greybeardqol.qol-ui.qol-augmentation-status + .greybeardqol.qol-ui.qol-augmentation-status {
+.greybeardqol.qol-ui.qol-augmentation-status + .qol-augmentation-status {
   margin-top: 0.25rem;
 }
 

@@ -1,4 +1,4 @@
-import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText } from "../utils/normalization.js";
@@ -163,7 +163,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     if (!confirm) return;
 
     const hasSelection = !!this._selectedNewSkillId;
-    confirm.classList.toggle("locked", !hasSelection);
+    confirm.classList.toggle(QOL_STATE_CLASSES.locked, !hasSelection);
     confirm.disabled = !hasSelection;
     confirm.setAttribute("aria-disabled", String(!hasSelection));
   }
@@ -171,20 +171,20 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   static async _onToggleSkill(event, target) {
     const skillId = target?.dataset?.skillId;
     if (!skillId) return;
-    if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
+    if (target.classList.contains("default-skill") || target.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     const changed = new Set();
-    const isSelected = target.classList.contains("selected");
+    const isSelected = target.classList.contains(QOL_STATE_CLASSES.selected);
 
     for (const card of this._dom.skillCards) {
       if (card.classList.contains("default-skill")) continue;
-      if (card.classList.contains("selected")) changed.add(card.dataset.skillId);
-      card.classList.remove("selected");
+      if (card.classList.contains(QOL_STATE_CLASSES.selected)) changed.add(card.dataset.skillId);
+      card.classList.remove(QOL_STATE_CLASSES.selected);
       this._selectedSkillIds.delete(card.dataset.skillId);
     }
 
     if (!isSelected) {
-      target.classList.add("selected");
+      target.classList.add(QOL_STATE_CLASSES.selected);
       this._selectedSkillIds.add(skillId);
       this._selectedNewSkillId = skillId;
       changed.add(skillId);
@@ -202,7 +202,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static async _onSubmit() {
     const confirm = this._dom?.confirm;
-    if (!confirm || confirm.classList.contains("locked")) return;
+    if (!confirm || confirm.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     const selectedCard = this._dom.skillCards.find(el => el.dataset.skillId === this._selectedNewSkillId);
     const selectedUuid = selectedCard?.dataset?.uuid;

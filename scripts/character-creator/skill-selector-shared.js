@@ -1,3 +1,4 @@
+import { QOL_STATE_CLASSES } from "../codex/constants.js";
 import { toSkillId } from "./utils.js";
 import { rebuildSkillLineGeometry, updateSkillLineHighlights } from "./skill-tree-renderer.js";
 
@@ -46,7 +47,7 @@ export function cacheSkillTreeDom(root) {
 export function selectedSkillIdsFromDom(cards = []) {
   const selected = new Set();
   for (const el of cards) {
-    if (el.classList.contains("selected")) selected.add(el.dataset.skillId);
+    if (el.classList.contains(QOL_STATE_CLASSES.selected)) selected.add(el.dataset.skillId);
   }
   return selected;
 }
@@ -59,7 +60,7 @@ export function applyInitialAvailabilityLock({ cards = [], skillById, selectedSk
     const prereqIds = skill?.prereqIds ?? (skill?.system?.prerequisite_ids || []).map(toSkillId);
     const isUnlocked = prereqIds.length === 0 || prereqIds.some(id => selectedSkillIds.has(id));
 
-    if (!isUnlocked) card.classList.add("locked");
+    if (!isUnlocked) card.classList.add(QOL_STATE_CLASSES.locked);
   }
 }
 

@@ -1,4 +1,5 @@
 import {
+  QOL_STATE_CLASSES,
   MODULE_ID,
   CHAT_ACTION_PAY_SHORE_LEAVE,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
@@ -94,7 +95,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     root.querySelectorAll(".card").forEach(card => {
       const isSelected = card.dataset.tier === this._selectedTier;
-      card.classList.toggle("selected", isSelected);
+      card.classList.toggle(QOL_STATE_CLASSES.selected, isSelected);
 
       const input = card.querySelector("input[name='shore-tier']");
       if (input) input.checked = isSelected;
@@ -104,7 +105,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!confirm) return;
 
     const locked = !this._selectedTier;
-    confirm.classList.toggle("locked", locked);
+    confirm.classList.toggle(QOL_STATE_CLASSES.locked, locked);
     confirm.disabled = locked;
   }
 
@@ -190,10 +191,10 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       if (iconClass) iconEl.className = `fas ${iconClass} icon`;
     }
 
-    const flavorLabel = card.querySelector(".flavor-label");
+    const flavorLabel = card.querySelector(".shore-leave-flavor-label");
     if (flavorLabel) flavorLabel.textContent = entry.flavor?.label || "";
 
-    const flavorDescription = card.querySelector(".flavor-description");
+    const flavorDescription = card.querySelector(".shore-leave-flavor-description");
     if (flavorDescription) flavorDescription.textContent = entry.flavor?.description || "";
   }
 

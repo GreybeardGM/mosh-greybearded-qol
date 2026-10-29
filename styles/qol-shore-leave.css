@@ -1,12 +1,12 @@
 /* Shore Leave tier selection. */
 
-.greybeardqol.qol-ui .flavor-description {
+.greybeardqol.qol-ui .shore-leave-flavor-description {
   min-height: 7.2rem;
   font-size: 0.8rem;
   opacity: 0.8;
 }
 
-.greybeardqol.qol-ui .flavor-label {
+.greybeardqol.qol-ui .shore-leave-flavor-label {
   font-weight: bold;
   height: 2rem;
   display: flex;

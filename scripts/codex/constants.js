@@ -12,6 +12,12 @@ export const CHAT_ACTION_CLASS = "chat-action";
 export const CURRENCY_DIALOG_CLASS = "qol-currency-resolution";
 export const CREDITS_APP_CLASS = "qol-credits-app";
 
+export const QOL_STATE_CLASSES = Object.freeze({
+  active: "is-active",
+  selected: "is-selected",
+  locked: "is-locked"
+});
+
 export const QOL_UI_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_UI_CLASS]);
 export const QOL_SHEET_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_SHEET_CLASS]);
 

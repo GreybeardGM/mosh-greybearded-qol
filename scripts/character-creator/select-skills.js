@@ -1,4 +1,4 @@
-import { MODULE_ID, templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, MODULE_ID, templatePath } from "../codex/constants.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml } from "../utils/normalization.js";
 import { toEmbeddedItemData } from "../utils/item-data.js";
@@ -234,23 +234,23 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const selected = selectedSkillIds.has(skillId);
 
       if (this.points[rank] === 0 && !selected) {
-        el.classList.add("locked");
+        el.classList.add(QOL_STATE_CLASSES.locked);
         continue;
       }
 
       if (rank === "trained") {
-        el.classList.remove("locked");
+        el.classList.remove(QOL_STATE_CLASSES.locked);
         continue;
       }
 
       const prereqs = this._getPrereqIds(skillId);
       const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkillIds.has(id));
       if (unlocked) {
-        el.classList.remove("locked");
+        el.classList.remove(QOL_STATE_CLASSES.locked);
       } else {
-        el.classList.add("locked");
+        el.classList.add(QOL_STATE_CLASSES.locked);
         if (selected) {
-          el.classList.remove("selected");
+          el.classList.remove(QOL_STATE_CLASSES.selected);
           removedSelections.add(skillId);
           selectedSkillIds.delete(skillId);
         }
@@ -270,11 +270,11 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const remaining = Object.values(this.points).reduce((a, b) => a + b, 0);
     const hasOrOptions = this.orOptions.length > 0;
-    const orSelected = !hasOrOptions || this._dom.orOptions.some(el => el.classList.contains("selected"));
+    const orSelected = !hasOrOptions || this._dom.orOptions.some(el => el.classList.contains(QOL_STATE_CLASSES.selected));
     const allowConfirm = remaining === 0 && orSelected;
 
     if (this._dom.confirm) {
-      this._dom.confirm.classList.toggle("locked", !allowConfirm);
+      this._dom.confirm.classList.toggle(QOL_STATE_CLASSES.locked, !allowConfirm);
       this._dom.confirm.disabled = !allowConfirm;
     }
 
@@ -330,12 +330,12 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static _onToggleSkill(event, target) {
-    if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
+    if (target.classList.contains("default-skill") || target.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     if (!this._dom) return;
 
     const rank = target.dataset.rank;
-    if (target.classList.contains("selected")) {
+    if (target.classList.contains(QOL_STATE_CLASSES.selected)) {
       const skillId = target.dataset.skillId;
       const dependents = this.dependencies.get(skillId) || new Set();
       for (const depId of dependents) {
@@ -350,7 +350,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         return;
       }
 
-      target.classList.remove("selected");
+      target.classList.remove(QOL_STATE_CLASSES.selected);
       this._selectedSkillIds.delete(skillId);
       this.points[rank]++;
       this._updateUi({ changedSkillIds: new Set([skillId]), changedRanks: new Set([rank]) });
@@ -359,7 +359,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     if (this.points[rank] <= 0) return;
     const skillId = target.dataset.skillId;
-    target.classList.add("selected");
+    target.classList.add(QOL_STATE_CLASSES.selected);
     this._selectedSkillIds.add(skillId);
     this.points[rank]--;
     this._updateUi({ changedSkillIds: new Set([skillId]), changedRanks: new Set([rank]) });
@@ -367,13 +367,13 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static _onSelectOrOption(event, target) {
     if (!this._dom) return;
-    if (target.classList.contains("selected")) return;
+    if (target.classList.contains(QOL_STATE_CLASSES.selected)) return;
 
     const changedSkillIds = new Set();
 
-    const activeOrOption = this._dom.orOptions.find(el => el.classList.contains("selected"));
-    if (activeOrOption) activeOrOption.classList.remove("selected");
-    target.classList.add("selected");
+    const activeOrOption = this._dom.orOptions.find(el => el.classList.contains(QOL_STATE_CLASSES.selected));
+    if (activeOrOption) activeOrOption.classList.remove(QOL_STATE_CLASSES.selected);
+    target.classList.add(QOL_STATE_CLASSES.selected);
 
     const opt = this._orOptionById.get(target.dataset.option);
     this.points.trained = this.basePoints.trained + (opt?.trained || 0);
@@ -384,9 +384,9 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const el = this._dom.skillCardById.get(skillId);
       if (!el || el.classList.contains("default-skill")) continue;
 
-      el.classList.remove("selected");
+      el.classList.remove(QOL_STATE_CLASSES.selected);
       if (this._currentOrLockedSkillIds.has(skillId)) {
-        el.classList.remove("or-locked-skill", "locked");
+        el.classList.remove("or-locked-skill", QOL_STATE_CLASSES.locked);
       }
 
       this._selectedSkillIds.delete(skillId);
@@ -397,7 +397,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     for (const skill of opt?.skills || []) {
       const el = this._dom.skillCardById.get(skill.id);
       if (!el) continue;
-      el.classList.add("selected", "locked", "or-locked-skill");
+      el.classList.add(QOL_STATE_CLASSES.selected, QOL_STATE_CLASSES.locked, "or-locked-skill");
       this._selectedSkillIds.add(skill.id);
       this._currentOrLockedSkillIds.add(skill.id);
       changedSkillIds.add(skill.id);
@@ -408,10 +408,10 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static async _onSubmit() {
     const confirm = this._dom?.confirm;
-    if (!confirm || confirm.classList.contains("locked")) return;
+    if (!confirm || confirm.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     const selectedUUIDs = this._dom.skillCards
-      .filter(el => el.classList.contains("selected") && el.dataset.uuid)
+      .filter(el => el.classList.contains(QOL_STATE_CLASSES.selected) && el.dataset.uuid)
       .map(el => el.dataset.uuid);
 
     const selectedItems = await Promise.all(selectedUUIDs.map(async uuid => {

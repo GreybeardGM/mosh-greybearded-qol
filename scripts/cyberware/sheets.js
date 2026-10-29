@@ -1,4 +1,4 @@
-import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } from "../codex/constants.js";
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
@@ -85,7 +85,7 @@ function createStatus(row, actor) {
     items.append(button);
   }
   const label = document.createElement(row.selected ? "button" : "span");
-  label.className = row.selected ? `pill interactive selected ${row.actionClass}` : "pill";
+  label.className = row.selected ? `pill interactive ${QOL_STATE_CLASSES.selected} ${row.actionClass}` : "pill";
   if (row.selected) {
     label.type = "button";
     label.title = row.title;
