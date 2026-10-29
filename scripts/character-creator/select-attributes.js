@@ -1,7 +1,7 @@
 import { templatePath } from "../codex/constants.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -86,12 +86,6 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
 
   _onRender(context, options) {
     super._onRender(context, options);
-
-    const root = this._getRoot();
-    if (!root) return;
-
-    applyAppWrapperLayout(root, { width: "auto" });
-
     this._updateSelectionUi();
   }
 

@@ -3,7 +3,7 @@ import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
 import { capitalize, normalizeNumber, stripHtml } from "../utils/normalization.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
 import { toSkillSelectionPointBundle } from "./utils.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 
@@ -180,12 +180,6 @@ export class ClassSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   _onRender(context, options) {
     super._onRender(context, options);
-
-    const root = this._getRoot();
-    if (!root) return;
-
-    applyAppWrapperLayout(root, { width: "auto" });
-
     this._updateSelectionUi();
   }
 

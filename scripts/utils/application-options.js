@@ -24,6 +24,8 @@ export function createQolAppDefaultOptions({
       resizable: false,
       ...window
     },
+    // Let ApplicationV2 manage dimensions; frame-style writes in _onRender
+    // would bypass its position state and duplicate these configured sizes.
     position: {
       width: "auto",
       height: "auto",

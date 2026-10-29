@@ -3,7 +3,7 @@ import { loadAllItemsByType } from "../utils/item-loader.js";
 import { normalizeText, stripHtml } from "../utils/normalization.js";
 import { toEmbeddedItemData } from "../utils/item-data.js";
 import { toSkillId, toSkillSelectionPointBundle } from "./utils.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { resolveSkillReferences } from "./skill-reference-utils.js";
 import {
@@ -321,8 +321,6 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const root = this._getRoot();
     if (!root) return;
-
-    applyAppWrapperLayout(root, { width: "1200px" });
 
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
