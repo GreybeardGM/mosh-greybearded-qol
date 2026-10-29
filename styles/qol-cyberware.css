@@ -57,13 +57,6 @@
   max-height: 85vh;
 }
 
-.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking,
-.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-levels {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
 .greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level {
   gap: 0.35rem;
 }

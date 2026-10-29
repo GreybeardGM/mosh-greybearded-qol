@@ -391,6 +391,15 @@
   margin: 0 auto;
 }
 
+/* Stacked cards fill the dialog; selection grids retain their centered layout. */
+.greybeardqol.qol-ui .card-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  gap: var(--card-gap, 0.5rem);
+}
+
 /* Pill layout */
 .greybeardqol.qol-ui .pill {
   display: flex;
