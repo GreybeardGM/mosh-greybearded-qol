@@ -22,6 +22,60 @@
   margin: auto 0;
 }
 
+/* The header is a flex row; the former grid/grid-2col tracks did not apply. */
+.greybeardqol.qol-sheet.contractor .contractor-header {
+  display: flex;
+  padding: 0;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor {
+  width: 100%;
+  background: black;
+  border-radius: 0.3em;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor .maxhealth-input {
+  display: flex;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor .highlightText {
+  font-size: 0.8rem;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor .slant {
+  border-right: 2px solid #ffffff;
+  transform: skewX(0deg);
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities > .profile {
+  height: auto;
+  width: 100%;
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities > li.creature-ability-container {
+  margin-top: -12px;
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities .item-controls {
+  margin-left: 3px;
+  font-size: 0.7rem;
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities > .item-control[data-type="ability"] {
+  margin-left: 5px;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-skills {
+  margin-bottom: 10px;
+}
+
+.greybeardqol.qol-sheet.contractor .treatment-button {
+  margin: 0;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .greybeardqol.qol-sheet .highlighted-input {
   color: var(--theme-color);
   border: none;
@@ -80,4 +134,32 @@
 
 .greybeardqol.qol-sheet .sheet-body {
   height: auto;
+}
+
+/* MoSh's inventory still uses flex rows, including different name-cell weights
+   for headers, padded item names and the optional Weight column. Keep these
+   variants: removing them changes the widths rather than discarding dead code. */
+.greybeardqol.qol-sheet .qol-gear-name,
+.greybeardqol.qol-sheet .qol-capacity-label {
+  flex-grow: 1.5;
+}
+
+.greybeardqol.qol-sheet .qol-gear-name-weighted {
+  flex-grow: 1.54;
+}
+
+.greybeardqol.qol-sheet .qol-weapon-name {
+  flex-grow: 2;
+}
+
+.greybeardqol.qol-sheet.stash .skill-name.qol-weapon-name {
+  flex-grow: 2.05;
+}
+
+.greybeardqol.qol-sheet .qol-armor-name {
+  flex-grow: 2.5;
+}
+
+.greybeardqol.qol-sheet .skill-name.qol-armor-name {
+  flex-grow: 2.55;
 }

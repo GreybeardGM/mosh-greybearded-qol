@@ -4,11 +4,11 @@
   <div class="creature-description-grid">
     <div class="creaturedescription">
 
-      <div class="grid grid-2col widegap" style="display: flex;">
+      <div class="contractor-header widegap">
       
         <!-- Name Input -->
         <div class="creature-header-grid">
-          <input name="name" class="noborder creaturename" style="grid-area: 'name';" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
+          <input name="name" class="noborder creaturename" type="text" value="{{name}}" placeholder="{{ localize 'Mosh.Name' }}" />
           <div class="whiteline"></div>
         </div>
       
@@ -92,24 +92,24 @@
           <!-- Armor -->
           <div class="resource healthspread minmaxtopstat">
             <label for="system.stats.armor.value" class="resource-label minmaxtext rollable armor-roll">{{ localize 'Mosh.Armor' }}</label>
-            <div class="minmaxwrapper" style="width: 100%; background: black; border-radius: 0.3em;">
-              <div class="maxhealth-input" style="display: flex;">
+            <div class="minmaxwrapper contractor-armor">
+              <div class="maxhealth-input">
                 <div class="whiteText" type="text" data-dtype="Number">{{system.stats.armor.mod}}</div>
                 {{#if (compare 'str' system.stats.armor.cover '===' 'insignificant')}}
-                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;5</div>
+                <div class="highlightText" type="text" data-dtype="Number">&nbsp;5</div>
                 {{/if}}
                 {{#if (compare 'str' system.stats.armor.cover '===' 'light')}}
-                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;10</div>
+                <div class="highlightText" type="text" data-dtype="Number">&nbsp;10</div>
                 {{/if}}
                 {{#if (compare 'str' system.stats.armor.cover '===' 'heavy')}}
-                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;20</div>
+                <div class="highlightText" type="text" data-dtype="Number">&nbsp;20</div>
                 {{/if}}
               </div>
-              <div class="slant" style="border-right: 2px solid #ffffff; transform: skewX(0deg);"></div>
-              <div class="maxhealth-input" style="display: flex;">
+              <div class="slant"></div>
+              <div class="maxhealth-input">
                 <div class="whiteText" type="text" data-dtype="Number">{{system.stats.armor.damageReduction}}</div>
                 {{#if (compare 'str' system.stats.armor.cover '===' 'heavy')}}
-                <div class="highlightText" type="text" data-dtype="Number" style="font-size: 0.8rem;">&nbsp;5</div>
+                <div class="highlightText" type="text" data-dtype="Number">&nbsp;5</div>
                 {{/if}}
               </div>
             </div>
@@ -138,7 +138,7 @@
  
     </div>
     <div class="creature-abilities">
-      <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" style="height:auto; width:100%;" />
+      <img class="img profile noborder" src="{{img}}" data-edit="img" title="{{name}}" />
       <div class="creature-ability-container creature-ability-title">{{ localize 'MoshQoL.ContractorRole' }}</div>
       <div class="whiteline"></div>
       <div class="description-input">
@@ -155,16 +155,16 @@
       <div class="creature-ability-container creature-ability-title">{{ localize 'Mosh.SpecialAbilities' }}</div>
       <div class="whiteline"></div>
       {{#each abilities as |ability id|}}
-      <li style="margin-top: -12px" class="creature-ability-container item dropitem" data-item-id="{{ability._id}}">
+      <li class="creature-ability-container item dropitem" data-item-id="{{ability._id}}">
         <div class="creature-ability-title list-roll description-roll">{{ability.name}}</div>
         <div class="creature-ability-text itemtext">{{{ability.system.description}}}</div>
-        <div class="item-controls" style="margin-left: 3px; font-size: 0.7rem;">
+        <div class="item-controls">
           <a class="item-control item-edit darkgrey" title="{{ localize 'Mosh.EditAbility' }}"><i class="fas fa-edit"></i></a>
           <a class="item-control item-delete darkgrey" title="{{ localize 'Mosh.DeleteAbility' }}"><i class="fas fa-trash"></i></a>
         </div>
       </li>
       {{/each}}
-      <a class="item-control weapon-create darkgrey " style="margin-left: 5px;" title="{{ localize 'Mosh.CreateAbility' }}"
+      <a class="item-control weapon-create darkgrey " title="{{ localize 'Mosh.CreateAbility' }}"
         data-type="ability"><i class="fas fa-plus"></i>
         {{ localize 'Mosh.Add' }}</a>
     </div>
@@ -204,7 +204,7 @@
     {{!-- Owned Skills Tab --}}
     <div class="tab items" data-group="primary" data-tab="skills">
       <!-- SKILLS -->
-      <ol class="items-list" style="margin-bottom : 10px;">
+      <ol class="items-list contractor-skills">
         <li class="item flexrow item-header">
           <div class="item-image"></div>
           <div class="skill-stat">{{ localize 'Mosh.SkillName' }}</div>
@@ -247,7 +247,7 @@
           <div class="skill-name description-roll list-roll">{{condition.name}}</div>
           <div class="skill-stat list-roll severity">{{condition.system.severity}}</div>
           <div class="skill-stat">
-            <div class="treatment-button list-roll flex" style="margin: 0; position: relative; top: 50%; -ms-transform: translateY(-50%); transform: translateY(-50%);" data-key="condition" data-label="condition" data-max="{{condition.system.treatment.max}}" data-min="0">
+            <div class="treatment-button list-roll flex" data-key="condition" data-label="condition" data-max="{{condition.system.treatment.max}}" data-min="0">
               {{#if condition.system.treatment.html}}
               {{{condition.system.treatment.html}}}
               {{else}}
@@ -272,7 +272,7 @@
         <li class="item flexrow item-header">
           <div class="item-image"></div>
 
-          <div class="skill-stat" style="flex-grow: 2;">{{ localize 'Mosh.Name' }}</div>
+          <div class="skill-stat qol-weapon-name">{{ localize 'Mosh.Name' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Damage' }}{{#if system.swarm.enabled}} {{ localize 'Mosh.SwarmWoundShort' }}{{/if}}</div>
           <div class="skill-stat">{{ localize 'Mosh.Ammo' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Shots' }}</div>
@@ -287,7 +287,7 @@
         <li class="item flexrow  dropitem" data-item-id="{{weapon._id}}">
           <!-- <div class="item-image"><img src="{{skill.img}}" title="{{skill.name}}" width="24" height="24"/></div> -->
           <div class="item-image"><img src="{{weapon.img}}" title="{{weapon.name}}" width="24" height="24" /></div>
-          <div class="skill-name weapon-roll list-roll" style="flex-grow: 2;">{{weapon.name}}</div>
+          <div class="skill-name weapon-roll list-roll qol-weapon-name">{{weapon.name}}</div>
           <div class="skill-stat dmg-roll list-roll">{{weapon.system.damage}}</div>
           {{#if weapon.system.useAmmo}}
           <div class="skill-stat weapon-ammo list-roll">{{weapon.system.ammo}}</div>
@@ -334,7 +334,7 @@
       <ol class="items-list" role="table">
         <li class="item flexrow item-header" role="rowgroup">
           <div class="item-image" role="cell"></div>
-          <div class="skill-stat" style="flex-grow: 2.5;" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
+          <div class="skill-stat qol-armor-name" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
           <div class="skill-stat" role="cell">{{ localize 'Mosh.AP' }}</div>
           <div class="skill-stat" role="cell">{{ localize 'Mosh.DR' }}</div>
 		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Speed' }}</div>
@@ -347,7 +347,7 @@
         {{#each armors as |armor id|}}
         <li class="item flexrow dropitem" data-item-id="{{armor._id}}" role="rowgroup">
           <div class="item-image" role="cell"><img src="{{armor.img}}" title="{{armor.name}}" width="24" height="24" /></div>
-          <h4 class="skill-name list-roll description-roll" style="flex-grow: 2.55;" role="cell">{{armor.name}}</h4>
+          <h4 class="skill-name list-roll description-roll qol-armor-name" role="cell">{{armor.name}}</h4>
           <div class="skill-stat" role="cell">{{armor.system.armorPoints}}</div>
           <div class="skill-stat" role="cell">{{armor.system.damageReduction}}</div>
           <div class="skill-stat">{{armor.system.speed}}</div>
@@ -370,7 +370,7 @@
       <ol class="items-list" role="table">
         <li class="item flexrow item-header" role="rowgroup">
           <div class="item-image" role="cell"></div>
-          <div class="skill-stat" style="flex-grow: 2.5;" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
+          <div class="skill-stat qol-armor-name" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
           <div class="skill-stat" role="cell">{{ localize 'Mosh.SaveBonus' }}</div>
 		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Speed' }}</div>
 		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Oxygen' }}</div>
@@ -382,7 +382,7 @@
         {{#each armors as |armor id|}}
         <li class="item flexrow dropitem" data-item-id="{{armor._id}}" role="rowgroup">
           <div class="item-image" role="cell"><img src="{{armor.img}}" title="{{armor.name}}" width="24" height="24" /></div>
-          <h4 class="skill-name list-roll description-roll" style="flex-grow: 2.55;" role="cell">{{armor.name}}</h4>
+          <h4 class="skill-name list-roll description-roll qol-armor-name" role="cell">{{armor.name}}</h4>
           <div class="skill-stat" role="cell">{{armor.system.armorPoints}}</div>
           <div class="skill-stat">{{armor.system.speed}}</div>
           {{#if armor.system.oxygenMax}}
@@ -405,7 +405,7 @@
       <ol class="items-list">
         <li class="item flexrow item-header">
           <div class="item-image"></div>
-          <div class="skill-stat" style="flex-grow: 1.5;">{{ localize 'Mosh.ItemName' }}</div>
+          <div class="skill-stat qol-gear-name">{{ localize 'Mosh.ItemName' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Quantity' }}</div>
           {{#if system.settings.hideWeight}}
           {{else}}
@@ -420,7 +420,7 @@
           {{#each gear as |item id|}}
           <li class="item flexrow dropitem" data-item-id="{{item._id}}">
             <div class="item-image"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24" /></div>
-            <h4 class="skill-name list-roll description-roll" style="flex-grow: 1.5;">{{item.name}}</h4>
+            <h4 class="skill-name list-roll description-roll qol-gear-name">{{item.name}}</h4>
             <div class="skill-stat list-roll item-quantity">{{item.system.quantity}}</div>
             <div class="skill-stat">{{item.system.cost}}</div>
             <div class="item-controls">
@@ -433,7 +433,7 @@
           {{#each gear as |item id|}}
           <li class="item flexrow dropitem" data-item-id="{{item._id}}">
             <div class="item-image"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24" /></div>
-            <h4 class="skill-name list-roll description-roll" style="flex-grow: 1.54;">{{item.name}}</h4>
+            <h4 class="skill-name list-roll description-roll qol-gear-name qol-gear-name-weighted">{{item.name}}</h4>
             <div class="skill-stat list-roll item-quantity">{{item.system.quantity}}</div>
             <div class="skill-stat">{{item.system.weight}}</div>
             <div class="skill-stat">{{item.system.cost}}</div>
@@ -447,7 +447,7 @@
       </ol>
       {{#unless system.settings.hideWeight}}
       <div class="item flex-group-left item-header">
-        <div class="skill-stat" style="flex-grow: 1.5;">{{ localize 'Mosh.CarryingCapacity' }}: {{system.weight.capacity}}</div>
+        <div class="skill-stat qol-capacity-label">{{ localize 'Mosh.CarryingCapacity' }}: {{system.weight.capacity}}</div>
         <div class="skill-stat">{{ localize 'Mosh.CurrentWeight' }}: {{system.weight.current}}</div>
       </div>
       {{/unless}}

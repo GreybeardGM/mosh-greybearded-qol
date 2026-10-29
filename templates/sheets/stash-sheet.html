@@ -61,7 +61,7 @@
       <ol class="items-list">
         <li class="item flexrow item-header">
           <div class="item-image"></div>
-          <div class="skill-stat" style="flex-grow: 1.5;">{{ localize 'Mosh.ItemName' }}</div>
+          <div class="skill-stat qol-gear-name">{{ localize 'Mosh.ItemName' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Quantity' }}</div>
           {{#if system.settings.hideWeight}}
           {{else}}
@@ -76,7 +76,7 @@
           {{#each gear as |item id|}}
           <li class="item flexrow dropitem" data-item-id="{{item._id}}">
             <div class="item-image"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24" /></div>
-            <h4 class="skill-name list-roll description-roll" style="flex-grow: 1.5;">{{item.name}}</h4>
+            <h4 class="skill-name list-roll description-roll qol-gear-name">{{item.name}}</h4>
             <div class="skill-stat list-roll item-quantity">{{item.system.quantity}}</div>
             <div class="skill-stat">{{item.system.cost}}</div>
             <div class="item-controls">
@@ -89,7 +89,7 @@
           {{#each gear as |item id|}}
           <li class="item flexrow dropitem" data-item-id="{{item._id}}">
             <div class="item-image"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24" /></div>
-            <h4 class="skill-name list-roll description-roll" style="flex-grow: 1.54;">{{item.name}}</h4>
+            <h4 class="skill-name list-roll description-roll qol-gear-name qol-gear-name-weighted">{{item.name}}</h4>
             <div class="skill-stat list-roll item-quantity">{{item.system.quantity}}</div>
             <div class="skill-stat">{{item.system.weight}}</div>
             <div class="skill-stat">{{item.system.cost}}</div>
@@ -103,7 +103,7 @@
       </ol>
       {{#unless system.settings.hideWeight}}
       <div class="item flex-group-left item-header">
-        <div class="skill-stat" style="flex-grow: 1.5;">{{ localize 'Mosh.CarryingCapacity' }}: {{system.weight.capacity}}</div>
+        <div class="skill-stat qol-capacity-label">{{ localize 'Mosh.CarryingCapacity' }}: {{system.weight.capacity}}</div>
         <div class="skill-stat">{{ localize 'Mosh.CurrentWeight' }}: {{system.weight.current}}</div>
       </div>
       {{/unless}}
@@ -116,7 +116,7 @@
       <ol class="items-list">
         <li class="item flexrow item-header">
           <div class="item-image"></div>
-          <div class="skill-stat" style="flex-grow: 2;">{{ localize 'Mosh.WeaponName' }}</div>
+          <div class="skill-stat qol-weapon-name">{{ localize 'Mosh.WeaponName' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Damage' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Ammo' }}</div>
           <div class="skill-stat">{{ localize 'Mosh.Shots' }}</div>
@@ -130,7 +130,7 @@
         <li class="item flexrow dropitem" data-item-id="{{weapon._id}}">
           <!-- <div class="item-image"><img src="{{skill.img}}" title="{{skill.name}}" width="24" height="24"/></div> -->
           <div class="item-image"><img src="{{weapon.img}}" title="{{weapon.name}}" width="24" height="24" /></div>
-          <div class="skill-name" style="flex-grow: 2.05;">{{weapon.name}}</div>
+          <div class="skill-name qol-weapon-name">{{weapon.name}}</div>
           {{#if weapon.system.antiArmor}}
           <div class="skill-stat">{{weapon.system.damage}} ({{ localize 'Mosh.AntyArmorAcronym' }})</div>
           {{else}}
@@ -176,7 +176,7 @@
       <ol class="items-list" role="table">
         <li class="item flexrow item-header" role="rowgroup">
           <div class="item-image" role="cell"></div>
-          <div class="skill-stat" style="flex-grow: 2.5;" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
+          <div class="skill-stat qol-armor-name" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
           <div class="skill-stat" role="cell">{{ localize 'Mosh.AP' }}</div>
           <div class="skill-stat" role="cell">{{ localize 'Mosh.DR' }}</div>
 		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Speed' }}</div>
@@ -188,7 +188,7 @@
         {{#each armors as |armor id|}}
         <li class="item flexrow dropitem" data-item-id="{{armor._id}}" role="rowgroup">
           <div class="item-image" role="cell"><img src="{{armor.img}}" title="{{armor.name}}" width="24" height="24" /></div>
-          <h4 class="skill-name list-roll description-roll" style="flex-grow: 2.55;" role="cell">{{armor.name}}</h4>
+          <h4 class="skill-name list-roll description-roll qol-armor-name" role="cell">{{armor.name}}</h4>
           <div class="skill-stat" role="cell">{{armor.system.armorPoints}}</div>
           <div class="skill-stat" role="cell">{{armor.system.damageReduction}}</div>
           <div class="skill-stat">{{armor.system.speed}}</div>
@@ -209,7 +209,7 @@
       <ol class="items-list" role="table">
         <li class="item flexrow item-header" role="rowgroup">
           <div class="item-image" role="cell"></div>
-          <div class="skill-stat" style="flex-grow: 2.5;" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
+          <div class="skill-stat qol-armor-name" role="cell">{{ localize 'Mosh.ArmorName' }}</div>
           <div class="skill-stat" role="cell">{{ localize 'Mosh.SaveBonus' }}</div>
 		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Speed' }}</div>
 		      <div class="skill-stat" role="cell">{{ localize 'Mosh.Oxygen' }}</div>
@@ -220,7 +220,7 @@
         {{#each armors as |armor id|}}
         <li class="item flexrow dropitem" data-item-id="{{armor._id}}" role="rowgroup">
           <div class="item-image" role="cell"><img src="{{armor.img}}" title="{{armor.name}}" width="24" height="24" /></div>
-          <h4 class="skill-name list-roll description-roll" style="flex-grow: 2.55;" role="cell">{{armor.name}}</h4>
+          <h4 class="skill-name list-roll description-roll qol-armor-name" role="cell">{{armor.name}}</h4>
           <div class="skill-stat" role="cell">{{armor.system.armorPoints}}</div>
           <div class="skill-stat">{{armor.system.speed}}</div>
           {{#if armor.system.oxygenMax}}
