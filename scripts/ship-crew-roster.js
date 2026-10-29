@@ -2,87 +2,11 @@ import { appendQolThemeContext, createQolAppDefaultOptions } from "./utils/appli
 import { classifyCurrency, formatCurrency } from "./utils/currency-parser.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE, MOSH_CONTRACTOR_SALARY_PATH } from "./codex/mosh-system.js";
+import { ROSTER_TABS, normalizeHazardPayValue, normalizeRoster, normalizeRosterWithChanges } from "./crew-roster/roster-data.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const TABS = ["character", "creature", "ship"];
-
-function normalizeHazardPayValue(value) {
-  const parsedHazardPay = Number.parseInt(value, 10);
-  if (!Number.isInteger(parsedHazardPay)) return null;
-  return parsedHazardPay;
-}
-
-function normalizeEntry(entry) {
-  if (typeof entry === "string") {
-    return { entry: { uuid: entry, active: true, hazardPay: null }, changed: true };
-  }
-
-  if (!entry || typeof entry !== "object" || typeof entry.uuid !== "string") {
-    return { entry: null, changed: true };
-  }
-
-  const hazardPay = normalizeHazardPayValue(entry.hazardPay);
-  const normalizedEntry = {
-    uuid: entry.uuid,
-    active: entry.active !== false,
-    hazardPay
-  };
-
-  return {
-    entry: normalizedEntry,
-    changed: entry.active !== normalizedEntry.active || entry.hazardPay !== hazardPay
-  };
-}
-
-function normalizeRosterWithChanges(roster = {}) {
-  const normalized = {};
-  let changed = !roster || typeof roster !== "object" || Array.isArray(roster);
-
-  if (roster && typeof roster === "object") {
-    changed ||= Object.keys(roster).some((tab) => (
-      !TABS.includes(tab)
-      && Array.isArray(roster[tab])
-      && roster[tab].length > 0
-    ));
-  }
-
-  for (const tab of TABS) {
-    const sourceEntries = Array.isArray(roster?.[tab]) ? roster[tab] : [];
-    const seen = new Set();
-    normalized[tab] = [];
-
-    if (roster && typeof roster === "object" && roster[tab] !== undefined && !Array.isArray(roster[tab])) {
-      changed = true;
-    }
-
-    for (const sourceEntry of sourceEntries) {
-      const { entry, changed: entryChanged } = normalizeEntry(sourceEntry);
-
-      if (entryChanged) changed = true;
-      if (!entry) continue;
-
-      if (seen.has(entry.uuid)) {
-        changed = true;
-        continue;
-      }
-
-      seen.add(entry.uuid);
-      normalized[tab].push(entry);
-    }
-  }
-
-  return { roster: normalized, changed };
-}
-
-function normalizeRoster(roster = {}) {
-  return normalizeRosterWithChanges(roster).roster;
-}
-
 function getBucketByType(type) {
-  if (type === "character") return "character";
-  if (type === "creature") return "creature";
-  if (type === "ship") return "ship";
-  return null;
+  return ROSTER_TABS.includes(type) ? type : null;
 }
 
 function getJobLabel(actor) {
@@ -170,9 +94,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const { roster, changed: normalizationChanged } = normalizeRosterWithChanges(sourceRoster);
     const uniqueUuids = new Set();
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       for (const rosterEntry of roster[tab]) {
-        if (rosterEntry.uuid.trim()) uniqueUuids.add(rosterEntry.uuid);
+        uniqueUuids.add(rosterEntry.uuid);
       }
     }
 
@@ -183,7 +107,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const cleanedRoster = { character: [], creature: [], ship: [] };
     let rosterChanged = normalizationChanged;
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       for (const rosterEntry of roster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
         const mappedTab = actor?.documentName === "Actor" ? getBucketByType(actor.type) : null;
@@ -205,7 +129,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const entries = { character: [], creature: [], ship: [] };
     const summary = { activeCrewCount: 0, totalSalary: 0n, totalHazardPay: 0n };
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       for (const rosterEntry of cleanedRoster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
         const rawSalary = foundry.utils.getProperty(actor, MOSH_CONTRACTOR_SALARY_PATH);
@@ -415,7 +339,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     const roster = this._getRosterForEdit();
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       roster[tab] = roster[tab].filter((entry) => entry.uuid !== droppedActor.uuid);
     }
 
@@ -433,7 +357,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     for (const [key, value] of Object.entries(submitted)) {
       const [root, tab, ...uuidParts] = key.split(".");
       if (root !== "hazardPay") continue;
-      if (!TABS.includes(tab)) continue;
+      if (!ROSTER_TABS.includes(tab)) continue;
 
       const uuid = uuidParts.join(".");
       if (!uuid) continue;
@@ -462,7 +386,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const roster = this._getRosterForEdit();
     let hasChanges = false;
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       const tabUpdates = hazardPayUpdates.get(tab);
       if (!tabUpdates?.size) continue;
 
@@ -500,7 +424,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     const tab = target?.dataset?.tab;
     const uuid = target?.dataset?.uuid;
-    if (!tab || !uuid || !TABS.includes(tab)) return;
+    if (!tab || !uuid || !ROSTER_TABS.includes(tab)) return;
 
     const roster = this._getRosterForEdit();
     roster[tab] = roster[tab].filter((entry) => entry.uuid !== uuid);
@@ -528,7 +452,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const tab = target?.dataset?.tab;
     const uuid = target?.dataset?.uuid;
     const active = target?.checked === true;
-    if (!tab || !uuid || !TABS.includes(tab)) return;
+    if (!tab || !uuid || !ROSTER_TABS.includes(tab)) return;
 
     const roster = this._getRosterForEdit();
     roster[tab] = roster[tab].map((entry) => {

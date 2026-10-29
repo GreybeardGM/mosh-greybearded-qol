@@ -198,9 +198,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         });
         
         // ITEMS
-        // Add Inventory Item
-        html.find('.item-create').click(this._onItemCreate.bind(this));        
-        html.find('.skill-create').click(this._onItemCreate.bind(this));
+        // The same handlers serve inventory, skills and weapons.
+        html.find('.item-create, .skill-create, .weapon-create').click(this._onItemCreate.bind(this));
         
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
@@ -209,17 +208,9 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             li.slideUp(200, () => this.render(false));
         });
 
-        // Update Inventory Item
-        html.find('.item-edit').click(ev => {
-          const li = $(ev.currentTarget).parents(".item");
-          const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-          item.sheet.render(true);
-        });
-
-        html.find('.skill-edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-            item.sheet.render(true);
+        html.find('.item-edit, .skill-edit, .weapon-edit').click(ev => {
+            const li = ev.currentTarget.closest(".item");
+            this.actor.getEmbeddedDocument("Item", li.dataset.itemId).sheet.render(true);
         });
 
         html.find('.skill-roll').click(ev => {
@@ -294,16 +285,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         });        
 
         // WEAPONS
-        // Add Inventory Item
-        html.find('.weapon-create').click(this._onItemCreate.bind(this));
-
-        // Update Inventory Item
-        html.find('.weapon-edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const weapon = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-            weapon.sheet.render(true);
-        });
-
         // Rollable Weapon
         html.find('.weapon-roll').click(ev => {
             const item = this._duplicateItemFromEvent(ev);
@@ -466,6 +447,60 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     if (selectedClass) await rollLoadout(actor, selectedClass, {
       rollCredits: false,
       clearItems: true
+    });
+  }
+
+  async promoteContractor() {
+    if (!game.user.isGM) return;
+
+    const choice = await foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
+      content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
+      buttons: [
+        { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
+        { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
+        { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
+      ],
+      default: "roll"
+    });
+    if (!["roll", "manual"].includes(choice)) return;
+
+    await this.actor.update({
+      "system.contractor.isNamed": true,
+      "system.stats.loyalty.enabled": true
+    });
+    if (choice === "roll") {
+      await this._rollContractorLoyalty(this.actor);
+      await this._rollContractorMotivation(this.actor);
+      await this._rollContractorLoadout(this.actor);
+    }
+    return this.render();
+  }
+
+  async openContractorMenu() {
+    if (!game.user.isGM) return;
+
+    return foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
+      content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
+      buttons: [
+        {
+          label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
+          icon: "fa-solid fa-handshake", action: "loyalty",
+          callback: () => this._rollContractorLoyalty(this.actor)
+        },
+        {
+          label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
+          icon: "fa-solid fa-fire", action: "motivation",
+          callback: () => this._rollContractorMotivation(this.actor)
+        },
+        {
+          label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
+          icon: "fa-solid fa-boxes-stacked", action: "loadout",
+          callback: () => this._rollContractorLoadout(this.actor)
+        }
+      ],
+      default: "loyalty"
     });
   }
 

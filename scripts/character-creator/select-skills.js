@@ -1,6 +1,6 @@
 import { QOL_STATE_CLASSES, MODULE_ID, templatePath } from "../codex/constants.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, stripHtml } from "../utils/normalization.js";
+import { normalizeText } from "../utils/normalization.js";
 import { toEmbeddedItemData } from "../utils/item-data.js";
 import { toSkillId, toSkillSelectionPointBundle } from "./utils.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
@@ -81,14 +81,14 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   };
 
   static async wait({ actor, selectedClass }) {
-    const prep = await this._prepareData({ actor, selectedClass });
+    const prep = await this._prepareData({ selectedClass });
     return new Promise(resolve => {
-      const app = new this({ actor, selectedClass, resolve, ...prep });
+      const app = new this({ actor, resolve, ...prep });
       app.render(true);
     });
   }
 
-  static async _prepareData({ actor, selectedClass }) {
+  static async _prepareData({ selectedClass }) {
     const allSkills = await loadAllItemsByType("skill");
     const sortedSkills = allSkills.map(toSkillViewModel);
 
@@ -112,24 +112,19 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       };
     });
 
-    const prereqIdsBySkillId = new Map(sortedSkills.map(skill => [skill.id, skill.prereqIds]));
-
-    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions };
+    return { sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions };
   }
 
-  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions }, options = {}) {
+  constructor({ actor, resolve, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions }, options = {}) {
     super(options);
     this.actor = actor;
-    this.selectedClass = selectedClass;
     this._resolve = resolve;
     this._resolved = false;
 
-    this.stripHtml = stripHtml;
     this.sortedSkills = sortedSkills;
     this.skillMap = skillMap;
     this.skillByUuid = skillByUuid;
     this.dependencies = dependencies;
-    this.prereqIdsBySkillId = prereqIdsBySkillId;
     this.granted = granted;
     this.basePoints = basePoints;
     this.orOptions = orOptions;
@@ -180,16 +175,12 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     return affected;
   }
 
-  _selectedSkills() {
-    return new Set(this._selectedSkillIds);
-  }
-
   _isSkillSelected(skillId) {
     return this._selectedSkillIds.has(skillId);
   }
 
   _getPrereqIds(skillId) {
-    return this.prereqIdsBySkillId.get(skillId) ?? [];
+    return this.skillMap.get(skillId)?.prereqIds ?? [];
   }
 
   _scheduleDrawLines({ changedSkillIds = null } = {}) {
@@ -305,12 +296,10 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   async _prepareContext() {
     return appendQolThemeContext({
       actor: this.actor,
-      selectedClass: this.selectedClass,
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "id",
       defaultSkillValues: [...this.granted],
       showPointCounters: true,
-      basePoints: this.basePoints,
       orOptions: this.orOptions,
       confirmLocked: true
     });
@@ -437,7 +426,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async close(options = {}) {
-    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds", "prereqIdsBySkillId"] });
+    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds"] });
     resolveAppOnce(this, null);
     return super.close(options);
   }

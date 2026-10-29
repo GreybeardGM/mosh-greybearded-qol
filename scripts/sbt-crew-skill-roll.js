@@ -1,3 +1,4 @@
+import { normalizeRoster } from "./crew-roster/roster-data.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
 import { getAppRoot, resolveAppOnce } from "./utils/application-helpers.js";
@@ -49,20 +50,14 @@ function isSbtShipSheet(sheet) {
 }
 
 function getActiveRosterUuids(ship) {
-  const roster = ship?.getFlag?.(MODULE_ID, FLAG_CREW_ROSTER);
+  const roster = normalizeRoster(ship?.getFlag?.(MODULE_ID, FLAG_CREW_ROSTER));
   const uuids = [];
   const seen = new Set();
 
   for (const tab of ["character", "creature"]) {
-    const entries = Array.isArray(roster?.[tab]) ? roster[tab] : [];
-
-    for (const sourceEntry of entries) {
-      const entry = typeof sourceEntry === "string"
-        ? { uuid: sourceEntry, active: true }
-        : sourceEntry;
-      const uuid = typeof entry?.uuid === "string" ? entry.uuid.trim() : "";
-
-      if (!uuid || entry?.active === false || seen.has(uuid)) continue;
+    for (const entry of roster[tab]) {
+      const { uuid, active } = entry;
+      if (!active || seen.has(uuid)) continue;
       seen.add(uuid);
       uuids.push(uuid);
     }

@@ -173,93 +173,7 @@ async function handleArmorBrokenAction(sheet) {
   syncArmorBrokenToolbandButton(actor);
 }
 
-async function rollContractorDetails(sheet, actor, { loyalty = false, motivation = false, loadout = false } = {}) {
-  if (!actor) return;
-
-  if (loyalty && typeof sheet?._rollContractorLoyalty === "function") {
-    await sheet._rollContractorLoyalty(actor);
-  }
-
-  if (motivation && typeof sheet?._rollContractorMotivation === "function") {
-    await sheet._rollContractorMotivation(actor);
-  }
-
-  if (loadout && typeof sheet?._rollContractorLoadout === "function") {
-    await sheet._rollContractorLoadout(actor);
-  }
-}
-
-async function markContractorNamed(actor) {
-  if (!actor) return;
-
-  await actor.update({
-    "system.contractor.isNamed": true,
-    "system.stats.loyalty.enabled": true
-  });
-}
-
-async function handlePromoteContractorAction(sheet, { isGM = false } = {}) {
-  const actor = sheet?.actor;
-  if (!isGM || !actor) return;
-
-  const choice = await foundry.applications.api.DialogV2.wait({
-    window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
-    content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
-    buttons: [
-      { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
-      { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
-      { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
-    ],
-    default: "roll"
-  });
-
-  switch (choice) {
-    case "roll":
-      await markContractorNamed(actor);
-      await rollContractorDetails(sheet, actor, { loyalty: true, motivation: true, loadout: true });
-      break;
-    case "manual":
-      await markContractorNamed(actor);
-      break;
-    default:
-      return;
-  }
-
-  return sheet.render();
-}
-
-async function handleContractorMenuAction(sheet, { isGM = false } = {}) {
-  const actor = sheet?.actor;
-  if (!isGM || !actor) return;
-
-  await foundry.applications.api.DialogV2.wait({
-    window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
-    content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
-    buttons: [
-      {
-        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
-        icon: "fa-solid fa-handshake",
-        action: "loyalty",
-        callback: () => rollContractorDetails(sheet, actor, { loyalty: true })
-      },
-      {
-        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
-        icon: "fa-solid fa-fire",
-        action: "motivation",
-        callback: () => rollContractorDetails(sheet, actor, { motivation: true })
-      },
-      {
-        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
-        icon: "fa-solid fa-boxes-stacked",
-        action: "loadout",
-        callback: () => rollContractorDetails(sheet, actor, { loadout: true })
-      }
-    ],
-    default: "loyalty"
-  });
-}
-
-function handleToolbandAction(action, sheet, ctx = {}) {
+function handleToolbandAction(action, sheet) {
   const actor = sheet?.actor;
 
   switch (action) {
@@ -290,9 +204,9 @@ function handleToolbandAction(action, sheet, ctx = {}) {
     case "armor-broken":
       return handleArmorBrokenAction(sheet);
     case "promote-contractor":
-      return handlePromoteContractorAction(sheet, ctx);
+      return sheet.promoteContractor?.();
     case "contractor-menu":
-      return handleContractorMenuAction(sheet, ctx);
+      return sheet.openContractorMenu?.();
   }
 }
 
@@ -331,7 +245,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
       ev.preventDefault();
       ev.stopPropagation();
 
-      return handleToolbandAction(btn.dataset.action, sheet, { isGM });
+      return handleToolbandAction(btn.dataset.action, sheet);
     }, { passive: false });
   }
 

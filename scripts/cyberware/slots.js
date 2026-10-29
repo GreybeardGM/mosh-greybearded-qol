@@ -26,15 +26,6 @@ function summarizeAugmentation(actor, definition, rules) {
   return { items, used, max, overclocking: Math.max(0, used - max) };
 }
 
-export function getAugmentationItems(actor, definition) {
-  return actor.items.filter(item => definition.itemTypes.includes(item.type) && getAugmentation(item, definition).enabled);
-}
-
-export function calculateAugmentationSlots(actor, definition) {
-  const { items, ...slots } = summarizeAugmentation(actor, definition, getSlotRules());
-  return slots;
-}
-
 /** Combine excess slots while retaining separate Cyberware and Slickware totals. */
 export function calculateAugmentationState(actor, { includeItems = false } = {}) {
   const rules = getSlotRules();

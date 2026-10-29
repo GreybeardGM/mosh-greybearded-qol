@@ -42,18 +42,15 @@ function getOrCreateResolutionGroup(map, type, name) {
 
 /* ---------- Cache (defensiv begrenzt) ---------- */
 const hotCacheItemTypes = new Set(MOSH_HOT_CACHE_ITEM_TYPES);
-const MAX_CACHED_TYPES = 4;
 const MAX_ITEMS_PER_CACHED_TYPE = 250;
 
 const packIndexCache = new Map(); // pack.collection -> index
 const itemsByTypeCache = new Map(); // normType -> sorted winners
-const cacheTypeLru = []; // keys in access order (oldest -> newest)
 let cacheInvalidationHooksRegistered = false;
 
 function clearItemLoaderCache() {
   packIndexCache.clear();
   itemsByTypeCache.clear();
-  cacheTypeLru.length = 0;
 }
 
 function ensureCacheInvalidationHooks() {
@@ -68,18 +65,6 @@ function ensureCacheInvalidationHooks() {
   Hooks.on("deleteCompendium", invalidate);
 }
 
-function touchTypeLru(typeKey) {
-  const idx = cacheTypeLru.indexOf(typeKey);
-  if (idx >= 0) cacheTypeLru.splice(idx, 1);
-  cacheTypeLru.push(typeKey);
-
-  while (cacheTypeLru.length > MAX_CACHED_TYPES) {
-    const evict = cacheTypeLru.shift();
-    if (!evict) break;
-    itemsByTypeCache.delete(evict);
-  }
-}
-
 function shouldCacheType(typeKey, items) {
   if (!hotCacheItemTypes.has(typeKey)) return false;
   return items.length <= MAX_ITEMS_PER_CACHED_TYPE;
@@ -88,13 +73,10 @@ function shouldCacheType(typeKey, items) {
 function cacheTypeData(typeKey, items) {
   if (!shouldCacheType(typeKey, items)) {
     itemsByTypeCache.delete(typeKey);
-    const idx = cacheTypeLru.indexOf(typeKey);
-    if (idx >= 0) cacheTypeLru.splice(idx, 1);
     return;
   }
 
   itemsByTypeCache.set(typeKey, items);
-  touchTypeLru(typeKey);
 }
 
 /* Packs partitionieren (V13: pack.collection ist stabil) */
@@ -268,7 +250,6 @@ export async function loadAllItemsByType(itemType) {
   const typeKey = normType(itemType);
   const cached = itemsByTypeCache.get(typeKey);
   if (cached) {
-    touchTypeLru(typeKey);
     return [...cached];
   }
 
