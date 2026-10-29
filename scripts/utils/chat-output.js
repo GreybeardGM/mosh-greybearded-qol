@@ -169,6 +169,10 @@ export async function chatOutput({
   if (image) {
     icon = null;
   } else if (!icon && title) {
+    // Intentional initial-letter fallback: without image or explicit icon, use
+    // the first title character as a Font Awesome letter icon and render the rest.
+    // Missing Actor artwork or custom Shore Leave entries without icons can
+    // still reach this special case; the title truncation is deliberate.
     const normalizedTitle = String(title);
     icon = `fa-${normalizedTitle.charAt(0).toLowerCase()}`;
     title = normalizedTitle.slice(1);
