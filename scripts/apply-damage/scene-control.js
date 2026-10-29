@@ -1,32 +1,7 @@
-import { applyDamageToActors, getUniqueActorsFromTargets, promptDamageInput } from "./apply-damage.js";
-import { normalizeNumber } from "../utils/normalization.js";
+import { applyDamageToActors, promptDamageInput } from "./apply-damage.js";
+import { getUniqueActorsFromTargets } from "./target-logic.js";
 import { canShowApplyDamageUI } from "./policy.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
-
-async function applyDamageToSelectedActors(damageInput, antiArmor, selectedActors = null) {
-  const selectedActorsList = getUniqueActorsFromTargets(selectedActors ?? (canvas?.tokens?.controlled ?? []));
-  if (!selectedActorsList.length) {
-    ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.NoTokensSelected"));
-    return;
-  }
-
-  const damage = normalizeNumber(damageInput, { fallback: null, min: 1 });
-  if (damage === null) {
-    ui.notifications.warn(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
-    return;
-  }
-
-  const normalizedPayload = {
-    damage: Math.trunc(damage),
-    antiArmorHit: Boolean(antiArmor)
-  };
-
-  try {
-    await applyDamageToActors(selectedActorsList, normalizedPayload);
-  } catch (err) {
-    console.error("applyDamage failed for selected actors", selectedActorsList, err);
-  }
-}
 
 function insertApplyDamageTool(tokenControls, toolDef) {
   if (!tokenControls) return;
@@ -83,10 +58,13 @@ export function registerApplyDamageSceneControl() {
 
         const selectedIndexes = Array.isArray(data.selectedTargetIndexes) ? data.selectedTargetIndexes : [];
         const filteredActors = targets.filter((_actor, index) => selectedIndexes.includes(index));
-        const selectedActors = getUniqueActorsFromTargets(filteredActors);
-        if (!selectedActors.length) return;
+        if (!filteredActors.length) return;
 
-        await applyDamageToSelectedActors(data.damage, data.antiArmor, selectedActors);
+        try {
+          await applyDamageToActors(filteredActors, { damage: data.damage, antiArmorHit: data.antiArmor });
+        } catch (err) {
+          console.error("applyDamage failed for selected actors", filteredActors, err);
+        }
       }
     };
 

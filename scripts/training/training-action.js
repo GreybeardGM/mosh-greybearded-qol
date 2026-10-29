@@ -2,26 +2,15 @@ import { FLAG_TRAINING_SKILL, MODULE_ID } from "../codex/constants.js";
 import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { toEmbeddedItemData } from "../utils/item-data.js";
 import { getNormalizedTrainingConfig } from "./config.js";
-import { loadAllItemsByType } from "../utils/item-loader.js";
 import { capitalize, normalizeNumber, normalizeText } from "../utils/normalization.js";
 import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import { TrainingSkillSelectorApp } from "./select-training-skill.js";
 
 const TRAINING_XP_REQUIREMENTS = Object.freeze({ trained: 5, expert: 10, master: 15 });
 
-async function findTrainingSkillByName(skillName) {
-  const normalizedSkillName = normalizeText(skillName);
-  const skills = await loadAllItemsByType(MOSH_ITEM_TYPE_SKILL);
-  const match = skills.find(skill => normalizeText(skill?.name) === normalizedSkillName);
-  if (!match) return null;
-
-  const skill = match.uuid ? await fromUuid(match.uuid) : match;
-  return skill?.type === MOSH_ITEM_TYPE_SKILL ? skill : null;
-}
-
 async function progressStoredSkillTraining(actor, skillName, currentXp, xpRequired) {
   const xpValue = currentXp + 1;
-  await actor.update({ [TRAINING_XP_VALUE_PATH]: xpValue });
+  await actor.update({ [TRAINING_XP_VALUE_PATH]: xpValue, [TRAINING_SELECTED_SKILL_PATH]: skillName });
   ui.notifications?.info?.(game.i18n.format("MoshQoL.Training.Progressed", {
     actorName: actor.name,
     skillName,
@@ -44,14 +33,14 @@ async function completeStoredSkillTraining(actor, skill) {
   return created;
 }
 
-async function handleStoredSkillTraining(actor, selectedSkillName, { advanceXp = false } = {}) {
+async function handleStoredSkillTraining(actor, selectedSkillUuid, { advanceXp = false } = {}) {
   const currentXp = normalizeNumber(foundry.utils.getProperty(actor, TRAINING_XP_VALUE_PATH), { fallback: 0 });
-  const skill = await findTrainingSkillByName(selectedSkillName);
-  if (!skill) {
+  // The UUID is authoritative; names can change or identify several different skills.
+  const skill = await fromUuid(selectedSkillUuid).catch(() => null);
+  if (skill?.type !== MOSH_ITEM_TYPE_SKILL) {
     ui.notifications?.warn(game.i18n.format("MoshQoL.Training.SkillNotFound", {
-      skillName: selectedSkillName
+      skillName: selectedSkillUuid
     }));
-    if (advanceXp) await progressStoredSkillTraining(actor, selectedSkillName, currentXp, "—");
     return null;
   }
 
@@ -79,9 +68,9 @@ async function runTrainingForActor(actor) {
   if (!actor) return null;
 
   const trainingConfig = getNormalizedTrainingConfig();
-  const selectedSkillName = String(foundry.utils.getProperty(actor, TRAINING_SELECTED_SKILL_PATH) ?? "").trim();
-  const trainedSkill = trainingConfig.useSkillTraining && selectedSkillName
-    ? await handleStoredSkillTraining(actor, selectedSkillName, {
+  const selectedSkillUuid = actor.getFlag(MODULE_ID, FLAG_TRAINING_SKILL)?.uuid;
+  const trainedSkill = trainingConfig.useSkillTraining && selectedSkillUuid
+    ? await handleStoredSkillTraining(actor, selectedSkillUuid, {
       advanceXp: trainingConfig.autoTrainAfterShoreLeave
     })
     : await TrainingSkillSelectorApp.wait({ actor });

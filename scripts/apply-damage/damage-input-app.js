@@ -1,6 +1,5 @@
 import { QOL_STATE_CLASSES, MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
-import { normalizeBoolean } from "../utils/normalization.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -95,7 +94,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     this._resolve = null;
     resolve?.({
       damage: payload.damage,
-      antiArmor: normalizeBoolean(payload.antiArmor),
+      antiArmor: payload.antiArmor,
       selectedTargetIndexes: Array.from(this._selectedTargetIndexes)
     });
     await this.close();

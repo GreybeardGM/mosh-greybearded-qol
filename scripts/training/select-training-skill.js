@@ -220,14 +220,10 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     if (getNormalizedTrainingConfig().useSkillTraining) {
       await this.actor.update({
+        // The native name field is display data; only this UUID identifies the training target.
+        [`flags.${MODULE_ID}.${FLAG_TRAINING_SKILL}.uuid`]: selectedItem.uuid ?? selectedUuid,
         [TRAINING_SELECTED_SKILL_PATH]: selectedItem.name ?? "",
         [TRAINING_XP_VALUE_PATH]: 1
-      });
-      await this.actor.setFlag(MODULE_ID, FLAG_TRAINING_SKILL, {
-        name: selectedItem.name ?? "",
-        uuid: selectedItem.uuid ?? selectedUuid,
-        img: selectedItem.img ?? "",
-        rank: selectedItem.system?.rank ?? ""
       });
       resolveAppOnce(this, selectedItem);
       return;

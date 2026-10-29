@@ -1,8 +1,7 @@
-import { APPLY_DAMAGE_VISIBILITY } from "./config.js";
+import { APPLY_DAMAGE_VISIBILITY, getNormalizedApplyDamageConfig } from "./config.js";
 import { normalizeEnum } from "../utils/normalization.js";
-import { getApplyDamageVisibilitySetting } from "./visibility.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_TARGET_LOGIC } from "../codex/constants.js";
-import { DEFAULT_TARGET_LOGIC, VALID_TARGET_LOGICS } from "./target-logic.js";
+import { DEFAULT_TARGET_LOGIC, VALID_TARGET_LOGICS, getUniqueActorsFromTargets } from "./target-logic.js";
 
 /**
  * Apply-Damage-Policy für UI-Sichtbarkeit und Target-Auflösung.
@@ -12,7 +11,7 @@ import { DEFAULT_TARGET_LOGIC, VALID_TARGET_LOGICS } from "./target-logic.js";
  * im aktuellen Kontext aufgelöst werden.
  */
 export function canShowApplyDamageUI(user = game.user) {
-  const visibility = getApplyDamageVisibilitySetting();
+  const visibility = getNormalizedApplyDamageConfig().visibility;
   if (visibility === APPLY_DAMAGE_VISIBILITY.DISABLED) return false;
   if (user?.isGM) return true;
   if (visibility === APPLY_DAMAGE_VISIBILITY.EVERYONE) return true;
@@ -60,19 +59,5 @@ function getUserCharacterTarget(context) {
 
 function getControlledTokenTargets(context) {
   const controlled = context.controlledTokens ?? canvas?.tokens?.controlled ?? [];
-  const actors = [];
-  const seen = new Set();
-
-  for (const token of controlled) {
-    const actor = token?.actor;
-    if (!(actor instanceof Actor)) continue;
-
-    const actorKey = actor.id ?? actor.uuid ?? actor;
-    if (seen.has(actorKey)) continue;
-
-    seen.add(actorKey);
-    actors.push(actor);
-  }
-
-  return actors;
+  return getUniqueActorsFromTargets(Array.from(controlled).filter(token => token?.actor instanceof Actor));
 }

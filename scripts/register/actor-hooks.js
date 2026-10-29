@@ -60,7 +60,8 @@ export function registerActorHooks() {
   });
 
   Hooks.on("createActor", async (actor, options, userId) => {
-    if (actor.type !== "character") return;
+    // Post-create hooks run on every client; only the creator writes generator flags.
+    if (actor.type !== "character" || userId !== game.user.id) return;
     await setReady(actor);
   });
 

@@ -21,6 +21,10 @@ import {
   MOSH_WOUND_ROLL_MACRO_UUID
 } from "../codex/mosh-system.js";
 import { buildMoshMacroReference } from "./macro-reference.js";
+import { getUniqueActorsFromTargets } from "./target-logic.js";
+
+// Preserve the existing import entry point; target resolution shares this implementation.
+export { getUniqueActorsFromTargets } from "./target-logic.js";
 
 const automatedWoundRollTableCache = new Map();
 // Cache-Invalidierung: Ein Foundry-Reload ist ausreichend, da das Modul neu geladen wird.
@@ -61,7 +65,7 @@ export async function applyDamage(actorLike, damageInput, antiArmor = false, wou
   if (!actorList.length) return false;
 
   // 3) Eigentliche Actor-Verarbeitung
-  const applied = await applyDamageToActors(actorList, normalizedPayload, { applyDamageConfig });
+  const applied = await applyNormalizedDamageToActors(actorList, normalizedPayload, applyDamageConfig);
   return applied > 0;
 }
 
@@ -70,10 +74,17 @@ export async function applyDamageToActors(actors, payload, options = {}) {
   if (!actorList.length || !payload) return false;
 
   const normalizedPayload = normalizeActorApplyDamagePayload(payload);
-  if (!normalizedPayload) return false;
+  if (!normalizedPayload) {
+    ui.notifications?.warn?.(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
+    return false;
+  }
 
   const applyDamageConfig = options.applyDamageConfig ?? getNormalizedApplyDamageConfig();
+  return applyNormalizedDamageToActors(actorList, normalizedPayload, applyDamageConfig);
+}
 
+/** Both public entry points validate once before entering this internal actor loop. */
+async function applyNormalizedDamageToActors(actorList, normalizedPayload, applyDamageConfig) {
   let applied = 0;
   for (const actor of actorList) {
     const didApply = await applyDamageToActor(actor, normalizedPayload, applyDamageConfig);
@@ -82,26 +93,6 @@ export async function applyDamageToActors(actors, payload, options = {}) {
 
   return applied;
 }
-
-export function getUniqueActorsFromTargets(targets) {
-  const rawList = Array.isArray(targets) ? targets : [targets];
-  const seen = new Set();
-  const uniqueActors = [];
-
-  for (const target of rawList) {
-    const actor = target?.actor ?? target;
-    if (!actor) continue;
-
-    const key = actor.uuid ?? actor.id ?? actor;
-    if (seen.has(key)) continue;
-
-    seen.add(key);
-    uniqueActors.push(actor);
-  }
-
-  return uniqueActors;
-}
-
 
 function normalizeActorApplyDamagePayload(payload) {
   if (!payload || typeof payload !== "object") return null;
@@ -133,19 +124,21 @@ async function normalizeApplyDamagePayload({ damageInput, antiArmor = false, wou
     if (!data) return null;
     damageRaw = data.damage;
     antiArmorRaw = data.antiArmor;
-    selectedTargetIndexes = normalizeSelectedTargetIndexes(data.selectedTargetIndexes, targets.length);
+    selectedTargetIndexes = data.selectedTargetIndexes;
   }
 
-  const damage = parseDamageInput(damageRaw);
-  if (damage === null) {
+  const payload = normalizeActorApplyDamagePayload({
+    damage: damageRaw,
+    antiArmorHit: antiArmorRaw,
+    woundMetadata: { woundType, woundRollModifier }
+  });
+  if (!payload) {
     ui.notifications?.warn?.(game.i18n.localize("MoshQoL.Damage.PositiveValueRequired"));
     return null;
   }
 
   return {
-    damage,
-    antiArmorHit: parseAntiArmorInput(antiArmorRaw),
-    woundMetadata: normalizeWoundMetadata(woundType, woundRollModifier),
+    ...payload,
     selectedTargetIndexes
   };
 }
@@ -321,12 +314,10 @@ export async function promptDamageInput({ title, message, targets = [], cancel =
 
 /** Parsen/Validieren der Schaden-Eingabe (einziger Normalisierungspfad). */
 function parseDamageInput(damageInput) {
-  const parsed = normalizeNumber(damageInput, { fallback: null, min: 1 });
-  if (parsed === null) return null;
-  return Math.trunc(parsed);
+  return normalizeNumber(damageInput, { fallback: null, min: 1 });
 }
 
-/** Normalisiert das optionale Anti-Armor-Argument. */
+/** Normalisiert Wundtyp und optionalen Vorteil/Nachteil für den Wundwurf. */
 function normalizeWoundMetadata(woundType, woundRollModifier) {
   const type = typeof woundType === "string" && woundType.trim().length > 0
     ? woundType.trim()

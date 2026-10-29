@@ -10,6 +10,8 @@
 - Separated feature configuration from settings menus and removed obsolete sheet code and duplicate helpers.
 
 ### Fixed
+- Training resolves its selected skill by UUID, preserving the target across renames without substituting another skill with the same name.
+- Apply Damage keeps separate synthetic token Actors distinct while counting linked tokens of the same Actor only once.
 - Stash and contractor edits preserve their input text; declining a correction saves it unchanged without another prompt on closing. Automatic payments still abort on cancellation, and invalid roster salaries are shown as unknown with affected totals not calculable.
 - Credit Handler notation selection fills its row; currency dialogs use compact widths and plain correction text.
 - Contractor item creation now uses Foundry's current item data structure.
