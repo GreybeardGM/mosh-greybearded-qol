@@ -104,7 +104,7 @@
     {{#if buttons.length}}
       <div class="pill-list">
         {{#each buttons}}
-          <div class="pill chat-action interactive" data-action="{{{this.action}}}" data-args="{{{this.args}}}">
+          <div class="pill {{../chatActionClass}} interactive" data-action="{{{this.action}}}" data-args="{{{this.args}}}">
             <i class="fas {{{this.icon}}}"></i> {{{this.label}}}
           </div>
         {{/each}}

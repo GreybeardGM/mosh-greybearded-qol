@@ -35,13 +35,6 @@ const ROLL_MODES = Object.freeze({
   }
 });
 
-function getSheetRoot(sheet, html) {
-  if (sheet?.element instanceof HTMLElement) return sheet.element;
-  if (sheet?.element?.[0] instanceof HTMLElement) return sheet.element[0];
-  if (html?.[0] instanceof HTMLElement) return html[0];
-  return html instanceof HTMLElement ? html : null;
-}
-
 function isSbtShipSheet(sheet) {
   if (sheet?.actor?.type !== "ship") return false;
 
@@ -255,7 +248,7 @@ async function openCrewSkillRoll(ship, statKey) {
 export function augmentSbtShipSkillRolls(sheet, html) {
   if (!isSbtShipSheet(sheet)) return;
 
-  const root = getSheetRoot(sheet, html);
+  const root = getAppRoot(sheet?.element) ?? getAppRoot(html);
   if (!root) return;
 
   for (const statLabel of root.querySelectorAll(".stat-roll[data-key]")) {

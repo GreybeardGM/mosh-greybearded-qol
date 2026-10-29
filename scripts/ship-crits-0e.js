@@ -1,4 +1,5 @@
 import { SHIP_CRITS } from "./ship-crits/default-crits-0e.js";
+import { CHAT_ACTION_TRIGGER_SHIP_CRIT } from "./codex/feature-actions.js";
 import { chatOutput, rawChatHTML } from "./utils/chat-output.js";
 
 /**
@@ -48,7 +49,7 @@ export async function triggerShipCrit(setCrit = null, actorUUID = null) {
       {
         label: game.i18n.localize("MoshQoL.ShipCrit.Escalate"),
         icon: "fa-arrow-up-right-dots",
-        action: "triggerShipCrit",
+        action: CHAT_ACTION_TRIGGER_SHIP_CRIT,
         args: [next.min, actor?.uuid ?? null]
       }
     ] : []

@@ -2,6 +2,7 @@ import { QOL_STATE_CLASSES, MODULE_ID, SETTING_ENABLE_CYBERWARE, qolClassName } 
 import { getSheetKind } from "../register/sheets.js";
 import { escapeHTML } from "../utils/html-safety.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
+import { getAppRoot } from "../utils/application-helpers.js";
 import { AUGMENTATION_DEFINITIONS, getSlotRule, getSlotRules } from "./config.js";
 import { getAugmentation } from "./slots.js";
 import { openOverclockingDialog } from "./overclocking-dialog.js";
@@ -55,7 +56,7 @@ function createItemRow(sheet, definition) {
 }
 
 function renderAugmentationItems(sheet, html) {
-  const root = html?.[0] ?? html;
+  const root = getAppRoot(sheet.element) ?? getAppRoot(html);
   root?.querySelectorAll(`.${ROW_CLASS}`).forEach(row => row.remove());
   if (!root || !game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;
   const tabs = root.querySelector(".sheet-tabs");
@@ -102,7 +103,7 @@ function createStatus(row, actor) {
 
 function renderAugmentationStatus(sheet, html) {
   if (getSheetKind(sheet) !== "character") return;
-  const root = html?.[0] ?? html;
+  const root = getAppRoot(sheet.element) ?? getAppRoot(html);
   if (!root) return;
   root.querySelectorAll(`.${AUGMENTATION_STATUS_CLASS}`).forEach(status => status.remove());
   if (!game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE)) return;

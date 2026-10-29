@@ -1,3 +1,4 @@
+import { appendQolThemeContext } from "../utils/application-options.js";
 import { normalizeBoolean, normalizeEnum } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_APPLY_DAMAGE_CONFIG } from "../codex/constants.js";
 import {
@@ -7,7 +8,6 @@ import {
   getNormalizedApplyDamageConfig
 } from "../apply-damage/config.js";
 import {
-  appendThemeColor,
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   resetSettingToDefaults,
@@ -26,7 +26,7 @@ export class ApplyDamageConfigApp extends HandlebarsApplicationMixin(Application
   static PARTS = createSettingsAppParts("settings/apply-damage-config.html");
 
   async _prepareContext() {
-    return appendThemeColor({
+    return appendQolThemeContext({
       config: getNormalizedApplyDamageConfig(),
       visibilityChoices: [
         { value: APPLY_DAMAGE_VISIBILITY.DISABLED, label: game.i18n.localize("MoshQoL.Settings.ApplyDamageVisibility.Choices.Disabled") },

@@ -1,7 +1,7 @@
-import { getDefaultShoreLeaveConfig, getNormalizedShoreLeaveConfig, getShoreLeaveConfigWithDefaults, hasValidShoreLeaveTiers, normalizeShoreLeaveTiers } from "../shore-leave/config.js";
+import { appendQolThemeContext } from "../utils/application-options.js";
+import { getDefaultShoreLeaveConfig, getNormalizedShoreLeaveConfig, getShoreLeaveConfigWithDefaults, hasValidShoreLeaveTiers } from "../shore-leave/config.js";
 import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
 import {
-  appendThemeColor,
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   notifyLocalized,
@@ -22,9 +22,9 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
 
   async _prepareContext() {
     const config = getNormalizedShoreLeaveConfig();
-    return appendThemeColor({
+    return appendQolThemeContext({
       options: config,
-      tiers: foundry.utils.deepClone(config.tiers)
+      tiers: config.tiers
     });
   }
 
@@ -46,9 +46,8 @@ export class ShoreLeaveConfigApp extends HandlebarsApplicationMixin(ApplicationV
           .sort(([a], [b]) => Number(a) - Number(b))
           .map(([, tier]) => tier);
 
-    const submitted = getShoreLeaveConfigWithDefaults(expanded.shoreLeave ?? {});
+    const submitted = getShoreLeaveConfigWithDefaults({ ...expanded.shoreLeave, tiers: tiersArray });
     const usedDefaultTiersFallback = !hasValidShoreLeaveTiers(tiersArray);
-    submitted.tiers = normalizeShoreLeaveTiers(tiersArray);
 
     if (usedDefaultTiersFallback) {
       notifyLocalized("warn", "MoshQoL.ShoreLeave.Editor.DefaultTiersFallback");

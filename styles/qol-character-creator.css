@@ -4,12 +4,6 @@
   max-height: 85vh;
 }
 
-.greybeardqol.qol-ui.qol-training-selection .training-intro {
-  margin: 0 0 0.75rem;
-  text-align: center;
-  font-style: italic;
-}
-
 .greybeardqol.qol-ui.qol-training-selection .remaining-points .training-price {
   display: block;
   color: var(--color-bg);

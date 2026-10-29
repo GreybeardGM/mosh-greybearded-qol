@@ -1,9 +1,9 @@
+import { appendQolThemeContext } from "../utils/application-options.js";
 import { getDefaultToolbandConfig, getNormalizedToolbandConfig, mapConfigurableToolbandScopes } from "../toolband/config.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 import { getConfigurableToolbandButtonsForScope, getToolbandButtonLabel, getToolbandScopeLabel, getToolbandScopes } from "../codex/toolband-buttons.js";
 import { MODULE_ID, SETTING_TOOLBAND_CONFIG } from "../codex/constants.js";
 import {
-  appendThemeColor,
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   resetSettingToDefaults,
@@ -34,7 +34,7 @@ export class ToolbandConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
       }))
     }));
 
-    return appendThemeColor({ scopes });
+    return appendQolThemeContext({ scopes });
   }
 
   static async _onResetDefaults(event) {

@@ -1,9 +1,9 @@
+import { appendQolThemeContext } from "../utils/application-options.js";
 import { getDefaultTrainingConfig, getNormalizedTrainingConfig } from "../training/config.js";
 import { readCurrency } from "../utils/currency.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 import { MODULE_ID, SETTING_TRAINING_CONFIG } from "../codex/constants.js";
 import {
-  appendThemeColor,
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   resetSettingToDefaults,
@@ -24,7 +24,7 @@ export class TrainingConfigApp extends HandlebarsApplicationMixin(ApplicationV2)
   static PARTS = createSettingsAppParts("settings/training-config.html");
 
   async _prepareContext() {
-    return appendThemeColor({ config: getNormalizedTrainingConfig() });
+    return appendQolThemeContext({ config: getNormalizedTrainingConfig() });
   }
 
   static async _onResetDefaults(event) {

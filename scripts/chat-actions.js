@@ -1,4 +1,8 @@
-import { CHAT_ACTION_PAY_SHORE_LEAVE, CHAT_ACTION_SELECTOR } from "./codex/constants.js";
+import {
+  CHAT_ACTION_APPLY_DAMAGE_SELECTED, CHAT_ACTION_CONVERT_STRESS, CHAT_ACTION_SIMPLE_SHORE_LEAVE,
+  CHAT_ACTION_PAY_SHORE_LEAVE, CHAT_ACTION_TRIGGER_SHIP_CRIT
+} from "./codex/feature-actions.js";
+import { CHAT_ACTION_SELECTOR } from "./codex/constants.js";
 import { insertApplyDamageChatButtons } from "./apply-damage/chat-buttons.js";
 import { canShowApplyDamageUI } from "./apply-damage/policy.js";
 import { CREDIT_PAY, isCreditHandlerEnabled } from "./currency/config.js";
@@ -63,17 +67,17 @@ export function registerChatActions() {
       const args = getChatActionArgs(button);
 
       switch (action) {
-        case "applyDamageSelected":
+        case CHAT_ACTION_APPLY_DAMAGE_SELECTED:
           if (!canShowApplyDamageUI(game.user)) return;
           await game.moshGreybeardQol.applyDamage(null, args[0], args[1] === true, args[2] ?? null, args[3] ?? null);
           break;
-        case "convertStress": {
+        case CHAT_ACTION_CONVERT_STRESS: {
           const actor = getRequiredChatActionActor();
           if (!actor) return;
           await game.moshGreybeardQol.convertStress(actor, ...args);
           break;
         }
-        case "simpleShoreLeave": {
+        case CHAT_ACTION_SIMPLE_SHORE_LEAVE: {
           const actor = getRequiredChatActionActor();
           if (!actor) return;
           await game.moshGreybeardQol.SimpleShoreLeave.wait({ actor, randomFlavor: args[0] });
@@ -86,7 +90,7 @@ export function registerChatActions() {
           await payShoreLeave(actor, args[0]);
           break;
         }
-        case "triggerShipCrit":
+        case CHAT_ACTION_TRIGGER_SHIP_CRIT:
           await game.moshGreybeardQol.triggerShipCrit(...args);
           break;
         default:

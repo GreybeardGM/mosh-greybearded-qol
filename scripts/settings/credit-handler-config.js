@@ -1,8 +1,9 @@
+import { appendQolThemeContext } from "../utils/application-options.js";
 import { CURRENCY_DIALOG_CLASS, MODULE_ID, SETTING_CREDIT_HANDLER_CONFIG, qolWindowClasses, templatePath } from "../codex/constants.js";
 import { CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, getDefaultCreditConfig } from "../currency/config.js";
 import { getAppRoot } from "../utils/application-helpers.js";
 import { normalizeBoolean } from "../utils/normalization.js";
-import { appendThemeColor, createSettingsAppDefaultOptions, createSettingsAppParts, resetSettingToDefaults, saveSettingAndClose } from "./settings-app-helpers.js";
+import { createSettingsAppDefaultOptions, createSettingsAppParts, resetSettingToDefaults, saveSettingAndClose } from "./settings-app-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
@@ -20,7 +21,7 @@ export class CreditHandlerConfigApp extends HandlebarsApplicationMixin(Applicati
   async _prepareContext() {
     const config = getCreditConfig();
     this._notation ??= config.notation;
-    return appendThemeColor({
+    return appendQolThemeContext({
       enabled: config.enabled,
       notations: Object.entries(CURRENCY_NOTATIONS).map(([value, rule]) => ({
         value,
@@ -48,7 +49,7 @@ export class CreditHandlerConfigApp extends HandlebarsApplicationMixin(Applicati
     try {
       const content = await foundry.applications.handlebars.renderTemplate(
         templatePath("dialogs/currency-notation-warning.html"),
-        appendThemeColor({
+        appendQolThemeContext({
           from: game.i18n.localize(`MoshQoL.Currency.Notation.${previous}`),
           to: game.i18n.localize(`MoshQoL.Currency.Notation.${requested}`)
         })

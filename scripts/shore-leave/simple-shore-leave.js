@@ -1,10 +1,10 @@
 import {
   QOL_STATE_CLASSES,
   MODULE_ID,
-  CHAT_ACTION_PAY_SHORE_LEAVE,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   templatePath
 } from "../codex/constants.js";
+import { CHAT_ACTION_PAY_SHORE_LEAVE, CHAT_ACTION_CONVERT_STRESS } from "../codex/feature-actions.js";
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
@@ -163,7 +163,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
         {
           label: game.i18n.localize("MoshQoL.ShoreLeave.ParticipateNow"),
           icon: "fa-dice",
-          action: "convertStress",
+          action: CHAT_ACTION_CONVERT_STRESS,
           args: [entry.stressFormula]
         }
       ]

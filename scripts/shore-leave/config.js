@@ -2,18 +2,7 @@ import { MODULE_ID, SETTING_SHORE_LEAVE_CONFIG } from "../codex/constants.js";
 import { SHORE_LEAVE_TIERS } from "./default-tiers.js";
 
 export function getDefaultShoreLeaveConfig() {
-  return {
-    convertStress: {
-      noSanitySave: false,
-      noStressRelieve: false,
-      minStressConversion: false,
-      formula: "1d5"
-    },
-    simpleShoreLeave: {
-      randomFlavor: true
-    },
-    tiers: foundry.utils.deepClone(SHORE_LEAVE_TIERS)
-  };
+  return getShoreLeaveConfigWithDefaults();
 }
 
 function hasRequiredTierFields(tier) {
@@ -50,13 +39,18 @@ export function normalizeShoreLeaveTiers(tiers, { fallbackToDefaults = true } = 
 }
 
 export function getShoreLeaveConfigWithDefaults(config) {
-  const normalized = normalizeShoreLeaveConfig(config);
-  normalized.tiers = normalizeShoreLeaveTiers(config?.tiers);
-  return normalized;
-}
-
-function normalizeShoreLeaveConfig(config) {
-  const normalized = foundry.utils.deepClone(getDefaultShoreLeaveConfig());
+  const normalized = {
+    convertStress: {
+      noSanitySave: false,
+      noStressRelieve: false,
+      minStressConversion: false,
+      formula: "1d5"
+    },
+    simpleShoreLeave: {
+      randomFlavor: true
+    },
+    tiers: normalizeShoreLeaveTiers(config?.tiers)
+  };
 
   if (config?.convertStress && typeof config.convertStress === "object") {
     for (const key of ["noSanitySave", "noStressRelieve", "minStressConversion"]) {

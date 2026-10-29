@@ -1,5 +1,6 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { getAppRoot } from "./utils/application-helpers.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
 import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./toolband/config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
@@ -44,11 +45,6 @@ function renderToolbandButton(button) {
   return el;
 }
 
-/** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
-function getRoot(sheet, html){
-  return (sheet?.element?.[0]) || (html?.[0]) || null;
-}
-
 function addArmorBrokenButton(buttons, actor) {
   buttons.push(makeToolbandButton("armor-broken", {
     pressed: actor?.statuses?.has(STATUS_ARMOR_BROKEN) === true
@@ -67,7 +63,7 @@ export function syncArmorBrokenToolbandButton(actor) {
   const active = actor.statuses.has(STATUS_ARMOR_BROKEN);
 
   forEachOpenActorSheet(actor, (app) => {
-    const button = app.element?.[0]?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
+    const button = getAppRoot(app.element)?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
     if (!button) return;
 
     button.classList.toggle(QOL_STATE_CLASSES.active, active);
@@ -76,7 +72,7 @@ export function syncArmorBrokenToolbandButton(actor) {
 }
 
 function refreshToolbandForSheet(sheet) {
-  const root = getRoot(sheet);
+  const root = getAppRoot(sheet.element);
   if (!root?.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`)) return;
 
   upsertToolband(sheet, [root], {
@@ -221,8 +217,8 @@ function getButtonRenderSignature(buttons) {
 export function upsertToolband(sheet, html, ctx = {}) {
   const { kind = "unknown", isGM = false } = ctx;
 
-  // Root & Header
-  const root = html?.[0];
+  // Prefer the live window: render-hook HTML may be a fragment without its header.
+  const root = getAppRoot(sheet.element) ?? getAppRoot(html);
   if (!root) return;
   root.classList.add(`has-${CLS}`);
 
@@ -275,7 +271,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
 /** Aufräumen über App-ID */
 export function removeToolband(sheet){
-  const root = getRoot(sheet);
+  const root = getAppRoot(sheet.element);
   if (!root) return;
   root.querySelectorAll(`.${CLS}[data-appid="${sheet.appId}"]`).forEach(n => n.remove());
 }

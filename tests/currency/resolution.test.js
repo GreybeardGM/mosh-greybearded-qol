@@ -414,7 +414,7 @@ test("Credits toolbar scopes inherit enabled defaults without changing existing 
 });
 
 test("the real toolbar renders and opens Credits only for editable character and stash scopes with the handler enabled", async () => {
-  class Node {
+  class Node extends HTMLElement {
     children = []; dataset = {}; listeners = {}; style = { setProperty() {} };
     classList = { add() {}, toggle() {} };
     setAttribute(name, value) { if (name === "data-action") this.dataset.action = value; }
@@ -433,8 +433,12 @@ test("the real toolbar renders and opens Credits only for editable character and
           const target = { ...actor(), isOwner, getFlag: () => false };
           let bar;
           const header = { insertAdjacentElement: (_position, node) => { bar = node; } };
-          const root = { classList: { add() {} }, querySelector: selector => selector === ".window-header" ? header : bar };
-          upsertToolband({ actor: target, appId: 123 }, [root], { kind });
+          const root = Object.assign(new Node(), { querySelector: selector => selector === ".window-header" ? header : bar });
+          const sheet = { actor: target, appId: 123 };
+          if (enabled) sheet.element = root;
+          else if (isOwner) sheet.element = [root];
+          const fragment = Object.assign(new Node(), { querySelector() { throw new Error("Live window must take precedence over render fragments"); } });
+          upsertToolband(sheet, [sheet.element ? fragment : root], { kind });
           const button = bar.children.find(node => node.dataset.action === "credits");
           assert.equal(Boolean(button), ["character", "stash"].includes(kind) && enabled && isOwner);
           if (button) {
@@ -965,7 +969,11 @@ test("manual edits are validated with automation off, preserving successful corr
   assert.equal(dialogs.length, 2);
 });
 
-test("stored Pay Up buttons hide immediately and on render, and restore when enabled", () => {
+test("stored chat action IDs still dispatch, while Pay Up buttons follow the handler setting", async t => {
+  const previousHooks = globalThis.Hooks, previousElement = globalThis.Element;
+  const previousApi = game.moshGreybeardQol, previousCharacter = game.user.character;
+  t.after(() => { globalThis.Hooks = previousHooks; globalThis.Element = previousElement;
+    game.moshGreybeardQol = previousApi; game.user.character = previousCharacter; });
   const button = { hidden: false, style: {} };
   let selector;
   const root = { querySelectorAll: value => { selector = value; return [button]; } };
@@ -984,6 +992,39 @@ test("stored Pay Up buttons hide immediately and on render, and restore when ena
   refreshCreditPaymentButtons(root);
   assert.equal(button.hidden, false);
   assert.equal(button.style.display, "");
+
+  settings.applyDamageConfig = { visibility: "everyone" };
+  globalThis.Element = class {};
+  const calls = [], target = actor(1000, { persist: true });
+  game.user.character = target;
+  game.moshGreybeardQol = {
+    applyDamage: (...args) => calls.push(["damage", ...args]),
+    convertStress: (...args) => calls.push(["stress", ...args]),
+    SimpleShoreLeave: { wait: options => calls.push(["shore", options]) },
+    triggerShipCrit: (...args) => calls.push(["crit", ...args])
+  };
+  let click;
+  Object.assign(root, { dataset: {}, contains: () => true, querySelector: () => ({}),
+    addEventListener: (_name, callback) => { click = callback; } });
+  callbacks.renderChatMessageHTML({}, root);
+  // Literal wire values stand for already stored content, independently of the new constants.
+  for (const [action, args] of [
+    ["applyDamageSelected", [7, true, "Gunshot", "advantage"]], ["convertStress", ["1d5"]],
+    ["simpleShoreLeave", [false]], ["triggerShipCrit", [10, "Actor.ship"]], ["payShoreLeave", [100]]
+  ]) {
+    const node = Object.assign(new Element(), { closest: () => ({ dataset: { action, args: JSON.stringify(args) } }) });
+    await click({ target: node, preventDefault() {} });
+  }
+  assert.deepEqual(calls, [
+    ["damage", null, 7, true, "Gunshot", "advantage"], ["stress", target, "1d5"],
+    ["shore", { actor: target, randomFlavor: false }], ["crit", 10, "Actor.ship"]
+  ]);
+  assert.equal(classifyCurrency(target.system.credits.value).value, 900);
+  const { chatOutput } = await import("../../scripts/utils/chat-output.js");
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async () => ({}) };
+  await chatOutput({ actor: target, title: "Credits", icon: "fa-coins", buttons: [{ action: "payShoreLeave", args: [100] }] });
+  assert.equal(contexts.at(-1).chatActionClass, "chat-action");
+  assert.equal(contexts.at(-1).buttons[0].action, "payShoreLeave");
 });
 
 test("disabled handler omits new payment buttons while character generation remains available", async () => {
@@ -1364,4 +1405,34 @@ test("Actor creation marks generator readiness only on the originating client, r
   game.user = { id: "creator" };
   await create({ ...target, type: "creature" }, {}, "creator");
   assert.equal(writes.length, 1);
+
+  settings.enableCharacterCreator = true;
+  const live = new HTMLElement(), fragment = new HTMLElement();
+  const toggles = [];
+  live.classList = { toggle: (...args) => toggles.push(args) };
+  fragment.classList = { toggle() { throw new Error("Unexpected fragment access"); } };
+  const character = { type: "character", testUserPermission: () => false };
+  for (const element of [live, [live]]) hooks.get("renderActorSheet")({ actor: character, element }, [fragment]);
+  assert.deepEqual(toggles, [["qol-hide-system-character-config", true], ["qol-hide-system-character-config", true]]);
+});
+
+test("SBT and Cyberware injections use live native or wrapped sheet roots and fall back to hook HTML", async t => {
+  const previousHooks = globalThis.Hooks, hooks = new Map();
+  globalThis.Hooks = { on: (name, callback) => hooks.set(name, callback) };
+  t.after(() => { globalThis.Hooks = previousHooks; });
+  const { registerCyberwareHooks } = await import("../../scripts/cyberware/sheets.js");
+  const { augmentSbtShipSkillRolls } = await import("../../scripts/sbt-crew-skill-roll.js");
+  registerCyberwareHooks();
+  const live = new HTMLElement(), fragment = new HTMLElement(), queries = [];
+  live.querySelectorAll = selector => { queries.push(["live", selector]); return []; };
+  fragment.querySelectorAll = selector => { queries.push(["fragment", selector]); return []; };
+  for (const element of [live, [live], null]) {
+    queries.length = 0;
+    hooks.get("renderMothershipItemSheet")({ element }, [fragment]);
+    hooks.get("renderActorSheet")({ actor: { type: "character" }, element }, [fragment]);
+    augmentSbtShipSkillRolls({ actor: { type: "ship" }, element,
+      options: { template: "systems/mosh/templates/actor/ship-sheet-sbt.html" } }, [fragment]);
+    assert.deepEqual(queries.map(([root]) => root), Array(3).fill(element ? "live" : "fragment"));
+    assert.deepEqual(queries.map(([, selector]) => selector), [".qol-augmentation-row", ".qol-augmentation-status", ".stat-roll[data-key]"]);
+  }
 });

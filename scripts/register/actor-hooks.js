@@ -2,6 +2,7 @@ import { upsertToolband, removeToolband, refreshToolbandForActor } from "../tool
 import { augmentSbtShipSkillRolls } from "../sbt-crew-skill-roll.js";
 import { CHARACTER_CREATION_TOOLBAND_PROGRESS_KEYS, setReady } from "../character-creator/progress.js";
 import { getSheetKind } from "./sheets.js";
+import { getAppRoot } from "../utils/application-helpers.js";
 import {
   FLAG_CHARACTER_CREATION,
   HIDE_SYSTEM_CHARACTER_CONFIG_CLASS,
@@ -24,7 +25,7 @@ function hasCharacterCreationProgressChange(changed) {
 
 function syncCharacterGeneratorSheetClass(sheet, html) {
   const actor = sheet?.actor;
-  const root = sheet?.element?.[0] ?? html?.[0] ?? null;
+  const root = getAppRoot(sheet?.element) ?? getAppRoot(html);
   if (!root) return;
 
   const hideSystemConfigureButton = actor?.type === "character"

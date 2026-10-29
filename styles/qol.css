@@ -119,7 +119,6 @@
 }
 
 .greybeardqol.qol-ui .is-locked.is-selected {
-  border-color: var(--color-border);
   color: var(--color-text);
 }
 

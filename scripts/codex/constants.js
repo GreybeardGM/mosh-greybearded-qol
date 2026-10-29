@@ -34,7 +34,6 @@ export function qolClassName(...extraClasses) {
 }
 
 export const CHAT_ACTION_SELECTOR = `.${QOL_NAMESPACE_CLASS} .${CHAT_ACTION_CLASS}`;
-export const CHAT_ACTION_PAY_SHORE_LEAVE = "payShoreLeave";
 
 export function modulePath(relativePath = "") {
   const normalizedPath = normalizeRelativePath(relativePath);
