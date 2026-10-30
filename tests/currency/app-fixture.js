@@ -15,14 +15,14 @@ export function creditApp(balance, inputValue, { target = actor(balance, { persi
   const app = new CreditsApp({ actor: target });
   const input = { value: inputValue, readOnly: false };
   const buttons = [{ disabled: false }, { disabled: false }];
-  const stashSelect = { value: "", disabled: false }, transferSelect = { value: "", disabled: false };
+  const transferSelect = { value: "", disabled: false };
   app.form = {
-    elements: { namedItem: name => ({ creditAmount: input, stashActor: stashSelect, transferActor: transferSelect })[name] },
-    querySelectorAll: () => [...buttons, stashSelect, transferSelect]
+    elements: { namedItem: name => ({ creditAmount: input, transferActor: transferSelect })[name] },
+    querySelectorAll: () => [...buttons, transferSelect]
   };
   const receipts = [];
   globalThis.ChatMessage = { getSpeaker: () => ({}), create: async data => { receipts.push(data); } };
-  return { app, target, input, buttons, receipts, stashSelect, transferSelect };
+  return { app, target, input, buttons, receipts, transferSelect };
 }
 
 export const bookCredits = (app, operation) => CreditsApp._onTransaction.call(app, null, { dataset: { action: operation } });
@@ -34,10 +34,10 @@ export function worldCreditActor(id, balance, { stash = false, isOwner = true, h
   return document;
 }
 
-export function stashApp(balance = "8k", stashBalance = "2k", input = "1k") {
-  const source = worldCreditActor("source", balance);
-  const stash = worldCreditActor("stash", stashBalance, { stash: true });
+export function transferApp(balance = "8k", recipientBalance = "2k", input = "1k", { stash = true, sourceStash = false } = {}) {
+  const source = worldCreditActor("source", balance, { stash: sourceStash });
+  const recipient = worldCreditActor("recipient", recipientBalance, { stash });
   const fixture = creditApp(balance, input, { target: source });
-  fixture.stashSelect.value = stash.id;
-  return { ...fixture, stash };
+  fixture.transferSelect.value = recipient.id;
+  return { ...fixture, recipient };
 }

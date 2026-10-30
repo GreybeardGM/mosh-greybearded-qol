@@ -21,7 +21,7 @@ test("Credits toolbar scopes inherit enabled defaults without changing existing 
   for (const scope of ["contractor", "creature", "ship"]) {
     assert.ok(!getConfigurableToolbandButtonsForScope(scope).some(button => button.action === "credits"));
   }
-  assert.deepEqual(Object.keys(CreditsApp.DEFAULT_OPTIONS.actions), ["receive", "pay", "stash", "transfer", "cancel"]);
+  assert.deepEqual(Object.keys(CreditsApp.DEFAULT_OPTIONS.actions), ["receive", "pay", "transfer", "cancel"]);
   assert.ok(CreditsApp.DEFAULT_OPTIONS.window.contentClasses.includes("greybeardqol"));
   assert.ok(CreditsApp.DEFAULT_OPTIONS.window.contentClasses.includes("qol-ui"));
   assert.equal(CreditsApp.DEFAULT_OPTIONS.position.width, 480);

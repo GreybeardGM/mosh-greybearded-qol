@@ -17,29 +17,15 @@
   </section>
   <section class="box">
     <div class="form-footer">
-      <select name="stashActor" aria-label="{{localize 'MoshQoL.Currency.App.Stash'}}" {{#unless stashRecipients.length}}disabled{{/unless}}>
-        {{#each stashRecipients}}
-          <option value="{{id}}">{{name}}</option>
-        {{else}}
-          <option value="">{{localize "MoshQoL.Currency.App.NoStashes"}}</option>
-        {{/each}}
-      </select>
-      <button type="button" data-action="{{stashAction}}" data-credit-operation {{#unless stashRecipients.length}}disabled{{/unless}}>
-        <i class="fa-solid {{stashIcon}}" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Stash"}}
-      </button>
-    </div>
-  </section>
-  <section class="box">
-    <div class="form-footer">
       <select name="transferActor" aria-label="{{localize 'MoshQoL.Currency.App.Transfer'}}" {{#unless transferRecipients.length}}disabled{{/unless}}>
         {{#each transferRecipients}}
           <option value="{{id}}">{{name}}</option>
         {{else}}
-          <option value="">{{localize "MoshQoL.Currency.App.NoCharacters"}}</option>
+          <option value="">{{localize "MoshQoL.Currency.App.NoRecipients"}}</option>
         {{/each}}
       </select>
-      <button type="button" data-action="{{transferAction}}" title="{{localize 'MoshQoL.Currency.App.TransferPending'}}" disabled>
-        <i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Transfer"}}
+      <button type="button" data-action="{{transferAction}}" data-credit-operation {{#unless transferRecipients.length}}disabled{{/unless}}>
+        <i class="fa-solid {{transferIcon}}" aria-hidden="true"></i> {{localize "MoshQoL.Currency.App.Transfer"}}
       </button>
     </div>
   </section>

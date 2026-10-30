@@ -4,7 +4,7 @@ import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { classifyCurrency, formatCurrency } from "../utils/currency-parser.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { CREDIT_OPERATIONS, CREDIT_PAY, CREDIT_RECEIVE, CREDIT_STASH, CREDIT_TRANSFER, CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
+import { CREDIT_OPERATIONS, CREDIT_PAY, CREDIT_RECEIVE, CREDIT_TRANSFER, CURRENCY_DIALOG_WIDTH, CURRENCY_NOTATIONS, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
 import { changeCredits } from "./credit-transactions.js";
 import { getCreditRecipients } from "./recipients.js";
 
@@ -18,7 +18,7 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     form: { handler: () => {}, closeOnSubmit: false },
     actions: {
       [CREDIT_RECEIVE]: this._onTransaction, [CREDIT_PAY]: this._onTransaction,
-      [CREDIT_STASH]: this._onTransaction, [CREDIT_TRANSFER]: () => {}, cancel: this._onCancel
+      [CREDIT_TRANSFER]: this._onTransaction, cancel: this._onCancel
     }
   });
 
@@ -35,7 +35,6 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const raw = foundry.utils.getProperty(this.actor, MOSH_CREDITS_PATH);
     const parsed = classifyCurrency(raw);
     const { notation } = getCreditConfig();
-    const recipients = getCreditRecipients(this.actor);
     // Opening the app is read-only; only a deliberate transaction opens repairs.
     return appendQolThemeContext({
       actorName: this.actor.name,
@@ -44,10 +43,9 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
         notation: game.i18n.localize(`MoshQoL.Currency.Notation.${notation}`),
         example: CURRENCY_NOTATIONS[notation]?.example ?? ""
       }),
-      stashRecipients: recipients[CREDIT_STASH], transferRecipients: recipients[CREDIT_TRANSFER],
-      stashAction: CREDIT_STASH, transferAction: CREDIT_TRANSFER,
-      stashIcon: CREDIT_OPERATIONS[CREDIT_STASH].icon,
-      buttons: Object.entries(CREDIT_OPERATIONS).filter(([action]) => action !== CREDIT_STASH).map(([action, meta]) => ({
+      transferRecipients: getCreditRecipients(this.actor), transferAction: CREDIT_TRANSFER,
+      transferIcon: CREDIT_OPERATIONS[CREDIT_TRANSFER].icon,
+      buttons: Object.entries(CREDIT_OPERATIONS).filter(([action]) => action !== CREDIT_TRANSFER).map(([action, meta]) => ({
         action, icon: meta.icon, label: game.i18n.localize(meta.labelKey)
       }))
     });
@@ -62,8 +60,8 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const operation = target.dataset.action;
     const input = this.form?.elements.namedItem("creditAmount");
     if (!input) return;
-    const recipient = operation === CREDIT_STASH
-      ? game.actors?.get(this.form.elements.namedItem("stashActor")?.value) : null;
+    const recipient = operation === CREDIT_TRANSFER
+      ? game.actors?.get(this.form.elements.namedItem("transferActor")?.value) : null;
     this._busy = true;
     input.readOnly = true;
     const controls = Array.from(this.form.querySelectorAll("[data-credit-operation], select"), control => ({

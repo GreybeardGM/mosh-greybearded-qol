@@ -1,8 +1,8 @@
 import { MOSH_CREDITS_PATH } from "../codex/mosh-system.js";
 import { readCurrency } from "../utils/currency.js";
 import { formatCurrency } from "../utils/currency-parser.js";
-import { CREDIT_OPERATIONS, CREDIT_RECEIVE, CREDIT_STASH, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
-import { getCreditRecipientKind } from "./recipients.js";
+import { CREDIT_OPERATIONS, CREDIT_RECEIVE, CREDIT_TRANSFER, getCreditConfig, isCreditHandlerEnabled } from "./config.js";
+import { isCreditRecipient } from "./recipients.js";
 
 // Shared by the Credits app and Pay Up: two local workflows must not spend
 // the same snapshot while either validation or actor.update is pending.
@@ -11,16 +11,16 @@ const transactionsInFlight = new WeakSet();
 export async function changeCredits(actor, input, { operation, recipient = null, allowNegativeAmount = false, canProceed = () => true } = {}) {
   if (!actor || !Object.hasOwn(CREDIT_OPERATIONS, operation) || !isCreditHandlerEnabled()
     || !canProceed()) return null;
-  const isStash = operation === CREDIT_STASH;
-  if (isStash && game.actors?.get(actor.id) !== actor) {
+  const isTransfer = operation === CREDIT_TRANSFER;
+  if (isTransfer && game.actors?.get(actor.id) !== actor) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.App.InvalidSource"));
     return null;
   }
-  if (isStash && getCreditRecipientKind(actor, recipient) !== CREDIT_STASH) {
+  if (isTransfer && !isCreditRecipient(actor, recipient)) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.App.InvalidRecipient"));
     return null;
   }
-  const participants = isStash ? [actor, recipient] : [actor];
+  const participants = isTransfer ? [actor, recipient] : [actor];
   if (participants.some(document => transactionsInFlight.has(document))) return null;
   if (participants.some(document => !document.isOwner)) {
     ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.App.NoPermission"));
@@ -32,7 +32,7 @@ export async function changeCredits(actor, input, { operation, recipient = null,
   }));
   participants.forEach(document => transactionsInFlight.add(document));
   try {
-    // Neither resolver saves repairs. Both values must succeed before any write;
+    // Resolvers never save repairs. All inputs must succeed before any write;
     // cancellation is null, never zero or the manual sheet's retained raw text.
     const before = await readCurrency(snapshots[0].original, { label: actor.name });
     if (before === null || !canProceed()) return null;
@@ -45,7 +45,7 @@ export async function changeCredits(actor, input, { operation, recipient = null,
     }
     const amount = Math.abs(parsedAmount);
     snapshots[0].before = before;
-    if (isStash) {
+    if (isTransfer) {
       snapshots[1].before = await readCurrency(snapshots[1].original, { label: recipient.name });
       if (snapshots[1].before === null || !canProceed()) return null;
     }
@@ -69,28 +69,28 @@ export async function changeCredits(actor, input, { operation, recipient = null,
     if (!canProceed()) return null;
     if (!isCreditHandlerEnabled() || getCreditConfig().notation !== notation
       || snapshots.some(({ document, original }) => !document.isOwner || !Object.is(original, foundry.utils.getProperty(document, MOSH_CREDITS_PATH)))
-      || (isStash && (game.actors?.get(actor.id) !== actor || getCreditRecipientKind(actor, recipient) !== CREDIT_STASH))) {
+      || (isTransfer && (game.actors?.get(actor.id) !== actor || !isCreditRecipient(actor, recipient)))) {
       ui.notifications.warn(game.i18n.localize("MoshQoL.Currency.Changed"));
       return null;
     }
-    if (isStash) await saveStashTransfer(snapshots);
+    if (isTransfer) await saveCreditTransfer(snapshots);
     else await actor.update({ [MOSH_CREDITS_PATH]: snapshots[0].formatted });
     return { before, amount, after: snapshots[0].after, notation,
-      recipient: isStash ? recipient : null, recipientBefore: snapshots[1]?.before, recipientAfter: snapshots[1]?.after };
+      recipient: isTransfer ? recipient : null, recipientBefore: snapshots[1]?.before, recipientAfter: snapshots[1]?.after };
   } finally {
     participants.forEach(document => transactionsInFlight.delete(document));
   }
 }
 
 /** One batch after all validation; compensate a rejected or partially applied batch. */
-async function saveStashTransfer(snapshots) {
+async function saveCreditTransfer(snapshots) {
   try {
     const updated = await Actor.implementation.updateDocuments(snapshots.map(({ document, formatted }) => ({
       _id: document.id, [MOSH_CREDITS_PATH]: formatted
     })));
     if (!snapshots.every(({ document, formatted }) => updated?.some(result => result.id === document.id)
       && Object.is(foundry.utils.getProperty(document, MOSH_CREDITS_PATH), formatted))) {
-      throw new Error("Incomplete Stash credit update");
+      throw new Error("Incomplete credit transfer");
     }
   } catch (error) {
     // Foundry batches can be filtered by hooks. Restore balances still matching
@@ -103,7 +103,7 @@ async function saveStashTransfer(snapshots) {
           _id: document.id, [MOSH_CREDITS_PATH]: original
         })));
       } catch (rollbackError) {
-        console.error("[MoSh QoL] Stash credit rollback failed", rollbackError);
+        console.error("[MoSh QoL] Credit transfer rollback failed", rollbackError);
       }
     }
     if (snapshots.some(({ document, original }) => !Object.is(foundry.utils.getProperty(document, MOSH_CREDITS_PATH), original))) {

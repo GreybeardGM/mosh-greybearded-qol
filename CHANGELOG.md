@@ -2,7 +2,7 @@
 
 ## [0.8.4] - Unreleased
 ### Added
-- Credits toolbar app for character and stash sheets: receive, pay, or move Credits to an owned Stash after validating all balances, then save formatted values and post a chat receipt. A separate player-character dropdown previews future transfers. Disabled with the Credit Handler.
+- Credits toolbar app for character and stash sheets: receive, pay, or transfer Credits to an owned Stash or player character through one selector. All affected balances are validated before saving formatted values and posting a chat receipt. Disabled with the Credit Handler.
 - Credit Handler for safe currency input and consistent output, including negative balances. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler; manual edits and character generation remain available.
 
 ### Changed
