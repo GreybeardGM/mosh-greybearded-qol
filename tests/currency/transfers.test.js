@@ -37,8 +37,12 @@ for (const recipientKind of ["Stash", "player character"]) {
       assert.equal(batchWrites.at(-1).length, 2);
       assert.equal(app.closed, true);
       assert.equal(receipts.length, 1);
-      assert.equal(contexts.at(-1).blocks[3].text, recipient.name);
-      assert.equal(classifyCurrency(contexts.at(-1).blocks.at(-1).value).value, 3000);
+      const receipt = contexts.at(-1);
+      assert.equal(receipt.title, "MoshQoL.Currency.App.Transfer");
+      assert.equal(receipt.subtitle, target.name);
+      assert.equal(receipt.blocks.length, 2);
+      assert.equal(classifyCurrency(receipt.blocks[0].value).value, -1000);
+      assert.equal(receipt.blocks[1].text, recipient.name);
     }
     assert.equal(dialogs.length, 0);
   });

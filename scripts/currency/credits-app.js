@@ -84,13 +84,7 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
           actor: this.actor, title: game.i18n.localize(meta.labelKey), subtitle: this.actor.name, icon: meta.icon,
           blocks: [
             { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Amount"), value: formatCurrency(result.amount * meta.sign, { notation }) },
-            { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Before"), value: formatCurrency(result.before, { notation }) },
-            { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.After"), value: formatCurrency(result.after, { notation }) },
-            ...(result.recipient ? [
-              { type: "text", text: result.recipient.name },
-              { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Before"), value: formatCurrency(result.recipientBefore, { notation }) },
-              { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.After"), value: formatCurrency(result.recipientAfter, { notation }) }
-            ] : [])
+            ...(result.recipient ? [{ type: "text", text: result.recipient.name }] : [])
           ]
         });
       } catch (error) {

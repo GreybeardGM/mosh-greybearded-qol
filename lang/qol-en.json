@@ -489,8 +489,6 @@
         "CheckBalances": "The transfer could not be fully restored. Check both balances before trying again.",
         "Receive": "Receive",
         "Pay": "Pay",
-        "Before": "Previous balance",
-        "After": "New balance",
         "Hint": "{notation}: {example} · Shorthand: k, M, G",
         "NoPermission": "You do not have permission to modify this actor’s Credits.",
         "SignConflict": "A negative amount conflicts with Receive. Use Pay or enter a positive amount.",

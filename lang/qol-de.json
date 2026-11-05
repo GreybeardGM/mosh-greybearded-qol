@@ -489,8 +489,6 @@
         "CheckBalances": "Die Überweisung konnte nicht vollständig zurückgesetzt werden. Prüfe beide Kontostände vor einem erneuten Versuch.",
         "Receive": "Erhalten",
         "Pay": "Bezahlen",
-        "Before": "Bisheriges Guthaben",
-        "After": "Neues Guthaben",
         "Hint": "{notation}: {example} · Kurzformen: k, M, G",
         "NoPermission": "Du darfst die Credits dieses Actors nicht ändern.",
         "SignConflict": "Ein negativer Betrag widerspricht Erhalten. Nutze Bezahlen oder gib einen positiven Betrag ein.",

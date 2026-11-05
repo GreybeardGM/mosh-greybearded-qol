@@ -34,7 +34,9 @@ test("Credits Receive and Pay validate both fields, save exact formatted balance
       const receipt = contexts.at(-1);
       assert.equal(receipt.icon, operation === "pay" ? "fa-circle-minus" : "fa-circle-plus");
       assert.equal(classifyCurrency(receipt.blocks[0].value).value, operation === "pay" ? -7000 : 7000);
-      assert.equal(classifyCurrency(receipt.blocks[2].value).value, after);
+      assert.equal(receipt.blocks.length, 1);
+      assert.equal(receipt.subtitle, target.name);
+      assert.equal(receipt.title, `MoshQoL.Currency.App.${operation === "pay" ? "Pay" : "Receive"}`);
     }
   }
   assert.equal(dialogs.length, 0);
