@@ -41,7 +41,7 @@ for (const recipientKind of ["Stash", "player character"]) {
       assert.equal(receipt.title, "MoshQoL.Currency.App.Transfer");
       assert.equal(receipt.subtitle, target.name);
       assert.equal(receipt.blocks.length, 2);
-      assert.equal(classifyCurrency(receipt.blocks[0].value).value, -1000);
+      assert.equal(classifyCurrency(receipt.blocks[0].value).value, 1000);
       assert.equal(receipt.blocks[1].text, recipient.name);
     }
     assert.equal(dialogs.length, 0);

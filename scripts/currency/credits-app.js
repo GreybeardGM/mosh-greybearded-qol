@@ -83,7 +83,7 @@ export class CreditsApp extends HandlebarsApplicationMixin(ApplicationV2) {
         await chatOutput({
           actor: this.actor, title: game.i18n.localize(meta.labelKey), subtitle: this.actor.name, icon: meta.icon,
           blocks: [
-            { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Amount"), value: formatCurrency(result.amount * meta.sign, { notation }) },
+            { type: "counter", label: game.i18n.localize("MoshQoL.Currency.App.Amount"), value: formatCurrency(result.amount, { notation }) },
             ...(result.recipient ? [{ type: "text", text: result.recipient.name }] : [])
           ]
         });

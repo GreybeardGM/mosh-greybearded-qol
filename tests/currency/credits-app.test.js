@@ -24,7 +24,7 @@ test("opening Credits only formats the displayed balance and never prompts or wr
 test("Credits Receive and Pay validate both fields, save exact formatted balances and post receipts in every notation", async () => {
   for (const notation of ["en", "de", "fr", "ch"]) {
     state.settings[SETTING_CREDIT_HANDLER_CONFIG] = { enabled: true, notation };
-    for (const [balance, inputValue, operation, after] of [["8k", "7k", "pay", 1000], ["-8k", "7k", "receive", -1000], ["8k", "7k", "receive", 15000]]) {
+    for (const [balance, inputValue, operation, after] of [["8k", "7k", "pay", 1000], ["8k", "-7k", "pay", 1000], ["-8k", "7k", "receive", -1000], ["8k", "7k", "receive", 15000]]) {
       const { app, target, receipts } = creditApp(balance, inputValue);
       await bookCredits(app, operation);
       assert.equal(classifyCurrency(target.system.credits.value).value, after);
@@ -33,7 +33,7 @@ test("Credits Receive and Pay validate both fields, save exact formatted balance
       assert.equal(receipts.length, 1);
       const receipt = contexts.at(-1);
       assert.equal(receipt.icon, operation === "pay" ? "fa-circle-minus" : "fa-circle-plus");
-      assert.equal(classifyCurrency(receipt.blocks[0].value).value, operation === "pay" ? -7000 : 7000);
+      assert.equal(receipt.blocks[0].value, formatCurrency(7000, { notation }));
       assert.equal(receipt.blocks.length, 1);
       assert.equal(receipt.subtitle, target.name);
       assert.equal(receipt.title, `MoshQoL.Currency.App.${operation === "pay" ? "Pay" : "Receive"}`);
