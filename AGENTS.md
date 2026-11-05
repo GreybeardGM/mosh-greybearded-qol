@@ -58,3 +58,13 @@ Neue Foundry-`ApplicationV2`-UI-Komponenten müssen die gemeinsamen QoL-Basiskla
 - Habe ich neue String-Literale zentralisiert?
 - Ist ein neuer Helper mindestens zweimal genutzt, außer er kapselt eine klare Fachregel?
 - Wenn ein Refactor Zeilen erhöht: Ist die Begründung im PR enthalten?
+
+## Release-Vorbereitung (`dev` → `main`)
+
+- Vor dem Release-PR die Version ohne DEV-Zusatz setzen und die folgenden URLs getrennt prüfen; `main` enthält ausschließlich veröffentlichte Versionen.
+- **Feld `manifest` in `module.json`:** dauerhaft `https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json`. Beim Release nicht auf einen einzelnen Tag umstellen. Auch die im Release-Tag gespeicherte Datei behält diese stabile Update-Adresse.
+- **Feld `download` in `module.json`:** `https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/tags/<version>.zip`, passend zur veröffentlichten Version und zum Tag.
+- **Foundry-Katalog:** jede Veröffentlichung mit ihrer Version und dem versionsfesten Manifest-Link `https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/refs/tags/<version>/module.json` eintragen. Dieser Katalog-Link ist die Abrufadresse des Release-Manifests, nicht dessen internes Feld `manifest`; ältere Versionen müssen darüber gezielt installierbar bleiben.
+- **Nächster DEV-Zyklus:** `manifest` wieder auf `https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/dev/module.json` und `download` auf `https://github.com/GreybeardGM/mosh-greybearded-qol/archive/refs/heads/dev.zip` setzen. Bis zur Release-Vorbereitung bleiben diese DEV-Links bestehen.
+
+Grundlage: Foundrys [Manifest-Dokumentation](https://foundryvtt.com/article/module-development/) und [Paketverwaltung](https://foundryvtt.com/article/package-management/).
