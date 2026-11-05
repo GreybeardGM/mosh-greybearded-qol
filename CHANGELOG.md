@@ -2,18 +2,16 @@
 
 ## [0.8.4] - Unreleased
 ### Added
-- Credits toolbar app for character and stash sheets: receive, pay, or transfer Credits to an owned Stash or player character through one selector. All affected balances are validated before saving formatted values; compact chat receipts show the action, amount and transfer recipient without account balances. Disabled with the Credit Handler.
-- Credit Handler for safe currency input and consistent output, including negative balances. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler; manual edits and character generation remain available.
+- Credits toolbar app for character and stash sheets: receive, pay, or transfer Credits to an owned Stash or player character through one selector. All affected balances are validated before saving formatted values; compact chat receipts show the action, amount and transfer recipient.
+- Credit Handler for safe currency input and consistent output, including negative balances. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler.
 
 ### Changed
-- Automatic credit writes, including character generation, use the configured currency notation with grouping and unit prefixes, preserving the exact value.
-- Separated feature configuration from settings menus and removed obsolete sheet code and duplicate helpers.
+- Automatic credit writes use the configured currency notation with grouping and unit prefixes.
+- Separated feature configuration from settings menus and removed obsolete code.
 
 ### Fixed
 - Training resolves its selected skill by UUID, preserving the target across renames without substituting another skill with the same name.
 - Apply Damage keeps separate synthetic token Actors distinct while counting linked tokens of the same Actor only once.
-- Stash and contractor edits preserve their input text; declining a correction saves it unchanged without another prompt on closing. Automatic payments still abort on cancellation, and invalid roster salaries are shown as unknown with affected totals not calculable.
-- Credit Handler notation selection fills its row; currency dialogs use compact widths and plain correction text.
 - Contractor item creation now uses Foundry's current item data structure.
 
 ## [0.8.3] - 2026-09-28
