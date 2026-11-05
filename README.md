@@ -20,8 +20,8 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ### Currency Utilities
 - The Credits toolbar button on character and stash sheets opens a Receive/Pay dialog with one Transfer selector for owned Stashes and other owned player characters. The amount and both balances are validated before a transfer; successful transactions post a chat receipt.
-- World settings select English (default), German, French, or Swiss notation for reading and displaying Credits, kCR, MCR, and GCR, including negative balances. Cancelling a correction keeps and saves the entered stash or contractor text; automatic payments still abort. Displaying values never opens correction dialogs.
-- The Credit Handler is enabled by default. Disabling it stops automatic credit changes and hides Pay Up; manual edits and character generation remain available. Currency display still follows the selected notation.
+- World settings select English (default), German, French, or Swiss notation for reading and displaying Credits, kCR, MCR, and GCR, including negative balances. Cancelling a correction keeps and saves the entered stash or contractor text; automatic payments abort.
+- The Credit Handler is enabled by default. Disabling it stops automatic credit changes and hides "Pay Up" Buttons. Currency display still follows the selected notation.
 
 ### QoL Character Generator
 - Guided character creation flow: attributes → class → skills → gear → credits
