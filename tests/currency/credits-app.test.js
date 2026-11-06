@@ -157,6 +157,30 @@ test("a failed Credits save posts no receipt, preserves the balance and releases
   assert.equal(target.writes.length, 1);
 });
 
+for (const operation of ["pay", "receive"]) {
+  test(`${operation}: a cancelled update posts no receipt and allows retrying the transaction`, async () => {
+    const { app, target, input, buttons, receipts } = creditApp("8k", "1k");
+    const update = target.update, originalError = console.error;
+    target.update = async () => undefined; // Foundry hooks may cancel without throwing.
+    console.error = () => {};
+    try { await bookCredits(app, operation); } finally { console.error = originalError; }
+    assert.equal(target.system.credits.value, "8k");
+    assert.deepEqual(target.writes, []);
+    assert.equal(receipts.length, 0);
+    assert.equal(app.closed, undefined);
+    assert.equal(input.readOnly, false);
+    assert.ok(buttons.every(button => !button.disabled));
+    assert.ok(warnings.includes("MoshQoL.Currency.App.SaveError"));
+
+    target.update = update;
+    await bookCredits(app, operation);
+    assert.equal(target.writes.length, 1);
+    assert.equal(classifyCurrency(target.system.credits.value).value, operation === "pay" ? 7000 : 9000);
+    assert.equal(receipts.length, 1);
+    assert.equal(app.closed, true);
+  });
+}
+
 test("a failed chat receipt cannot repeat a successfully saved Credits transaction", async () => {
   const { app, target } = creditApp("8k", "1k");
   const originalError = console.error;

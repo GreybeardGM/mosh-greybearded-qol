@@ -26,7 +26,7 @@ test("a cancelled or absent payable amount never becomes a zero or deducted paym
 });
 
 test("resolved actor and manual payment amounts are used exactly once", async () => {
-  const target = actor("1.5 MCR");
+  const target = actor("1.5 MCR", { persist: true });
   await payShoreLeave(target, "250 kcr");
   assert.deepEqual(target.writes, [{ "system.credits.value": "1,250.0 kcr" }]);
 });
@@ -98,10 +98,11 @@ test("duplicate clicks cannot deduct a stale balance during a slow save", async 
 });
 
 test("failed payments release their guard so a subsequent action can run", async () => {
-  const target = actor();
+  const target = actor(1000, { persist: true });
+  const update = target.update;
   target.update = async () => { throw new Error("save failed"); };
   await assert.rejects(payShoreLeave(target, 100), /save failed/);
-  target.update = async data => target.writes.push(data);
+  target.update = update;
   await payShoreLeave(target, 100);
   assert.equal(target.writes.length, 1);
 });

@@ -74,7 +74,13 @@ export async function changeCredits(actor, input, { operation, recipient = null,
       return null;
     }
     if (isTransfer) await saveCreditTransfer(snapshots);
-    else await actor.update({ [MOSH_CREDITS_PATH]: snapshots[0].formatted });
+    else {
+      await actor.update({ [MOSH_CREDITS_PATH]: snapshots[0].formatted });
+      // Hooks may cancel an update without rejecting its promise.
+      if (!Object.is(foundry.utils.getProperty(actor, MOSH_CREDITS_PATH), snapshots[0].formatted)) {
+        throw new Error("Incomplete credit update");
+      }
+    }
     return { before, amount, after: snapshots[0].after, notation,
       recipient: isTransfer ? recipient : null, recipientBefore: snapshots[1]?.before, recipientAfter: snapshots[1]?.after };
   } finally {
