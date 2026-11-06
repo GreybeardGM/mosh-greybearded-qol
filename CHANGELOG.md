@@ -2,17 +2,14 @@
 
 ## [0.8.4] - Unreleased
 ### Added
-- Credits toolbar app for character and stash sheets: receive, pay, or transfer Credits to an owned Stash or player character through one selector. All affected balances are validated before saving formatted values; compact chat receipts show the action, amount and transfer recipient.
-- Credit Handler for safe currency input and consistent output, including negative balances. Configure English (default), German, French, or Swiss notation and enable or disable automatic payments in Module Settings → Credit Handler.
+- Credits tool for receiving, paying, and transferring Credits between owned characters and Stashes, with chat receipts.
+- Credit Handler with input validation, optional automatic payments, and English, German, French, or Swiss currency notation, including negative balances.
 
 ### Changed
-- Automatic credit writes use the configured currency notation with grouping and unit prefixes.
-- Separated feature configuration from settings menus and removed obsolete code.
+- Improved dialog layouts, settings organization, and consistent currency display.
 
 ### Fixed
-- Training resolves its selected skill by UUID, preserving the target across renames without substituting another skill with the same name.
-- Apply Damage keeps separate synthetic token Actors distinct while counting linked tokens of the same Actor only once.
-- Contractor item creation now uses Foundry's current item data structure.
+- Preserved training targets across skill renames and corrected token damage targeting and Contractor item creation.
 
 ## [0.8.3] - 2026-09-28
 ### Added
