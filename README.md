@@ -71,7 +71,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 
 ## Version & Compatibility
 
-- **Current module version**: `0.8.4-dev.29`
+- **Current module version**: `0.8.4`
 - **Verified Foundry version**: `13.351`
 - **System**: Mothership 1e (`mosh`)
 - **Recommended companion compendium**: `fvtt_mosh_1e_psg`
@@ -79,7 +79,7 @@ It streamlines repetitive workflows for both players and game masters while pres
 ## Installation
 
 - GitHub repository: <https://github.com/GreybeardGM/mosh-greybearded-qol>  
-- DEV manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/dev/module.json>
+- Manifest URL: <https://raw.githubusercontent.com/GreybeardGM/mosh-greybearded-qol/main/module.json>
 
 ## Maintainer Notes
 
