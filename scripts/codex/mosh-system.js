@@ -26,3 +26,5 @@ export const MOSH_SLICKWARE_ITEM_TYPES = Object.freeze([MOSH_ITEM_TYPE_SKILL, "i
 export const MOSH_LOADOUT_CLEAR_ITEM_TYPES = MOSH_EQUIPMENT_ITEM_TYPES;
 
 export const MOSH_STARTING_CREDITS_FORMULA = "2d10 * 10";
+export const MOSH_CREDITS_PATH = "system.credits.value";
+export const MOSH_CONTRACTOR_SALARY_PATH = "system.contractor.baseSalary";

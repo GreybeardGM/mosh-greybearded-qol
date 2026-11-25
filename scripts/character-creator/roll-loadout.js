@@ -4,11 +4,22 @@ import {
   MOSH_STARTING_CREDITS_FORMULA
 } from "../codex/mosh-system.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { formatCurrency } from "../utils/normalization.js";
-import { toEmbeddedItemData } from "./utils.js";
+import { formatCurrency } from "../utils/currency-parser.js";
+import { readCurrency } from "../utils/currency.js";
+import { toEmbeddedItemData } from "../utils/item-data.js";
 
 export async function rollLoadout(actor, selectedClass, { rollCredits = false, clearItems = false } = {}) {
   if (!actor || !selectedClass) return false;
+
+  // Resolve credits before any inventory mutation: cancelling currency repair
+  // must not leave a half-applied loadout or mark the generator step complete.
+  let startingCredits;
+  if (rollCredits) {
+    const creditRoll = new Roll(MOSH_STARTING_CREDITS_FORMULA);
+    await creditRoll.evaluate();
+    startingCredits = await readCurrency(creditRoll.total, { label: actor.name });
+    if (startingCredits === null) return false;
+  }
 
   const classData = selectedClass.system ?? selectedClass; // Support for Item or raw data
   const tableUUIDs = [
@@ -86,16 +97,15 @@ export async function rollLoadout(actor, selectedClass, { rollCredits = false, c
       items
     }));
 
-  // Roll for Starting Credits
+  // Character generation intentionally replaces Credits, even with the Credit
+  // Handler disabled. The numeric roll is validated above; the old balance is irrelevant.
   if (rollCredits) {
-    const creditRoll = new Roll(MOSH_STARTING_CREDITS_FORMULA);
-    await creditRoll.evaluate();
-    const startingCredits = creditRoll.total;
-    await actor.update({ system: { credits: { value: startingCredits } } });
+    const formattedCredits = formatCurrency(startingCredits);
+    await actor.update({ system: { credits: { value: formattedCredits } } });
     blocks.push({
       type: "counter",
       label: game.i18n.localize("MoshQoL.CharacterCreator.Loadout.StartingCredits"),
-      value: formatCurrency(startingCredits)
+      value: formattedCredits
     });
   }
   

@@ -1,4 +1,5 @@
-import { normalizeText, toSkillId } from "./utils.js";
+import { normalizeText } from "../utils/normalization.js";
+export const toSkillId = value => String(value ?? "").split(".").pop();
 
 function getRawSkillReference(reference) {
   return typeof reference === "string" ? reference : reference?.uuid || reference?.id;

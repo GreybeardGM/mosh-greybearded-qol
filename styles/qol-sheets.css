@@ -1,0 +1,187 @@
+/* ==========================================================================
+   Sheet Styling
+   ========================================================================== */
+
+/* Contractor Sheet */
+
+.app.mosh.sheet.actor.character.qol-hide-system-character-config
+  > .window-header
+  > .header-button.configure-actor {
+  display: none;
+}
+
+.greybeardqol.qol-sheet.contractor .editor-content {
+  min-height: 10em;
+}
+
+.greybeardqol.qol-sheet.contractor .mainstatlabel {
+  padding: 0.5rem;
+}
+
+.greybeardqol.qol-sheet.contractor .grid-1col {
+  margin: auto 0;
+}
+
+/* The header is a flex row; the former grid/grid-2col tracks did not apply. */
+.greybeardqol.qol-sheet.contractor .contractor-header {
+  display: flex;
+  padding: 0;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor {
+  width: 100%;
+  background: black;
+  border-radius: 0.3em;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor .maxhealth-input {
+  display: flex;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor .highlightText {
+  font-size: 0.8rem;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-armor .slant {
+  border-right: 2px solid #ffffff;
+  transform: skewX(0deg);
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities > .profile {
+  height: auto;
+  width: 100%;
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities > li.creature-ability-container {
+  margin-top: -12px;
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities .item-controls {
+  margin-left: 3px;
+  font-size: 0.7rem;
+}
+
+.greybeardqol.qol-sheet.contractor .creature-abilities > .item-control[data-type="ability"] {
+  margin-left: 5px;
+}
+
+.greybeardqol.qol-sheet.contractor .contractor-skills {
+  margin-bottom: 10px;
+}
+
+.greybeardqol.qol-sheet.contractor .treatment-button {
+  margin: 0;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.greybeardqol.qol-sheet .highlighted-input {
+  color: var(--theme-color);
+  border: none;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.greybeardqol.qol-sheet .description-input {
+  margin-bottom: 0.5em;
+}
+
+.greybeardqol.qol-sheet .contractor-flag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.greybeardqol.qol-sheet .creaturedescription {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  overflow: visible;
+}
+
+.greybeardqol.qol-sheet .creature-header-grid {
+  flex-grow: 1;
+}
+
+.greybeardqol.qol-sheet .creature-abilities {
+  scrollbar-width: none;
+}
+
+/* Stash Sheet currency overlay: keep visible on dark header areas */
+.greybeardqol.qol-sheet .currency-field {
+  position: relative;
+}
+
+.greybeardqol.qol-sheet .currency-display {
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: text;
+  font-family: 'Roboto';
+}
+
+.greybeardqol.qol-sheet .stash-currency-display {
+  color: #111;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.greybeardqol.qol-sheet .sheet-body {
+  height: auto;
+}
+
+/* MoSh's inventory still uses flex rows, including different name-cell weights
+   for headers, padded item names and the optional Weight column. Keep these
+   variants: removing them changes the widths rather than discarding dead code. */
+.greybeardqol.qol-sheet .qol-gear-name,
+.greybeardqol.qol-sheet .qol-capacity-label {
+  flex-grow: 1.5;
+}
+
+.greybeardqol.qol-sheet .qol-gear-name-weighted {
+  flex-grow: 1.54;
+}
+
+.greybeardqol.qol-sheet .qol-weapon-name {
+  flex-grow: 2;
+}
+
+.greybeardqol.qol-sheet.stash .skill-name.qol-weapon-name {
+  flex-grow: 2.05;
+}
+
+.greybeardqol.qol-sheet .qol-armor-name {
+  flex-grow: 2.5;
+}
+
+.greybeardqol.qol-sheet .skill-name.qol-armor-name {
+  flex-grow: 2.55;
+}
+
+/* Creature skill-check dialog: retain MoSh layout and scope patch overrides. */
+.qol-creature-stat-pick .qol-creature-stat-intro {
+  padding-left: 8px;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-option {
+  padding-left: 3px;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-grid {
+  align-items: center;
+  grid-template-columns: 20px 60px auto;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-image {
+  padding: 5px 0;
+}
+
+.qol-creature-stat-pick .qol-creature-stat-icon {
+  border: none;
+}

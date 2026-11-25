@@ -1,6 +1,5 @@
-import { MODULE_ID, templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "../codex/mosh-system.js";
-import { normalizeBoolean } from "../utils/normalization.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -10,7 +9,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
   static DEFAULT_OPTIONS = createQolAppDefaultOptions({
     id: `${MODULE_ID}-apply-damage-input`,
     title: "MoshQoL.Damage.ApplyDamage",
-    windowClasses: "mosh-qol-apply-damage-input-window",
+    windowClasses: "apply-damage-input-window",
     position: { width: 520 },
     form: { handler: this._onSubmit, closeOnSubmit: false },
     actions: { cancel: this._onCancel, toggleTarget: this._onToggleTarget }
@@ -86,7 +85,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     if (this._selectedTargetIndexes.has(index)) this._selectedTargetIndexes.delete(index);
     else this._selectedTargetIndexes.add(index);
 
-    target.classList.toggle("selected", this._selectedTargetIndexes.has(index));
+    target.classList.toggle(QOL_STATE_CLASSES.selected, this._selectedTargetIndexes.has(index));
   }
 
   static async _onSubmit(_event, _form, formData) {
@@ -95,7 +94,7 @@ export class ApplyDamageInputApp extends HandlebarsApplicationMixin(ApplicationV
     this._resolve = null;
     resolve?.({
       damage: payload.damage,
-      antiArmor: normalizeBoolean(payload.antiArmor),
+      antiArmor: payload.antiArmor,
       selectedTargetIndexes: Array.from(this._selectedTargetIndexes)
     });
     await this.close();

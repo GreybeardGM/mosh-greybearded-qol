@@ -1,3 +1,4 @@
+import { normalizeRoster } from "./crew-roster/roster-data.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
 import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
 import { getAppRoot, resolveAppOnce } from "./utils/application-helpers.js";
@@ -8,6 +9,8 @@ import { getThemeColor } from "./utils/get-theme-color.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const SBT_TEMPLATE = "systems/mosh/templates/actor/ship-sheet-sbt.html";
+const SBT_CREW_ROLL_ANCHOR_CLASS = "qol-sbt-crew-roll-anchor";
+const SBT_CREW_ROLL_BUTTON_CLASS = "qol-sbt-crew-roll-button";
 const SUPPORTED_STATS = new Set(["thrusters", "battle", "systems"]);
 const MANUAL_SKILLS = [
   { rank: "Trained", bonus: 10 },
@@ -32,13 +35,6 @@ const ROLL_MODES = Object.freeze({
   }
 });
 
-function getSheetRoot(sheet, html) {
-  if (sheet?.element instanceof HTMLElement) return sheet.element;
-  if (sheet?.element?.[0] instanceof HTMLElement) return sheet.element[0];
-  if (html?.[0] instanceof HTMLElement) return html[0];
-  return html instanceof HTMLElement ? html : null;
-}
-
 function isSbtShipSheet(sheet) {
   if (sheet?.actor?.type !== "ship") return false;
 
@@ -47,20 +43,14 @@ function isSbtShipSheet(sheet) {
 }
 
 function getActiveRosterUuids(ship) {
-  const roster = ship?.getFlag?.(MODULE_ID, FLAG_CREW_ROSTER);
+  const roster = normalizeRoster(ship?.getFlag?.(MODULE_ID, FLAG_CREW_ROSTER));
   const uuids = [];
   const seen = new Set();
 
   for (const tab of ["character", "creature"]) {
-    const entries = Array.isArray(roster?.[tab]) ? roster[tab] : [];
-
-    for (const sourceEntry of entries) {
-      const entry = typeof sourceEntry === "string"
-        ? { uuid: sourceEntry, active: true }
-        : sourceEntry;
-      const uuid = typeof entry?.uuid === "string" ? entry.uuid.trim() : "";
-
-      if (!uuid || entry?.active === false || seen.has(uuid)) continue;
+    for (const entry of roster[tab]) {
+      const { uuid, active } = entry;
+      if (!active || seen.has(uuid)) continue;
       seen.add(uuid);
       uuids.push(uuid);
     }
@@ -258,7 +248,7 @@ async function openCrewSkillRoll(ship, statKey) {
 export function augmentSbtShipSkillRolls(sheet, html) {
   if (!isSbtShipSheet(sheet)) return;
 
-  const root = getSheetRoot(sheet, html);
+  const root = getAppRoot(sheet?.element) ?? getAppRoot(html);
   if (!root) return;
 
   for (const statLabel of root.querySelectorAll(".stat-roll[data-key]")) {
@@ -266,15 +256,15 @@ export function augmentSbtShipSkillRolls(sheet, html) {
     if (!SUPPORTED_STATS.has(statKey)) continue;
 
     const anchor = statLabel.parentElement;
-    if (!anchor || anchor.querySelector(`.gbqol-sbt-crew-roll-button[data-stat-key="${statKey}"]`)) {
+    if (!anchor || anchor.querySelector(`.${SBT_CREW_ROLL_BUTTON_CLASS}[data-stat-key="${statKey}"]`)) {
       continue;
     }
 
-    anchor.classList.add("gbqol-sbt-crew-roll-anchor");
+    anchor.classList.add(SBT_CREW_ROLL_ANCHOR_CLASS);
 
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "gbqol-sbt-crew-roll-button";
+    button.className = SBT_CREW_ROLL_BUTTON_CLASS;
     button.dataset.statKey = statKey;
     button.style.setProperty("--theme-color", getThemeColor());
 

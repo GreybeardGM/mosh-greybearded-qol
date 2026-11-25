@@ -1,8 +1,8 @@
-<div class="qolsettings" style="--theme-color: {{themeColor}};">
-  <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Training.Config.GeneralTitle"}}</h4>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.TrainingConfig.UseSkillTraining.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.TrainingConfig.UseSkillTraining.Hint"}}</small>
@@ -10,7 +10,7 @@
       <input type="checkbox" name="training.useSkillTraining" {{checked config.useSkillTraining}}>
     </label>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.TrainingConfig.AutoTrainAfterShoreLeave.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.TrainingConfig.AutoTrainAfterShoreLeave.Hint"}}</small>
@@ -19,8 +19,8 @@
     </label>
   </section>
 
-  <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Settings.TrainingConfig.Prices.Title"}}</h4>
     <small>{{localize "MoshQoL.Settings.TrainingConfig.Prices.Hint"}}</small>
 
     {{#each (array 'trained' 'expert' 'master') as |rank|}}
@@ -29,21 +29,12 @@
           <strong>{{localize (concat "MoshQoL.CharacterCreator.Skills." (capitalize rank))}}</strong>
         </label>
         <div class="inline-row">
-          <input id="training-price-{{rank}}" type="number" min="0" step="1" name="training.prices.{{rank}}" value="{{lookup ../config.prices rank}}">
+          <input id="training-price-{{rank}}" type="text" name="training.prices.{{rank}}" value="{{lookup ../config.prices rank}}">
           <span>cr</span>
         </div>
       </div>
     {{/each}}
   </section>
 
-  <footer class="form-footer">
-    <button type="button" data-action="resetDefaults">
-      <i class="fas fa-undo" aria-hidden="true"></i>
-      {{localize "MoshQoL.Common.ResetToDefault"}}
-    </button>
-    <button type="submit">
-      <i class="fas fa-save" aria-hidden="true"></i>
-      {{localize "MoshQoL.Common.SaveChanges"}}
-    </button>
-  </footer>
+  {{> "modules/mosh-greybearded-qol/templates/settings/footer.html"}}
 </div>

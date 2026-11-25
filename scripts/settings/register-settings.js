@@ -1,11 +1,16 @@
-import { ShoreLeaveConfigApp, getDefaultShoreLeaveConfigWithTiers } from "./shore-leave-config.js";
-import { ToolbandConfigApp, getDefaultToolbandConfig } from "./toolband-config.js";
+import { ShoreLeaveConfigApp } from "./shore-leave-config.js";
+import { getDefaultShoreLeaveConfig } from "../shore-leave/config.js";
+import { ToolbandConfigApp } from "./toolband-config.js";
+import { getDefaultToolbandConfig } from "../toolband/config.js";
 import { ApplyDamageConfigApp } from "./apply-damage-config.js";
-import { TrainingConfigApp, getDefaultTrainingConfig } from "./training-config.js";
+import { TrainingConfigApp } from "./training-config.js";
+import { getDefaultTrainingConfig } from "../training/config.js";
 import { CyberwareConfigApp } from "./cyberware-config.js";
+import { CreditHandlerConfigApp } from "./credit-handler-config.js";
+import { getDefaultCreditConfig } from "../currency/config.js";
+import { refreshCreditPaymentButtons } from "../chat-actions.js";
 import { getDefaultApplyDamageConfig } from "../apply-damage/config.js";
 import { getFeatureIcon } from "../codex/feature-actions.js";
-import { SHORE_LEAVE_TIERS } from "../shore-leave/default-tiers.js";
 import { MIGRATION_SETTING_DEFINITIONS } from "../migration/legacy-settings.js";
 import { refreshOpenToolbands } from "../toolband.js";
 import { refreshOpenCyberwareSheets } from "../cyberware/sheets.js";
@@ -17,9 +22,11 @@ import {
 } from "../apply-damage/target-logic.js";
 import {
   MODULE_ID,
+  SETTING_MENU_KEYS,
   SETTING_APPLY_DAMAGE_CONFIG,
   SETTING_APPLY_DAMAGE_TARGET_LOGIC,
   SETTING_CYBERWARE_SLOT_RULES,
+  SETTING_CREDIT_HANDLER_CONFIG,
   SETTING_ENABLE_CHARACTER_CREATOR,
   SETTING_ENABLE_CYBERWARE,
   SETTING_SHORE_LEAVE_CONFIG,
@@ -104,7 +111,104 @@ const CLIENT_SETTING_DEFINITIONS = [
 
 const MENU_DEFINITIONS = [
   {
-    key: "cyberwareConfigMenu",
+    key: SETTING_MENU_KEYS.toolband,
+    options: {
+      name: "MoshQoL.Settings.ToolbandConfig.Name",
+      label: "MoshQoL.Settings.ToolbandConfig.Label",
+      hint: "MoshQoL.Settings.ToolbandConfig.Hint",
+      icon: getFeatureIcon(SETTING_MENU_KEYS.toolband, "fas fa-toolbox"),
+      type: ToolbandConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_TOOLBAND_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.ToolbandConfig.SettingName",
+        type: Object,
+        default: getDefaultToolbandConfig(),
+        onChange: refreshOpenToolbands
+      }
+    }
+  },
+  {
+    key: SETTING_MENU_KEYS.applyDamage,
+    options: {
+      name: "MoshQoL.Settings.ApplyDamageConfig.Name",
+      label: "MoshQoL.Settings.ApplyDamageConfig.Label",
+      hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
+      icon: getFeatureIcon(SETTING_MENU_KEYS.applyDamage, "fas fa-heart-broken"),
+      type: ApplyDamageConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_APPLY_DAMAGE_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
+        type: Object,
+        default: getDefaultApplyDamageConfig()
+      }
+    }
+  },
+  {
+    key: SETTING_MENU_KEYS.shoreLeave,
+    options: {
+      name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
+      label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
+      hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
+      icon: getFeatureIcon(SETTING_MENU_KEYS.shoreLeave, "fas fa-edit"),
+      type: ShoreLeaveConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_SHORE_LEAVE_CONFIG,
+      options: {
+        name: "MoshQoL.Common.ShoreLeaveConfiguration",
+        type: Object,
+        default: getDefaultShoreLeaveConfig()
+      }
+    }
+  },
+  {
+    key: SETTING_MENU_KEYS.training,
+    options: {
+      name: "MoshQoL.Settings.TrainingConfig.Name",
+      label: "MoshQoL.Settings.TrainingConfig.Label",
+      hint: "MoshQoL.Settings.TrainingConfig.Hint",
+      icon: getFeatureIcon(SETTING_MENU_KEYS.training, "fa-solid fa-dumbbell"),
+      type: TrainingConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_TRAINING_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.TrainingConfig.SettingName",
+        type: Object,
+        default: getDefaultTrainingConfig()
+      }
+    }
+  },
+  {
+    key: SETTING_MENU_KEYS.creditHandler,
+    options: {
+      name: "MoshQoL.Settings.CreditHandlerConfig.Name",
+      label: "MoshQoL.Settings.CreditHandlerConfig.Label",
+      hint: "MoshQoL.Settings.CreditHandlerConfig.Hint",
+      icon: "fa-solid fa-coins",
+      type: CreditHandlerConfigApp,
+      restricted: true
+    },
+    setting: {
+      key: SETTING_CREDIT_HANDLER_CONFIG,
+      options: {
+        name: "MoshQoL.Settings.CreditHandlerConfig.Name",
+        type: Object,
+        default: getDefaultCreditConfig(),
+        onChange: () => { refreshCreditPaymentButtons(); refreshOpenToolbands(); }
+      }
+    }
+  },
+  {
+    key: SETTING_MENU_KEYS.cyberware,
     options: {
       name: "MoshQoL.Settings.CyberwareConfig.Name",
       label: "MoshQoL.Settings.CyberwareConfig.Label",
@@ -120,83 +224,6 @@ const MENU_DEFINITIONS = [
         type: Boolean,
         default: false,
         onChange: refreshOpenCyberwareSheets
-      }
-    }
-  },
-  {
-    key: "shoreLeaveEditor",
-    options: {
-      name: "MoshQoL.Settings.ShoreLeaveEditor.Name",
-      label: "MoshQoL.Settings.ShoreLeaveEditor.Label",
-      hint: "MoshQoL.Settings.ShoreLeaveEditor.Hint",
-      icon: getFeatureIcon("shoreLeaveEditor", "fas fa-edit"),
-      type: ShoreLeaveConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_SHORE_LEAVE_CONFIG,
-      options: {
-        name: "MoshQoL.Common.ShoreLeaveConfiguration",
-        type: Object,
-        default: getDefaultShoreLeaveConfigWithTiers(SHORE_LEAVE_TIERS)
-      }
-    }
-  },
-  {
-    key: "toolbandConfigMenu",
-    options: {
-      name: "MoshQoL.Settings.ToolbandConfig.Name",
-      label: "MoshQoL.Settings.ToolbandConfig.Label",
-      hint: "MoshQoL.Settings.ToolbandConfig.Hint",
-      icon: getFeatureIcon("toolbandConfigMenu", "fas fa-toolbox"),
-      type: ToolbandConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_TOOLBAND_CONFIG,
-      options: {
-        name: "MoshQoL.Settings.ToolbandConfig.SettingName",
-        type: Object,
-        default: getDefaultToolbandConfig(),
-        onChange: refreshOpenToolbands
-      }
-    }
-  },
-  {
-    key: "applyDamageConfigMenu",
-    options: {
-      name: "MoshQoL.Settings.ApplyDamageConfig.Name",
-      label: "MoshQoL.Settings.ApplyDamageConfig.Label",
-      hint: "MoshQoL.Settings.ApplyDamageConfig.Hint",
-      icon: getFeatureIcon("applyDamageConfigMenu", "fas fa-heart-broken"),
-      type: ApplyDamageConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_APPLY_DAMAGE_CONFIG,
-      options: {
-        name: "MoshQoL.Settings.ApplyDamageConfig.SettingName",
-        type: Object,
-        default: getDefaultApplyDamageConfig()
-      }
-    }
-  },
-  {
-    key: "trainingConfigMenu",
-    options: {
-      name: "MoshQoL.Settings.TrainingConfig.Name",
-      label: "MoshQoL.Settings.TrainingConfig.Label",
-      hint: "MoshQoL.Settings.TrainingConfig.Hint",
-      icon: getFeatureIcon("trainingConfigMenu", "fa-solid fa-dumbbell"),
-      type: TrainingConfigApp,
-      restricted: true
-    },
-    setting: {
-      key: SETTING_TRAINING_CONFIG,
-      options: {
-        name: "MoshQoL.Settings.TrainingConfig.SettingName",
-        type: Object,
-        default: getDefaultTrainingConfig()
       }
     }
   }

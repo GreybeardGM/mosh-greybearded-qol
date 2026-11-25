@@ -1,4 +1,17 @@
+import { SETTING_MENU_KEYS } from "./constants.js";
+
+// Keep these wire IDs stable: existing ChatMessage content and flavor store them.
+export const CHAT_ACTION_APPLY_DAMAGE_SELECTED = "applyDamageSelected";
+export const CHAT_ACTION_CONVERT_STRESS = "convertStress";
+export const CHAT_ACTION_SIMPLE_SHORE_LEAVE = "simpleShoreLeave";
+export const CHAT_ACTION_PAY_SHORE_LEAVE = "payShoreLeave";
+export const CHAT_ACTION_TRIGGER_SHIP_CRIT = "triggerShipCrit";
+
 export const FEATURE_ACTIONS = Object.freeze({
+  credits: Object.freeze({
+    action: "credits", settingKey: "credits", icon: "fa-solid fa-coins",
+    label: "Credits", labelKey: "MoshQoL.Currency.App.Title"
+  }),
   "apply-damage": Object.freeze({
     action: "apply-damage",
     settingKey: "applyDamage",
@@ -57,14 +70,14 @@ export const FEATURE_ACTIONS = Object.freeze({
 
 const FEATURE_ACTION_ALIASES = Object.freeze({
   applyDamage: "apply-damage",
-  applyDamageConfigMenu: "apply-damage",
+  [SETTING_MENU_KEYS.applyDamage]: "apply-damage",
   armorBroken: "armor-broken",
   shoreLeave: "shore-leave",
-  shoreLeaveEditor: "shore-leave",
+  [SETTING_MENU_KEYS.shoreLeave]: "shore-leave",
   crewRoster: "ship-crew-roster",
   shipCrit: "ship-crit",
-  toolbandConfigMenu: "toolband-config",
-  trainingConfigMenu: "training-config"
+  [SETTING_MENU_KEYS.toolband]: "toolband-config",
+  [SETTING_MENU_KEYS.training]: "training-config"
 });
 
 function getFeatureActionMeta(action) {

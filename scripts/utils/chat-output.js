@@ -1,4 +1,4 @@
-import { qolClassName, templatePath } from "../codex/constants.js";
+import { CHAT_ACTION_CLASS, qolClassName, templatePath } from "../codex/constants.js";
 import { getThemeColor } from "./get-theme-color.js";
 import { escapeHTML, sanitizeClassList, sanitizeDataAction } from "./html-safety.js";
 
@@ -169,6 +169,10 @@ export async function chatOutput({
   if (image) {
     icon = null;
   } else if (!icon && title) {
+    // Intentional initial-letter fallback: without image or explicit icon, use
+    // the first title character as a Font Awesome letter icon and render the rest.
+    // Missing Actor artwork or custom Shore Leave entries without icons can
+    // still reach this special case; the title truncation is deliberate.
     const normalizedTitle = String(title);
     icon = `fa-${normalizedTitle.charAt(0).toLowerCase()}`;
     title = normalizedTitle.slice(1);
@@ -184,6 +188,7 @@ export async function chatOutput({
     icon: sanitizeClassList(icon),
     image: escapeHTML(image),
     buttons: Array.isArray(buttons) ? buttons.map(prepareButton) : [],
+    chatActionClass: CHAT_ACTION_CLASS,
     themeColor: escapeHTML(getThemeColor()),
     classes: escapeHTML(qolClassName())
   });

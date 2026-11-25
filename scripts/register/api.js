@@ -3,7 +3,9 @@ export function registerModuleApi({
   SimpleShoreLeave,
   triggerShipCrit,
   startCharacterCreation,
-  applyDamage
+  applyDamage,
+  readCurrency,
+  classifyCurrency
 }) {
   game.moshGreybeardQol = game.moshGreybeardQol || {};
   game.moshGreybeardQol.convertStress = convertStress;
@@ -11,4 +13,6 @@ export function registerModuleApi({
   game.moshGreybeardQol.triggerShipCrit = triggerShipCrit;
   game.moshGreybeardQol.startCharacterCreation = startCharacterCreation;
   game.moshGreybeardQol.applyDamage = applyDamage;
+  game.moshGreybeardQol.readCurrency = readCurrency;
+  game.moshGreybeardQol.classifyCurrency = classifyCurrency;
 }

@@ -1,12 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { AUGMENTATION_DEFINITIONS, getDefaultSlotRules, normalizeSlotRules } from "../../scripts/cyberware/config.js";
-import {
-  calculateAugmentationSlots,
-  calculateAugmentationState,
-  getAugmentation,
-  getAugmentationItems
-} from "../../scripts/cyberware/slots.js";
+import { calculateAugmentationState, getAugmentation } from "../../scripts/cyberware/slots.js";
 
 const [cyberware, slickware] = AUGMENTATION_DEFINITIONS;
 let rules = getDefaultSlotRules();
@@ -33,8 +28,9 @@ test("Cyberware accepts equipment while Slickware accepts skills and ordinary it
   const skillCyberware = item("skill", augmentation(cyberware, 9));
   const character = actor(40, 30, [shared, weapon, skill, armorSlickware, skillCyberware]);
 
-  assert.deepEqual(getAugmentationItems(character, cyberware), [shared, weapon]);
-  assert.deepEqual(getAugmentationItems(character, slickware), [shared, skill]);
+  const state = calculateAugmentationState(character, { includeItems: true });
+  assert.deepEqual(state.cyberware.items, [shared, weapon]);
+  assert.deepEqual(state.slickware.items, [shared, skill]);
 });
 
 test("slot totals use Strength for Cyberware and Intellect for Slickware", () => {
@@ -43,8 +39,9 @@ test("slot totals use Strength for Cyberware and Intellect for Slickware", () =>
     item("skill", augmentation(slickware, 2)),
     item("item", augmentation(slickware, 1), { quantity: 10 })
   ]);
-  assert.deepEqual(calculateAugmentationSlots(character, cyberware), { used: 6, max: 4, overclocking: 2 });
-  assert.deepEqual(calculateAugmentationSlots(character, slickware), { used: 3, max: 3, overclocking: 0 });
+  const state = calculateAugmentationState(character);
+  assert.deepEqual(state.cyberware, { used: 6, max: 4, overclocking: 2 });
+  assert.deepEqual(state.slickware, { used: 3, max: 3, overclocking: 0 });
 });
 
 test("contractors use Instinct for both slot limits and combine Overclocking", () => {
@@ -81,8 +78,9 @@ test("each embedded item counts once regardless of quantity, equipment, or dupli
   const first = { ...item("item", augmentation(cyberware, 0), { quantity: 0 }), id: "first", name: "Implant" };
   const second = { ...item("armor", augmentation(cyberware, 2), { equipped: false }), id: "second", name: "Implant" };
   const character = actor(43, 30, [first, second]);
-  assert.deepEqual(getAugmentationItems(character, cyberware), [first, second]);
-  assert.equal(calculateAugmentationSlots(character, cyberware).used, 2);
+  const state = calculateAugmentationState(character, { includeItems: true });
+  assert.deepEqual(state.cyberware.items, [first, second]);
+  assert.equal(state.cyberware.used, 2);
 });
 
 test("status data includes enabled zero-slot items alongside its slot totals", () => {
@@ -123,12 +121,14 @@ test("four rules are independent and None uses the flat bonus after rounding", (
   rules.contractor.slickware = { attribute: "none", multiplier: 0.1, rounding: "floor", bonus: 0 };
   const character = actor(43, 30, []);
   const contractor = { type: "creature", system: { stats: { combat: { value: 43 }, instinct: { value: 90 } } }, items: [] };
-  assert.equal(calculateAugmentationSlots(character, cyberware).max, 2);
-  assert.equal(calculateAugmentationSlots(character, slickware).max, 7);
-  assert.equal(calculateAugmentationSlots(contractor, cyberware).max, 6);
-  assert.equal(calculateAugmentationSlots(contractor, slickware).max, 0);
+  const characterState = calculateAugmentationState(character);
+  const contractorState = calculateAugmentationState(contractor);
+  assert.equal(characterState.cyberware.max, 2);
+  assert.equal(characterState.slickware.max, 7);
+  assert.equal(contractorState.cyberware.max, 6);
+  assert.equal(contractorState.slickware.max, 0);
   rules.character.cyberware.bonus = -2;
-  assert.equal(calculateAugmentationSlots(character, cyberware).max, 0);
+  assert.equal(calculateAugmentationState(character).cyberware.max, 0);
   rules = getDefaultSlotRules();
 });
 

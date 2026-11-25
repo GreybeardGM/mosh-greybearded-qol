@@ -1,11 +1,13 @@
-import { FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, FLAG_TRAINING_SKILL, MODULE_ID, templatePath } from "../codex/constants.js";
 import { MOSH_ITEM_TYPE_SKILL } from "../codex/mosh-system.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, toEmbeddedItemData } from "../character-creator/utils.js";
+import { normalizeText } from "../utils/normalization.js";
+import { toEmbeddedItemData } from "../utils/item-data.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { getNormalizedTrainingConfig } from "../settings/training-config.js";
-import { formatCurrency } from "../utils/normalization.js";
+import { getNormalizedTrainingConfig } from "./config.js";
+import { formatCurrency } from "../utils/currency-parser.js";
+import { readCurrency } from "../utils/currency.js";
 import { TRAINING_SELECTED_SKILL_PATH, TRAINING_XP_VALUE_PATH } from "./constants.js";
 import {
   applyInitialAvailabilityLock,
@@ -15,7 +17,7 @@ import {
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
-} from "../character-creator/skill-selector-shared.js";
+} from "../skill-tree/selection.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -33,7 +35,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static PARTS = {
     main: {
-      template: templatePath("character-creator/skilltree-core.html")
+      template: templatePath("skill-tree/selection.html")
     },
     confirm: {
       template: templatePath("ui/confirm-button.html")
@@ -42,6 +44,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static async wait({ actor }) {
     const prep = await this._prepareData({ actor });
+    if (prep === null) return null;
     return new Promise(resolve => {
       const app = new this({ actor, resolve, ...prep });
       app.render(true);
@@ -49,6 +52,14 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   static async _prepareData({ actor }) {
+    const rankPrices = {};
+    for (const [rank, rawPrice] of Object.entries(getNormalizedTrainingConfig().prices)) {
+      const price = await readCurrency(rawPrice, {
+        label: game.i18n.localize(`MoshQoL.CharacterCreator.Skills.${rank[0].toUpperCase() + rank.slice(1)}`)
+      });
+      if (price === null) return null;
+      rankPrices[rank] = formatCurrency(price);
+    }
     const allSkills = await loadAllItemsByType(MOSH_ITEM_TYPE_SKILL);
     const sortedSkills = allSkills.map(skill => ({
       id: skill.id,
@@ -67,15 +78,16 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
         .map(item => normalizeText(item.name))
     );
 
-    return { sortedSkills, ownedSkillNames };
+    return { sortedSkills, ownedSkillNames, rankPrices };
   }
 
-  constructor({ actor, resolve, sortedSkills, ownedSkillNames }, options = {}) {
+  constructor({ actor, resolve, sortedSkills, ownedSkillNames, rankPrices }, options = {}) {
     super(options);
     this.actor = actor;
     this._resolve = resolve;
     this._resolved = false;
 
+    this.rankPrices = rankPrices;
     this.sortedSkills = sortedSkills;
     this._skillById = new Map(sortedSkills.map(skill => [skill.id, skill]));
     this.ownedSkillNames = ownedSkillNames;
@@ -123,16 +135,13 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   }
 
   async _prepareContext() {
-    const prices = getNormalizedTrainingConfig().prices;
     return appendQolThemeContext({
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "nameLower",
       defaultSkillValues: [...this.ownedSkillNames],
       showPointCounters: false,
       confirmLocked: true,
-      rankPrices: Object.fromEntries(
-        Object.entries(prices).map(([rank, price]) => [rank, formatCurrency(price)])
-      )
+      rankPrices: this.rankPrices
     });
   }
 
@@ -154,7 +163,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
     if (!confirm) return;
 
     const hasSelection = !!this._selectedNewSkillId;
-    confirm.classList.toggle("locked", !hasSelection);
+    confirm.classList.toggle(QOL_STATE_CLASSES.locked, !hasSelection);
     confirm.disabled = !hasSelection;
     confirm.setAttribute("aria-disabled", String(!hasSelection));
   }
@@ -162,20 +171,20 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
   static async _onToggleSkill(event, target) {
     const skillId = target?.dataset?.skillId;
     if (!skillId) return;
-    if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
+    if (target.classList.contains("default-skill") || target.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     const changed = new Set();
-    const isSelected = target.classList.contains("selected");
+    const isSelected = target.classList.contains(QOL_STATE_CLASSES.selected);
 
     for (const card of this._dom.skillCards) {
       if (card.classList.contains("default-skill")) continue;
-      if (card.classList.contains("selected")) changed.add(card.dataset.skillId);
-      card.classList.remove("selected");
+      if (card.classList.contains(QOL_STATE_CLASSES.selected)) changed.add(card.dataset.skillId);
+      card.classList.remove(QOL_STATE_CLASSES.selected);
       this._selectedSkillIds.delete(card.dataset.skillId);
     }
 
     if (!isSelected) {
-      target.classList.add("selected");
+      target.classList.add(QOL_STATE_CLASSES.selected);
       this._selectedSkillIds.add(skillId);
       this._selectedNewSkillId = skillId;
       changed.add(skillId);
@@ -193,7 +202,7 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
   static async _onSubmit() {
     const confirm = this._dom?.confirm;
-    if (!confirm || confirm.classList.contains("locked")) return;
+    if (!confirm || confirm.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     const selectedCard = this._dom.skillCards.find(el => el.dataset.skillId === this._selectedNewSkillId);
     const selectedUuid = selectedCard?.dataset?.uuid;
@@ -211,14 +220,10 @@ export class TrainingSkillSelectorApp extends HandlebarsApplicationMixin(Applica
 
     if (getNormalizedTrainingConfig().useSkillTraining) {
       await this.actor.update({
+        // The native name field is display data; only this UUID identifies the training target.
+        [`flags.${MODULE_ID}.${FLAG_TRAINING_SKILL}.uuid`]: selectedItem.uuid ?? selectedUuid,
         [TRAINING_SELECTED_SKILL_PATH]: selectedItem.name ?? "",
         [TRAINING_XP_VALUE_PATH]: 1
-      });
-      await this.actor.setFlag(MODULE_ID, FLAG_TRAINING_SKILL, {
-        name: selectedItem.name ?? "",
-        uuid: selectedItem.uuid ?? selectedUuid,
-        img: selectedItem.img ?? "",
-        rank: selectedItem.system?.rank ?? ""
       });
       resolveAppOnce(this, selectedItem);
       return;

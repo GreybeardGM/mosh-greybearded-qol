@@ -1,11 +1,11 @@
 <div class="stress-conversion-content" style="--theme-color: {{themeColor}};">
-<div class="card-grid" style="--col-count: 3;">
+<div class="card-grid">
   {{#each attrs as |entry|}}
     <div class="card dialog-card interactive" data-action="incrementAttr" data-attr="{{entry.attr}}">
       <input type="hidden" name="{{entry.attr}}" value="{{entry.value}}">
       <img class="icon" src="{{entry.icon}}" alt="{{entry.label}} Icon">
       <h3>{{entry.label}}</h3>
-      <div data-counter="{{entry.attr}}" class="counter" style="margin-top:0.5em;">
+      <div data-counter="{{entry.attr}}" class="counter stress-conversion-counter">
         {{entry.value}}{{#if entry.diffText}} <span class="bonus">[{{entry.diffText}}]</span>{{/if}}
       </div>
     </div>

@@ -1,7 +1,7 @@
-import { templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, templatePath } from "../codex/constants.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -65,7 +65,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
 
       set.querySelectorAll(".card").forEach(card => {
         const isSelected = card.dataset.attr === selectedAttr;
-        card.classList.toggle("selected", isSelected);
+        card.classList.toggle(QOL_STATE_CLASSES.selected, isSelected);
       });
     });
 
@@ -73,7 +73,7 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
     if (!confirm) return;
 
     const locked = this._selectedBySet.size !== this.attributeSets.length;
-    confirm.classList.toggle("locked", locked);
+    confirm.classList.toggle(QOL_STATE_CLASSES.locked, locked);
     confirm.disabled = locked;
   }
 
@@ -86,12 +86,6 @@ export class AttributeSelectorApp extends HandlebarsApplicationMixin(Application
 
   _onRender(context, options) {
     super._onRender(context, options);
-
-    const root = this._getRoot();
-    if (!root) return;
-
-    applyAppWrapperLayout(root, { width: "auto" });
-
     this._updateSelectionUi();
   }
 

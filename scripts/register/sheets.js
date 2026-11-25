@@ -27,14 +27,17 @@ export function registerActorSheets() {
   });
 }
 
-export function getSheetKind(sheet) {
-  const actor = sheet?.actor;
-
+export function getSheetKind(sheet, actor = sheet?.actor) {
   if (sheet instanceof QoLContractorSheet) return "contractor";
   if (StashSheet && sheet instanceof StashSheet) return "stash";
   if (actor?.type === "ship") return "ship";
   if (actor?.type === "character") return "character";
-  if (actor?.type === "creature") return "creature";
+  if (actor?.type === "creature") {
+    // Damage processing also needs the assigned class when no sheet instance is available.
+    const sheetClass = actor.getFlag?.("core", "sheetClass");
+    return typeof sheetClass === "string" && sheetClass.includes(QoLContractorSheet.name)
+      ? "contractor" : "creature";
+  }
 
   return "unknown";
 }

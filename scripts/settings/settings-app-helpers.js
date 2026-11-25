@@ -1,5 +1,5 @@
 import { templatePath } from "../codex/constants.js";
-import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
+import { createQolAppDefaultOptions } from "../utils/application-options.js";
 
 export function createSettingsAppDefaultOptions({
   id,
@@ -7,12 +7,13 @@ export function createSettingsAppDefaultOptions({
   submitHandler,
   resetDefaultsHandler,
   width = 550,
-  height = "auto"
+  height = "auto",
+  closeOnSubmit = true
 }) {
   return createQolAppDefaultOptions({
     id,
     title,
-    windowClasses: "qolsettings-window",
+    windowClasses: "settings-window",
     window: {
       resizable: true
     },
@@ -21,7 +22,8 @@ export function createSettingsAppDefaultOptions({
       height
     },
     form: {
-      handler: submitHandler
+      handler: submitHandler,
+      closeOnSubmit
     },
     actions: {
       resetDefaults: resetDefaultsHandler
@@ -32,13 +34,11 @@ export function createSettingsAppDefaultOptions({
 export function createSettingsAppParts(relativeTemplatePath) {
   return {
     form: {
-      template: templatePath(relativeTemplatePath)
+      template: templatePath(relativeTemplatePath),
+      // ApplicationV2 loads the footer partial before rendering any settings form.
+      templates: [templatePath(relativeTemplatePath), templatePath("settings/footer.html")]
     }
   };
-}
-
-export function appendThemeColor(context) {
-  return appendQolThemeContext(context);
 }
 
 export function notifyLocalized(type, localizationKey) {

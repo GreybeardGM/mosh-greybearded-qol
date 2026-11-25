@@ -13,3 +13,17 @@ export const TARGET_LOGIC_CHOICE_KEYS = {
   characterFirst: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.CharacterFirst",
   tokenFirst: "MoshQoL.Settings.ApplyDamageTargetLogic.Choices.TokenFirst"
 };
+
+/** Linked tokens share an Actor UUID; separate synthetic token Actors must stay distinct. */
+export function getUniqueActorsFromTargets(targets) {
+  const rawList = Array.isArray(targets) ? targets : [targets];
+  const seen = new Set();
+  return rawList.flatMap(target => {
+    const actor = target?.actor ?? target;
+    if (!actor) return [];
+    const key = actor.uuid ?? actor.id ?? actor;
+    if (seen.has(key)) return [];
+    seen.add(key);
+    return [actor];
+  });
+}

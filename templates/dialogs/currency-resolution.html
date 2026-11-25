@@ -1,0 +1,9 @@
+<section class="card" style="--theme-color: {{themeColor}};">
+  {{#if label}}<p><strong>{{label}}</strong></p>{{/if}}
+  <p>{{localize "MoshQoL.Currency.Invalid"}}</p>
+  <pre>{{raw}}</pre>
+  <p>{{reason}}</p>
+  <p>{{localize "MoshQoL.Currency.Config.Notation"}}: {{notationLabel}}</p>
+  <p id="qol-currency-correction-label">{{localize "MoshQoL.Currency.Correction"}}</p>
+  <input type="text" name="currencyInput" aria-labelledby="qol-currency-correction-label" value="{{raw}}" autocomplete="off" autofocus>
+</section>

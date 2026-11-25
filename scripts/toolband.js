@@ -1,12 +1,16 @@
 import { checkReady, checkCompleted, setReady, setCompleted } from "./character-creator/progress.js";
 import { getThemeColor } from "./utils/get-theme-color.js";
+import { getAppRoot } from "./utils/application-helpers.js";
 import { ShipCrewRosterApp } from "./ship-crew-roster.js";
-import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./settings/toolband-config.js";
+import { getNormalizedToolbandConfig, isToolbandButtonEnabledInConfig } from "./toolband/config.js";
 import { makeToolbandButton } from "./codex/toolband-buttons.js";
-import { MODULE_ID, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
+import { FEATURE_ACTIONS } from "./codex/feature-actions.js";
+import { MODULE_ID, QOL_STATE_CLASSES, SETTING_ENABLE_CHARACTER_CREATOR, STATUS_ARMOR_BROKEN, qolClassName } from "./codex/constants.js";
 import { sanitizeClassTokens, sanitizeDataAction } from "./utils/html-safety.js";
 import { getSheetKind } from "./register/sheets.js";
 import { handleTrainingAction } from "./training/training-action.js";
+import { CreditsApp } from "./currency/credits-app.js";
+import { isCreditHandlerEnabled } from "./currency/config.js";
 
 const CLS = "toolband";
 
@@ -25,7 +29,7 @@ function renderToolbandButton(button) {
   const el = document.createElement("button");
   el.type = "button";
   el.classList.add(`${CLS}-btn`, "pill", "interactive");
-  el.classList.toggle("is-active", pressed);
+  el.classList.toggle(QOL_STATE_CLASSES.active, pressed);
   el.setAttribute("data-action", sanitizeDataAction(button?.id));
   el.setAttribute("title", label);
   el.setAttribute("aria-pressed", String(pressed));
@@ -39,11 +43,6 @@ function renderToolbandButton(button) {
 
   el.append(icon, text);
   return el;
-}
-
-/** Immer Live-Root verwenden; html[0] kann ein Fragment sein */
-function getRoot(sheet, html){
-  return (sheet?.element?.[0]) || (html?.[0]) || null;
 }
 
 function addArmorBrokenButton(buttons, actor) {
@@ -64,16 +63,16 @@ export function syncArmorBrokenToolbandButton(actor) {
   const active = actor.statuses.has(STATUS_ARMOR_BROKEN);
 
   forEachOpenActorSheet(actor, (app) => {
-    const button = app.element?.[0]?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
+    const button = getAppRoot(app.element)?.querySelector(`.toolband[data-appid="${app.appId}"] .toolband-btn[data-action="armor-broken"]`);
     if (!button) return;
 
-    button.classList.toggle("is-active", active);
+    button.classList.toggle(QOL_STATE_CLASSES.active, active);
     button.setAttribute("aria-pressed", String(active));
   });
 }
 
 function refreshToolbandForSheet(sheet) {
-  const root = getRoot(sheet);
+  const root = getAppRoot(sheet.element);
   if (!root?.querySelector(`.${CLS}[data-appid="${sheet.appId}"]`)) return;
 
   upsertToolband(sheet, [root], {
@@ -139,6 +138,9 @@ function getToolbandButtons({ actor, kind, isGM }) {
       break;
   }
 
+  if (["character", "stash"].includes(kind) && actor?.isOwner && isCreditHandlerEnabled()) {
+    buttons.push(makeToolbandButton(FEATURE_ACTIONS.credits.action));
+  }
   return buttons;
 }
 
@@ -167,96 +169,13 @@ async function handleArmorBrokenAction(sheet) {
   syncArmorBrokenToolbandButton(actor);
 }
 
-async function rollContractorDetails(sheet, actor, { loyalty = false, motivation = false, loadout = false } = {}) {
-  if (!actor) return;
-
-  if (loyalty && typeof sheet?._rollContractorLoyalty === "function") {
-    await sheet._rollContractorLoyalty(actor);
-  }
-
-  if (motivation && typeof sheet?._rollContractorMotivation === "function") {
-    await sheet._rollContractorMotivation(actor);
-  }
-
-  if (loadout && typeof sheet?._rollContractorLoadout === "function") {
-    await sheet._rollContractorLoadout(actor);
-  }
-}
-
-async function markContractorNamed(actor) {
-  if (!actor) return;
-
-  await actor.update({
-    "system.contractor.isNamed": true,
-    "system.stats.loyalty.enabled": true
-  });
-}
-
-async function handlePromoteContractorAction(sheet, { isGM = false } = {}) {
-  const actor = sheet?.actor;
-  if (!isGM || !actor) return;
-
-  const choice = await foundry.applications.api.DialogV2.wait({
-    window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
-    content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
-    buttons: [
-      { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
-      { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
-      { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
-    ],
-    default: "roll"
-  });
-
-  switch (choice) {
-    case "roll":
-      await markContractorNamed(actor);
-      await rollContractorDetails(sheet, actor, { loyalty: true, motivation: true, loadout: true });
-      break;
-    case "manual":
-      await markContractorNamed(actor);
-      break;
-    default:
-      return;
-  }
-
-  return sheet.render();
-}
-
-async function handleContractorMenuAction(sheet, { isGM = false } = {}) {
-  const actor = sheet?.actor;
-  if (!isGM || !actor) return;
-
-  await foundry.applications.api.DialogV2.wait({
-    window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
-    content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
-    buttons: [
-      {
-        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
-        icon: "fa-solid fa-handshake",
-        action: "loyalty",
-        callback: () => rollContractorDetails(sheet, actor, { loyalty: true })
-      },
-      {
-        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
-        icon: "fa-solid fa-fire",
-        action: "motivation",
-        callback: () => rollContractorDetails(sheet, actor, { motivation: true })
-      },
-      {
-        label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
-        icon: "fa-solid fa-boxes-stacked",
-        action: "loadout",
-        callback: () => rollContractorDetails(sheet, actor, { loadout: true })
-      }
-    ],
-    default: "loyalty"
-  });
-}
-
-function handleToolbandAction(action, sheet, ctx = {}) {
+function handleToolbandAction(action, sheet) {
   const actor = sheet?.actor;
 
   switch (action) {
+    case FEATURE_ACTIONS.credits.action:
+      if (!actor?.isOwner || !isCreditHandlerEnabled()) return;
+      return new CreditsApp({ actor }).render(true);
     case "ship-crit":
       if (!actor) return;
       return game.moshGreybeardQol.triggerShipCrit(null, actor.uuid);
@@ -281,9 +200,9 @@ function handleToolbandAction(action, sheet, ctx = {}) {
     case "armor-broken":
       return handleArmorBrokenAction(sheet);
     case "promote-contractor":
-      return handlePromoteContractorAction(sheet, ctx);
+      return sheet.promoteContractor?.();
     case "contractor-menu":
-      return handleContractorMenuAction(sheet, ctx);
+      return sheet.openContractorMenu?.();
   }
 }
 
@@ -298,8 +217,8 @@ function getButtonRenderSignature(buttons) {
 export function upsertToolband(sheet, html, ctx = {}) {
   const { kind = "unknown", isGM = false } = ctx;
 
-  // Root & Header
-  const root = html?.[0];
+  // Prefer the live window: render-hook HTML may be a fragment without its header.
+  const root = getAppRoot(sheet.element) ?? getAppRoot(html);
   if (!root) return;
   root.classList.add(`has-${CLS}`);
 
@@ -322,7 +241,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
       ev.preventDefault();
       ev.stopPropagation();
 
-      return handleToolbandAction(btn.dataset.action, sheet, { isGM });
+      return handleToolbandAction(btn.dataset.action, sheet);
     }, { passive: false });
   }
 
@@ -352,7 +271,7 @@ export function upsertToolband(sheet, html, ctx = {}) {
 
 /** Aufräumen über App-ID */
 export function removeToolband(sheet){
-  const root = getRoot(sheet);
+  const root = getAppRoot(sheet.element);
   if (!root) return;
   root.querySelectorAll(`.${CLS}[data-appid="${sheet.appId}"]`).forEach(n => n.remove());
 }

@@ -1,5 +1,5 @@
 // Module-wide IDs, settings, flags, and default CSS class names belong here.
-// Keep feature-local constants in their feature module only when no other file needs them.
+// Feature-specific defaults and helpers stay with their feature, even when settings import them.
 export const MODULE_ID = "mosh-greybearded-qol";
 export const MODULE_PATH = `modules/${MODULE_ID}`;
 export const DEFAULT_THEME_COLOR = "#f50";
@@ -9,6 +9,14 @@ export const QOL_UI_CLASS = "qol-ui";
 export const QOL_SHEET_CLASS = "qol-sheet";
 export const HIDE_SYSTEM_CHARACTER_CONFIG_CLASS = "qol-hide-system-character-config";
 export const CHAT_ACTION_CLASS = "chat-action";
+export const CURRENCY_DIALOG_CLASS = "qol-currency-resolution";
+export const CREDITS_APP_CLASS = "qol-credits-app";
+
+export const QOL_STATE_CLASSES = Object.freeze({
+  active: "is-active",
+  selected: "is-selected",
+  locked: "is-locked"
+});
 
 export const QOL_UI_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_UI_CLASS]);
 export const QOL_SHEET_CLASSES = Object.freeze([QOL_NAMESPACE_CLASS, QOL_SHEET_CLASS]);
@@ -28,7 +36,7 @@ export function qolClassName(...extraClasses) {
 export const CHAT_ACTION_SELECTOR = `.${QOL_NAMESPACE_CLASS} .${CHAT_ACTION_CLASS}`;
 
 export function modulePath(relativePath = "") {
-  const normalizedPath = String(relativePath ?? "").replace(/^\/+/, "");
+  const normalizedPath = normalizeRelativePath(relativePath);
   return normalizedPath ? `${MODULE_PATH}/${normalizedPath}` : MODULE_PATH;
 }
 
@@ -63,3 +71,14 @@ export const SETTING_SHORE_LEAVE_CONFIG = "shoreLeaveConfig";
 export const SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR = "simpleShoreLeave.disableFlavor";
 export const SETTING_TOOLBAND_CONFIG = "toolbandConfig";
 export const SETTING_TRAINING_CONFIG = "trainingConfig";
+export const SETTING_CREDIT_HANDLER_CONFIG = "creditHandlerConfig";
+
+// Keep menu keys stable so existing settings links continue to resolve.
+export const SETTING_MENU_KEYS = Object.freeze({
+  toolband: "toolbandConfigMenu",
+  applyDamage: "applyDamageConfigMenu",
+  shoreLeave: "shoreLeaveEditor",
+  training: "trainingConfigMenu",
+  creditHandler: "creditHandlerConfigMenu",
+  cyberware: "cyberwareConfigMenu"
+});

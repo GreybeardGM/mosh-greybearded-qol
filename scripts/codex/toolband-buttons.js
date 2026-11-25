@@ -26,6 +26,7 @@ export const TOOLBAND_SCOPE_META = [
 export const TOOLBAND_SCOPES = TOOLBAND_SCOPE_META.map((scope) => scope.id);
 
 export const TOOLBAND_BUTTONS = [
+  { ...FEATURE_ACTIONS.credits, configurable: true, scopes: ["character", "stash"] },
   {
     ...FEATURE_ACTIONS["apply-damage"],
     configurable: true,

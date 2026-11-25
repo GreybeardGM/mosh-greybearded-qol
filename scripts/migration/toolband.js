@@ -1,4 +1,4 @@
-import { normalizeToolbandConfig } from "../settings/toolband-config.js";
+import { normalizeToolbandConfig } from "../toolband/config.js";
 import { MODULE_ID, SETTING_TOOLBAND_CONFIG } from "../codex/constants.js";
 
 export const LEGACY_SHIP_CRITS_SETTING = "enableShipCrits";

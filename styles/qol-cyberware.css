@@ -1,5 +1,5 @@
 /* Appearance comes from the shared pill, form controls and checkbox ::after. */
-.greybeardqol.qol-ui.qolsettings-window .qol-slot-rule select {
+.greybeardqol.qol-ui .qol-slot-rule select {
   width: auto;
   max-width: 100%;
 }
@@ -29,7 +29,7 @@
   display: flex;
 }
 
-.greybeardqol.qol-ui.qol-augmentation-status + .greybeardqol.qol-ui.qol-augmentation-status {
+.greybeardqol.qol-ui.qol-augmentation-status + .qol-augmentation-status {
   margin-top: 0.25rem;
 }
 
@@ -55,21 +55,6 @@
 .greybeardqol.qol-ui.qol-overclocking-dialog.window-content {
   overflow-y: auto;
   max-height: 85vh;
-}
-
-.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking,
-.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-levels {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level {
-  gap: 0.35rem;
-}
-
-.greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level p {
-  margin: 0;
 }
 
 .greybeardqol.qol-ui.qol-overclocking-dialog .qol-overclocking-level.is-inactive {

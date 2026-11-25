@@ -1,8 +1,8 @@
-<div class="qolsettings" style="--theme-color: {{themeColor}};">
-  <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.ShoreLeave.Editor.GeneralTitle"}}</h4>
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.ShoreLeave.Editor.GeneralTitle"}}</h4>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.SimpleShoreLeave.RandomFlavor.Hint"}}</small>
@@ -11,10 +11,10 @@
     </label>
   </section>
 
-  <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Common.StressConversion"}}</h4>
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Common.StressConversion"}}</h4>
 
-    <div class="form-group qolsettings-wide-input">
+    <div class="form-group settings-wide-input">
       <label for="shore-leave-convert-formula">
         <strong>{{localize "MoshQoL.Settings.ConvertStress.Formula.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.ConvertStress.Formula.Hint"}}</small>
@@ -22,7 +22,7 @@
       <input id="shore-leave-convert-formula" type="text" name="shoreLeave.convertStress.formula" value="{{options.convertStress.formula}}">
     </div>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.ConvertStress.NoSanitySave.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.ConvertStress.NoSanitySave.Hint"}}</small>
@@ -30,7 +30,7 @@
       <input type="checkbox" name="shoreLeave.convertStress.noSanitySave" {{checked options.convertStress.noSanitySave}}>
     </label>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.ConvertStress.NoStressRelieve.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.ConvertStress.NoStressRelieve.Hint"}}</small>
@@ -38,7 +38,7 @@
       <input type="checkbox" name="shoreLeave.convertStress.noStressRelieve" {{checked options.convertStress.noStressRelieve}}>
     </label>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.ConvertStress.MinStressConversion.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.ConvertStress.MinStressConversion.Hint"}}</small>
@@ -47,8 +47,8 @@
     </label>
   </section>
 
-  <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.ShoreLeave.Editor.TiersTitle"}}</h4>
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.ShoreLeave.Editor.TiersTitle"}}</h4>
 
     {{#each tiers as |tier i|}}
     <fieldset>
@@ -88,8 +88,5 @@
     {{/each}}
   </section>
 
-  <footer class="form-footer">
-    <button type="button" class="dialog-button" data-action="resetDefaults">{{localize "MoshQoL.Common.ResetToDefault"}}</button>
-    <button type="submit" class="dialog-button default">{{localize "MoshQoL.Common.SaveChanges"}}</button>
-  </footer>
+  {{> "modules/mosh-greybearded-qol/templates/settings/footer.html"}}
 </div>

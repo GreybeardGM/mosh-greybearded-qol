@@ -1,4 +1,4 @@
-import { qolWindowClasses } from "../codex/constants.js";
+import { CHAT_ACTION_CLASS, qolWindowClasses } from "../codex/constants.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { normalizeNumber } from "../utils/normalization.js";
 import {
@@ -7,7 +7,7 @@ import {
   isDamageRoll
 } from "./extract-damage-roll.js";
 import { canShowApplyDamageUI } from "./policy.js";
-import { getFeatureIcon } from "../codex/feature-actions.js";
+import { CHAT_ACTION_APPLY_DAMAGE_SELECTED, getFeatureIcon } from "../codex/feature-actions.js";
 
 function getApplyDamageChatButtonRoll(message) {
   const woundEffect = extractWoundEffectFromMessageContent(message);
@@ -71,9 +71,9 @@ function createApplyDamageChatButtons(damageRoll) {
 function createApplyDamageButton({ damage, antiArmor, icon, label, title, flex, woundType, woundRollModifier }) {
   const button = document.createElement("button");
   button.type = "button";
-  button.classList.add("apply-damage-chat-button", "chat-action", "interactive");
+  button.classList.add("apply-damage-chat-button", CHAT_ACTION_CLASS, "interactive");
   button.classList.add(antiArmor ? "anti-armor" : "regular-damage");
-  button.dataset.action = "applyDamageSelected";
+  button.dataset.action = CHAT_ACTION_APPLY_DAMAGE_SELECTED;
   button.dataset.args = JSON.stringify(createApplyDamageArgs({ damage, antiArmor, woundType, woundRollModifier }));
   button.style.flexGrow = String(flex);
   button.title = title;

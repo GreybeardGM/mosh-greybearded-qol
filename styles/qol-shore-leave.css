@@ -1,0 +1,20 @@
+/* Shore Leave tier selection. */
+
+.greybeardqol.qol-ui .shore-leave-flavor-description {
+  min-height: 7.2rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.greybeardqol.qol-ui .shore-leave-flavor-label {
+  font-weight: bold;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stress conversion uses the shared three-column card grid. */
+.greybeardqol.qol-ui .stress-conversion-counter {
+  margin-top: 0.5em;
+}

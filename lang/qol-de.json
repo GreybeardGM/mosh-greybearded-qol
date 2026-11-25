@@ -211,6 +211,11 @@
           "Title": "Trainingspreise",
           "Hint": "Lege den im Trainings-Auswahlfenster angezeigten Credit-Preis für jede Fertigkeitsstufe fest."
         }
+      },
+      "CreditHandlerConfig": {
+        "Name": "Credit Handler",
+        "Label": "Credit Handler konfigurieren",
+        "Hint": "Automatische Credit-Verwaltung und die Währungsschreibweise für diese Welt festlegen."
       }
     },
     "ShoreLeave": {
@@ -315,6 +320,7 @@
       }
     },
     "CrewRoster": {
+      "UnknownSalary": "Unbekannt",
       "SaveError": "Änderungen an der Mannschaftsliste konnten nicht gespeichert werden.",
       "Actions": {
         "RemoveEntry": "Aus der Liste entfernen",
@@ -449,6 +455,57 @@
       "NoCrewSkills": "Im aktiven Crew Roster wurden keine Skills gefunden.",
       "RollUnavailable": "Der MOSH-Schiffswurf ist nicht verfügbar.",
       "Error": "Der Crew-Skill-Wurf konnte nicht ausgeführt werden."
+    },
+    "Currency": {
+      "Title": "Währungswert klären",
+      "Invalid": "Ungültige Zeichenfolge.",
+      "Correction": "Währungswert korrigieren",
+      "Submit": "Eingabe",
+      "Changed": "Der Währungswert oder die Schreibweise wurde während dieser Aktion geändert. Es wurde nichts gespeichert. Bitte erneut versuchen.",
+      "Notation": {
+        "de": "Deutsch",
+        "en": "Englisch",
+        "fr": "Französisch",
+        "ch": "Schweizerisch"
+      },
+      "Errors": {
+        "not_finite": "Der Wert muss eine endliche Zahl sein.",
+        "fractional_credits": "Nach Anwendung der Einheit enthält der Wert Bruchteile eines Credits. Gib eine ganze Anzahl Credits ein.",
+        "integer_out_of_range": "Der Wert liegt außerhalb des sicher unterstützten Ganzzahlbereichs (-9.007.199.254.740.991 bis 9.007.199.254.740.991 Credits).",
+        "unsupported_type": "Gib den Währungswert als Text oder Zahl ein.",
+        "empty": "Der Währungswert ist leer.",
+        "forbidden_character": "Die Eingabe enthält nicht unterstützte Zeichen. Erlaubt sind Ziffern, die Trennzeichen der gewählten Schreibweise, ein optionales führendes Minus und optional k, M, G oder CR.",
+        "invalid_structure": "Ein Minus darf nur einmal direkt vor der Zahl stehen. Einheit und das optionale einzelne Leerzeichen dürfen nur einmal am Ende der Zahl stehen.",
+        "invalid_notation": "Die Zahl entspricht nicht der für diese Welt eingestellten Währungsschreibweise."
+      },
+      "App": {
+        "Title": "Credits",
+        "Balance": "Guthaben",
+        "Amount": "Betrag",
+        "Transfer": "Transfer",
+        "NoRecipients": "Keine verfügbaren Empfänger",
+        "InvalidRecipient": "Der gewählte Empfänger ist nicht mehr verfügbar oder beschreibbar. Öffne Credits erneut und wähle einen Empfänger.",
+        "InvalidSource": "Öffne für diese Überweisung den gespeicherten Actor aus der Actor-Liste.",
+        "CheckBalances": "Die Überweisung konnte nicht vollständig zurückgesetzt werden. Prüfe beide Kontostände vor einem erneuten Versuch.",
+        "Receive": "Erhalten",
+        "Pay": "Bezahlen",
+        "Hint": "{notation}: {example} · Kurzformen: k, M, G",
+        "NoPermission": "Du darfst die Credits dieses Actors nicht ändern.",
+        "SignConflict": "Ein negativer Betrag widerspricht Erhalten. Nutze Bezahlen oder gib einen positiven Betrag ein.",
+        "CannotAfford": "{actorName} hat nicht genügend Credits.",
+        "Disabled": "Der Credit Handler ist deaktiviert. Es wurden keine Credits geändert.",
+        "SaveError": "Die Credits konnten nicht gespeichert werden.",
+        "ChatError": "Die Credits wurden gespeichert, aber die Chatkarte konnte nicht erstellt werden. Wiederhole die Buchung nicht."
+      },
+      "Config": {
+        "Enabled": "Credit Handler",
+        "EnabledHint": "Automatische Credit-Änderungen wie Pay Up aktivieren. Bei Deaktivierung bleiben manuelle Eingaben und Start-Credits aus dem Charaktergenerator möglich.",
+        "Notation": "Währungsschreibweise",
+        "NotationHint": "Gilt beim Lesen und Anzeigen von Währung für alle in dieser Welt, auch bei deaktiviertem Credit Handler. Die Oberflächensprache hat keinen Einfluss.",
+        "WarningTitle": "Währungsschreibweise ändern?",
+        "Warning": "Eine Umstellung im laufenden Betrieb kann zur Fehlinterpretation bestehender Währungsstrings führen. Vorhandene Werte werden nicht automatisch umgewandelt. Im Zweifel lieber die bisherige Schreibweise beibehalten. Bestätigen übernimmt die Auswahl; erst Änderungen speichern wendet sie für die Welt an."
+      },
+      "Unavailable": "Nicht berechenbar"
     }
   }
 }

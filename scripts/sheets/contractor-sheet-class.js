@@ -1,10 +1,12 @@
 import { MODULE_ID, SETTING_ENABLE_CYBERWARE, qolSheetClasses, templatePath } from "../codex/constants.js";
-import { getAugmentationStatusRows, OVERCLOCKING_TRIGGER_CLASS } from "../cyberware/status.js";
+import { AUGMENTATION_ITEMS_CLASS, getAugmentationStatusRows, OVERCLOCKING_TRIGGER_CLASS } from "../cyberware/status.js";
 import { openOverclockingDialog } from "../cyberware/overclocking-dialog.js";
 import { getThemeColor } from "../utils/get-theme-color.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { parseCurrencyValue } from "../utils/normalization.js";
-import { attachCurrencyFieldHandlers } from "../utils/currency-field.js";
+import { validateCurrencyFieldUpdate } from "../utils/currency.js";
+import { MOSH_CONTRACTOR_SALARY_PATH } from "../codex/mosh-system.js";
+import { attachCurrencyFieldHandlers, syncCurrencyFieldBaseline } from "../utils/currency-field.js";
+import { capitalize } from "../utils/normalization.js";
 import { ClassSelectorApp } from "../character-creator/select-class.js";
 import { rollLoadout } from "../character-creator/roll-loadout.js";
 import { MOTIVATION_TABLE } from "./contractor-motivation-table.js";
@@ -13,7 +15,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
     /** @override */
     static get defaultOptions() {
-        var options = {
+        const options = {
             classes: qolSheetClasses("actor", "creature", "contractor"),
             template: templatePath("sheets/contractor-sheet.html"),
             width: 700,
@@ -25,10 +27,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     async _updateObject(event, formData) {
-        const salaryPath = "system.contractor.baseSalary";
-        if (salaryPath in formData) {
-            formData[salaryPath] = parseCurrencyValue(formData[salaryPath]);
-        }
+        // Salary entry is an explicit user edit, independent of automatic payments.
+        if (!await validateCurrencyFieldUpdate(this, formData, MOSH_CONTRACTOR_SALARY_PATH)) return;
         formData["system.health.value"] = 0;
         formData["system.health.max"] = 0;
 
@@ -38,6 +38,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         await actor.update(updateData, {
             diff: false
         });
+        syncCurrencyFieldBaseline(this, formData, MOSH_CONTRACTOR_SALARY_PATH);
     }
 
     /* -------------------------------------------- */
@@ -46,15 +47,15 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     async getData() {
       const sheetData = await super.getData();
-      sheetData.dtypes = ["String", "Number", "Boolean"];
-      let actorData = sheetData.data;
+      const actorData = sheetData.data;
     
       this._prepareContractorItems(sheetData);
         
-      // Feste Settings als Platzhalter
+      // Prepare display defaults without replacing absent salaries with real zero wages.
       actorData.system.contractor = {
+        ...actorData.system.contractor,
         isNamed: this.actor.system.contractor?.isNamed ?? false,
-        baseSalary: this.actor.system.contractor?.baseSalary ?? 0,
+        baseSalary: this.actor.system.contractor?.baseSalary ?? "",
         role: this.actor.system.contractor?.role ?? "",
         motivation: this.actor.system.contractor?.motivation ?? "",
         hiddenMotivation: this.actor.system.contractor?.hiddenMotivation ?? ""
@@ -80,22 +81,13 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
       return actorData;
     }
 
-    /**
-     * Get the remaining wounds of the creature
-     * @param {JQuery} html 
-     * @returns {int} hits.max - hits.value
-     */
-    getWoundsLeft(html){
-        return html.find(`input[name="system.hits.max"]`).prop('value') - html.find(`input[name="system.hits.value"]`).prop('value'); 
-    }
-
-    _duplicateEmbeddedItem(itemId) {
-        return foundry.utils.duplicate(this.actor.getEmbeddedDocument("Item", itemId));
+    _getItemFromEvent(event) {
+        const itemId = event.currentTarget.closest(".item")?.dataset.itemId;
+        return itemId ? this.actor.getEmbeddedDocument("Item", itemId) : null;
     }
 
     _duplicateItemFromEvent(event) {
-        const li = event.currentTarget.closest(".item");
-        return this._duplicateEmbeddedItem(li.dataset.itemId);
+        return foundry.utils.duplicate(this._getItemFromEvent(event));
     }
 
     /**
@@ -121,7 +113,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // Iterate through items, allocating to containers
         for (let i of sheetData.items) {
             const item = i.system;
-            i.img = i.img || DEFAULT_TOKEN;
+            i.img = i.img || CONST.DEFAULT_TOKEN;
     
             if (i.type === 'ability') {
                 abilities.push(i);
@@ -180,7 +172,7 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     activateListeners(html) {
         super.activateListeners(html);
 
-        html.on("click", ".qol-augmentation-items button[data-item-id]", event => {
+        html.on("click", `.${AUGMENTATION_ITEMS_CLASS} button[data-item-id]`, event => {
             event.preventDefault();
             event.stopPropagation();
             this.actor.getEmbeddedDocument("Item", event.currentTarget.dataset.itemId)?.sheet.render(true);
@@ -206,9 +198,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         });
         
         // ITEMS
-        // Add Inventory Item
-        html.find('.item-create').click(this._onItemCreate.bind(this));        
-        html.find('.skill-create').click(this._onItemCreate.bind(this));
+        // The same handlers serve inventory, skills and weapons.
+        html.find('.item-create, .skill-create, .weapon-create').click(this._onItemCreate.bind(this));
         
         // Delete Inventory Item
         html.find('.item-delete').click(ev => {
@@ -217,17 +208,9 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
             li.slideUp(200, () => this.render(false));
         });
 
-        // Update Inventory Item
-        html.find('.item-edit').click(ev => {
-          const li = $(ev.currentTarget).parents(".item");
-          const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-          item.sheet.render(true);
-        });
-
-        html.find('.skill-edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-            item.sheet.render(true);
+        html.find('.item-edit, .skill-edit, .weapon-edit').click(ev => {
+            const li = ev.currentTarget.closest(".item");
+            this.actor.getEmbeddedDocument("Item", li.dataset.itemId).sheet.render(true);
         });
 
         html.find('.skill-roll').click(ev => {
@@ -238,10 +221,8 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         html.on('mousedown', '.treatment-button', async ev => {
             ev.preventDefault();
-            const li = ev.currentTarget.closest(".item");
-            if (!li?.dataset?.itemId) return;
-
-            const item = this._duplicateEmbeddedItem(li.dataset.itemId);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
 
             const treatment = item.system.treatment ?? {};
             const current = Number(treatment.value ?? 0);
@@ -254,16 +235,14 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
                 next = Math.max(0, current - 1);
             }
 
-            item.system.treatment = { ...treatment, value: next, max };
-            await this.actor.updateEmbeddedDocuments('Item', [item]);
+            // Patch only the edited field; a full Item snapshot can overwrite concurrent edits.
+            if (next !== current) await item.update({ "system.treatment.value": next });
         });
 
         html.on('mousedown', '.severity, .severity-button', async ev => {
             ev.preventDefault();
-            const li = ev.currentTarget.closest(".item");
-            if (!li?.dataset?.itemId) return;
-
-            const item = this._duplicateEmbeddedItem(li.dataset.itemId);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
 
             const severity = Number(item.system.severity ?? 0);
             const maxSeverity = Number(item.system.maxSeverity ?? 4);
@@ -275,22 +254,14 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
                 nextSeverity = Math.max(0, severity - 1);
             }
 
-            item.system.severity = nextSeverity;
-            await this.actor.updateEmbeddedDocuments('Item', [item]);
+            if (nextSeverity !== severity) await item.update({ "system.severity": nextSeverity });
         });
 
         //Quantity adjuster
         html.on('mousedown', '.item-quantity', ev => {
-          const item = this._duplicateItemFromEvent(ev);
-          const amount = item.system.quantity;
-    
-          if (ev.button == 0) {
-            item.system.quantity = Number(amount) + 1;
-          } else if (ev.button == 2) {
-            item.system.quantity = Number(amount) - 1;
-          }
-    
-          this.actor.updateEmbeddedDocuments('Item', [item]);
+          const item = this._getItemFromEvent(ev);
+          if (!item || (ev.button !== 0 && ev.button !== 2)) return;
+          return item.update({ "system.quantity": Number(item.system.quantity) + (ev.button === 0 ? 1 : -1) });
         });        
 
         // Rollable Item/Anything with a description that we want to click on.
@@ -302,16 +273,6 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         });        
 
         // WEAPONS
-        // Add Inventory Item
-        html.find('.weapon-create').click(this._onItemCreate.bind(this));
-
-        // Update Inventory Item
-        html.find('.weapon-edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const weapon = this.actor.getEmbeddedDocument("Item", li.data("itemId"));
-            weapon.sheet.render(true);
-        });
-
         // Rollable Weapon
         html.find('.weapon-roll').click(ev => {
             const item = this._duplicateItemFromEvent(ev);
@@ -326,37 +287,23 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
 
         //increase ammo
         html.on('mousedown', '.weapon-ammo', ev => {
-            const item = this._duplicateItemFromEvent(ev);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
             const amount = item.system.ammo;
-            //increase ammo
-            if (ev.button == 0) {
-                if (amount >= 0) {
-                    item.system.ammo = Number(amount) + 1;
-                }
-            } else if (ev.button == 2) {
-                if (amount > 0) {
-                    item.system.ammo = Number(amount) - 1;
-                }
-            }
-            //update ammo count
-            this.actor.updateEmbeddedDocuments('Item', [item]);
+            if (ev.button === 0 && amount >= 0) return item.update({ "system.ammo": Number(amount) + 1 });
+            if (ev.button === 2 && amount > 0) return item.update({ "system.ammo": Number(amount) - 1 });
         });
         
         //increase shots
         html.on('mousedown', '.weapon-shots', ev => {
-            const item = this._duplicateItemFromEvent(ev);
-            if (ev.button == 0) {
-                if (item.system.curShots >= 0 && item.system.curShots < item.system.shots && item.system.ammo > 0) {
-                    item.system.curShots = Number(item.system.curShots) + 1;
-                    item.system.ammo = Number(item.system.ammo) - 1;
-                }
-            } else if (ev.button == 2) {
-                if (item.system.curShots > 0) {
-                    item.system.curShots = Number(item.system.curShots) - 1;
-                    item.system.ammo = Number(item.system.ammo) + 1;
-                }
-            }
-            this.actor.updateEmbeddedDocuments('Item', [item]);
+            const item = this._getItemFromEvent(ev);
+            if (!item) return;
+            const { curShots, shots, ammo } = item.system;
+            let change;
+            if (ev.button === 0 && curShots >= 0 && curShots < shots && ammo > 0) change = 1;
+            else if (ev.button === 2 && curShots > 0) change = -1;
+            else return;
+            return item.update({ "system.curShots": Number(curShots) + change, "system.ammo": Number(ammo) - change });
         });
 
         //Reload Shots
@@ -368,26 +315,17 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
         // ARMOR
         // Equip
         html.find('.item-equip').click(ev => {
-          const item = this._duplicateItemFromEvent(ev);
-    
-          item.system.equipped = !item.system.equipped;
-          this.actor.updateEmbeddedDocuments('Item', [item]);
+          const item = this._getItemFromEvent(ev);
+          if (item) return item.update({ "system.equipped": !item.system.equipped });
         });
         
         //increase oxygen
         html.on('mousedown', '.armor-oxy', ev => {
-          const item = this._duplicateItemFromEvent(ev);
+          const item = this._getItemFromEvent(ev);
+          if (!item) return;
           const amount = item.system.oxygenCurrent;
-          if (ev.button == 0) {
-            if (amount < item.system.oxygenMax) {
-              item.system.oxygenCurrent = Number(amount) + 1;
-            }
-          } else if (ev.button == 2) {
-            if (amount > 0) {
-              item.system.oxygenCurrent = Number(amount) - 1;
-            }
-          }
-          this.actor.updateEmbeddedDocuments('Item', [item]);
+          if (ev.button === 0 && amount < item.system.oxygenMax) return item.update({ "system.oxygenCurrent": Number(amount) + 1 });
+          if (ev.button === 2 && amount > 0) return item.update({ "system.oxygenCurrent": Number(amount) - 1 });
         });
     
         // Clicking on Armor
@@ -419,46 +357,12 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
      */
     _onItemCreate(event) {
         event.preventDefault();
-        const header = event.currentTarget;
-        // Get the type of item to create.
-        const type = header.dataset.type;
-        // Grab any data associated with this control.
-        const data = foundry.utils.duplicate(header.dataset);
-        // Initialize a default name.
-        const name = `New ${type.capitalize()}`;
-        // Prepare the item object.
-        const itemData = {
-            name: name,
-            type: type,
-            data: data
-        };
-        // Remove the type from the dataset since it's in the itemData.type prop.
-        delete itemData.data["type"];
-
-        // Finally, create the item!
-        return this.actor.createEmbeddedDocuments("Item", [itemData]);
-    }
-
-
-    /**
-     * Handle clickable rolls.
-     * @param {Event} event   The originating click event
-     * @private
-     */
-    _onRoll(event) {
-        event.preventDefault();
-        const element = event.currentTarget;
-        const dataset = element.dataset;
-
-
-        if (dataset.roll) {
-            let roll = new Roll(dataset.roll, this.actor.system);
-            let label = dataset.label ? `Rolling ${dataset.label} to score under ${dataset.target}` : '';
-            roll.roll().toMessage({
-                speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-                flavor: label
-            });
-        }
+        const { type, ...system } = event.currentTarget.dataset;
+        // Foundry v13 stores subtype fields in system; the legacy data key must
+        // not swallow defaults supplied by the create button's dataset.
+        return this.actor.createEmbeddedDocuments("Item", [{
+            name: `New ${capitalize(type)}`, type, system
+        }]);
     }
 
   /**
@@ -508,6 +412,60 @@ export class QoLContractorSheet extends foundry.appv1.sheets.ActorSheet {
     if (selectedClass) await rollLoadout(actor, selectedClass, {
       rollCredits: false,
       clearItems: true
+    });
+  }
+
+  async promoteContractor() {
+    if (!game.user.isGM) return;
+
+    const choice = await foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.localize("MoshQoL.Contractor.Promote.Title") },
+      content: game.i18n.localize("MoshQoL.Contractor.Promote.Content"),
+      buttons: [
+        { label: game.i18n.localize("MoshQoL.Contractor.Promote.Roll"), icon: "fa-solid fa-dice", action: "roll" },
+        { label: game.i18n.localize("MoshQoL.Contractor.Promote.Manual"), icon: "fa-solid fa-user-check", action: "manual" },
+        { label: game.i18n.localize("MoshQoL.Common.Cancel"), icon: "fa-solid fa-xmark", action: "cancel" }
+      ],
+      default: "roll"
+    });
+    if (!["roll", "manual"].includes(choice)) return;
+
+    await this.actor.update({
+      "system.contractor.isNamed": true,
+      "system.stats.loyalty.enabled": true
+    });
+    if (choice === "roll") {
+      await this._rollContractorLoyalty(this.actor);
+      await this._rollContractorMotivation(this.actor);
+      await this._rollContractorLoadout(this.actor);
+    }
+    return this.render();
+  }
+
+  async openContractorMenu() {
+    if (!game.user.isGM) return;
+
+    return foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.localize("MoshQoL.Contractor.Actions.Title") },
+      content: game.i18n.localize("MoshQoL.Contractor.Actions.Content"),
+      buttons: [
+        {
+          label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoyalty"),
+          icon: "fa-solid fa-handshake", action: "loyalty",
+          callback: () => this._rollContractorLoyalty(this.actor)
+        },
+        {
+          label: game.i18n.localize("MoshQoL.Contractor.Actions.RollMotivation"),
+          icon: "fa-solid fa-fire", action: "motivation",
+          callback: () => this._rollContractorMotivation(this.actor)
+        },
+        {
+          label: game.i18n.localize("MoshQoL.Contractor.Actions.RollLoadout"),
+          icon: "fa-solid fa-boxes-stacked", action: "loadout",
+          callback: () => this._rollContractorLoadout(this.actor)
+        }
+      ],
+      default: "loyalty"
     });
   }
 

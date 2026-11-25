@@ -1,9 +1,11 @@
-import { MODULE_ID, templatePath } from "../codex/constants.js";
+import { QOL_STATE_CLASSES, MODULE_ID, templatePath } from "../codex/constants.js";
 import { loadAllItemsByType } from "../utils/item-loader.js";
-import { normalizeText, stripHtml, toEmbeddedItemData, toSkillId, toSkillSelectionPointBundle } from "./utils.js";
-import { applyAppWrapperLayout, getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
+import { normalizeText } from "../utils/normalization.js";
+import { toEmbeddedItemData } from "../utils/item-data.js";
+import { toSkillSelectionPointBundle } from "./utils.js";
+import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
-import { resolveSkillReferences } from "./skill-reference-utils.js";
+import { resolveSkillReferences, toSkillId } from "../skill-tree/references.js";
 import {
   cacheSkillTreeDom,
   cleanupSkillTreeApp,
@@ -11,7 +13,7 @@ import {
   scheduleInitialSkillTreeDraw,
   scheduleSkillLineDraw,
   selectedSkillIdsFromDom
-} from "./skill-selector-shared.js";
+} from "../skill-tree/selection.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -71,7 +73,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       template: templatePath("character-creator/select-skills-options.html")
     },
     skilltree: {
-      template: templatePath("character-creator/skilltree-core.html")
+      template: templatePath("skill-tree/selection.html")
     },
     confirm: {
       template: templatePath("ui/confirm-button.html")
@@ -79,14 +81,14 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   };
 
   static async wait({ actor, selectedClass }) {
-    const prep = await this._prepareData({ actor, selectedClass });
+    const prep = await this._prepareData({ selectedClass });
     return new Promise(resolve => {
-      const app = new this({ actor, selectedClass, resolve, ...prep });
+      const app = new this({ actor, resolve, ...prep });
       app.render(true);
     });
   }
 
-  static async _prepareData({ actor, selectedClass }) {
+  static async _prepareData({ selectedClass }) {
     const allSkills = await loadAllItemsByType("skill");
     const sortedSkills = allSkills.map(toSkillViewModel);
 
@@ -110,24 +112,19 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       };
     });
 
-    const prereqIdsBySkillId = new Map(sortedSkills.map(skill => [skill.id, skill.prereqIds]));
-
-    return { stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions };
+    return { sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions };
   }
 
-  constructor({ actor, selectedClass, resolve, stripHtml, sortedSkills, skillMap, skillByUuid, dependencies, prereqIdsBySkillId, granted, basePoints, orOptions }, options = {}) {
+  constructor({ actor, resolve, sortedSkills, skillMap, skillByUuid, dependencies, granted, basePoints, orOptions }, options = {}) {
     super(options);
     this.actor = actor;
-    this.selectedClass = selectedClass;
     this._resolve = resolve;
     this._resolved = false;
 
-    this.stripHtml = stripHtml;
     this.sortedSkills = sortedSkills;
     this.skillMap = skillMap;
     this.skillByUuid = skillByUuid;
     this.dependencies = dependencies;
-    this.prereqIdsBySkillId = prereqIdsBySkillId;
     this.granted = granted;
     this.basePoints = basePoints;
     this.orOptions = orOptions;
@@ -178,16 +175,12 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     return affected;
   }
 
-  _selectedSkills() {
-    return new Set(this._selectedSkillIds);
-  }
-
   _isSkillSelected(skillId) {
     return this._selectedSkillIds.has(skillId);
   }
 
   _getPrereqIds(skillId) {
-    return this.prereqIdsBySkillId.get(skillId) ?? [];
+    return this.skillMap.get(skillId)?.prereqIds ?? [];
   }
 
   _scheduleDrawLines({ changedSkillIds = null } = {}) {
@@ -232,23 +225,23 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const selected = selectedSkillIds.has(skillId);
 
       if (this.points[rank] === 0 && !selected) {
-        el.classList.add("locked");
+        el.classList.add(QOL_STATE_CLASSES.locked);
         continue;
       }
 
       if (rank === "trained") {
-        el.classList.remove("locked");
+        el.classList.remove(QOL_STATE_CLASSES.locked);
         continue;
       }
 
       const prereqs = this._getPrereqIds(skillId);
       const unlocked = prereqs.length === 0 || prereqs.some(id => selectedSkillIds.has(id));
       if (unlocked) {
-        el.classList.remove("locked");
+        el.classList.remove(QOL_STATE_CLASSES.locked);
       } else {
-        el.classList.add("locked");
+        el.classList.add(QOL_STATE_CLASSES.locked);
         if (selected) {
-          el.classList.remove("selected");
+          el.classList.remove(QOL_STATE_CLASSES.selected);
           removedSelections.add(skillId);
           selectedSkillIds.delete(skillId);
         }
@@ -268,11 +261,11 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const remaining = Object.values(this.points).reduce((a, b) => a + b, 0);
     const hasOrOptions = this.orOptions.length > 0;
-    const orSelected = !hasOrOptions || this._dom.orOptions.some(el => el.classList.contains("selected"));
+    const orSelected = !hasOrOptions || this._dom.orOptions.some(el => el.classList.contains(QOL_STATE_CLASSES.selected));
     const allowConfirm = remaining === 0 && orSelected;
 
     if (this._dom.confirm) {
-      this._dom.confirm.classList.toggle("locked", !allowConfirm);
+      this._dom.confirm.classList.toggle(QOL_STATE_CLASSES.locked, !allowConfirm);
       this._dom.confirm.disabled = !allowConfirm;
     }
 
@@ -303,12 +296,10 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   async _prepareContext() {
     return appendQolThemeContext({
       actor: this.actor,
-      selectedClass: this.selectedClass,
       sortedSkills: this.sortedSkills,
       defaultSkillMode: "id",
       defaultSkillValues: [...this.granted],
       showPointCounters: true,
-      basePoints: this.basePoints,
       orOptions: this.orOptions,
       confirmLocked: true
     });
@@ -320,8 +311,6 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const root = this._getRoot();
     if (!root) return;
 
-    applyAppWrapperLayout(root, { width: "1200px" });
-
     this._cacheDomReferences(root);
     this._initializeSelectionStateFromDom();
 
@@ -330,12 +319,12 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   static _onToggleSkill(event, target) {
-    if (target.classList.contains("default-skill") || target.classList.contains("locked")) return;
+    if (target.classList.contains("default-skill") || target.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     if (!this._dom) return;
 
     const rank = target.dataset.rank;
-    if (target.classList.contains("selected")) {
+    if (target.classList.contains(QOL_STATE_CLASSES.selected)) {
       const skillId = target.dataset.skillId;
       const dependents = this.dependencies.get(skillId) || new Set();
       for (const depId of dependents) {
@@ -350,7 +339,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
         return;
       }
 
-      target.classList.remove("selected");
+      target.classList.remove(QOL_STATE_CLASSES.selected);
       this._selectedSkillIds.delete(skillId);
       this.points[rank]++;
       this._updateUi({ changedSkillIds: new Set([skillId]), changedRanks: new Set([rank]) });
@@ -359,7 +348,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
     if (this.points[rank] <= 0) return;
     const skillId = target.dataset.skillId;
-    target.classList.add("selected");
+    target.classList.add(QOL_STATE_CLASSES.selected);
     this._selectedSkillIds.add(skillId);
     this.points[rank]--;
     this._updateUi({ changedSkillIds: new Set([skillId]), changedRanks: new Set([rank]) });
@@ -367,13 +356,13 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static _onSelectOrOption(event, target) {
     if (!this._dom) return;
-    if (target.classList.contains("selected")) return;
+    if (target.classList.contains(QOL_STATE_CLASSES.selected)) return;
 
     const changedSkillIds = new Set();
 
-    const activeOrOption = this._dom.orOptions.find(el => el.classList.contains("selected"));
-    if (activeOrOption) activeOrOption.classList.remove("selected");
-    target.classList.add("selected");
+    const activeOrOption = this._dom.orOptions.find(el => el.classList.contains(QOL_STATE_CLASSES.selected));
+    if (activeOrOption) activeOrOption.classList.remove(QOL_STATE_CLASSES.selected);
+    target.classList.add(QOL_STATE_CLASSES.selected);
 
     const opt = this._orOptionById.get(target.dataset.option);
     this.points.trained = this.basePoints.trained + (opt?.trained || 0);
@@ -384,9 +373,9 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
       const el = this._dom.skillCardById.get(skillId);
       if (!el || el.classList.contains("default-skill")) continue;
 
-      el.classList.remove("selected");
+      el.classList.remove(QOL_STATE_CLASSES.selected);
       if (this._currentOrLockedSkillIds.has(skillId)) {
-        el.classList.remove("or-locked-skill", "locked");
+        el.classList.remove("or-locked-skill", QOL_STATE_CLASSES.locked);
       }
 
       this._selectedSkillIds.delete(skillId);
@@ -397,7 +386,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
     for (const skill of opt?.skills || []) {
       const el = this._dom.skillCardById.get(skill.id);
       if (!el) continue;
-      el.classList.add("selected", "locked", "or-locked-skill");
+      el.classList.add(QOL_STATE_CLASSES.selected, QOL_STATE_CLASSES.locked, "or-locked-skill");
       this._selectedSkillIds.add(skill.id);
       this._currentOrLockedSkillIds.add(skill.id);
       changedSkillIds.add(skill.id);
@@ -408,10 +397,10 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static async _onSubmit() {
     const confirm = this._dom?.confirm;
-    if (!confirm || confirm.classList.contains("locked")) return;
+    if (!confirm || confirm.classList.contains(QOL_STATE_CLASSES.locked)) return;
 
     const selectedUUIDs = this._dom.skillCards
-      .filter(el => el.classList.contains("selected") && el.dataset.uuid)
+      .filter(el => el.classList.contains(QOL_STATE_CLASSES.selected) && el.dataset.uuid)
       .map(el => el.dataset.uuid);
 
     const selectedItems = await Promise.all(selectedUUIDs.map(async uuid => {
@@ -437,7 +426,7 @@ export class SkillSelectorApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async close(options = {}) {
-    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds", "prereqIdsBySkillId"] });
+    cleanupSkillTreeApp(this, { clearCollections: ["_prevSelectedSkills", "_orOptionById", "_currentOrLockedSkillIds"] });
     resolveAppOnce(this, null);
     return super.close(options);
   }

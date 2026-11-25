@@ -1,8 +1,8 @@
-<div class="qolsettings" style="--theme-color: {{themeColor}};">
-  <section class="card">
-    <h4 class="qolsettings-heading">{{localize "MoshQoL.Cyberware.Config.GeneralTitle"}}</h4>
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <h4 class="box-heading">{{localize "MoshQoL.Cyberware.Config.GeneralTitle"}}</h4>
 
-    <label class="pill interactive qolsettings-toggle">
+    <label class="pill interactive settings-toggle">
       <span>
         <strong>{{localize "MoshQoL.Settings.EnableCyberware.Name"}}</strong>
         <small>{{localize "MoshQoL.Settings.EnableCyberware.Hint"}}</small>
@@ -14,8 +14,8 @@
   <small>{{localize "MoshQoL.Cyberware.Config.FormulaHint"}}</small>
 
   {{#each groups as |group|}}
-    <section class="card">
-      <h4 class="qolsettings-heading">{{group.label}}</h4>
+    <section class="box">
+      <h4 class="box-heading">{{group.label}}</h4>
       {{#each group.entries as |entry|}}
         <fieldset class="qol-slot-rule">
           <legend>{{entry.label}}</legend>
@@ -50,14 +50,5 @@
     </section>
   {{/each}}
 
-  <footer class="form-footer">
-    <button type="button" data-action="resetDefaults">
-      <i class="fas fa-undo" aria-hidden="true"></i>
-      {{localize "MoshQoL.Common.ResetToDefault"}}
-    </button>
-    <button type="submit">
-      <i class="fas fa-save" aria-hidden="true"></i>
-      {{localize "MoshQoL.Common.SaveChanges"}}
-    </button>
-  </footer>
+  {{> "modules/mosh-greybearded-qol/templates/settings/footer.html"}}
 </div>

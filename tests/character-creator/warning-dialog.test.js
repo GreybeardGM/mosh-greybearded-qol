@@ -72,3 +72,40 @@ test("closing the already completed dialog does not reset the character", async 
   await startCharacterCreation(actor);
   assert.deepEqual(actor.writes, []);
 });
+
+test("skill prerequisites still unlock dependent choices and prevent removing a required selection", async t => {
+  const { SkillSelectorApp } = await import("../../scripts/character-creator/select-skills.js");
+  const previousUi = globalThis.ui, warnings = [];
+  globalThis.ui = { notifications: { warn: value => warnings.push(value) } };
+  t.after(() => { globalThis.ui = previousUi; });
+  const skills = [
+    { id: "basic", name: "Basic", rank: "trained", prereqIds: [] },
+    { id: "advanced", name: "Advanced", rank: "expert", prereqIds: ["basic"] }
+  ];
+  const card = ({ id, rank }) => {
+    const classes = new Set();
+    return { dataset: { skillId: id, rank }, classList: {
+      contains: value => classes.has(value), add: value => classes.add(value), remove: value => classes.delete(value),
+      toggle: (value, active) => active ? classes.add(value) : classes.delete(value)
+    } };
+  };
+  const cards = skills.map(card), confirm = { ...card({}), disabled: true };
+  const app = new SkillSelectorApp({
+    actor: {}, sortedSkills: skills, skillMap: new Map(skills.map(skill => [skill.id, skill])),
+    skillByUuid: new Map(), dependencies: new Map([["basic", new Set(["advanced"])]]),
+    granted: new Set(), basePoints: { trained: 1, expert: 1, master: 0 }, orOptions: []
+  });
+  app._dom = { skillCards: cards, skillCardById: new Map(cards.map(card => [card.dataset.skillId, card])),
+    skillCardsByRank: new Map(cards.map(card => [card.dataset.rank, [card]])), pointCounts: [], orOptions: [], confirm };
+  app._scheduleDrawLines = () => {};
+  app._updateUi();
+  assert.equal(cards[1].classList.contains("is-locked"), true);
+  SkillSelectorApp._onToggleSkill.call(app, null, cards[0]);
+  assert.equal(cards[1].classList.contains("is-locked"), false);
+  SkillSelectorApp._onToggleSkill.call(app, null, cards[1]);
+  assert.equal(confirm.disabled, false);
+  SkillSelectorApp._onToggleSkill.call(app, null, cards[0]);
+  assert.deepEqual([...app._selectedSkillIds], ["basic", "advanced"]);
+  assert.deepEqual(app.points, { trained: 0, expert: 0, master: 0 });
+  assert.equal(warnings.length, 1);
+});

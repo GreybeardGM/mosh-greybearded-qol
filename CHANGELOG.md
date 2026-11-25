@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.4] - 2026-11-25
+### Added
+- Credits tool for receiving, paying, and transferring Credits between owned characters and Stashes, with chat receipts.
+- Credit Handler with input validation, optional automatic payments, and English, German, French, or Swiss currency notation, including negative balances.
+
+### Changed
+- Improved dialog layouts, settings organization, and consistent currency display.
+
+### Fixed
+- Preserved training targets across skill renames and corrected token damage targeting and Contractor item creation.
+
 ## [0.8.3] - 2026-09-28
 ### Added
 - Optional Cyberware and Slickware based on *A Pound of Flesh*: mark weapons, armor, items, or skills where applicable, and record slots and notes. The feature is disabled by default and has its own settings menu.

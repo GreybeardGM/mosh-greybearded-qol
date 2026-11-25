@@ -1,0 +1,25 @@
+<div class="settings box-list" style="--theme-color: {{themeColor}};">
+  <section class="box">
+    <label class="pill interactive settings-toggle">
+      <span>
+        <strong>{{localize "MoshQoL.Currency.Config.Enabled"}}</strong>
+        <small>{{localize "MoshQoL.Currency.Config.EnabledHint"}}</small>
+      </span>
+      <input type="checkbox" name="enabled" {{checked enabled}}>
+    </label>
+  </section>
+
+  <section class="box">
+    <label class="form-group settings-wide-input">
+      <span>{{localize "MoshQoL.Currency.Config.Notation"}}</span>
+      <select name="notation">
+        {{#each notations}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} — {{example}}</option>
+        {{/each}}
+      </select>
+    </label>
+    <small>{{localize "MoshQoL.Currency.Config.NotationHint"}}</small>
+  </section>
+
+  {{> "modules/mosh-greybearded-qol/templates/settings/footer.html"}}
+</div>

@@ -1,14 +1,18 @@
 import {
+  QOL_STATE_CLASSES,
   MODULE_ID,
   SETTING_SIMPLE_SHORE_LEAVE_DISABLE_FLAVOR,
   templatePath
 } from "../codex/constants.js";
+import { CHAT_ACTION_PAY_SHORE_LEAVE, CHAT_ACTION_CONVERT_STRESS } from "../codex/feature-actions.js";
 import { convertStress } from "./convert-stress.js";
 import { flavorizeShoreLeave } from "./flavorize-shore-leave.js";
 import { chatOutput } from "../utils/chat-output.js";
-import { getNormalizedShoreLeaveConfig } from "../settings/shore-leave-config.js";
+import { getNormalizedShoreLeaveConfig } from "./config.js";
 import { toRollFormula, toRollString } from "../utils/to-roll-formula.js";
-import { formatCurrency, parseCurrencyValue } from "../utils/normalization.js";
+import { formatCurrency } from "../utils/currency-parser.js";
+import { readCurrency } from "../utils/currency.js";
+import { isCreditHandlerEnabled } from "../currency/config.js";
 import { appendQolThemeContext, createQolAppDefaultOptions } from "../utils/application-options.js";
 import { getAppRoot, resolveAppOnce } from "../utils/application-helpers.js";
 import { scheduleAutoTrainingAfterShoreLeave } from "../training/training-action.js";
@@ -91,7 +95,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     root.querySelectorAll(".card").forEach(card => {
       const isSelected = card.dataset.tier === this._selectedTier;
-      card.classList.toggle("selected", isSelected);
+      card.classList.toggle(QOL_STATE_CLASSES.selected, isSelected);
 
       const input = card.querySelector("input[name='shore-tier']");
       if (input) input.checked = isSelected;
@@ -101,7 +105,7 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!confirm) return;
 
     const locked = !this._selectedTier;
-    confirm.classList.toggle("locked", locked);
+    confirm.classList.toggle(QOL_STATE_CLASSES.locked, locked);
     confirm.disabled = locked;
   }
 
@@ -131,7 +135,8 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
 
     const roll = new Roll(entry.priceFormula);
     await roll.evaluate();
-    const rolledPrice = parseCurrencyValue(roll.total);
+    const rolledPrice = await readCurrency(roll.total, { label: entry.label });
+    if (rolledPrice === null) return;
     const formattedPrice = formatCurrency(rolledPrice);
 
     await chatOutput({
@@ -149,16 +154,16 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       icon: entry.flavor?.icon || entry.icon,
       roll,
       buttons: [
-        {
+        ...(isCreditHandlerEnabled() ? [{
           label: game.i18n.localize("MoshQoL.ShoreLeave.PayUp"),
           icon: "fa-coins",
-          action: "payShoreLeave",
+          action: CHAT_ACTION_PAY_SHORE_LEAVE,
           args: [rolledPrice]
-        },
+        }] : []),
         {
           label: game.i18n.localize("MoshQoL.ShoreLeave.ParticipateNow"),
           icon: "fa-dice",
-          action: "convertStress",
+          action: CHAT_ACTION_CONVERT_STRESS,
           args: [entry.stressFormula]
         }
       ]
@@ -186,10 +191,10 @@ export class SimpleShoreLeave extends HandlebarsApplicationMixin(ApplicationV2) 
       if (iconClass) iconEl.className = `fas ${iconClass} icon`;
     }
 
-    const flavorLabel = card.querySelector(".flavor-label");
+    const flavorLabel = card.querySelector(".shore-leave-flavor-label");
     if (flavorLabel) flavorLabel.textContent = entry.flavor?.label || "";
 
-    const flavorDescription = card.querySelector(".flavor-description");
+    const flavorDescription = card.querySelector(".shore-leave-flavor-description");
     if (flavorDescription) flavorDescription.textContent = entry.flavor?.description || "";
   }
 

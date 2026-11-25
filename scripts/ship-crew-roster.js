@@ -1,88 +1,12 @@
 import { appendQolThemeContext, createQolAppDefaultOptions } from "./utils/application-options.js";
-import { formatCurrency } from "./utils/normalization.js";
+import { classifyCurrency, formatCurrency } from "./utils/currency-parser.js";
 import { FLAG_CREW_ROSTER, MODULE_ID, templatePath } from "./codex/constants.js";
-import { MOSH_FALLBACK_ACTOR_IMAGE } from "./codex/mosh-system.js";
+import { MOSH_FALLBACK_ACTOR_IMAGE, MOSH_CONTRACTOR_SALARY_PATH } from "./codex/mosh-system.js";
+import { ROSTER_TABS, normalizeHazardPayValue, normalizeRoster, normalizeRosterWithChanges } from "./crew-roster/roster-data.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const TABS = ["character", "creature", "ship"];
-
-function normalizeHazardPayValue(value) {
-  const parsedHazardPay = Number.parseInt(value, 10);
-  if (!Number.isInteger(parsedHazardPay)) return null;
-  return parsedHazardPay;
-}
-
-function normalizeEntry(entry) {
-  if (typeof entry === "string") {
-    return { entry: { uuid: entry, active: true, hazardPay: null }, changed: true };
-  }
-
-  if (!entry || typeof entry !== "object" || typeof entry.uuid !== "string") {
-    return { entry: null, changed: true };
-  }
-
-  const hazardPay = normalizeHazardPayValue(entry.hazardPay);
-  const normalizedEntry = {
-    uuid: entry.uuid,
-    active: entry.active !== false,
-    hazardPay
-  };
-
-  return {
-    entry: normalizedEntry,
-    changed: entry.active !== normalizedEntry.active || entry.hazardPay !== hazardPay
-  };
-}
-
-function normalizeRosterWithChanges(roster = {}) {
-  const normalized = {};
-  let changed = !roster || typeof roster !== "object" || Array.isArray(roster);
-
-  if (roster && typeof roster === "object") {
-    changed ||= Object.keys(roster).some((tab) => (
-      !TABS.includes(tab)
-      && Array.isArray(roster[tab])
-      && roster[tab].length > 0
-    ));
-  }
-
-  for (const tab of TABS) {
-    const sourceEntries = Array.isArray(roster?.[tab]) ? roster[tab] : [];
-    const seen = new Set();
-    normalized[tab] = [];
-
-    if (roster && typeof roster === "object" && roster[tab] !== undefined && !Array.isArray(roster[tab])) {
-      changed = true;
-    }
-
-    for (const sourceEntry of sourceEntries) {
-      const { entry, changed: entryChanged } = normalizeEntry(sourceEntry);
-
-      if (entryChanged) changed = true;
-      if (!entry) continue;
-
-      if (seen.has(entry.uuid)) {
-        changed = true;
-        continue;
-      }
-
-      seen.add(entry.uuid);
-      normalized[tab].push(entry);
-    }
-  }
-
-  return { roster: normalized, changed };
-}
-
-function normalizeRoster(roster = {}) {
-  return normalizeRosterWithChanges(roster).roster;
-}
-
 function getBucketByType(type) {
-  if (type === "character") return "character";
-  if (type === "creature") return "creature";
-  if (type === "ship") return "ship";
-  return null;
+  return ROSTER_TABS.includes(type) ? type : null;
 }
 
 function getJobLabel(actor) {
@@ -103,26 +27,6 @@ function getJobLabel(actor) {
   }
 
   return "";
-}
-
-function getSalaryLabel(actor) {
-  const numericSalary = getNumericSalary(actor);
-  if (!Number.isFinite(numericSalary)) return "";
-  return formatCurrency(numericSalary);
-}
-
-function getNumericSalary(actor) {
-  if (!actor) return null;
-
-  const rawSalary = actor.system?.contractor?.baseSalary;
-  if (rawSalary === undefined || rawSalary === null || rawSalary === "") return null;
-
-  const numericSalary = typeof rawSalary === "number"
-    ? rawSalary
-    : Number.parseInt(String(rawSalary).replace(/[^\d.-]/g, ""), 10);
-
-  if (!Number.isFinite(numericSalary)) return null;
-  return numericSalary;
 }
 
 function sortEntries(entries) {
@@ -190,9 +94,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const { roster, changed: normalizationChanged } = normalizeRosterWithChanges(sourceRoster);
     const uniqueUuids = new Set();
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       for (const rosterEntry of roster[tab]) {
-        if (rosterEntry.uuid.trim()) uniqueUuids.add(rosterEntry.uuid);
+        uniqueUuids.add(rosterEntry.uuid);
       }
     }
 
@@ -203,7 +107,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const cleanedRoster = { character: [], creature: [], ship: [] };
     let rosterChanged = normalizationChanged;
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       for (const rosterEntry of roster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
         const mappedTab = actor?.documentName === "Actor" ? getBucketByType(actor.type) : null;
@@ -223,11 +127,16 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
   async _buildRosterContext(sourceRoster = {}) {
     const { actorsByUuid, cleanedRoster, rosterChanged } = await this._resolveCleanRoster(sourceRoster);
     const entries = { character: [], creature: [], ship: [] };
-    const summary = { activeCrewCount: 0, totalSalary: 0, totalHazardPay: 0 };
+    const summary = { activeCrewCount: 0, totalSalary: 0n, totalHazardPay: 0n };
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       for (const rosterEntry of cleanedRoster[tab]) {
         const actor = actorsByUuid.get(rosterEntry.uuid);
+        const rawSalary = foundry.utils.getProperty(actor, MOSH_CONTRACTOR_SALARY_PATH);
+        // Rendering never asks for repairs or writes to a Contractor. Invalid
+        // salaries are unknown; only successfully interpreted values enter arithmetic.
+        const parsed = classifyCurrency(rawSalary);
+        const salary = parsed.status === "success" ? parsed.value : null;
 
         entries[tab].push({
           uuid: rosterEntry.uuid,
@@ -236,8 +145,11 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
           hazardPayDisplay: Number.isInteger(rosterEntry.hazardPay) ? String(rosterEntry.hazardPay) : "",
           name: actor.name,
           job: getJobLabel(actor),
-          salary: getSalaryLabel(actor),
-          salaryValue: getNumericSalary(actor),
+          salary: salary === null
+            ? (rawSalary === undefined ? "" : game.i18n.localize("MoshQoL.CrewRoster.UnknownSalary"))
+            : formatCurrency(salary),
+          salaryValue: salary,
+          salaryInvalid: rawSalary !== undefined && parsed.status !== "success",
           img: actor.img
         });
       }
@@ -249,8 +161,9 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
         for (const entry of entries[tab]) {
           if (!entry.active) continue;
           summary.activeCrewCount += 1;
-          if (Number.isFinite(entry.salaryValue)) {
-            summary.totalSalary += entry.salaryValue;
+          if (entry.salaryInvalid) summary.totalSalary = null;
+          else if (summary.totalSalary !== null && Number.isFinite(entry.salaryValue)) {
+            summary.totalSalary += BigInt(entry.salaryValue);
           }
         }
       }
@@ -258,11 +171,20 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       if (tab === "creature") {
         for (const entry of entries[tab]) {
           if (!entry.active) continue;
-          if (!Number.isFinite(entry.salaryValue)) continue;
           if (!Number.isInteger(entry.hazardPay)) continue;
-          summary.totalHazardPay += entry.salaryValue * entry.hazardPay;
+          if (entry.salaryInvalid) summary.totalHazardPay = null;
+          else if (summary.totalHazardPay !== null && Number.isFinite(entry.salaryValue)) {
+            summary.totalHazardPay += BigInt(entry.salaryValue) * BigInt(entry.hazardPay);
+          }
         }
       }
+    }
+
+    // Derived totals are display data, never editable currency inputs. Unknown
+    // wages or unsafe totals must not appear as a misleading partial sum or zero.
+    for (const key of ["totalSalary", "totalHazardPay"]) {
+      const parsed = classifyCurrency(summary[key]?.toString());
+      summary[key] = parsed.status === "success" ? parsed.value : null;
     }
 
     const tabs = [
@@ -276,7 +198,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
   async _prepareContext() {
     const sourceRoster = this._rosterDraft ?? this.actor?.getFlag(MODULE_ID, FLAG_CREW_ROSTER) ?? {};
-    const { cleanedRoster, entries, rosterChanged, summary, tabs } = await this._buildRosterContext(sourceRoster);
+    const rosterContext = await this._buildRosterContext(sourceRoster);
+    const { cleanedRoster, entries, rosterChanged, summary, tabs } = rosterContext;
     this._lastRosterCleanupCandidate = { cleanedRoster, rosterChanged };
 
     return appendQolThemeContext({
@@ -288,8 +211,8 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
       tableColumnCount: this._activeTab === "creature" ? 6 : 4,
       summary: {
         activeCrewCount: summary.activeCrewCount,
-        totalSalary: formatCurrency(summary.totalSalary),
-        totalHazardPay: formatCurrency(summary.totalHazardPay)
+        totalSalary: summary.totalSalary === null ? game.i18n.localize("MoshQoL.Currency.Unavailable") : formatCurrency(summary.totalSalary),
+        totalHazardPay: summary.totalHazardPay === null ? game.i18n.localize("MoshQoL.Currency.Unavailable") : formatCurrency(summary.totalHazardPay)
       },
       tabs,
       entries
@@ -416,7 +339,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     const roster = this._getRosterForEdit();
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       roster[tab] = roster[tab].filter((entry) => entry.uuid !== droppedActor.uuid);
     }
 
@@ -434,7 +357,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     for (const [key, value] of Object.entries(submitted)) {
       const [root, tab, ...uuidParts] = key.split(".");
       if (root !== "hazardPay") continue;
-      if (!TABS.includes(tab)) continue;
+      if (!ROSTER_TABS.includes(tab)) continue;
 
       const uuid = uuidParts.join(".");
       if (!uuid) continue;
@@ -463,7 +386,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const roster = this._getRosterForEdit();
     let hasChanges = false;
 
-    for (const tab of TABS) {
+    for (const tab of ROSTER_TABS) {
       const tabUpdates = hazardPayUpdates.get(tab);
       if (!tabUpdates?.size) continue;
 
@@ -501,7 +424,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
 
     const tab = target?.dataset?.tab;
     const uuid = target?.dataset?.uuid;
-    if (!tab || !uuid || !TABS.includes(tab)) return;
+    if (!tab || !uuid || !ROSTER_TABS.includes(tab)) return;
 
     const roster = this._getRosterForEdit();
     roster[tab] = roster[tab].filter((entry) => entry.uuid !== uuid);
@@ -529,7 +452,7 @@ export class ShipCrewRosterApp extends HandlebarsApplicationMixin(ApplicationV2)
     const tab = target?.dataset?.tab;
     const uuid = target?.dataset?.uuid;
     const active = target?.checked === true;
-    if (!tab || !uuid || !TABS.includes(tab)) return;
+    if (!tab || !uuid || !ROSTER_TABS.includes(tab)) return;
 
     const roster = this._getRosterForEdit();
     roster[tab] = roster[tab].map((entry) => {

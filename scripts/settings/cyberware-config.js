@@ -1,8 +1,8 @@
+import { appendQolThemeContext } from "../utils/application-options.js";
 import { MODULE_ID, SETTING_CYBERWARE_SLOT_RULES, SETTING_ENABLE_CYBERWARE } from "../codex/constants.js";
 import { AUGMENTATION_DEFINITIONS, getDefaultSlotRules, getSlotRules, normalizeSlotRules, SLOT_ATTRIBUTES, SLOT_ROUNDING } from "../cyberware/config.js";
 import { normalizeBoolean } from "../utils/normalization.js";
 import {
-  appendThemeColor,
   createSettingsAppDefaultOptions,
   createSettingsAppParts,
   resetSettingToDefaults,
@@ -47,7 +47,7 @@ export class CyberwareConfigApp extends HandlebarsApplicationMixin(ApplicationV2
         };
       })
     }));
-    return appendThemeColor({
+    return appendQolThemeContext({
       enabled: game.settings.get(MODULE_ID, SETTING_ENABLE_CYBERWARE),
       groups
     });
